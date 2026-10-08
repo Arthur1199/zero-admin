@@ -1,4 +1,4 @@
-# zero / ruo-yi-zero 项目规则
+# zero / zero-admin 项目规则
 
 ## 基本要求
 
@@ -10,34 +10,16 @@
 
 ## 当前项目真实技术栈
 
-- 后端是 Maven 多模块项目，父工程 `pom.xml` 当前模块为：`zero-tools`、`zero-admin`、`zero-bootAdmin`、`zero-report`。
+- 后端是 Maven 多模块项目，父工程 `pom.xml` 当前模块为：`zero-tools`、`zero-admin`、`zero-bootAdmin`、`zero-report`、`zero-file`。
 - 父工程当前基线：Java 17、Spring Boot 3.5.12、Spring Framework 6.2.18、Spring Cloud 2025.0.2、Spring Cloud Alibaba 2025.0.0.0。不要按 Java 8 或旧 Spring Boot 2 项目处理，也不要引入未经项目验证的新框架。
 - `zero-admin` 是管理后台服务，主入口为 `com.zero.ZeroAdminApplication`，启用 Nacos 注册/配置、OpenFeign、LoadBalancer，并排除默认数据源自动配置。主要技术包括 Spring Security、JWT、MyBatis XML、PageHelper、Druid、Redis、Quartz、Actuator、SpringDoc、Kaptcha、Fastjson2、POI。
 - `zero-report` 是报表/业务服务，主入口为 `com.zero.ZeroReportApplication`，启用 Nacos 注册/配置、OpenFeign、`@MapperScan`。主要技术包括 MyBatis-Plus、MyBatis-Plus 分页拦截器、dynamic-datasource、PageHelper（复杂 XML 报表 SQL 保留使用）、Redis、Actuator、Validation、Lombok。
 - `zero-tools` 承载跨服务复用的基础常量、统一返回对象和通用工具，`zero-report` 当前直接依赖它；不要把只属于 admin 的 `common` 类误搬到 `zero-tools`。
 - `zero-bootAdmin` 是服务监控相关模块，分析监控功能时需单独读取该模块和各服务 Actuator 暴露配置。
+- `zero-file` 是独立文件服务，入口为 `com.zero.ZeroFileApplication`，通过 `@EnableFileStorage` 启用存储能力，使用 MyBatis-Plus、dynamic-datasource 和 `zero-tools`，文件记录表为业务库的 `biz_file_detail`。
 - 前端模块：`zero-ui`，Vue 2.6 + Vue CLI 4 + Vue Router 3 + Vuex 3 + Element UI 2。
 - 前端请求：Axios 封装在 `zero-ui/src/utils/request.js`，开发代理在 `zero-ui/vue.config.js`，后端默认 `http://localhost:9099`。
 - 数据库脚本当前分为 `sql/zero_admin.sql`、`sql/zero_biz.sql`、`sql/quartz.sql`。`zero_admin` 承载管理后台和若依系 `sys_*`、`gen_*`、监控/配置等表；`zero_biz` 承载业务库表，例如 `biz_dict_group`、`biz_dict_item`。
-
-## 桌面安装包打包规则
-
-- 桌面安装包配置文件固定为 `apps/packageConfig.json`，打包前必须重新读取该文件，以当前配置为准，不要使用记忆中的旧 URL、旧版本号或旧命名规则。
-- 配置文件中的环境 key 固定为：`dev` 表示本地环境，`test` 表示测试环境，`prod` 表示生产环境。
-- 每个环境配置必须相互独立，分别读取自己的 `environment`、`appName`、`version`、`description`、`logo`、`url`、`outputDir`、`artifactNameTemplate`，不要把公共配置强行套用到其它环境。
-- 用户说“打包本地环境电脑安装包”时，读取 `environments.dev`，同时打包 Windows 安装程序和 macOS 安装程序，并将产物放入 `apps/packageConfig.json` 中该环境配置的 `outputDir` 对应目录。
-- 用户说“打包测试环境电脑安装包”时，读取 `environments.test`，同时打包 Windows 安装程序和 macOS 安装程序，并将产物放入该环境配置的 `outputDir` 对应目录。
-- 用户说“打包生产环境电脑安装包”时，读取 `environments.prod`，同时打包 Windows 安装程序和 macOS 安装程序，并将产物放入该环境配置的 `outputDir` 对应目录。
-- 安装包或启动程序文件名必须按环境配置中的 `artifactNameTemplate` 生成，默认规则为 `{appName}-{environment}-{version}.{extension}`，例如 `零号后台管理系统-本地环境-1.0.0.exe`。
-- 每个环境的 `logo` 为相对于 `apps/packageConfig.json` 所在目录的图片路径，例如 `logo-dev.png`、`logo-test.png`、`logo-prod.png`；打包前必须确认文件存在，不存在时停止打包并提示用户补齐。
-- Windows 打包时必须将对应环境的 `logo` 转换为标准多尺寸 `.ico`，并用于启动程序文件图标、窗口左上角图标和任务栏图标，不能继续使用默认系统图标。
-- Windows 图标验证不能只用 `Icon.ExtractAssociatedIcon` 判断，还必须确认资源管理器可见的 exe 图标已变化；如果资源管理器仍显示旧图标或默认图标，应检查 `.ico` 格式、exe 资源写入、文件名复用导致的 Windows 图标缓存，并通过重新生成不同时间戳/清理同名旧产物/刷新图标缓存等方式修正后再交付。
-- Windows 若使用 .NET WebView2 壳，除设置 `<ApplicationIcon>` 外，窗口运行时也必须显式设置 `Form.Icon`，并确保最终输出 exe 的图标资源来自当前环境 `logo`，而不是 SDK 默认图标或旧构建残留。
-- macOS 打包时必须将对应环境的 `logo` 转换为 `.icns`，并写入 `.app/Contents/Resources` 和 `Info.plist` 的 `CFBundleIconFile`，让 Finder、Dock、窗口和安装包展示对应环境图标。
-- Windows 轻量壳优先使用 WebView2，只负责打开对应环境的 `url`，不要把 `zero-ui`、Spring Boot 后端、数据库或 Redis 打包进桌面程序。
-- macOS 轻量壳只负责打开对应环境的 `url`。如果当前机器不是 macOS，无法直接完成 `.dmg`、`.pkg`、签名或公证时，必须明确说明限制，并准备可在 macOS 上执行的打包工程或命令。
-- 如果目标环境的 `url` 为空，不要编造地址或继续打包，必须提示用户先补齐对应环境 URL。
-- 打包完成后，只保留目标环境输出目录中的最终产物；临时构建目录、下载的临时 SDK、依赖目录和中间文件应清理干净。涉及删除临时目录时，必须先确认路径位于 `apps` 下的本次构建目录中。
 
 ## 后端结构规则
 
@@ -49,11 +31,29 @@
 - `zero-admin` 代码生成在 `generator`，定时任务在 `quartz`。Mapper 接口放在 `com.zero.**.mapper`，XML 放在 `zero-admin/src/main/resources/mapper/**`，由 `ApplicationConfig` 的 `@MapperScan` 和 `application.yml` 的 `mapperLocations` 扫描。
 - `zero-report` 结构以当前代码为准：`controller` 放 HTTP 接口，`service` / `service.impl` 放业务规则，`mapper` 放 MyBatis-Plus Mapper，`domain` 放实体，`queryDto` 放查询参数，`dto` 放服务内 DTO/返回结构，`base` 放分页和 Service 父类，`config` 放 MyBatis-Plus、异常、Feign、XML 加载等配置。
 - `zero-report` 的 Mapper 扫描由 `ZeroReportApplication` 上的 `@MapperScan(PackageProperties.MAPPER_SCAN)` 和 `PackageProperties` 统一维护；新增包路径前必须确认 `PackageProperties` 是否需要同步。
+- `zero-file` 使用自身的 `packageconfig`、`base.BaseQuery`、`config`、`controller`、`service`、`mapper`、`domain`、`queryDto`、`dto`；存储实现放 `platform`，记录回调放 `recorder`，存储操作和预处理放 `vo`，扩展链放 `aspect`。不要因包名相同就混用 report 的类。
+
+## 服务配置与启动边界
+
+以下仅为当前源码默认值，实际值可能被环境变量、启动参数或 Nacos 覆盖；不能把静态核对结果当成已运行验证。
+
+| 模块 | 启动类（均在 `com.zero`） | 本地默认端口 | 本地应用名 |
+| --- | --- | --- | --- |
+| zero-admin | ZeroAdminApplication | 9099 | zero-admin |
+| zero-bootAdmin | ZeroBootAdminApplication | 9100 | zero-boot-admin，可由 `zero.boot-admin.application-name` 覆盖 |
+| zero-report | ZeroReportApplication | 9101 | zero-report |
+| zero-file | ZeroFileApplication | 10003 | zero-file |
+| zero-tools | 无独立服务入口 | 无 | 无 |
+
+- admin 的 `ServiceNameConstants.ZERO_ADMIN` 和 tools 的 `ServiceNameConstant.ZERO_ADMIN` 当前仍为 `zeroAdmin`，与 admin 本地应用名 `zero-admin` 不一致。涉及服务调用时核对 Nacos 实际注册名和调用双方配置，不宣称两者已一致，不在无关任务中直接改名。
+- 各服务读取自己的 `application.yml` 和环境配置；Nacos 导入以对应 `application-{profile}.yml` 的 `spring.config.import` 为准。`resources/nacosConfig` 是配置源文件目录，不能仅因文件在目录中就认定已进入运行环境。
+- admin 的 `localYml` 导入在主配置中当前被注释，不把该目录的数据库、Redis、上传限制当作生效配置。分析配置问题要同时检查本地文件、Nacos 和启动覆盖参数。
+- 包扫描规则按各服务自己的 `PackageProperties` 核对；监控服务的安全配置、通知器和 Actuator 暴露范围单独分析，不能沿用 admin JWT 假设。
 
 ## 管理后台业务开发模式规则
 
 新增管理后台菜单或页面前，必须先判断数据和业务归属。判断结果决定后端落位、调用方式、权限边界和前端目录。
-当前源码里至少有三类模式：`system/config` 这类 admin 自身 CRUD、`system/apiAuth` 这类 admin 自身但会联动前端请求拦截的配置、`reportSystem/bizDict` 这类 admin 只做代理而真实业务在 report 的功能。开发前必须先归类，不要把三种模式混在一起。
+当前源码包括 admin 自身业务（`system/config`）、会联动全局请求的 admin 配置（`system/apiAuth`）、admin 代理 report 业务（`reportSystem/bizDict`），以及 admin 代理文件服务（`systemTools/fileManagement`）。开发前先归类，文件服务代理不套用 report 的目录和 Service 父类。
 
 ### 模式一：admin 自身业务
 
@@ -70,7 +70,7 @@
 
 ### 模式二：admin 调 report 服务业务
 
-- 适用场景：页面入口在管理后台，但真实业务数据和业务规则属于 `zero-report` 或 `zero_biz` 业务库，例如本轮完成的“业务参数设置”维护 `biz_dict_group`、`biz_dict_item`。
+- 适用场景：页面入口在管理后台，但真实业务规则属于 `zero-report`，例如“业务参数设置”维护 `zero_biz` 中的 `biz_dict_group`、`biz_dict_item`。不能仅凭数据在 `zero_biz` 就归到 report；文件记录属于 `zero-file`。
 - admin 只做统一入口，不直接访问业务库，不注入 report Mapper，不复制 report Service 逻辑，不另起一套 HTTP 工具；必须通过 `com.zero.feign.ReportRestService` 调用 report 服务。
 - admin 代理 Controller 必须放在 `zero-admin/src/main/java/com/zero/web/reportController`。Controller 职责只包含：路由映射、`@RequiresPermissions`、`@Log`、参数透传、返回结构声明和 `ReportRestService` 调用。
 - `ReportRestService` 使用名为 `reportRestTemplate` 的 `@LoadBalanced RestTemplate` 调用 `http://zero-report`；`ReportRestTemplateConfig` 会通过拦截器追加管理员上下文请求头，不要在每个业务 Controller 里手动拼这些请求头。
@@ -94,13 +94,27 @@
 - admin + report 联动功能的前端文件默认独立归类：页面放 `zero-ui/src/views/reportSystem`，请求文件放 `zero-ui/src/api/reportSystem`；后端 admin 代理路径和前端 API 路径保持一致，例如 `/reportSystem/bizDict/**`。
 - 典型参考：`BizDictController` + `ReportRestService` + `zero-report` 的 `DictGroupController`、`DictItemController`、`DictGroupServiceImpl`、`DictItemServiceImpl` + `zero-ui/src/views/reportSystem/bizDict/index.vue` + `zero-ui/src/api/reportSystem/bizDict.js`。
 
+### 模式三：admin 调文件服务
+
+- 管理入口为 `web.controller.systemTools.FileManagementController`，前端页面和 API 位于 `zero-ui/src/views/systemTools/fileManagement/index.vue`、`zero-ui/src/api/systemTools/fileManagement.js`。admin 路径 `/systemTools/fileManagement/**` 显式映射到 file 的 `/file/**`，不要按当前请求路径自动透传。
+- 文件调用统一复用 `FileRestService` 和名为 `fileRestTemplate` 的 `@LoadBalanced RestTemplate`，目标为 `http://zero-file`；管理员上下文仍由 `AdminForwardHeaderProvider` 拦截追加。multipart 上传复用 `uploadFile/uploadFiles`，不要改成 JSON 或额外手写 HTTP 客户端。
+- 文件列表在 admin 使用 `com.zero.common.core.page.TableDataInfo`，file 使用自己的 `com.zero.dto.TableDataInfo`；普通 file 返回来自 tools 的 `com.zero.model.AjaxResult`。代理失败结构由 `FileRestService` 兜底，file 异常由 `FileExceptionHandler` 处理。
+- `sys.file.storage.mode` 集中定义在 `IAdminFileStorageModeService`；当前只有 `local`（忽略大小写并 trim）走 admin 本地上传，其它值和空配置都走 `zero-file`。通用单/多文件上传和头像上传读取该配置；文件管理上传始终走文件服务，不受此开关切回本地。
+- 上传流程复用 `AdminFileUploadServiceImpl`，保持扩展名、文件大小、原始文件名校验和历史响应字段。当前业务类型分别为 `admin-common`、`admin-avatar`、`file-management`，不能把不同来源文件混成同一种类型。
+- 上传限制同时受 admin、file、反向代理及前端校验影响。文件管理页面读取 admin 的 `/upload/config`，不能只修改页面默认提示。file 本地单文件/整请求默认 30MB/300MB，admin Nacos common 源文件为 30MB/60MB；实际限制按运行配置核对。
+- 文件记录使用 `biz_file_detail`，默认数据源 key 为 `zeroBiz`；`FileDetailServiceImpl` 继承 MyBatis-Plus `ServiceImpl` 并通过 `IFileDetailService` 实现 `FileRecorder`。不要套用 report 的 `BaseService` 或软删除规则。
+- `FileStorageProperties` 配置前缀为 `spring.file-storage`；存储平台的启用、默认平台、域名、磁盘目录和云存储配置以当前配置为准。`DefaultFileRecorder` 仅为空实现兜底，不能宣称能持久化或查询文件记录。
+- 文件删除通过 `FileStorageService` 删除实际存储对象，再由 `FileRecorder` 清理数据库记录；数据库事务不能回滚外部磁盘/对象存储。admin 多 ID 删除逐个调用，前面成功后后续失败可能部分完成，不能宣称批量原子性或套用字典恢复逻辑。
+- 当前管理页面仅提供列表、详情、上传、删除；file 服务仍存在 `PUT /file/{id}` 修改记录接口。页面不提供编辑不等于下游没有编辑接口，不自行删除接口或新增编辑菜单权限。
+- file/report 的内部接口不自动继承 admin 的 JWT 和按钮权限。透传请求头不等于完成服务间鉴权，公网访问边界须按实际部署核对。
+
 ### 菜单权限配置规则
 
 - 菜单自身的 `perms` 就是页面入口和列表权限。例如文件管理菜单配置了 `systemTools:fileManagement:list`，就表示能进入文件管理页面并查询列表，不要再额外新增“文件列表”这类重复按钮权限。
 - `sys_menu.menu_type = 'F'` 的按钮权限只配置独立操作，例如 `add`、`edit`、`remove`、`export`、`import`、`resetPwd`、`refreshCache` 等真实按钮或独立动作；不要把菜单已有的 `list` 权限再配置成按钮。
 - 列表页内部的普通详情查看、修改前回显、初始化下拉选项等辅助接口，通常不单独配置 `query` 按钮权限；能进入列表且不展示额外敏感信息即可访问。只有独立详情页或会展示敏感信息时，才单独配置 `模块:资源:query`。
 - 前端 `v-hasPermi`、admin Controller 的 `@RequiresPermissions`、`sys_menu.perms` 必须一一对应；SQL 中没有配置的按钮权限，前端不要写对应 `v-hasPermi`，后端也不要加对应 `@RequiresPermissions`。
-- 删除某个操作能力时必须全链路清理：`sys_menu` 按钮权限、前端按钮、前端 API、admin Controller 接口、Service/DTO 调用入口都要同步检查，避免页面隐藏但接口残留或权限冗余。
+- 删除某个操作能力时必须检查菜单 SQL、前端按钮/API、admin 入口和下游 Service/DTO 调用。先区分“页面不提供”与“服务彻底移除”：下游接口可能有其它调用方，确认调用范围后再清理，不能因页面隐藏就删共享接口。
 - 典型示例：文件管理菜单保留 `systemTools:fileManagement:list` 作为菜单权限；按钮权限只保留上传 `systemTools:fileManagement:add` 和删除 `systemTools:fileManagement:remove`；不再配置文件查询 `query`、文件修改 `edit`、文件列表按钮 `list`。
 
 ## zero-report 服务端开发规则
@@ -127,7 +141,7 @@
 
 ## common 包归类规则
 
-- `com.zero.common` 只放跨模块复用的基础能力，不放具体业务流程。
+- admin 的 `com.zero.common` 放 admin 内部复用的基础能力，不放具体业务流程；跨服务公共能力放 `zero-tools`，report/file 不依赖 admin 的 `common`。
 - 通用注解放 `common.annotation`；注解处理逻辑通常放 `framework`。
 - 全局常量、配置 key、Redis key 前缀、通用错误码放 `common.constant`。
 - 基础返回对象、基础实体、分页对象、登录模型、Redis 封装放 `common.core`。
@@ -150,6 +164,8 @@
 - 普通增删改查返回 `AjaxResult`，admin 成功用 `success()` / `success(data)`、失败用 `error(message)`、写操作用 `toAjax(rows)`；report 使用 `com.zero.model.AjaxResult` 的 `success()` / `success(data)` / `error(message)`。
 - `AjaxResult` 字段语义必须固定：`code` 表示状态码，`msg` 只表示响应描述或错误提示，`data` 承载业务数据主体；不得把地区、用户信息、配置值、Token、对象、列表等业务数据放入 `msg`。
 - 返回业务数据时必须写入 `data` 字段，例如 `success(data)` 或 `AjaxResult.success("操作成功", data)`；即使只返回一个字符串，也必须作为 `data` 返回，禁止使用 `success("越南河内")` 这类把数据误放入 `msg` 的写法。
+- 注意 `success(String)` 重载表示响应描述；返回字符串数据用明确的双参数重载，例如 `AjaxResult.success("操作成功", value)`，不要依赖变量名或字符串内容区分语义。
+- 历史上传接口有兼容例外：通用上传保留顶层 `url/fileName/newFileName/originalFilename`（多文件对应复数字段），头像保留顶层 `imgUrl`；新业务仍使用 `data`，不能直接移除既有上传字段。
 - 前端读取接口结果必须按结构取值：普通业务数据读取 `response.data`，分页列表读取 `response.rows` 和 `response.total`；不得从 `response.msg` 中读取业务数据。
 - 新增接口前必须先确认返回类型：查询详情、解析结果、配置值等使用 `AjaxResult.data`；增删改使用 `AjaxResult.msg` 表达操作结果，必要时再用 `data` 返回业务对象；分页列表使用 `TableDataInfo`。
 - 工具类查询接口也必须遵守统一返回语义，例如 IP地区解析、验证码状态、配置值查询等，单值结果也放入 `data`，`msg` 只保留“操作成功”或错误原因。
@@ -199,9 +215,10 @@
 
 ## 前端请求与页面规范
 
-- 请求成功判断以 `request.js` 拦截器为准：后端 `code === 200` 才作为成功返回；`401` 触发重新登录，`500` 弹错误消息，接口谷歌验证错误码按全局逻辑处理。
+- 请求成功判断以 `request.js` 拦截器为准：普通 JSON 接口应明确返回 `code: 200`；现有拦截器用 `res.data.code || 200` 兼容缺失或假值状态码，不能据此设计新接口。`401` 触发重新登录，`500` 弹错误消息，接口谷歌验证错误码按全局逻辑处理；文件流走独立分支。
 - `request.js` 会自动追加 `Authorization: Bearer <token>`，GET 参数会序列化到 URL，POST/PUT 默认做 5MB 内的一秒防重复提交。业务 API 文件不要重复实现这些逻辑。
 - 接口谷歌验证由 `request.js` 根据 localStorage 中的 `google_auth_apis` 判断，支持精确路径、`{param}`、`*`、`**` 和请求方法匹配；命中后统一弹 6 位验证码输入框并添加 `X-Google-Code` 请求头。
+- Element UI `el-upload` 的 `action` 直传不经过 `request.js`。检查实际上传调用方式，显式维护登录请求头、响应状态和错误处理；配置接口谷歌验证时不能假定直传会自动弹验证码。
 - 列表页沿用若依页面结构：`queryParams`、`dateRange`、`loading`、`total`、`getList()`、`handleQuery()`、`resetQuery()`、`pagination`。
 - 查询接口用 `GET + params`，新增用 `POST + data`，修改用 `PUT + data`，删除用 `DELETE /ids`。
 - 导出使用 `this.download(...)` 或现有下载封装，不自行拼接 blob 逻辑。
@@ -277,7 +294,7 @@
 
 - 注释写业务含义，不写代码表面动作。例如写“生成令牌前校验谷歌动态码，避免未通过二次验证的用户拿到 token”，不要写“调用 validateGoogleCode 方法”。
 - 方法 `@param` 要写清业务含义、是否可选、默认值、上限、单位或枚举值，例如 `pageSize 每页条数，默认10`、`googleCode 谷歌动态码，6位数字`。
-- 方法 `@return` 要写清返回结构和兜底语义，例如 `绑定记录列表，googleKey 已脱敏`、`true-校验通过，false-校验失败`；`void` 方法要说明真实副作用。
+- 有返回值的方法，`@return` 和返回值说明写清结构、业务语义及兜底；`void` 方法沿用项目模板的返回值说明，写清副作用，空 `@return` 仅作既有模板兼容，不扩散到有返回值的方法。
 - 对接口方法，注释中要体现登录要求、权限要求、数据权限、返回 DTO、分页口径、敏感字段脱敏或不落日志等前端和安全侧关心的规则。
 - 对 MyBatis XML 对应的 Mapper 方法，注释需说明查询条件、返回对象和是否受数据权限影响；新增 `${}` 拼接时必须在代码或 XML 附近说明安全来源。
 - 行内注释只写业务原因、边界保护、兼容老数据、安全控制或性能考虑，不写“给变量赋值”“循环列表”这类显而易见的内容。
@@ -287,8 +304,8 @@
 ### 作者、时间与风格
 
 - 维护旧文件时优先贴合当前文件已有注释风格；文件已有作者、时间模板的，新增同类方法可延续该模板。
-- 新增类如果周边文件使用作者、时间模板，可使用当前项目已有署名风格；时间必须使用实施当时本机时间，格式与当前文件保持一致，不得臆测或编造。
-- 新增类如果周边文件没有作者、时间模板，则使用简洁 JavaDoc，不强行添加作者和时间。
+- 当前源码存在完整模板、简洁 JavaDoc 和未注释方法。它们是历史现状，不代表新增代码可以省略项目要求的模板；新增或本次修改的类/方法统一使用下述模板，不为文档优化批量改动源码注释。
+- 时间使用实施时的 `Asia/Shanghai` 时间，格式贴近同类文件；保留已有作者和创建时间，不因普通维护机械改成当前时间，也不把示例日期当作实施日期。
 - 中文注释使用简体中文；读取中文文件出现乱码时，必须先用正确编码重新读取再修改。
 - 本项目 Java 类和方法默认使用现有模板注释，不允许只写一句简洁 JavaDoc。新增或修改类头必须包含空行、`作者:`、`时间:`、`说明:`；新增或修改方法必须包含空行、`作者:`、`时间:`、`说明:`，有参数必须写 `@param`，有返回值必须写 `@return`、返回值类型和返回值说明。
 - 方法注释模板必须贴近当前仓库既有格式，示例：
@@ -307,29 +324,9 @@
 ```
 - 写注释前必须先看同目录或同类型文件的注释模板；如果模板和通用 JavaDoc 规范冲突，以本项目模板为准。
 
-### 示例
+### 字段注释示例
 
-```java
-/**
- * 用户谷歌动态码绑定记录
- *
- * 对应数据库表：sys_google
- */
-public class SysGoogle extends BaseEntity {
-}
-```
-
-```java
-/**
- * 校验登录谷歌动态码
- *
- * @param userId 用户ID
- * @param userName 用户名，用于绑定提示和日志上下文
- * @param googleCode 用户输入的6位谷歌动态码
- */
-public void validateLoginCode(Long userId, String userName, String googleCode) {
-}
-```
+类和方法按上面的作者、时间、说明模板维护；字段和常量使用业务含义注释，不套用方法模板。
 
 ```java
 /**
@@ -338,60 +335,15 @@ public void validateLoginCode(Long userId, String userName, String googleCode) {
 public static final String OPEN_GOOGLE_AUTH = "sys.account.openGoogleAuth";
 ```
 
-## 源码逆向验证 50 轮记录
+## 规则维护与源码依据
 
-以下记录用于说明本文件规则已经按当前源码反推校验。每轮只保留可复用结论，重复或不稳定结论已合并到正文，不作为独立规则扩散。
-
-1. 第01轮：父工程 `pom.xml` 反推后端基线，确认 Java 17、Spring Boot 3.5.12、多模块结构为当前事实。
-2. 第02轮：`ZeroAdminApplication` 反推 admin 启动模式，确认启用服务发现、Feign、LoadBalancer，并排除默认数据源自动配置。
-3. 第03轮：`ZeroReportApplication` 反推 report 启动模式，确认 Mapper 扫描和包扫描由 `PackageProperties` 集中维护。
-4. 第04轮：`zero-tools` 依赖关系反推公共包边界，确认 report 依赖 tools，不能把 admin 的 `common` 当成跨服务公共包随意搬用。
-5. 第05轮：SQL 文件和 report 数据源配置反推库边界，确认 `zero_admin` 管管理后台，`zero_biz` 管业务表。
-6. 第06轮：`SysConfigController` 反推 admin 自身分页 CRUD 规范，确认 `BaseController`、`startPage`、`getDataTable`、`AjaxResult` 是主模式。
-7. 第07轮：`SysMenuController` 反推树形接口例外，确认不是所有 admin 查询都返回 `TableDataInfo`。
-8. 第08轮：`SysApiAuthController`、`permission.js`、`request.js` 联动反推全局配置风险，确认改 admin 配置接口必须同步看前端拦截器。
-9. 第09轮：`BizDictController` 反推 admin 代理 report 的落位，确认代理 Controller 固定放 `web.reportController`。
-10. 第10轮：`ReportRestTemplateConfig` 反推上下文透传入口，确认业务 Controller 不需要手动拼管理员请求头。
-11. 第11轮：`ReportRestService.buildUri` 反推转发安全边界，确认只允许服务内路径，禁止完整 URL。
-12. 第12轮：`ReportRestService.invokeGetByObj` 反推 GET 参数规则，确认基础值必须用 Map 或 `exchange` 指定参数名。
-13. 第13轮：`ReportRestService.exchange` 反推代理异常策略，确认 admin 代理层不需要重复包裹通用 `try/catch`。
-14. 第14轮：`AdminForwardHeaderProvider` 反推 admin 上下文来源，确认管理员ID、账号、公司、角色、客户端IP来自登录态和当前请求。
-15. 第15轮：`AdminForwardContext` 和 `ReportAdminContext` 反推中文请求头处理，确认中文值要编码/解码，不能散落手写。
-16. 第16轮：`ReportAdminContext.parseAdmin` 反推管理员标识语义，确认只有 `true` 或 `1` 才是管理员。
-17. 第17轮：`FeignRequestInterceptorConfig` 反推 report 继续调用下游的规范，确认使用统一 Feign 拦截器透传上下文。
-18. 第18轮：服务名常量反推注册中心命名，确认 admin 服务名是 `zeroAdmin`，report 服务名是 `zero-report`。
-19. 第19轮：`ReportDataSourceConstants` 和 `zero-report-mysql.yml` 反推数据源命名，确认 `zeroBiz`、`zeroAdmin` 是精确 key。
-20. 第20轮：`BaseQuery` 反推 report 分页父类规则，确认普通列表默认 10、默认最大 500，子类可覆盖。
-21. 第21轮：`DictItemQuery` 反推特殊分页场景，确认展开明细默认 500、最大 1000 是子类覆盖方式。
-22. 第22轮：`BaseQuery` 日期方法反推时间范围规则，确认用开始当天零点和结束次日零点组成半开区间。
-23. 第23轮：`MybatisPlusConfig` 反推分页兜底边界，确认全局 10000 只是最后保护，业务仍应有更小上限。
-24. 第24轮：`ReportExceptionHandler` 反推异常返回结构，确认列表失败走 `TableDataInfo.error`，普通失败走 `AjaxResult.error`。
-25. 第25轮：report Service 实现反推异常写法，确认可预期业务失败抛 `IllegalArgumentException`，不要每个 SQL 手写日志捕获。
-26. 第26轮：`DictGroup`、`DictItem` 实体反推字段约束，确认前端去掉计数器不代表后端字段无限长。
-27. 第27轮：report 实体和 Query DTO 反推 Lombok 规则，确认可优先用 Lombok，但字段注释和校验不能省。
-28. 第28轮：`DictGroupServiceImpl.selectGroupPage` 反推软删除列表规则，确认字典组分页默认展示未删除和已删除，并支持 `delFlag` 查询。
-29. 第29轮：`DictGroupServiceImpl.selectGroupOptions` 反推下拉规则，确认字典组编码下拉全量返回，不按状态和删除标志过滤。
-30. 第30轮：`DictItemServiceImpl.selectItemPage` 和 `DictItemQuery` 反推子表查询边界，确认当前字典项展示删除标志但没有独立 `delFlag` 查询条件。
-31. 第31轮：`selectGroupById`、`selectItemById` 反推详情规则，确认修改回显只查未删除数据。
-32. 第32轮：字典组删除和恢复实现反推父表规则，确认删除字典组不再强制先删子项，恢复后再允许维护。
-33. 第33轮：字典项恢复实现反推父子联动，确认子项恢复前必须先恢复所属字典组。
-34. 第34轮：字典唯一性校验反推编码规则，确认删除记录也占用字典组编码、字典项编码和值。
-35. 第35轮：`zero-ui` 技术栈反推前端约束，确认 Vue2 Options API、Vue Router 3、Vuex 3、Element UI 2 是当前基线。
-36. 第36轮：`main.js` 反推全局能力，确认分页、右侧工具栏、字典标签、上传、下载、日期、表单重置等应优先复用。
-37. 第37轮：`request.js` 反推请求规范，确认 Token、GET 序列化、重复提交、谷歌验证码由全局封装处理。
-38. 第38轮：`permission.js` 反推登录后初始化，确认先取用户信息、刷新谷歌验证接口缓存，再生成动态路由。
-39. 第39轮：`store/modules/permission.js` 反推菜单组件路径，确认后端 `component` 会解析到 `@/views/${view}`。
-40. 第40轮：`views/reportSystem/bizDict` 反推 report 前端目录，确认 report 联动页面与 admin 自身页面分目录维护。
-41. 第41轮：`api/reportSystem/bizDict.js` 反推 API 文件职责，确认 API 只封装请求，不写页面业务判断。
-42. 第42轮：业务字典页面反推返回读取规则，确认分页读 `rows/total`，普通接口读 `data`。
-43. 第43轮：业务字典页面下拉实现反推查询选项规则，确认进入页面加载 options，使用 `filterable` 本地过滤。
-44. 第44轮：业务字典页面表格实现反推批量操作规则，确认无批量操作时不保留 selection 全选列。
-45. 第45轮：业务字典页面操作列反推固定列策略，确认外层能不用 fixed，内层字段多时可 fixed 但要适配主题。
-46. 第46轮：`Settings/index.vue` 反推主题枚举，确认正式可选主题是 7 个增强主题加 `default`。
-47. 第47轮：`App.vue` 反推主题切换清理链路，确认主题类在 `body` 和 `.app-wrapper` 上都要同步清理/应用。
-48. 第48轮：`AppMain.vue` 反推刷新后正常、切换后异常的原因，确认主题值进入路由 key 用于重建 keep-alive 页面。
-49. 第49轮：`table-fixed-column.scss` 反推表格固定列主题规则，确认 Element UI 镜像表要统一处理表头、行、空数据、阴影。
-50. 第50轮：验证命令和敏感配置反推交付规则，确认能验证时跑最小编译/构建，配置文件含敏感信息时回复不得复述明文。
+- 本文件是开发约束与源码事实的汇总，不把历史核对轮数当作验证证据。修改模块、服务名、配置、接口或主题后，重新核对对应源码并维护相关条目。
+- 构建与模块依据：根 `pom.xml`、各模块 `pom.xml`、`Zero*Application` 和各服务 `application*.yml`。
+- admin 自身业务依据：`SysConfigController`、`SysMenuController`、`SysApiAuthController` 及其 Service、Mapper XML、前端页面/API。
+- report 代理依据：`BizDictController`、`ReportRestService`、`ReportRestTemplateConfig`、`AdminForwardHeaderProvider`、`ReportAdminContext`、字典 Controller/Service、`BaseQuery` 和前端 `reportSystem/bizDict`。
+- 文件服务依据：`FileManagementController`、`FileRestService`、`AdminFileUploadServiceImpl`、`AdminFileStorageModeServiceImpl`、`FileController`、`FileDetailServiceImpl`、`FileStorageService`、`FileStorageAutoConfiguration`、`FileExceptionHandler`、`sql/zero_biz.sql` 和前端 `systemTools/fileManagement`。
+- 前端请求和主题依据：`request.js`、`permission.js`、`App.vue`、`AppMain.vue`、`Settings/index.vue`、`settings` 状态及主题 SCSS。
+- 修改规则时区分既有行为、已知差异和新增开发要求。未运行的服务或外部依赖明确标为未验证，不把静态阅读写成联调完成。
 
 ## 修改前检查清单
 
@@ -406,10 +358,16 @@ public static final String OPEN_GOOGLE_AUTH = "sys.account.openGoogleAuth";
 
 - admin 编译：`mvn -pl zero-admin -am compile -DskipTests`
 - report 编译：`mvn -pl zero-report -am compile -DskipTests`
+- file 编译：`mvn -pl zero-file -am compile -DskipTests`
+- 监控模块编译：`mvn -pl zero-bootAdmin -am compile -DskipTests`
 - admin 运行：`mvn -pl zero-admin spring-boot:run`
 - report 运行：`mvn -pl zero-report spring-boot:run`
+- file 运行：`mvn -pl zero-file spring-boot:run`
 - 前端开发：在 `zero-ui` 执行 `npm run dev`
 - 前端生产构建：在 `zero-ui` 执行 `npm run build:prod`
+
+- Maven 命令从仓库根目录执行；先用 `java -version`、`mvn -version` 核对 Maven 实际 JDK。运行单模块前需确保依赖模块已构建且可解析，必要时先 `mvn -pl <模块> -am install -DskipTests`。
+- 仅修改文档或忽略规则时验证路径、事实和 `git diff --check`，不要求启动服务或构建前后端。修改源码时按影响范围编译、构建或运行已有相关测试；`-DskipTests` 只证明编译，不证明测试、Nacos、数据库、存储和跨服务调用成功。
 
 ## 当前环境提示
 
