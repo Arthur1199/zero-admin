@@ -1,0 +1,37 @@
+package com.zero.framework.config;
+
+import com.zero.common.config.XmlConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.stereotype.Component;
+
+/**
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/5/16 07:16
+ * 说明: XML配置文件启动加载器，应用启动完成后加载resources/configuration.xml，保证业务代码可通过XmlConfig读取老项目格式的配置
+ */
+@Component
+public class XmlLoadConfig implements ApplicationListener<ApplicationReadyEvent>
+{
+    private static final Logger log = LoggerFactory.getLogger(XmlLoadConfig.class);
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/5/16 07:16
+     * 说明: 应用启动完成后加载XML配置
+     * @param event 应用启动完成事件
+     * @return
+     * 返回值: void
+     * 返回值说明: 加载resources/configuration.xml到XmlConfig缓存
+     */
+    @Override
+    public void onApplicationEvent(ApplicationReadyEvent event)
+    {
+        log.info("服务初始化完成，开始加载 [configuration.xml] 配置文件");
+        XmlConfig.loadConfig();
+    }
+}

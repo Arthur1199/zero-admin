@@ -1,0 +1,17 @@
+zero:
+  name: 零号
+  version: 1.0.0
+  copyrightYear: 2026
+  profile: D:/zero/uploadPath
+  captchaType: math
+user:
+  password:
+    maxRetryCount: 5
+    lockTime: 1
+spring:
+  messages:
+    basename: i18n/messages
+  servlet:
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 60MB

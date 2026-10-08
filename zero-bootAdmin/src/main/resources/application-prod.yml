@@ -1,0 +1,23 @@
+﻿---
+#跨域配置
+spring:
+  boot:
+    admin:
+      ui:
+        public-url: https://dev-coin-admin.test100.me/
+---
+#nacos配置
+spring:
+  devtools:
+    restart:
+      # 热部署开关
+      enabled: false
+  cloud:
+    nacos: #注册中心
+      discovery:
+        server-addr: 127.0.0.1:8848
+        namespace: 3ca4a438-40e2-426d-8ece-5bc2def0c5a8
+        username: nacos
+        password: nacos
+        enabled: true #是否启用服务发现，默认为true
+        ephemeral: true # 是否临时实例

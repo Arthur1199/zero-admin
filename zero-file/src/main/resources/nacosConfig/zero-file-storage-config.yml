@@ -1,0 +1,82 @@
+spring:
+  file-storage:
+    default-platform: aws-s3-1
+    thumbnail-suffix: ".min.jpg"
+    local:
+      - platform: local-1
+        enable-storage: false
+        enable-access: true
+        domain: "http://127.0.0.1:8017/file/"
+        base-path: fileLocal/
+        path-patterns: /file/**
+    huawei-obs:
+      - platform: huawei-obs-1
+        enable-storage: false
+        access-key: ??
+        secret-key: ??
+        end-point: ??
+        bucket-name: ??
+        domain: ??
+        base-path: hy/
+    aliyun-oss:
+      - platform: aliyun-oss-1
+        enable-storage: false
+        access-key: ??
+        secret-key: ??
+        end-point: ??
+        bucket-name: ??
+        domain: ??
+        base-path: hy/
+    qiniu-kodo:
+      - platform: qiniu-kodo-1
+        enable-storage: false
+        access-key: ??
+        secret-key: ??
+        bucket-name: ??
+        domain: ??
+        base-path: base/
+    tencent-cos:
+      - platform: tencent-cos-1
+        enable-storage: false
+        secret-id: ??
+        secret-key: ??
+        region: ??
+        bucket-name: ??
+        domain: ??
+        base-path: hy/
+    baidu-bos:
+      - platform: baidu-bos-1
+        enable-storage: false
+        access-key: ??
+        secret-key: ??
+        end-point: ??
+        bucket-name: ??
+        domain: ??
+        base-path: hy/
+    upyun-uss:
+      - platform: upyun-uss-1
+        enable-storage: false
+        username: ??
+        password: ??
+        bucket-name: ??
+        domain: ??
+        base-path: hy/
+    minio:
+      - platform: minio-1
+        enable-storage: false
+        access-key: admin
+        secret-key: admin123
+        end-point: http://16.162.108.175:9000
+        bucket-name: saas-bb8
+        domain: http://16.162.108.175:9000/saas-bb8/
+        base-path:
+    aws-s3:
+      - platform: aws-s3-1
+        enable-storage: true
+        access-key: AKIARZDBIDXDBTHTJJOV
+        secret-key: 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
+        region: ap-east-1
+        end-point:
+        bucket-name: dev-thl
+        domain: https://dev-thl.s3.ap-east-1.amazonaws.com/
+        base-path: s3/

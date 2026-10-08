@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<system>
+	<category name="system" description="系统相关配置,在不经常变化的情况下可以在该配置文件中配置">
+	</category>
+	
+	<!--telegram电报机器人配置 jack-->
+	<category name="robotConfig" description="teleGram电报机器人配置">
+	 <item name="dev"  value="5768006799:AAGIhpG_ikNIQLQCz4THBbkdPkUztUjL8IE|-1002472984677" desc="机器人token和chatId,用‘|’区分"/>
+	 <item name="test" value="5768006799:AAGIhpG_ikNIQLQCz4THBbkdPkUztUjL8IE|-1002472984677" desc="机器人token和chatId,用‘|’区分"/>
+	 <item name="prod" value="5768006799:AAGIhpG_ikNIQLQCz4THBbkdPkUztUjL8IE|-4637281358" desc="机器人token和chatId,用‘|’区分"/>
+	</category>
+	
+	   <!--telegram电报机器人登录配置信息 jack-->
+    <category name="systemLoginRobot" description="后台系统登录机器人配置信息">
+     <item name="dev"  value="5768006799:AAGIhpG_ikNIQLQCz4THBbkdPkUztUjL8IE|-1002472984677" desc="机器人token和chatId,用‘|’区分"/>
+     <item name="test" value="5768006799:AAGIhpG_ikNIQLQCz4THBbkdPkUztUjL8IE|-1002472984677" desc="机器人token和chatId,用‘|’区分"/>
+     <item name="prod" value="5768006799:AAGIhpG_ikNIQLQCz4THBbkdPkUztUjL8IE|-4636519928" desc="机器人token和chatId,用‘|’区分"/>
+    </category>
+
+    <!--Slack电报机器人配置 arthur-->
+    <category name="slackRobotConfig" description="slack电报机器人配置">
+        <item name="api"  value="https://slack.com/api/chat.postMessage"/>
+        <item name="dev"  value="C0962A134RZ|xoxb-8883940453492-8912317441798-VqKlggTxPtGAZwMj0D2qpWCc" desc="机器人channel房间号和授权令牌,用‘|’区分"/>
+        <item name="test" value="C0962A134RZ|xoxb-8883940453492-8912317441798-VqKlggTxPtGAZwMj0D2qpWCc" desc="机器人channel房间号和授权令牌,用‘|’区分"/>
+        <item name="prod" value="C09654QMBGW|xoxb-8883940453492-8912317441798-VqKlggTxPtGAZwMj0D2qpWCc" desc="机器人channel房间号和授权令牌,用‘|’区分"/>
+    </category>
+    
+    <!--yml解密配置信息-->
+    <category name="ymlDecryptionConfig" description="yml密文解密配置">
+     <item name="devHttpUrl"  value="http://127.0.0.1:10002" desc="加解密秘钥"/>
+     <item name="testHttpUrl"  value="http://ucoin-encryption.ucoin-dev-new:10002" desc="加解密秘钥"/>
+     <item name="prodHttpUrl"  value="http://10.0.4.118:10012" desc="加解密秘钥"/>
+     <item name="passWord"  value="SGDWLRFvO1jX32D7pWx1JEe0qkFcqu" desc="加解密秘钥"/>
+    </category> 
+	
+		
+</system>

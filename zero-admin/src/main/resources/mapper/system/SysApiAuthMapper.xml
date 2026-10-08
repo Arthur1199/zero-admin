@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zero.system.mapper.SysApiAuthMapper">
+
+    <resultMap type="SysApiAuth" id="SysApiAuthResult">
+        <id     property="id"            column="id"             />
+        <result property="apiPermission" column="api_permission" />
+        <result property="apiUrl"        column="api_url"        />
+        <result property="apiMethod"     column="api_method"     />
+        <result property="isNeedGoogle"  column="is_need_google" />
+        <result property="apiDesc"       column="api_desc"       />
+        <result property="apiStatus"     column="api_status"     />
+        <result property="createBy"      column="create_by"      />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"      column="update_by"      />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"        column="remark"         />
+    </resultMap>
+
+    <sql id="selectApiAuthVo">
+        select id, api_permission, api_url, api_method, is_need_google, api_desc, api_status, create_by, create_time, update_by, update_time, remark
+        from sys_api_auth
+    </sql>
+
+    <select id="selectApiAuthById" parameterType="Long" resultMap="SysApiAuthResult">
+        <include refid="selectApiAuthVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectApiAuthByMethodAndUrl" resultMap="SysApiAuthResult">
+        <include refid="selectApiAuthVo"/>
+        where api_method = #{apiMethod}
+          and api_url = #{apiUrl}
+          and api_status != -1
+        limit 1
+    </select>
+
+    <select id="selectApiAuthList" parameterType="SysApiAuth" resultMap="SysApiAuthResult">
+        <include refid="selectApiAuthVo"/>
+        <where>
+            <if test="apiPermission != null and apiPermission != ''">
+                AND api_permission like concat('%', #{apiPermission}, '%')
+            </if>
+            <if test="apiUrl != null and apiUrl != ''">
+                AND api_url like concat('%', #{apiUrl}, '%')
+            </if>
+            <if test="apiMethod != null and apiMethod != ''">
+                AND api_method = #{apiMethod}
+            </if>
+            <if test="isNeedGoogle != null">
+                AND is_need_google = #{isNeedGoogle}
+            </if>
+            <if test="apiStatus != null">
+                AND api_status = #{apiStatus}
+            </if>
+            <if test="params.beginTime != null and params.beginTime != ''">
+                and date_format(create_time,'%Y%m%d') &gt;= date_format(#{params.beginTime},'%Y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                and date_format(create_time,'%Y%m%d') &lt;= date_format(#{params.endTime},'%Y%m%d')
+            </if>
+        </where>
+        order by create_time desc, id desc
+    </select>
+
+    <select id="selectGoogleAuthApis" resultMap="SysApiAuthResult">
+        <include refid="selectApiAuthVo"/>
+        where api_status = 1
+          and is_need_google = 1
+          and api_url is not null
+          and api_url != ''
+        order by id asc
+    </select>
+
+    <insert id="insertApiAuth" parameterType="SysApiAuth" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_api_auth (
+            api_permission,
+            api_url,
+            api_method,
+            is_need_google,
+            api_desc,
+            api_status,
+            <if test="remark != null and remark != ''">remark,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            create_time
+        )values(
+            #{apiPermission},
+            #{apiUrl},
+            #{apiMethod},
+            #{isNeedGoogle},
+            #{apiDesc},
+            #{apiStatus},
+            <if test="remark != null and remark != ''">#{remark},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            sysdate()
+        )
+    </insert>
+
+    <update id="updateApiAuth" parameterType="SysApiAuth">
+        update sys_api_auth
+        <set>
+            api_permission = #{apiPermission},
+            api_url = #{apiUrl},
+            api_method = #{apiMethod},
+            is_need_google = #{isNeedGoogle},
+            api_desc = #{apiDesc},
+            api_status = #{apiStatus},
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="deleteApiAuthByIds">
+        update sys_api_auth
+        set api_status = -1,
+            update_by = #{updateBy},
+            update_time = sysdate()
+        where api_status != -1
+          and id in
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+</mapper>

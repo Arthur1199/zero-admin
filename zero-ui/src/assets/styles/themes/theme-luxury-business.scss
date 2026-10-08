@@ -1,0 +1,1741 @@
+// ==========================================
+// 轻奢商务风主题样式
+// Theme: Luxury Business
+// ==========================================
+
+@import './theme-variables';
+@import './theme-mixins';
+
+.theme-luxury-business:not(.form-builder-page) {
+  // ========== 全局背景与文字 ==========
+  background: $theme-luxury-business-bg-base;
+  color: $theme-luxury-business-text-primary;
+  @include theme-input-number(
+    rgba(26, 31, 46, 0.92),
+    rgba(212, 175, 55, 0.36),
+    $theme-luxury-business-text-primary,
+    rgba(212, 175, 55, 0.12),
+    rgba(212, 175, 55, 0.24),
+    rgba(232, 234, 240, 0.78),
+    #d4af37,
+    rgba(26, 31, 46, 0.55),
+    rgba(184, 188, 200, 0.36),
+    #d4af37
+  );
+
+  // ========== 侧边栏样式 ==========
+  .sidebar-container {
+    background-color: #1a1f2e !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+    // Logo区域
+    .sidebar-logo-container {
+      background: linear-gradient(135deg, #2c3e7a 0%, #1e2d5a 100%) !important;
+      border-bottom: 1px solid #2a3142;
+
+      .sidebar-title {
+        color: #d4af37 !important;
+        font-weight: 600;
+      }
+
+      .sidebar-logo {
+        filter: brightness(0) invert(1);
+      }
+    }
+
+    // 菜单整体
+    .el-menu {
+      background-color: #1a1f2e !important;
+      border-right: none;
+    }
+
+    // 普通菜单项
+    .el-menu-item {
+      background-color: transparent !important;
+      color: #b8bcc8 !important;
+      margin: 0 !important;
+      padding: 0 20px !important;
+      font-size: 14px !important;
+      transition: all 0.3s;
+
+      i {
+        color: #b8bcc8;
+      }
+
+      &:hover {
+        background: rgba(212, 175, 55, 0.1) !important;
+        color: #d4af37 !important;
+
+        i {
+          color: #d4af37;
+        }
+      }
+
+      &.is-active {
+        background: rgba(212, 175, 55, 0.15) !important;
+        color: #d4af37 !important;
+        font-weight: 600;
+        position: relative;
+
+        i {
+          color: #d4af37;
+        }
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: 3px;
+          background-color: #d4af37;
+        }
+      }
+    }
+
+    // 子菜单标题
+    .el-submenu__title {
+      background-color: #151924 !important;
+      color: #b8bcc8 !important;
+      margin: 0 !important;
+      padding: 0 20px !important;
+      font-size: 14px !important;
+      transition: all 0.3s;
+
+      i {
+        color: #b8bcc8;
+      }
+
+      &:hover {
+        background: rgba(212, 175, 55, 0.1) !important;
+        color: #d4af37 !important;
+
+        i {
+          color: #d4af37;
+        }
+      }
+
+      .el-submenu__icon-arrow {
+        color: #b8bcc8;
+      }
+    }
+
+    // 展开状态的父菜单（重要！）
+    .el-submenu.is-opened > .el-submenu__title {
+      background: rgba(212, 175, 55, 0.12) !important;
+      color: #d4af37 !important;
+      font-weight: 600;
+
+      i {
+        color: #d4af37;
+      }
+
+      .el-submenu__icon-arrow {
+        color: #d4af37;
+      }
+    }
+
+    // 激活的父菜单
+    .el-submenu.is-active > .el-submenu__title {
+      background: rgba(212, 175, 55, 0.15) !important;
+      color: #d4af37 !important;
+      font-weight: 600;
+      position: relative;
+
+      i {
+        color: #d4af37;
+      }
+
+      .el-submenu__icon-arrow {
+        color: #d4af37;
+      }
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background-color: #d4af37;
+      }
+    }
+
+    // 子菜单容器 - 与毛玻璃拟态风保持一致
+    .el-menu--inline {
+      background-color: #151924 !important;
+      margin: 0 6px !important;  // 左右边距从12px减少到6px，子菜单整体向左移动6px
+
+      .el-menu-item {
+        background-color: transparent !important;  // 与毛玻璃风一致：透明背景
+        background: transparent !important;
+        background-image: none !important;
+        padding-left: 28px !important;  // 统一规范：相对父菜单递增20px缩进
+        margin: 0 !important;  // 与毛玻璃风一致：无margin
+        border-radius: 0 !important;  // 与毛玻璃风一致：无圆角
+        height: 48px !important;
+        line-height: 48px !important;
+        color: #b8bcc8 !important;
+        border: none !important;
+        box-shadow: none !important;
+        position: relative;
+
+        &:hover {
+          background: rgba(212, 175, 55, 0.08) !important;
+          color: #d4af37 !important;
+        }
+
+        &.is-active {
+          background: rgba(212, 175, 55, 0.12) !important;
+          color: #d4af37 !important;
+          font-weight: 600;
+          
+          &::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: #d4af37;
+          }
+        }
+      }
+
+      // ========== 多级菜单层级增强样式 ==========
+      // 二级子菜单
+      .el-menu--inline {
+        .el-menu-item {
+          padding-left: 48px !important;  // 二级菜单：相对一级子菜单递增20px
+          font-size: 14px !important;  // 与主菜单保持一致
+          color: rgba(184, 188, 200, 0.9) !important;
+          position: relative;
+          
+          // 左侧层级指示线
+          &::after {
+            content: '';
+            position: absolute;
+            left: 12px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(212, 175, 55, 0.2);
+          }
+          
+          &:hover {
+            color: #d4af37 !important;
+            background: rgba(212, 175, 55, 0.06) !important;
+          }
+          
+          &.is-active {
+            color: #d4af37 !important;
+            font-size: 14px !important;  // 激活状态也保持一致
+            
+            &::after {
+              background: rgba(212, 175, 55, 0.4);
+            }
+          }
+        }
+        
+        // 三级子菜单
+        .el-menu--inline {
+          .el-menu-item {
+            padding-left: 68px !important;  // 三级菜单：相对二级子菜单递增20px
+            font-size: 14px !important;  // 与主菜单保持一致
+            color: rgba(184, 188, 200, 0.85) !important;
+            
+            &::after {
+              left: 32px;
+              background: rgba(212, 175, 55, 0.15);
+            }
+            
+            &:hover {
+              color: #d4af37 !important;
+            }
+            
+            &.is-active {
+              color: #d4af37 !important;
+              font-size: 14px !important;  // 激活状态也保持一致
+              
+              &::after {
+                background: rgba(212, 175, 55, 0.35);
+              }
+            }
+          }
+          
+          // 四级子菜单
+          .el-menu--inline {
+            .el-menu-item {
+              padding-left: 88px !important;
+              font-size: 14px !important;
+              color: rgba(184, 188, 200, 0.8) !important;
+              
+              &::after {
+                left: 52px;
+                background: rgba(212, 175, 55, 0.1);
+              }
+              
+              &:hover {
+                color: #d4af37 !important;
+              }
+              
+              &.is-active {
+                color: #d4af37 !important;
+                font-size: 14px !important;
+                
+                &::after {
+                  background: rgba(212, 175, 55, 0.3);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // 强制覆盖body下的popup子菜单
+    .el-menu--popup.el-menu--vertical {
+      background-color: $theme-luxury-business-menu-bg !important;
+      border: 1px solid $theme-luxury-business-border !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+      border-radius: 6px;  // 与按钮圆角一致
+
+      .el-menu-item {
+        background-color: transparent !important;
+        color: $theme-luxury-business-text-secondary !important;
+        margin: 2px 8px;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: rgba($theme-luxury-business-accent, 0.08) !important;
+          color: $theme-luxury-business-accent !important;
+        }
+
+        &.is-active {
+          background: rgba($theme-luxury-business-accent, 0.12) !important;
+          color: $theme-luxury-business-accent !important;
+          border-left: 3px solid $theme-luxury-business-accent;
+          font-weight: 600;
+        }
+      }
+    }
+
+    // 滚动条
+    .el-scrollbar__wrap {
+      overflow-x: hidden;
+    }
+  }
+
+  // ========== 主内容区样式 ==========
+  .app-main {
+    background-color: $theme-luxury-business-bg-base;
+    color: $theme-luxury-business-text-primary;
+  }
+
+  .app-container {
+    background-color: transparent;
+  }
+
+  // ========== 首页Hero区域适配 ==========
+  .zero-home {
+    background: $theme-luxury-business-bg-base;
+    
+    .hero-section {
+      background: linear-gradient(135deg, 
+        $theme-luxury-business-primary 0%, 
+        darken($theme-luxury-business-primary, 8%) 100%);
+      
+      .hero-content {
+        .main-title {
+          color: $theme-luxury-business-accent;
+          text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
+        }
+        
+        .subtitle {
+          color: rgba(255, 255, 255, 0.95);
+        }
+        
+        .version-tag {
+          .el-tag {
+            background-color: rgba($theme-luxury-business-accent, 0.2);
+            border-color: $theme-luxury-business-accent;
+            color: $theme-luxury-business-accent;
+          }
+        }
+      }
+    }
+  }
+
+  // ========== 分割面板样式(splitpanes)适配 ==========
+  .splitpanes.default-theme .splitpanes__pane {
+    background-color: $theme-luxury-business-bg-card !important;
+    color: $theme-luxury-business-text-primary;
+    
+    // 部门树区域
+    .head-container {
+      background-color: transparent;
+      
+      .el-input__inner {
+        background-color: $theme-luxury-business-bg-base;
+        border-color: $theme-luxury-business-border;
+        color: $theme-luxury-business-text-primary;
+      }
+    }
+    
+    // 树形组件
+    .el-tree {
+      background-color: transparent;
+      color: $theme-luxury-business-text-primary;
+      
+      .el-tree-node__content {
+        &:hover {
+          background-color: $theme-luxury-business-menu-hover;
+        }
+      }
+      
+      .is-current > .el-tree-node__content {
+        background-color: $theme-luxury-business-menu-hover;
+        color: $theme-luxury-business-accent;
+      }
+    }
+  }
+
+  // 卡片样式
+  @include theme-card(
+    #1a1f2e,
+    #2a3142,
+    rgba(0, 0, 0, 0.3)
+  );
+
+  .el-card {
+    background-color: #1a1f2e;
+    border: 1px solid #2a3142;
+    color: #e8eaf0;
+    transition: all 0.3s;
+
+    &:hover {
+      border-color: #d4af37;
+      box-shadow: 0 8px 32px rgba(212, 175, 55, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .el-card__header {
+      background: linear-gradient(90deg, 
+        rgba(44, 62, 122, 0.3) 0%, 
+        transparent 100%);
+      color: #d4af37;
+      border-bottom: 1px solid #2a3142;
+      font-weight: 600;
+    }
+
+    .el-card__body {
+      color: #b8bcc8;
+    }
+  }
+
+  // 表格样式
+  @include theme-table(
+    #1a1f2e,
+    #151924,
+    #2a3142,
+    rgba(212, 175, 55, 0.1),
+    #e8eaf0
+  );
+
+  .el-table {
+    background-color: #1a1f2e;
+    color: #e8eaf0;
+
+    th {
+      background: linear-gradient(90deg, 
+        rgba(44, 62, 122, 0.3) 0%, 
+        rgba(30, 45, 90, 0.3) 100%);
+      color: #d4af37;
+      border-color: #2a3142;
+      font-weight: 600;
+    }
+
+    td {
+      border-color: #2a3142;
+      color: #b8bcc8;
+    }
+
+    .el-table__body tr:hover > td {
+      background-color: rgba(212, 175, 55, 0.1) !important;
+    }
+
+    .el-table__row--striped td {
+      background-color: #151924;
+    }
+  }
+
+  // ========== 按钮样式 ==========
+  .el-button--primary {
+    background: linear-gradient(135deg, #d4af37 0%, #c29d2e 100%);
+    border: none;
+    border-radius: 6px;
+    color: #2c3e7a;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+    transition: all 0.3s;
+
+    &:hover,
+    &:focus {
+      background: linear-gradient(135deg, #e0bf4c 0%, #d4af37 100%);
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  .el-button--success {
+    background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+    border: none;
+    border-radius: 6px;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    transition: all 0.3s;
+
+    &:hover,
+    &:focus {
+      background: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%);
+      box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+      transform: translateY(-2px);
+    }
+  }
+
+  .el-button--warning {
+    background: linear-gradient(135deg, #d4af37 0%, #c29d2e 100%);
+    border: none;
+    border-radius: 6px;
+    color: #2c3e7a;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+    transition: all 0.3s;
+
+    &:hover,
+    &:focus {
+      background: linear-gradient(135deg, #e0bf4c 0%, #d4af37 100%);
+      box-shadow: 0 6px 16px rgba(212, 175, 55, 0.4);
+      transform: translateY(-2px);
+    }
+  }
+
+  .el-button--danger {
+    background: linear-gradient(135deg, #ef5350 0%, #e53935 100%);
+    border: none;
+    border-radius: 6px;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(239, 83, 80, 0.3);
+    transition: all 0.3s;
+
+    &:hover,
+    &:focus {
+      background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+      box-shadow: 0 6px 16px rgba(239, 83, 80, 0.4);
+      transform: translateY(-2px);
+    }
+  }
+
+  .el-button--info {
+    background: linear-gradient(135deg, #5c6bc0 0%, #3f51b5 100%);
+    border: none;
+    border-radius: 6px;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(92, 107, 192, 0.3);
+    transition: all 0.3s;
+
+    &:hover,
+    &:focus {
+      background: linear-gradient(135deg, #7986cb 0%, #5c6bc0 100%);
+      box-shadow: 0 6px 16px rgba(92, 107, 192, 0.4);
+      transform: translateY(-2px);
+    }
+  }
+
+  // 普通按钮
+  .el-button--default {
+    background-color: #1a1f2e;
+    border: 1px solid #2a3142;
+    border-radius: 6px;
+    color: #b8bcc8;
+    transition: all 0.3s;
+
+    &:hover,
+    &:focus {
+      background-color: rgba(212, 175, 55, 0.1);
+      border-color: #d4af37;
+      color: #d4af37;
+    }
+  }
+
+  // 文字按钮
+  .el-button--text {
+    color: #d4af37;
+
+    &:hover,
+    &:focus {
+      color: #e0bf4c;
+    }
+  }
+
+  // Plain样式按钮
+  .el-button--primary.is-plain {
+    background: transparent;
+    border: 1px solid #d4af37;
+    color: #d4af37;
+
+    &:hover,
+    &:focus {
+      background: rgba(212, 175, 55, 0.1);
+      border-color: #e0bf4c;
+      color: #e0bf4c;
+    }
+  }
+
+  .el-button--warning.is-plain {
+    background: transparent;
+    border: 1px solid #d4af37;
+    color: #d4af37;
+
+    &:hover,
+    &:focus {
+      background: rgba(212, 175, 55, 0.1);
+      border-color: #e0bf4c;
+      color: #e0bf4c;
+    }
+  }
+
+  // ========== 输入框样式 ==========
+  @include theme-input(
+    #1a1f2e,
+    #2a3142,
+    #e8eaf0
+  );
+
+  .el-input__inner,
+  .el-textarea__inner {
+    background-color: #1a1f2e;
+    border: 1px solid #2a3142;
+    color: #e8eaf0;
+    transition: all 0.3s;
+
+    &::placeholder {
+      color: rgba(184, 188, 200, 0.5);
+    }
+
+    &:hover {
+      border-color: rgba(212, 175, 55, 0.5);
+    }
+
+    &:focus {
+      border-color: #d4af37;
+      box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+      background-color: rgba(26, 31, 46, 0.95);
+    }
+  }
+
+  // 下拉框
+  .el-select {
+    .el-input__inner {
+      background-color: #1a1f2e;
+      border-color: #2a3142;
+      color: #e8eaf0;
+    }
+
+    .el-input__suffix {
+      .el-icon {
+        color: #b8bcc8;
+      }
+    }
+  }
+
+  // ========== 表单样式 ==========
+  .el-form-item__label {
+    color: #b8bcc8;
+    font-weight: 500;
+  }
+
+  .el-form-item__content {
+    color: #e8eaf0;
+  }
+
+  // ========== 对话框样式 ==========
+  @include theme-dialog(
+    #1a1f2e,
+    #1a1f2e,
+    #e8eaf0,
+    #2a3142
+  );
+
+  .el-dialog {
+    background-color: #1a1f2e;
+    border: 1px solid #2a3142;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+
+    .el-dialog__header {
+      background: linear-gradient(90deg, 
+        rgba(44, 62, 122, 0.3) 0%, 
+        transparent 100%);
+      border-bottom: 1px solid #2a3142;
+
+      .el-dialog__title {
+        color: #d4af37;
+        font-weight: 600;
+      }
+
+      .el-dialog__headerbtn {
+        .el-dialog__close {
+          color: #b8bcc8;
+
+          &:hover {
+            color: #d4af37;
+          }
+        }
+      }
+    }
+
+    .el-dialog__body {
+      background-color: #1a1f2e;
+      color: #b8bcc8;
+    }
+
+    .el-dialog__footer {
+      background-color: #1a1f2e;
+      border-top: 1px solid #2a3142;
+    }
+  }
+
+  // ========== 消息弹出框样式（MessageBox、Confirm、Alert） ==========
+  .el-message-box {
+    background: linear-gradient(135deg, #1a1f2e 0%, #151924 100%) !important;
+    border: 2px solid #d4af37 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6), 
+                0 0 30px rgba(212, 175, 55, 0.15) !important;
+    
+    // 标题
+    .el-message-box__header {
+      background: linear-gradient(90deg, 
+        rgba(212, 175, 55, 0.15) 0%, 
+        transparent 100%);
+      border-bottom: 1px solid #2a3142;
+      padding: 18px 20px;
+      
+      .el-message-box__title {
+        color: #d4af37 !important;
+        font-weight: 600 !important;
+        font-size: 16px !important;
+        text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+      }
+      
+      .el-message-box__headerbtn {
+        .el-message-box__close {
+          color: #b8bcc8 !important;
+          
+          &:hover {
+            color: #d4af37 !important;
+          }
+        }
+      }
+    }
+    
+    // 内容区域
+    .el-message-box__content {
+      padding: 25px 20px;
+      
+      .el-message-box__message {
+        color: #e8eaf0 !important;
+        font-size: 14px !important;
+        line-height: 1.6 !important;
+      }
+      
+      // 图标颜色
+      .el-message-box__status {
+        &.el-icon-warning {
+          color: #f4a460 !important;
+          filter: drop-shadow(0 0 8px rgba(244, 164, 96, 0.5));
+        }
+        
+        &.el-icon-info {
+          color: #6ba3d4 !important;
+          filter: drop-shadow(0 0 8px rgba(107, 163, 212, 0.5));
+        }
+        
+        &.el-icon-success {
+          color: #7ec699 !important;
+          filter: drop-shadow(0 0 8px rgba(126, 198, 153, 0.5));
+        }
+        
+        &.el-icon-error {
+          color: #d47676 !important;
+          filter: drop-shadow(0 0 8px rgba(212, 118, 118, 0.5));
+        }
+      }
+    }
+    
+    // 按钮区域
+    .el-message-box__btns {
+      padding: 12px 20px 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      
+      .el-button {
+        min-width: 80px;
+        font-weight: 500;
+        
+        // 确定按钮
+        &.el-button--primary {
+          background: linear-gradient(135deg, #2c3e7a 0%, #1f2d5a 100%) !important;
+          border: 1px solid #d4af37 !important;
+          color: #d4af37 !important;
+          box-shadow: 0 4px 12px rgba(44, 62, 122, 0.4),
+                      0 0 20px rgba(212, 175, 55, 0.2);
+          
+          &:hover {
+            background: linear-gradient(135deg, #3a4f98 0%, #2c3e7a 100%) !important;
+            box-shadow: 0 6px 20px rgba(44, 62, 122, 0.6),
+                        0 0 30px rgba(212, 175, 55, 0.4);
+            transform: translateY(-2px);
+          }
+          
+          &:active {
+            transform: translateY(0);
+          }
+        }
+        
+        // 取消按钮
+        &.el-button--default {
+          background: #1a1f2e !important;
+          border: 1px solid #2a3142 !important;
+          color: #b8bcc8 !important;
+          
+          &:hover {
+            background: #252b3e !important;
+            border-color: #d4af37 !important;
+            color: #e8eaf0 !important;
+            box-shadow: 0 4px 12px rgba(42, 49, 66, 0.3);
+            transform: translateY(-2px);
+          }
+          
+          &:active {
+            transform: translateY(0);
+          }
+        }
+      }
+    }
+    
+    // 输入框（prompt 类型）
+    .el-message-box__input {
+      padding-top: 15px;
+      
+      .el-input__inner {
+        background: #151924 !important;
+        border: 1px solid #2a3142 !important;
+        color: #e8eaf0 !important;
+        
+        &:focus {
+          border-color: #d4af37 !important;
+          box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+        }
+        
+        &::placeholder {
+          color: #6a7388 !important;
+        }
+      }
+      
+      .el-message-box__errormsg {
+        color: #d47676 !important;
+      }
+    }
+  }
+
+  // ========== 顶部导航栏样式 ==========
+  .navbar {
+    background: linear-gradient(90deg, $theme-luxury-business-primary 0%, darken($theme-luxury-business-primary, 5%) 100%);
+    box-shadow: 0 2px 8px $theme-luxury-business-shadow;
+
+    // 汉堡菜单
+    .hamburger-container {
+      svg {
+        fill: $theme-luxury-business-accent;
+      }
+
+      &:hover {
+        background: rgba($theme-luxury-business-accent, 0.1);
+      }
+    }
+
+    // 面包屑导航
+    .breadcrumb-container {
+      .el-breadcrumb__item {
+        .el-breadcrumb__inner {
+          color: $theme-luxury-business-accent !important;  // 统一使用强调色
+          font-weight: 500 !important;
+
+          a {
+            color: $theme-luxury-business-accent !important;
+            font-weight: 600 !important;
+
+            &:hover {
+              color: lighten($theme-luxury-business-accent, 10%) !important;
+            }
+          }
+
+          &.no-redirect {
+            color: $theme-luxury-business-accent !important;  // 不可点击项也使用强调色
+          }
+        }
+
+        .el-breadcrumb__separator {
+          color: rgba($theme-luxury-business-accent, 0.6) !important;  // 分隔符使用半透明强调色
+        }
+
+        &:last-child .el-breadcrumb__inner {
+          color: $theme-luxury-business-accent !important;  // 当前页也使用强调色
+          font-weight: 600 !important;  // 当前页加粗
+        }
+      }
+    }
+
+    // 顶部菜单栏文字颜色
+    .topmenu-container.el-menu--horizontal > .el-menu-item,
+    .topmenu-container.el-menu--horizontal > .el-submenu .el-submenu__title {
+      color: $theme-luxury-business-accent !important;  // 使用金色强调色
+      
+      &:hover {
+        color: lighten($theme-luxury-business-accent, 10%) !important;
+      }
+    }
+
+    .topmenu-container.el-menu--horizontal > .el-menu-item.is-active,
+    .el-menu--horizontal > .el-submenu.is-active .el-submenu__title {
+      color: lighten($theme-luxury-business-accent, 5%) !important;  // 激活时更亮
+      border-bottom-color: $theme-luxury-business-accent !important;
+    }
+
+    // 顶部菜单栏激活状态底边框
+    .topmenu-container.el-menu--horizontal > .el-menu-item.is-active {
+      border-bottom-color: $theme-luxury-business-accent !important;
+    }
+
+    .el-menu--horizontal > .el-submenu.is-active .el-submenu__title {
+      border-bottom-color: $theme-luxury-business-accent !important;
+    }
+
+    // 右侧菜单
+    .right-menu {
+      .right-menu-item {
+        color: $theme-luxury-business-text-primary;
+
+        svg {
+          fill: $theme-luxury-business-accent;
+        }
+
+        &.hover-effect:hover {
+          background: rgba($theme-luxury-business-accent, 0.1);
+        }
+      }
+
+      // 用户头像容器
+      .avatar-container {
+        .avatar-wrapper {
+          .user-nickname {
+            color: $theme-luxury-business-accent;
+            font-weight: 600;
+          }
+
+          .user-avatar {
+            border: 2px solid $theme-luxury-business-accent;
+          }
+        }
+
+        &:hover {
+          background: rgba($theme-luxury-business-accent, 0.1);
+        }
+      }
+
+      // 设置按钮
+      .setting {
+        svg {
+          fill: $theme-luxury-business-accent;
+        }
+      }
+    }
+  }
+
+  // ========== Tags View样式 ==========
+  .tags-view-container {
+    background-color: $theme-luxury-business-bg-card;
+    border-bottom: 1px solid $theme-luxury-business-border;
+
+    .tags-view-item {
+      background-color: $theme-luxury-business-menu-bg;
+      border-color: $theme-luxury-business-border;
+      color: $theme-luxury-business-text-secondary;
+
+      &.active {
+        background: linear-gradient(135deg, 
+          $theme-luxury-business-primary 0%, 
+          darken($theme-luxury-business-primary, 5%) 100%);
+        border-color: $theme-luxury-business-accent;
+        color: $theme-luxury-business-accent;
+        animation: tab-flame-luxury 3s ease-in-out infinite;
+      }
+    }
+  }
+
+
+
+  // ========== 下拉菜单样式 ==========
+  .el-dropdown-menu {
+    background-color: $theme-luxury-business-bg-card;
+    border-color: $theme-luxury-business-border;
+
+    .el-dropdown-menu__item {
+      color: $theme-luxury-business-text-primary;
+
+      &:hover {
+        background-color: $theme-luxury-business-menu-hover;
+        color: $theme-luxury-business-accent;
+      }
+    }
+  }
+
+  // ========== 选择器样式 ==========
+  // 注意：.el-select-dropdown 是挂载到 body 下的，需要在 body.theme-xxx 下定义
+}
+
+// 轻奢商务风 - 金色火焰跳动效果（同时包含发光和抖动效果）
+@keyframes tab-flame-luxury {
+  0%, 100% { 
+    box-shadow: 0 0 10px rgba($theme-luxury-business-accent, 0.5),
+                0 0 20px rgba($theme-luxury-business-accent, 0.4),
+                0 0 30px rgba($theme-luxury-business-accent, 0.3),
+                0 2px 8px rgba(0, 0, 0, 0.3);
+    transform: translateX(0);
+  }
+  1% { transform: translateX(1.5px); }
+  2% { transform: translateX(3px); }
+  3% { transform: translateX(1.5px); }
+  4% { transform: translateX(0); }
+  5% { transform: translateX(-1.5px); }
+  6% { transform: translateX(-3px); }
+  7% { transform: translateX(-1.5px); }
+  8% { transform: translateX(0); }
+  25% { 
+    box-shadow: 0 0 15px rgba($theme-luxury-business-accent, 0.7),
+                0 0 25px rgba($theme-luxury-business-accent, 0.6),
+                0 0 35px rgba($theme-luxury-business-accent, 0.5),
+                0 2px 8px rgba(0, 0, 0, 0.3);
+    transform: translateX(0);
+  }
+  50% { 
+    box-shadow: 0 0 12px rgba($theme-luxury-business-accent, 0.6),
+                0 0 22px rgba($theme-luxury-business-accent, 0.5),
+                0 0 32px rgba($theme-luxury-business-accent, 0.4),
+                0 2px 8px rgba(0, 0, 0, 0.3);
+    transform: translateX(0);
+  }
+  75% { 
+    box-shadow: 0 0 18px rgba($theme-luxury-business-accent, 0.8),
+                0 0 28px rgba($theme-luxury-business-accent, 0.7),
+                0 0 38px rgba($theme-luxury-business-accent, 0.6),
+                0 2px 8px rgba(0, 0, 0, 0.3);
+    transform: translateX(0);
+  }
+  95% { transform: translateX(0); }
+}
+
+// 下拉选择框样式（全局）
+body.theme-luxury-business {
+  // ========== 侧边栏 popup 子菜单样式（挂载到 body 下）==========
+  // 直接子选择器（主方案）
+  > .el-menu--popup.el-menu--vertical {
+    background-color: rgba(21, 25, 36, 0.98) !important;
+    border: 1px solid #2a3142 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+    border-radius: 6px !important;
+
+    .el-menu-item {
+      background-color: transparent !important;
+      color: #b8bcc8 !important;
+      margin: 2px 8px !important;
+      border-radius: 4px !important;
+      transition: all 0.3s ease !important;
+
+      &:hover {
+        background: rgba(212, 175, 55, 0.08) !important;
+        background-color: rgba(212, 175, 55, 0.08) !important;
+        color: #d4af37 !important;
+      }
+
+      &.is-active {
+        background: linear-gradient(90deg, rgba(212, 175, 55, 0.15) 0%, transparent 100%) !important;
+        color: #d4af37 !important;
+        position: relative;
+        font-weight: 600 !important;
+        box-shadow: 0 0 8px rgba(212, 175, 55, 0.3) !important;
+
+        &::before {
+          content: '' !important;
+          position: absolute !important;
+          left: 0 !important;
+          top: 0 !important;
+          bottom: 0 !important;
+          width: 3px !important;
+          background-color: #d4af37 !important;
+          border-radius: 0 2px 2px 0 !important;
+        }
+      }
+    }
+  }
+
+  // 后代选择器（兼容方案）
+  .el-menu--popup.el-menu--vertical {
+    background-color: rgba(21, 25, 36, 0.98) !important;
+    border: 1px solid #2a3142 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+    border-radius: 6px !important;
+
+    .el-menu-item {
+      background-color: transparent !important;
+      color: #b8bcc8 !important;
+      margin: 2px 8px !important;
+      border-radius: 4px !important;
+      transition: all 0.3s ease !important;
+
+      &:hover {
+        background: rgba(212, 175, 55, 0.08) !important;
+        background-color: rgba(212, 175, 55, 0.08) !important;
+        color: #d4af37 !important;
+      }
+
+      &.is-active {
+        background: linear-gradient(90deg, rgba(212, 175, 55, 0.15) 0%, transparent 100%) !important;
+        color: #d4af37 !important;
+        position: relative;
+        font-weight: 600 !important;
+        box-shadow: 0 0 8px rgba(212, 175, 55, 0.3) !important;
+
+        &::before {
+          content: '' !important;
+          position: absolute !important;
+          left: 0 !important;
+          top: 0 !important;
+          bottom: 0 !important;
+          width: 3px !important;
+          background-color: #d4af37 !important;
+          border-radius: 0 2px 2px 0 !important;
+        }
+      }
+    }
+
+    // 弹出菜单中的子菜单标题样式
+    .el-submenu__title {
+      background-color: transparent !important;
+      color: #b8bcc8 !important;
+      margin: 2px 8px !important;
+      border-radius: 4px !important;
+      transition: all 0.3s ease !important;
+
+      &:hover {
+        background: rgba(212, 175, 55, 0.08) !important;
+        color: #d4af37 !important;
+      }
+
+      i {
+        color: #b8bcc8;
+      }
+
+      .el-submenu__icon-arrow {
+        color: #b8bcc8;
+      }
+    }
+
+    // 弹出菜单中展开的子菜单
+    .el-submenu.is-opened > .el-submenu__title {
+      background: rgba(212, 175, 55, 0.12) !important;
+      color: #d4af37 !important;
+      box-shadow: 0 0 8px rgba(212, 175, 55, 0.2) !important;
+
+      i {
+        color: #d4af37;
+      }
+
+      .el-submenu__icon-arrow {
+        color: #d4af37;
+      }
+    }
+
+    // 弹出菜单中的二级菜单容器
+    .el-menu--popup {
+      background-color: rgba(21, 25, 36, 0.98) !important;
+      border: 1px solid #2a3142 !important;
+    }
+  }
+
+  // 第三层保护：强制覆盖Element UI默认样式
+  > .el-menu--popup {
+    background-color: rgba(21, 25, 36, 0.98) !important;
+    border: 1px solid #2a3142 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .el-menu--popup {
+    background-color: rgba(21, 25, 36, 0.98) !important;
+    border: 1px solid #2a3142 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  // ========== 侧边栏内联子菜单样式 ==========
+  ul.el-menu--inline {
+    background-color: #151924 !important;
+
+    .el-menu-item {
+      background-color: transparent !important;
+      color: #b8bcc8 !important;
+
+      &:hover {
+        background: rgba(212, 175, 55, 0.08) !important;
+        color: #d4af37 !important;
+      }
+
+      &.is-active {
+        background: rgba(212, 175, 55, 0.12) !important;
+        color: #d4af37 !important;
+        border-left: 3px solid #d4af37;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .el-select-dropdown {
+    background-color: #1a1f2e !important;
+    border: 1px solid #2a3142 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+    .el-select-dropdown__item {
+      color: #e8eaf0 !important;
+
+      &.hover,
+      &:hover {
+        background-color: rgba(212, 175, 55, 0.1) !important;
+        color: #d4af37 !important;
+      }
+
+      &.selected {
+        color: #d4af37 !important;
+        background-color: rgba(212, 175, 55, 0.15) !important;
+        font-weight: 600;
+      }
+      
+      &.is-disabled {
+        color: rgba(184, 188, 200, 0.5) !important;
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+    
+    .el-select-dropdown__empty {
+      color: #b8bcc8 !important;
+    }
+    
+    .el-select-group__title {
+      color: #b8bcc8 !important;
+    }
+  }
+
+  // ========== 分页样式 ==========
+  .el-pagination {
+    // 总条数和跳转文字颜色
+    .el-pagination__total,
+    .el-pagination__jump {
+      color: $theme-luxury-business-text-secondary !important;
+    }
+
+    // 页码按钮
+    .el-pager li {
+      background-color: $theme-luxury-business-bg-card !important;
+      border: 1px solid $theme-luxury-business-border !important;
+      color: $theme-luxury-business-text-secondary !important;
+      transition: all 0.3s;
+
+      &:not(.disabled):hover {
+        color: $theme-luxury-business-accent !important;
+        border-color: $theme-luxury-business-accent !important;
+        background-color: rgba(212, 175, 55, 0.1) !important;
+      }
+
+      &.active {
+        background-color: $theme-luxury-business-primary !important;
+        border-color: $theme-luxury-business-accent !important;
+        color: $theme-luxury-business-accent !important;
+        font-weight: 600;
+      }
+
+      &.disabled {
+        color: rgba(184, 188, 200, 0.3) !important;
+        cursor: not-allowed;
+      }
+    }
+
+    // 上一页/下一页按钮
+    .btn-prev,
+    .btn-next {
+      background-color: $theme-luxury-business-bg-card !important;
+      border: 1px solid $theme-luxury-business-border !important;
+      color: $theme-luxury-business-text-secondary !important;
+      transition: all 0.3s;
+
+      &:not(.disabled):hover {
+        color: $theme-luxury-business-accent !important;
+        border-color: $theme-luxury-business-accent !important;
+      }
+
+      &.disabled {
+        color: rgba(184, 188, 200, 0.3) !important;
+        cursor: not-allowed;
+      }
+    }
+
+    // 每页条数下拉框
+    .el-pagination__sizes {
+      .el-input__inner {
+        background-color: $theme-luxury-business-bg-card !important;
+        border-color: $theme-luxury-business-border !important;
+        color: $theme-luxury-business-text-secondary !important;
+
+        &:hover {
+          border-color: $theme-luxury-business-accent !important;
+        }
+      }
+    }
+
+    // 跳转输入框
+    .el-pagination__jump {
+      .el-input__inner {
+        background-color: $theme-luxury-business-bg-card !important;
+        border-color: $theme-luxury-business-border !important;
+        color: $theme-luxury-business-text-secondary !important;
+
+        &:hover {
+          border-color: $theme-luxury-business-accent !important;
+        }
+      }
+    }
+  }
+}
+
+.theme-luxury-business {
+
+  // ========== 滚动条样式 ==========
+  @include theme-scrollbar(
+    $theme-luxury-business-accent,
+    $theme-luxury-business-bg-card
+  );
+
+  // ========== 开关组件样式 ==========
+  .el-switch {
+    .el-switch__core {
+      background-color: $theme-luxury-business-border;
+      border-color: $theme-luxury-business-border;
+    }
+
+    &.is-checked .el-switch__core {
+      background-color: $theme-luxury-business-accent;
+      border-color: $theme-luxury-business-accent;
+    }
+  }
+
+  // ========== 复选框样式 ==========
+  .el-checkbox {
+    .el-checkbox__input.is-checked .el-checkbox__inner {
+      background-color: $theme-luxury-business-accent;
+      border-color: $theme-luxury-business-accent;
+    }
+
+    .el-checkbox__input.is-indeterminate .el-checkbox__inner {
+      background-color: $theme-luxury-business-accent;
+      border-color: $theme-luxury-business-accent;
+    }
+
+    .el-checkbox__label {
+      color: $theme-luxury-business-text-primary;
+    }
+  }
+
+  // ========== 单选框样式 ==========
+  .el-radio {
+    .el-radio__input.is-checked .el-radio__inner {
+      background-color: $theme-luxury-business-accent;
+      border-color: $theme-luxury-business-accent;
+    }
+
+    .el-radio__label {
+      color: $theme-luxury-business-text-primary;
+    }
+  }
+
+  // ========== 日期选择器样式 ==========
+  .el-date-editor.el-range-editor.el-input__inner {
+    background: rgba(26, 31, 46, 0.88) !important;
+    border: 1px solid rgba($theme-luxury-business-accent, 0.34) !important;
+    border-radius: 8px;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba($theme-luxury-business-accent, 0.12);
+
+    &:hover,
+    &.is-active {
+      border-color: rgba($theme-luxury-business-accent, 0.62) !important;
+      box-shadow: 0 0 0 1px rgba($theme-luxury-business-accent, 0.18), 0 10px 26px rgba(0, 0, 0, 0.28);
+    }
+
+    .el-range-input {
+      background: transparent !important;
+      color: $theme-luxury-business-text-primary !important;
+      font-weight: 500;
+
+      &::placeholder {
+        color: rgba($theme-luxury-business-text-secondary, 0.78) !important;
+      }
+    }
+
+    .el-range-separator,
+    .el-range__icon,
+    .el-range__close-icon {
+      color: rgba($theme-luxury-business-accent, 0.82) !important;
+    }
+  }
+
+  .el-picker-panel {
+    background-color: $theme-luxury-business-bg-card;
+    border-color: $theme-luxury-business-border;
+    color: $theme-luxury-business-text-primary;
+
+    .el-date-picker__header-label,
+    .el-picker-panel__icon-btn {
+      color: $theme-luxury-business-text-primary;
+    }
+
+    .el-date-table th {
+      color: $theme-luxury-business-text-secondary;
+    }
+
+    .el-date-table td.available:hover {
+      color: $theme-luxury-business-accent;
+    }
+
+    .el-date-table td.today span {
+      color: $theme-luxury-business-accent;
+      font-weight: 600;
+    }
+
+    .el-date-table td.current:not(.disabled) span {
+      background-color: $theme-luxury-business-accent;
+      color: $theme-luxury-business-primary;
+    }
+
+    // 日期范围选择时的范围内日期背景色
+    .el-date-table td.in-range div,
+    .el-date-table td.in-range div:hover {
+      background-color: rgba(212, 175, 55, 0.1) !important;
+    }
+
+    .el-date-table td.in-range span {
+      color: $theme-luxury-business-text-primary !important;
+    }
+  }
+
+  // ========== 时间选择器样式 ==========
+  .el-time-panel {
+    background-color: $theme-luxury-business-bg-card;
+    border-color: $theme-luxury-business-border;
+    color: $theme-luxury-business-text-primary;
+
+    .el-time-spinner__item.active:not(.disabled) {
+      color: $theme-luxury-business-accent;
+    }
+  }
+
+  // ========== 级联选择器样式 ==========
+  .el-cascader-menu {
+    background-color: $theme-luxury-business-bg-card;
+    border-color: $theme-luxury-business-border;
+
+    .el-cascader-node {
+      color: $theme-luxury-business-text-primary;
+
+      &:hover {
+        background-color: $theme-luxury-business-menu-hover;
+      }
+
+      &.is-active {
+        color: $theme-luxury-business-accent;
+      }
+    }
+  }
+
+  // ========== 树形选择器样式 ==========
+  .el-tree {
+    background-color: transparent;
+    color: $theme-luxury-business-text-primary;
+
+    .el-tree-node__content:hover {
+      background-color: $theme-luxury-business-menu-hover;
+    }
+
+    .el-tree-node:focus > .el-tree-node__content {
+      background-color: $theme-luxury-business-menu-hover;
+    }
+  }
+
+  // ========== 消息提示样式 ==========
+  .el-message {
+    background-color: $theme-luxury-business-bg-card;
+    border-color: $theme-luxury-business-border;
+    color: $theme-luxury-business-text-primary;
+
+    &.el-message--success {
+      background-color: lighten($theme-luxury-business-accent, 35%);
+      border-color: $theme-luxury-business-accent;
+    }
+  }
+
+  .el-notification {
+    background-color: $theme-luxury-business-bg-card;
+    border-color: $theme-luxury-business-border;
+    color: $theme-luxury-business-text-primary;
+
+    .el-notification__title {
+      color: $theme-luxury-business-text-primary;
+    }
+  }
+
+  // ========== 标签页样式 ==========
+  .el-tabs {
+    .el-tabs__item {
+      color: $theme-luxury-business-text-secondary;
+
+      &:hover {
+        color: $theme-luxury-business-accent;
+      }
+
+      &.is-active {
+        color: $theme-luxury-business-accent;
+      }
+    }
+
+    .el-tabs__active-bar {
+      background-color: $theme-luxury-business-accent;
+    }
+
+    .el-tabs__nav-wrap::after {
+      background-color: $theme-luxury-business-border;
+    }
+  }
+
+  // ========== 步骤条样式 ==========
+  .el-steps {
+    .el-step__head.is-process {
+      color: $theme-luxury-business-accent;
+      border-color: $theme-luxury-business-accent;
+    }
+
+    .el-step__title.is-process {
+      color: $theme-luxury-business-accent;
+    }
+
+    .el-step__head.is-finish {
+      color: $theme-luxury-business-accent;
+      border-color: $theme-luxury-business-accent;
+    }
+
+    .el-step__title.is-finish {
+      color: $theme-luxury-business-text-primary;
+    }
+  }
+
+  // ========== 进度条样式 ==========
+  .el-progress-bar__inner {
+    background-color: $theme-luxury-business-accent;
+  }
+
+  // ========== 徽章样式 ==========
+  .el-badge__content {
+    background-color: $theme-luxury-business-accent;
+    border-color: $theme-luxury-business-accent;
+  }
+
+  // ========== 标签样式 ==========
+  .el-tag {
+    background-color: rgba(212, 175, 55, 0.1);
+    border-color: rgba(212, 175, 55, 0.3);
+    color: #d4af37;
+    border-radius: 4px;
+    padding: 0 10px;
+    margin-right: 8px;
+
+    &.el-tag--primary {
+      background-color: rgba(44, 62, 122, 0.2);
+      border-color: rgba(44, 62, 122, 0.5);
+      color: #5c7ac7;
+    }
+
+    &.el-tag--success {
+      background-color: rgba(76, 175, 80, 0.2);
+      border-color: rgba(76, 175, 80, 0.5);
+      color: #66bb6a;
+    }
+
+    &.el-tag--warning {
+      background-color: rgba(212, 175, 55, 0.2);
+      border-color: rgba(212, 175, 55, 0.5);
+      color: #d4af37;
+    }
+
+    &.el-tag--danger {
+      background-color: rgba(239, 83, 80, 0.2);
+      border-color: rgba(239, 83, 80, 0.5);
+      color: #ef5350;
+    }
+
+    &.el-tag--info {
+      background-color: rgba(184, 188, 200, 0.1);
+      border-color: rgba(184, 188, 200, 0.3);
+      color: #b8bcc8;
+    }
+
+    &.el-tag--dark {
+      opacity: 0.9;
+    }
+  }
+
+  // ========== 加载样式 ==========
+  .el-loading-mask {
+    background-color: rgba($theme-luxury-business-bg-base, 0.8);
+  }
+
+  .el-loading-spinner .circular {
+    stroke: $theme-luxury-business-accent;
+  }
+
+  // ========== 面包屑样式 ==========
+  .el-breadcrumb__inner,
+  .el-breadcrumb__inner a {
+    color: $theme-luxury-business-text-secondary;
+
+    &:hover {
+      color: $theme-luxury-business-accent;
+    }
+  }
+
+  .el-breadcrumb__item:last-child .el-breadcrumb__inner {
+    color: $theme-luxury-business-text-primary;
+  }
+
+  // ========== 表单验证状态 ==========
+  .el-form-item.is-error {
+    .el-input__inner,
+    .el-textarea__inner {
+      border-color: #f56c6c;
+    }
+
+    .el-form-item__error {
+      color: #f56c6c;
+    }
+  }
+
+  .el-form-item.is-success {
+    .el-input__inner,
+    .el-textarea__inner {
+      border-color: $theme-luxury-business-accent;
+    }
+  }
+
+  // ========== Popover弹出框样式 ==========
+  .el-popover {
+    background-color: $theme-luxury-business-bg-card;
+    border-color: $theme-luxury-business-border;
+    color: $theme-luxury-business-text-primary;
+  }
+
+  .el-popper[x-placement^="top"] .popper__arrow::after {
+    border-top-color: $theme-luxury-business-bg-card;
+  }
+
+  // ========== 抽屉组件样式 ==========
+  .el-drawer {
+    background-color: $theme-luxury-business-bg-card;
+    border-left: 1px solid $theme-luxury-business-border;
+
+    .el-drawer__body {
+      color: $theme-luxury-business-text-primary;
+    }
+
+    // 设置面板文字颜色适配
+    .drawer-container {
+      .drawer-title,
+      .setting-drawer-title {
+        color: $theme-luxury-business-accent !important;
+      }
+
+      .drawer-item {
+        color: rgba(232, 234, 240, 0.9) !important;
+      }
+    }
+  }
+
+  // ========== 菜单特效颜色适配 ==========
+  // 流光特效
+  .el-menu-item.menu-effect-shine::before {
+    background: linear-gradient(90deg, 
+      transparent, 
+      rgba($theme-luxury-business-accent, 0.8), 
+      transparent);
+  }
+
+  // 水波纹特效
+  .ripple-effect {
+    background-color: rgba($theme-luxury-business-accent, 0.3);
+  }
+
+  // 脉冲特效
+  @keyframes theme-luxury-pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba($theme-luxury-business-accent, 0.7);
+    }
+    50% {
+      box-shadow: 0 0 0 10px rgba($theme-luxury-business-accent, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba($theme-luxury-business-accent, 0);
+    }
+  }
+
+  .el-menu-item.menu-effect-pulse.is-active {
+    animation: theme-luxury-pulse 1.5s infinite;
+  }
+
+  // ========== 对话框底部提示文字优化 ==========
+  .el-dialog__footer {
+    .el-checkbox__label {
+      color: $theme-luxury-business-text-primary !important;
+    }
+    
+    .el-upload__tip,
+    .dialog-footer-tip {
+      color: rgba($theme-luxury-business-text-primary, 0.85) !important;
+    }
+  }
+  
+  .el-dialog__body {
+    .el-upload__tip {
+      color: rgba($theme-luxury-business-text-primary, 0.85) !important;
+    }
+  }
+}

@@ -1,0 +1,182 @@
+// ==========================================
+// 主题样式混入文件
+// 提供可复用的样式混入和工具函数
+// ==========================================
+
+// 卡片样式混入
+@mixin theme-card($bg-color, $border-color, $shadow-color) {
+  .el-card {
+    background-color: $bg-color;
+    border-color: $border-color;
+    box-shadow: 0 2px 12px 0 $shadow-color;
+
+    .el-card__header {
+      background-color: $bg-color;
+      border-bottom-color: $border-color;
+    }
+  }
+}
+
+@mixin theme-input-number(
+  $input-bg,
+  $input-border,
+  $input-text,
+  $control-bg,
+  $control-hover-bg,
+  $control-text,
+  $control-hover-text,
+  $disabled-bg,
+  $disabled-text,
+  $focus-border
+) {
+  .el-input-number {
+    .el-input__inner {
+      background: $input-bg !important;
+      border-color: $input-border !important;
+      color: $input-text !important;
+
+      &:focus {
+        border-color: $focus-border !important;
+      }
+    }
+
+    .el-input-number__decrease,
+    .el-input-number__increase {
+      background: $control-bg !important;
+      border-color: $input-border !important;
+      color: $control-text !important;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: $control-hover-bg !important;
+        border-color: $focus-border !important;
+        color: $control-hover-text !important;
+      }
+
+      &.is-disabled {
+        background: $disabled-bg !important;
+        color: $disabled-text !important;
+      }
+    }
+
+    &.is-controls-right {
+      .el-input-number__decrease,
+      .el-input-number__increase {
+        border-left-color: $input-border !important;
+      }
+
+      .el-input-number__decrease {
+        border-top-color: $input-border !important;
+      }
+    }
+  }
+}
+
+// 按钮样式混入
+@mixin theme-button($primary-color, $accent-color) {
+  .el-button--primary {
+    background-color: $primary-color;
+    border-color: $primary-color;
+
+    &:hover,
+    &:focus {
+      background-color: lighten($primary-color, 10%);
+      border-color: lighten($primary-color, 10%);
+    }
+  }
+
+  .el-button--success {
+    background-color: $accent-color;
+    border-color: $accent-color;
+
+    &:hover,
+    &:focus {
+      background-color: lighten($accent-color, 10%);
+      border-color: lighten($accent-color, 10%);
+    }
+  }
+}
+
+// 表格样式混入
+@mixin theme-table($bg-color, $header-bg, $border-color, $hover-bg, $text-color) {
+  .el-table {
+    background-color: $bg-color;
+    color: $text-color;
+
+    th.el-table__cell {
+      background-color: $header-bg;
+      color: $text-color;
+      border-color: $border-color;
+    }
+
+    td.el-table__cell {
+      border-color: $border-color;
+    }
+
+    tr {
+      background-color: $bg-color;
+    }
+
+    .el-table__body tr:hover > td {
+      background-color: $hover-bg !important;
+    }
+
+    &--striped .el-table__body tr.el-table__row--striped td {
+      background-color: darken($bg-color, 2%);
+    }
+  }
+}
+
+// 输入框样式混入
+@mixin theme-input($bg-color, $border-color, $text-color) {
+  .el-input__inner {
+    background-color: $bg-color;
+    border-color: $border-color;
+    color: $text-color;
+
+    &:focus {
+      border-color: lighten($border-color, 20%);
+    }
+  }
+
+  .el-textarea__inner {
+    background-color: $bg-color;
+    border-color: $border-color;
+    color: $text-color;
+
+    &:focus {
+      border-color: lighten($border-color, 20%);
+    }
+  }
+}
+
+// 滚动条样式混入
+@mixin theme-scrollbar($thumb-color, $track-color) {
+  ::-webkit-scrollbar-thumb {
+    background-color: $thumb-color;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: $track-color;
+  }
+}
+
+// 对话框样式混入
+@mixin theme-dialog($bg-color, $header-bg, $text-color, $border-color) {
+  .el-dialog {
+    background-color: $bg-color;
+
+    .el-dialog__header {
+      background-color: $header-bg;
+      border-bottom: 1px solid $border-color;
+    }
+
+    .el-dialog__title {
+      color: $text-color;
+    }
+
+    .el-dialog__body {
+      color: $text-color;
+    }
+  }
+}

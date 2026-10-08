@@ -1,0 +1,57 @@
+# Spring
+spring:
+  application:
+    name: zero-file
+  profiles:
+    active: dev
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 5000
+            readTimeout: 30000
+            loggerLevel: basic
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 30MB
+      max-request-size: 300MB
+      resolve-lazily: true
+---
+server:
+  port: 10003
+  servlet:
+    context-path: /
+  tomcat:
+    uri-encoding: UTF-8
+    accept-count: 500
+    max-connections: 3000
+    threads:
+      max: 500
+      min-spare: 100
+---
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    root: INFO
+    org.springframework: warn
+---
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*Mapper.xml
+  type-aliases-package: ${zero.package.type-aliases-package:com.zero.**.domain}
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    banner: false
+    db-config:
+      id-type: auto
+---
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always

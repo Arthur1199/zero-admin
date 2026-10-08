@@ -1,0 +1,8 @@
+/.idea/
+/zero-admin/logs/
+/zero-report/logs/
+/zero-tools/target/
+/zero-admin/target/
+/zero-bootAdmin/target/
+/zero-file/target/
+/zero-report/target/

@@ -1,0 +1,48 @@
+#运行环境配置
+spring:
+  profiles:
+    active:
+      - dev
+---
+# Tomcat
+server:
+  port: 9100
+  tomcat:
+    basedir: /data/apps/temp
+    threads:
+      max : 500
+      min-spare: 100
+    max-connections: 3000
+    accept-count: 500
+---
+#bootadmin配置信息
+spring:
+  application:
+    name: ${zero.boot-admin.application-name:zero-boot-admin}
+---
+#监控设置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+spring:
+  boot:
+    admin:
+      monitor:
+        default-timeout: 30000
+        default-retries:  3
+---
+# 登录安全设置
+spring:
+  security:
+    user:
+      name: admin
+      password: ArthurFishMqewy43fhTAxpQayz
+---
+#日志
+logging:
+  config: classpath:logback.xml

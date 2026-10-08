@@ -1,0 +1,117 @@
+# Spring
+spring:
+  application:
+    # 应用名称
+    name: zero-admin
+  messages:
+    # 国际化资源路径兜底配置，避免 Nacos common 配置读取失败时登录成功消息无法解析
+    basename: i18n/messages
+  main:
+    # 配置覆盖本地同名Bean配置的场景
+    allow-bean-definition-overriding: true
+#  config:
+#    # 加载本地环境配置，避免升级后localYml目录下的数据源、Redis等配置未进入Spring环境
+#    import:
+#      - optional:classpath:localYml/application.yml
+#      - optional:classpath:localYml/application-${spring.profiles.active}.yml
+  profiles:
+    # 默认环境，可通过启动参数 --spring.profiles.active=test/prod 覆盖
+    active: dev
+  cloud:
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 5000
+            readTimeout: 30000
+            loggerLevel: basic
+# 开发环境配置Tomcat
+server:
+  # 服务器的HTTP端口，默认为8080
+  port: 9099
+  #servlet配置
+  servlet:
+    # 应用的访问路径
+    context-path: /
+  tomcat:
+    # tomcat的URI编码
+    uri-encoding: UTF-8
+    # 连接数满后的排队数，默认为100
+    accept-count: 1000
+    threads:
+      # tomcat最大线程数，默认为200
+      max: 800
+      # Tomcat启动初始化的线程数，默认值10
+      min-spare: 100
+---
+# 日志配置
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    root: INFO
+    org.springframework: warn
+---
+# token配置
+token:
+  # 令牌自定义标识
+  header: Authorization
+  # 令牌密钥
+  secret: AdclHFxAAtFH3tgmAgaUmHSi+4t/7/3JG9cTlhxSjqEA5Si0Br0167nXzjrNLQJs
+  # 令牌有效期（默认30分钟）
+  expireTime: 30
+---
+# MyBatis配置
+# 用户密码策略兜底配置，避免Nacos配置解析失败时登录组件无法初始化
+user:
+  password:
+    maxRetryCount: 5
+    lockTime: 1
+---
+mybatis:
+  # 搜索指定包别名
+  typeAliasesPackage: ${zero.package.type-aliases-package:com.zero.**.domain}
+  # 配置mapper的扫描，找到所有的mapper.xml映射文件
+  mapperLocations: classpath*:mapper/**/*Mapper.xml
+  # 加载全局的配置文件
+  configLocation: classpath:mybatis/mybatis-config.xml
+---
+# PageHelper分页插件
+pagehelper:
+  helperDialect: mysql
+  supportMethodsArguments: true
+  params: count=countSql
+---
+## Swagger配置
+#swagger:
+#  # 是否开启swagger
+#  enabled: true
+#  # 请求前缀
+#  pathMapping: /dev-api
+
+# ======== SpringDocs文档配置 ========
+springdoc:
+  api-docs:
+    enabled: true  # 开启OpenApi接口
+    path: /v3/api-docs  # 自定义路径，默认为 "/v3/api-docs"
+  swagger-ui:
+    enabled: true  #开启swagger界面，依赖OpenApi，需要OpenApi同时开启
+    path: /swagger-ui.html # 自定义路径，默认为"/swagger-ui/index.html"
+---
+# 防止XSS攻击
+xss:
+  # 过滤开关
+  enabled: true
+  # 排除链接（多个用逗号分隔）
+  excludes: /system/notice
+  # 匹配链接
+  urlPatterns: /system/*,/monitor/*,/tool/*
+---
+# 监控设置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

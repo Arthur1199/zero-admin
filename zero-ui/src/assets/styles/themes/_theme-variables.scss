@@ -1,0 +1,98 @@
+// ==========================================
+// 主题变量定义文件
+// 定义所有8种自定义主题的颜色变量
+// ==========================================
+
+// 1. 轻奢商务风 (luxury-business)
+$theme-luxury-business-primary: #2c3e7a;
+$theme-luxury-business-accent: #d4af37;
+$theme-luxury-business-bg-base: #0f1419;
+$theme-luxury-business-bg-card: #1a1f2e;
+$theme-luxury-business-text-primary: #e8eaf0;
+$theme-luxury-business-text-secondary: #b8bcc8;
+$theme-luxury-business-border: #2a3142;
+$theme-luxury-business-shadow: rgba(0, 0, 0, 0.3);
+$theme-luxury-business-menu-bg: #1a1f2e;
+$theme-luxury-business-menu-hover: rgba(212, 175, 55, 0.1);
+$theme-luxury-business-menu-active: #d4af37;
+
+// 2. 活力科技风 (vibrant-tech)
+$theme-vibrant-tech-primary: #667eea;
+$theme-vibrant-tech-primary-end: #764ba2;
+$theme-vibrant-tech-accent: #00f2fe;
+$theme-vibrant-tech-bg-base: #0a0e27;
+$theme-vibrant-tech-bg-card: #141a35;
+$theme-vibrant-tech-text-primary: #ffffff;
+$theme-vibrant-tech-text-secondary: #c0c9ff;
+$theme-vibrant-tech-border: #2a3552;
+$theme-vibrant-tech-shadow: rgba(0, 0, 0, 0.4);
+$theme-vibrant-tech-menu-bg: #141a35;
+$theme-vibrant-tech-menu-hover: rgba(0, 242, 254, 0.1);
+$theme-vibrant-tech-menu-active: #00f2fe;
+
+// 3. 极简未来风 (minimalist-future)
+$theme-minimalist-future-primary: #eaf6ff;
+$theme-minimalist-future-accent: #00bcd4;
+$theme-minimalist-future-bg-base: #f5fbff;
+$theme-minimalist-future-bg-card: rgba(255, 255, 255, 0.88);
+$theme-minimalist-future-text-primary: #172033;
+$theme-minimalist-future-text-secondary: #5c6b82;
+$theme-minimalist-future-border: rgba(0, 188, 212, 0.18);
+$theme-minimalist-future-shadow: rgba(22, 64, 95, 0.12);
+$theme-minimalist-future-menu-bg: rgba(244, 251, 255, 0.94);
+$theme-minimalist-future-menu-hover: rgba(0, 188, 212, 0.10);
+$theme-minimalist-future-menu-active: #006c9a;
+
+// 4. 温馨自然风 (warm-nature)
+$theme-warm-nature-primary: #8b6f47;
+$theme-warm-nature-accent: #e6b87f;
+$theme-warm-nature-bg-base: #faf8f3;
+$theme-warm-nature-bg-card: #ffffff;
+$theme-warm-nature-text-primary: #4a3f35;
+$theme-warm-nature-text-secondary: #8b7355;
+$theme-warm-nature-border: #d4c4b0;
+$theme-warm-nature-shadow: rgba(0, 0, 0, 0.1);
+$theme-warm-nature-menu-bg: #f5f0e8;
+$theme-warm-nature-menu-hover: rgba(139, 111, 71, 0.1);
+$theme-warm-nature-menu-active: #8b6f47;
+
+// 5. 毛玻璃拟态风 (glassmorphism)
+$theme-glassmorphism-primary: #6366f1;
+$theme-glassmorphism-accent: #a855f7;
+// 使用CSS变量以支持动态切换背景，默认为方案2:海洋日落渐变
+$theme-glassmorphism-bg-base: var(--glassmorphism-bg-gradient, linear-gradient(135deg, #1e3a8a 0%, #7c3aed 50%, #ec4899 100%));
+$theme-glassmorphism-bg-card: rgba(255, 255, 255, 0.1);
+$theme-glassmorphism-text-primary: #ffffff;
+$theme-glassmorphism-text-secondary: rgba(255, 255, 255, 0.7);
+$theme-glassmorphism-border: rgba(255, 255, 255, 0.2);
+$theme-glassmorphism-shadow: rgba(0, 0, 0, 0.2);
+$theme-glassmorphism-menu-bg: rgba(255, 255, 255, 0.05);
+$theme-glassmorphism-menu-hover: rgba(255, 255, 255, 0.1);
+$theme-glassmorphism-menu-active: rgba(255, 255, 255, 0.2);
+
+// 6. 质感设计风 (material-design) - Material Design 3.0
+$theme-material-design-primary: #6750a4;
+$theme-material-design-secondary: #625b71;
+$theme-material-design-accent: #ff6f00;
+$theme-material-design-bg-base: #f5f5f5;
+$theme-material-design-bg-card: #ffffff;
+$theme-material-design-text-primary: #1c1b1f;
+$theme-material-design-text-secondary: #49454f;
+$theme-material-design-border: #e5e5e5;
+$theme-material-design-shadow: rgba(0, 0, 0, 0.12);
+$theme-material-design-menu-bg: #ffffff;
+$theme-material-design-menu-hover: #f5f5f5;
+$theme-material-design-menu-active: #21005d;
+
+// 7. 高端暗黑风 (dark-premium) - OLED优化版
+$theme-dark-premium-primary: #18181b;
+$theme-dark-premium-accent: #d4af37;
+$theme-dark-premium-bg-base: #000000;
+$theme-dark-premium-bg-card: #18181b;
+$theme-dark-premium-text-primary: #e4e4e7;
+$theme-dark-premium-text-secondary: #a1a1aa;
+$theme-dark-premium-border: #27272a;
+$theme-dark-premium-shadow: rgba(0, 0, 0, 0.5);
+$theme-dark-premium-menu-bg: #18181b;
+$theme-dark-premium-menu-hover: rgba(212, 175, 55, 0.15);
+$theme-dark-premium-menu-active: #d4af37;

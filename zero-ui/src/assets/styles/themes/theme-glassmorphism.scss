@@ -1,0 +1,2901 @@
+// ==========================================
+// ==========================================
+// 毛玻璃拟态风主题样式
+// Theme: Glassmorphism
+// ==========================================
+
+@import './theme-variables';
+@import './theme-mixins';
+
+// ========================================== 
+// 全局动画定义（必须在最前面，确保所有地方都能使用）
+// ==========================================
+// 方案A：炫彩脉冲动画
+@keyframes glassmorphism-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+  }
+}
+
+// 方案B：极光呼吸动画
+@keyframes glassmorphism-breathe {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.6);
+  }
+}
+
+// ========================================== 
+// 全局最高优先级：移除毛玻璃主题下所有菜单hover背景色
+// 必须放在文件最前面，确保被正确编译
+// ==========================================
+body.theme-glassmorphism #app .sidebar-container .submenu-title-noDropdown:hover,
+body.theme-glassmorphism #app .sidebar-container .el-submenu__title:hover,
+body.theme-glassmorphism #app .sidebar-container .nest-menu .el-submenu > .el-submenu__title:hover,
+body.theme-glassmorphism #app .sidebar-container .el-submenu .el-menu-item:hover,
+body.theme-glassmorphism #app .sidebar-container .el-menu--inline .el-menu-item:hover,
+body.theme-glassmorphism .el-menu--vertical .nest-menu .el-submenu > .el-submenu__title:hover,
+body.theme-glassmorphism .el-menu--vertical .el-menu-item:hover {
+  background-color: transparent !important;
+  background: none !important;
+  background-image: none !important;
+}
+
+// ==========================================
+// 全局最高优先级:弹出菜单层级控制（直接挂载到body下）
+// 【关键修复】移除backdrop-filter，使用主题色背景避免层叠上下文问题
+// ==========================================
+body.theme-glassmorphism {
+  > .el-menu--popup.el-menu--vertical {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.98) 0%, rgba(118, 75, 162, 0.98) 100%) !important;  // 深蓝紫色渐变背景，与主题匹配
+    backdrop-filter: none !important;  // 关键：移除毛玻璃效果，避免创建新的层叠上下文
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important;
+    border-radius: 8px !important;
+    z-index: 99999 !important;
+    position: fixed !important;  // 确保固定定位
+    
+    // 菜单项文字颜色
+    .el-menu-item {
+      color: rgba(255, 255, 255, 0.95) !important;  // 高对比度白色文字
+      background: transparent !important;
+      
+      &:hover {
+        color: #ffffff !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+      }
+      
+      // 【方案B】弹出菜单中的激活状态 - 极光高亮
+      &.is-active {
+        background: linear-gradient(90deg, 
+          rgba(255, 255, 255, 0.35) 0%,
+          rgba(255, 255, 255, 0.15) 100%) !important;
+        animation: glassmorphism-breathe 3s ease-in-out infinite !important;
+        color: #ffffff !important;
+        position: relative;
+        
+        i, svg {
+          filter: drop-shadow(0 0 12px rgba(255, 255, 255, 1)) 
+                  drop-shadow(0 0 6px rgba(255, 255, 255, 0.8)) !important;
+          color: #ffffff !important;
+          transform: scale(1.15);
+          transition: all 0.3s ease;
+        }
+        
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: 6px;
+          background: #ffffff;
+          box-shadow: 0 0 20px rgba(255, 255, 255, 0.9),
+                      0 0 30px rgba(255, 255, 255, 0.6),
+                      inset 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        // 添加外延光晕
+        &::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 10px;
+          height: 40px;
+          background: radial-gradient(ellipse at center, 
+            rgba(255, 255, 255, 0.6) 0%, 
+            transparent 70%);
+          pointer-events: none;
+        }
+      }
+    }
+  }
+}
+
+// 全局弹出菜单样式（不依赖body选择器）
+.el-menu--popup.el-menu--vertical {
+  body.theme-glassmorphism & {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.98) 0%, rgba(118, 75, 162, 0.98) 100%) !important;  // 深蓝紫色渐变背景
+    backdrop-filter: none !important;  // 关键：移除毛玻璃效果
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important;
+    border-radius: 8px !important;
+    z-index: 99999 !important;
+    position: fixed !important;
+    
+    // 菜单项文字颜色
+    .el-menu-item {
+      color: rgba(255, 255, 255, 0.95) !important;  // 高对比度白色文字
+      background: transparent !important;
+      
+      &:hover {
+        color: #ffffff !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+      }
+      
+      // 【方案B】弹出菜单中的激活状态 - 极光高亮
+      &.is-active {
+        background: linear-gradient(90deg, 
+          rgba(255, 255, 255, 0.35) 0%,
+          rgba(255, 255, 255, 0.15) 100%) !important;
+        animation: glassmorphism-breathe 3s ease-in-out infinite !important;
+        color: #ffffff !important;
+        position: relative;
+        
+        i, svg {
+          filter: drop-shadow(0 0 12px rgba(255, 255, 255, 1)) 
+                  drop-shadow(0 0 6px rgba(255, 255, 255, 0.8)) !important;
+          color: #ffffff !important;
+          transform: scale(1.15);
+          transition: all 0.3s ease;
+        }
+        
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: 6px;
+          background: #ffffff;
+          box-shadow: 0 0 20px rgba(255, 255, 255, 0.9),
+                      0 0 30px rgba(255, 255, 255, 0.6),
+                      inset 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        // 添加外延光晕
+        &::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 10px;
+          height: 40px;
+          background: radial-gradient(ellipse at center, 
+            rgba(255, 255, 255, 0.6) 0%, 
+            transparent 70%);
+          pointer-events: none;
+        }
+      }
+    }
+  }
+}
+
+.theme-glassmorphism:not(.form-builder-page) {
+  // ========== 全局背景与文字 ==========
+  background: $theme-glassmorphism-bg-base;
+  color: $theme-glassmorphism-text-primary;
+  @include theme-input-number(
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0.22),
+    #ffffff,
+    rgba(255, 255, 255, 0.10),
+    rgba(255, 255, 255, 0.18),
+    rgba(255, 255, 255, 0.78),
+    #ffffff,
+    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.28),
+    rgba(255, 255, 255, 0.38)
+  );
+
+  // ========== 首页样式优化 ==========
+  .zero-home {
+    // 首页卡片需要加深背景，确保白色文字可见
+    .el-card {
+      background: rgba(0, 0, 0, 0.3) !important;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      
+      .el-card__header {
+        background: rgba(0, 0, 0, 0.2) !important;
+      }
+    }
+    
+    // 系统简介区域
+    .intro-section {
+      .section-title {
+        color: $theme-glassmorphism-text-primary !important;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        
+        i {
+          color: $theme-glassmorphism-text-primary !important;
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+        
+        span {
+          color: $theme-glassmorphism-text-primary !important;
+        }
+      }
+      
+      .intro-text {
+        color: rgba(255, 255, 255, 0.9) !important;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+      }
+    }
+    
+    // 主题预览区域
+    .theme-preview-section {
+      .section-title {
+        color: $theme-glassmorphism-text-primary !important;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        
+        i {
+          color: $theme-glassmorphism-text-primary !important;
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+        
+        span {
+          color: $theme-glassmorphism-text-primary !important;
+        }
+      }
+      
+      .theme-preview-desc {
+        color: rgba(255, 255, 255, 0.85) !important;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+      }
+      
+      .theme-card-item {
+        background: rgba(0, 0, 0, 0.2) !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        
+        h4 {
+          color: $theme-glassmorphism-text-primary !important;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        &:hover {
+          border-color: rgba(255, 255, 255, 0.5) !important;
+          background: rgba(0, 0, 0, 0.3) !important;
+        }
+      }
+    }
+    
+    // 技术架构卡片
+    .tech-section {
+      .tech-card {
+        .card-header {
+          border-bottom-color: rgba(255, 255, 255, 0.3) !important;
+          
+          h3 {
+            color: $theme-glassmorphism-text-primary !important;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+          }
+          
+          i {
+            filter: brightness(1.3) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+          }
+        }
+        
+        .tech-list {
+          .tech-item {
+            border-bottom-color: rgba(255, 255, 255, 0.15) !important;
+            
+            .tech-desc {
+              color: rgba(255, 255, 255, 0.9) !important;
+              text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            }
+          }
+        }
+      }
+    }
+    
+    // 段落标题统一样式
+    .section-title-center {
+      color: $theme-glassmorphism-text-primary !important;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      
+      i {
+        color: $theme-glassmorphism-text-primary !important;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+      }
+      
+      span {
+        color: $theme-glassmorphism-text-primary !important;
+      }
+    }
+    
+    // 系统架构箭头
+    .architecture-section {
+      .arch-arrow {
+        color: $theme-glassmorphism-text-primary !important;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        font-weight: bold;
+      }
+    }
+    
+    // 功能模块
+    .modules-section {
+      .module-item {
+        background: rgba(0, 0, 0, 0.25) !important;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        
+        span {
+          color: $theme-glassmorphism-text-primary !important;
+          text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        i {
+          filter: brightness(1.2) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+      }
+    }
+    
+    // 核心特性卡片
+    .features-section {
+      .feature-card {
+        h4 {
+          color: $theme-glassmorphism-text-primary !important;
+          text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        p {
+          color: rgba(255, 255, 255, 0.9) !important;
+          text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+      }
+    }
+  }
+
+  // ========== 侧边栏样式 ==========
+  .sidebar-container {
+    background: rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
+
+    // Logo区域
+    .sidebar-logo-container {
+      background: transparent !important;  // 移除背景色，保持完全透明
+      backdrop-filter: none;  // 移除毛玻璃模糊效果
+      -webkit-backdrop-filter: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;  // 保留底部边框，但调整更浅
+
+      .sidebar-title {
+        color: #ffffff !important;
+        font-weight: 600;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .sidebar-logo {
+        filter: brightness(0) invert(1);
+      }
+    }
+
+    // 菜单整体
+    .el-menu {
+      background-color: transparent !important;
+      border-right: none;
+    }
+
+    // 普通菜单项
+    .el-menu-item {
+      background-color: transparent !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+      margin: 0 !important;
+      padding: 0 20px !important;
+      border-radius: 0 !important;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      height: 56px !important;
+      line-height: 56px !important;
+      font-size: 14px !important;
+      border: none !important;
+      box-shadow: none !important;
+
+      i {
+        color: rgba(255, 255, 255, 0.9) !important;
+        transition: all 0.3s !important;
+      }
+
+      &:hover {
+        background: transparent !important;  // 移除hover背景色
+        color: #ffffff !important;
+        border: none !important;
+        box-shadow: none !important;
+
+        i {
+          color: #ffffff !important;
+        }
+      }
+
+      &.is-active {
+        background: transparent !important;  // 完全透明，移除背景色
+        backdrop-filter: none !important;  // 移除模糊效果
+        -webkit-backdrop-filter: none !important;
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        position: relative;
+        border: none !important;
+        box-shadow: none !important;
+
+        i {
+          color: #ffffff !important;
+        }
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: 3px;
+          background: #ffffff;
+          box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        // 激活状态的hover也保持透明
+        &:hover {
+          background: transparent !important;
+        }
+      }
+    }
+    
+    // ========== 菜单折叠状态下的激活样式增强 ==========
+    // 提供三种方案供选择，请只保留一种，注释掉其他两种
+    &.hideSidebar {
+      
+      // ==================== 方案A：炫彩脉冲 ⚡（最醒目） ====================
+      // 特点：彩色渐变背景 + 持续脉冲动画 + 超强发光 + 彩色边框
+      /*
+      .el-menu-item.is-active {
+        background: linear-gradient(90deg, 
+          rgba(102, 126, 234, 0.4) 0%,
+          rgba(118, 75, 162, 0.3) 50%,
+          rgba(237, 100, 166, 0.2) 100%) !important;
+        animation: glassmorphism-pulse 2s ease-in-out infinite;
+        
+        i, svg {
+          filter: drop-shadow(0 0 12px rgba(102, 126, 234, 1)) 
+                  drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+          color: #ffffff !important;
+          transform: scale(1.1);
+        }
+        
+        &::before {
+          width: 6px !important;
+          background: linear-gradient(180deg, #667eea 0%, #ed64a6 100%);
+          box-shadow: 0 0 20px rgba(102, 126, 234, 0.8),
+                      0 0 40px rgba(237, 100, 166, 0.6);
+        }
+      }
+      
+      .el-submenu.is-active > .el-submenu__title {
+        background: linear-gradient(90deg, 
+          rgba(102, 126, 234, 0.4) 0%,
+          rgba(118, 75, 162, 0.3) 50%,
+          rgba(237, 100, 166, 0.2) 100%) !important;
+        animation: glassmorphism-pulse 2s ease-in-out infinite;
+        
+        i, svg {
+          filter: drop-shadow(0 0 12px rgba(102, 126, 234, 1)) 
+                  drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+          color: #ffffff !important;
+          transform: scale(1.1);
+        }
+        
+        &::before {
+          width: 6px !important;
+          background: linear-gradient(180deg, #667eea 0%, #ed64a6 100%);
+          box-shadow: 0 0 20px rgba(102, 126, 234, 0.8),
+                      0 0 40px rgba(237, 100, 166, 0.6);
+        }
+      }
+      */
+      
+      
+      // ==================== 方案B：极光高亮 🌟（平衡推荐） ====================
+      // 特点：强烈白色高亮背景 + 图标放大发光 + 宽边框 + 轻微呼吸动画
+      
+      .el-menu-item.is-active {
+        background: linear-gradient(90deg, 
+          rgba(255, 255, 255, 0.35) 0%,
+          rgba(255, 255, 255, 0.15) 100%) !important;
+        animation: glassmorphism-breathe 3s ease-in-out infinite;
+        
+        i, svg {
+          filter: drop-shadow(0 0 12px rgba(255, 255, 255, 1)) 
+                  drop-shadow(0 0 6px rgba(255, 255, 255, 0.8));
+          color: #ffffff !important;
+          transform: scale(1.15);
+          transition: all 0.3s ease;
+        }
+        
+        &::before {
+          width: 6px !important;
+          background: #ffffff;
+          box-shadow: 0 0 20px rgba(255, 255, 255, 0.9),
+                      0 0 30px rgba(255, 255, 255, 0.6),
+                      inset 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        // 添加外延光晕
+        &::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 10px;
+          height: 40px;
+          background: radial-gradient(ellipse at center, 
+            rgba(255, 255, 255, 0.6) 0%, 
+            transparent 70%);
+          pointer-events: none;
+        }
+      }
+      
+      .el-submenu.is-active > .el-submenu__title {
+        background: linear-gradient(90deg, 
+          rgba(255, 255, 255, 0.35) 0%,
+          rgba(255, 255, 255, 0.15) 100%) !important;
+        animation: glassmorphism-breathe 3s ease-in-out infinite;
+        
+        i, svg {
+          filter: drop-shadow(0 0 12px rgba(255, 255, 255, 1)) 
+                  drop-shadow(0 0 6px rgba(255, 255, 255, 0.8));
+          color: #ffffff !important;
+          transform: scale(1.15);
+          transition: all 0.3s ease;
+        }
+        
+        &::before {
+          width: 6px !important;
+          background: #ffffff;
+          box-shadow: 0 0 20px rgba(255, 255, 255, 0.9),
+                      0 0 30px rgba(255, 255, 255, 0.6),
+                      inset 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        &::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 10px;
+          height: 40px;
+          background: radial-gradient(ellipse at center, 
+            rgba(255, 255, 255, 0.6) 0%, 
+            transparent 70%);
+          pointer-events: none;
+        }
+      }
+      
+      // ==================== 方案C：边框加强 📍（简约风格） ====================
+      // 特点：超宽边框 + 双色渐变 + 超强发光 + 无动画
+      /*
+      .el-menu-item.is-active {
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.15) 0%, transparent 100%) !important;
+        
+        i, svg {
+          filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.9));
+          color: #ffffff !important;
+        }
+        
+        &::before {
+          width: 8px !important;  // 超宽边框
+          background: linear-gradient(180deg, 
+            #ffffff 0%, 
+            #667eea 50%,
+            #00f2fe 100%);
+          box-shadow: 0 0 25px rgba(255, 255, 255, 0.9),
+                      0 0 40px rgba(102, 126, 234, 0.7),
+                      inset 0 0 15px rgba(255, 255, 255, 0.4);
+        }
+      }
+      
+      .el-submenu.is-active > .el-submenu__title {
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0.15) 0%, transparent 100%) !important;
+        
+        i, svg {
+          filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.9));
+          color: #ffffff !important;
+        }
+        
+        &::before {
+          width: 8px !important;  // 超宽边框
+          background: linear-gradient(180deg, 
+            #ffffff 0%, 
+            #667eea 50%,
+            #00f2fe 100%);
+          box-shadow: 0 0 25px rgba(255, 255, 255, 0.9),
+                      0 0 40px rgba(102, 126, 234, 0.7),
+                      inset 0 0 15px rgba(255, 255, 255, 0.4);
+        }
+      }
+      */
+    }
+
+    // 子菜单标题
+    .el-submenu__title {
+      background-color: transparent !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+      margin: 0 !important;
+      padding: 0 20px !important;
+      border-radius: 0 !important;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      height: 56px !important;
+      line-height: 56px !important;
+      font-size: 14px !important;
+      border: none !important;
+      box-shadow: none !important;
+
+      i {
+        color: rgba(255, 255, 255, 0.9) !important;
+        transition: all 0.3s !important;
+      }
+
+      &:hover {
+        background: transparent !important;  // 移除hover背景色
+        color: #ffffff !important;
+        border: none !important;
+        box-shadow: none !important;
+
+        i {
+          color: #ffffff !important;
+        }
+      }
+
+      .el-submenu__icon-arrow {
+        color: rgba(255, 255, 255, 0.9) !important;
+        transition: all 0.3s !important;
+      }
+    }
+
+    // 激活的父菜单 - 移除背景色，只保留左边框和文字样式
+    .el-submenu.is-active > .el-submenu__title {
+      background: transparent !important;  // 完全透明，移除背景色
+      backdrop-filter: none !important;  // 移除模糊效果
+      -webkit-backdrop-filter: none !important;
+      color: #ffffff !important;
+      font-weight: 600 !important;
+      position: relative;
+      border: none !important;
+      box-shadow: none !important;
+
+      i {
+        color: #ffffff !important;
+      }
+
+      .el-submenu__icon-arrow {
+        color: #ffffff !important;
+      }
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: #ffffff;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+      }
+
+      // 激活状态的hover也保持透明
+      &:hover {
+        background: transparent !important;
+      }
+    }
+
+    // 展开状态的父菜单（未激活）- 也要保持透明
+    .el-submenu.is-opened > .el-submenu__title {
+      background: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+      border: none !important;
+      box-shadow: none !important;
+
+      i {
+        color: rgba(255, 255, 255, 0.9) !important;
+      }
+
+      .el-submenu__icon-arrow {
+        color: rgba(255, 255, 255, 0.9) !important;
+      }
+
+      &:hover {
+        background: transparent !important;
+        color: #ffffff !important;
+
+        i {
+          color: #ffffff !important;
+        }
+
+        .el-submenu__icon-arrow {
+          color: #ffffff !important;
+        }
+      }
+    }
+
+    // 子菜单容器 - 完全透明，移除所有背景色
+    .el-menu--inline {
+      background: transparent !important;
+      background-color: transparent !important;
+      background-image: none !important;
+      margin: 0 6px !important;  // 左右边距从12px减少到6px，子菜单整体向左移动6px
+      border-radius: 0 !important;
+    }
+
+    // 展开的子菜单容器 - 这才是真正显示子菜单的容器!
+    .el-submenu__menu {
+      background: transparent !important;
+      background-color: transparent !important;
+      background-image: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    // 二次确保：所有子菜单相关容器都透明
+    .el-menu--inline.el-menu {
+      background: transparent !important;
+      background-color: transparent !important;
+      background-image: none !important;
+
+      // 使用更高优先级的选择器强制覆盖
+      .el-menu-item.el-menu-item {
+        background-color: transparent !important;
+        background: transparent !important;
+        background-image: none !important;
+        padding-left: 28px !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        color: rgba(255, 255, 255, 0.8) !important;
+        height: 48px !important;
+        line-height: 48px !important;
+        font-size: 14px !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        border: none !important;
+        box-shadow: none !important;
+        position: relative;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+
+        &:hover {
+          background: transparent !important;
+          background-color: transparent !important;
+          background-image: none !important;
+          color: #ffffff !important;
+          border: none !important;
+          box-shadow: none !important;
+          backdrop-filter: none !important;
+          -webkit-backdrop-filter: none !important;
+        }
+
+        &.is-active {
+          background: transparent !important;
+          background-color: transparent !important;
+          background-image: none !important;
+          backdrop-filter: none !important;
+          -webkit-backdrop-filter: none !important;
+          color: #ffffff !important;
+          font-weight: 600 !important;
+          position: relative;
+          border: none !important;
+          box-shadow: none !important;
+
+          &::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #ffffff;
+          }
+
+          // 激活状态的hover也要移除背景色
+          &:hover {
+            background: transparent !important;
+            background-color: transparent !important;
+            background-image: none !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+          }
+        }
+      }
+
+      // ========== 多级菜单层级增强样式 ==========
+      // 二级子菜单（嵌套在一级子菜单中）
+      .el-menu--inline.el-menu {
+        // 移除 margin-left: 0，让容器的 margin: 0 12px 生效，实现层级缩进
+        
+        .el-menu-item {
+          padding-left: 48px !important;  // 二级菜单额外缩进20px
+          font-size: 14px !important;  // 与主菜单保持一致
+          color: rgba(255, 255, 255, 0.75) !important;
+          position: relative;
+          
+          // 添加左侧层级指示线
+          &::after {
+            content: '';
+            position: absolute;
+            left: 12px;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.15);
+          }
+          
+          &:hover {
+            color: rgba(255, 255, 255, 0.95) !important;
+          }
+          
+          &.is-active {
+            color: #ffffff !important;
+            font-size: 14px !important;  // 激活状态也保持一致
+            
+            &::after {
+              background: rgba(255, 255, 255, 0.3);
+            }
+          }
+        }
+        
+        // 三级子菜单（嵌套在二级子菜单中）
+        .el-menu--inline.el-menu {
+          .el-menu-item {
+            padding-left: 68px !important;  // 三级菜单再额外缩进20px
+            font-size: 14px !important;  // 与主菜单保持一致
+            color: rgba(255, 255, 255, 0.7) !important;
+            
+            // 三级菜单的层级指示线
+            &::after {
+              left: 32px;
+              background: rgba(255, 255, 255, 0.1);
+            }
+            
+            &:hover {
+              color: rgba(255, 255, 255, 0.9) !important;
+            }
+            
+            &.is-active {
+              color: rgba(255, 255, 255, 0.95) !important;
+              font-size: 14px !important;  // 激活状态也保持一致
+              
+              &::after {
+                background: rgba(255, 255, 255, 0.25);
+              }
+            }
+          }
+          
+          // 四级子菜单（嵌套在三级子菜单中）
+          .el-menu--inline.el-menu {
+            .el-menu-item {
+              padding-left: 88px !important;  // 四级菜单再额外缩进20px
+              font-size: 14px !important;
+              color: rgba(255, 255, 255, 0.65) !important;
+              
+              &::after {
+                left: 52px;
+                background: rgba(255, 255, 255, 0.08);
+              }
+              
+              &:hover {
+                color: rgba(255, 255, 255, 0.85) !important;
+              }
+              
+              &.is-active {
+                color: rgba(255, 255, 255, 0.9) !important;
+                font-size: 14px !important;
+                
+                &::after {
+                  background: rgba(255, 255, 255, 0.2);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // 强制覆盖body下的popup子菜单 - 使用主题色背景，移除毛玻璃效果
+    .el-menu--popup.el-menu--vertical {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.98) 0%, rgba(118, 75, 162, 0.98) 100%) !important;  // 深蓝紫色渐变背景，与主题匹配
+      backdrop-filter: none !important;  // 关键：移除毛玻璃效果，避免层叠上下文问题
+      -webkit-backdrop-filter: none !important;
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important;
+      border-radius: 8px;
+      z-index: 99999 !important;  // 确保在最上层显示
+      position: fixed !important;  // 确保固定定位
+
+      .el-menu-item {
+        background-color: transparent !important;
+        color: rgba(255, 255, 255, 0.95) !important;  // 高对比度白色文字
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.1) !important;
+          color: #ffffff !important;
+        }
+
+        &.is-active {
+          background: rgba(255, 255, 255, 0.15) !important;
+          color: #ffffff !important;
+          font-weight: 600;
+          position: relative;
+
+          &::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #ffffff;
+          }
+
+          // 激活状态的hover也要保持样式
+          &:hover {
+            background: rgba(255, 255, 255, 0.2) !important;
+          }
+        }
+      }
+    }
+
+    // 滚动条
+    .el-scrollbar__wrap {
+      overflow-x: hidden;
+    }
+
+    // ========== 全局强制覆盖sidebar.scss中的hover样式 ==========
+    // 覆盖 .submenu-title-noDropdown 和 .el-submenu__title 的hover
+    .submenu-title-noDropdown:hover,
+    .el-submenu__title:hover {
+      background-color: transparent !important;
+      background: none !important;
+      background-image: none !important;
+    }
+
+    // 覆盖子菜单项的hover
+    .nest-menu .el-submenu > .el-submenu__title:hover,
+    .el-submenu .el-menu-item:hover {
+      background-color: transparent !important;
+      background: none !important;
+      background-image: none !important;
+    }
+  }
+
+  // ========== 覆盖折叠菜单的hover样式 ==========
+  .el-menu--vertical {
+    & > .el-menu {
+      .nest-menu .el-submenu > .el-submenu__title:hover,
+      .el-menu-item:hover {
+        background-color: transparent !important;
+        background: none !important;
+        background-image: none !important;
+      }
+    }
+  }
+
+  // ========== 主内容区样式 ==========
+  .app-main {
+    background-color: transparent;
+    color: $theme-glassmorphism-text-primary;
+    position: relative;  // 创建定位上下文
+    z-index: 1 !important;  // 关键：设置较低的z-index，确保弹出菜单可以覆盖
+  }
+
+  .app-container {
+    position: relative;  // 创建定位上下文
+    z-index: 1 !important;  // 关键：设置较低的z-index，确保弹出菜单可以覆盖
+    background-color: transparent;
+  }
+
+  // ========== 首页Hero区域适配 ==========
+  .zero-home {
+    background: $theme-glassmorphism-bg-base;
+    
+    .hero-section {
+      background: $theme-glassmorphism-menu-active;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid $theme-glassmorphism-border;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      
+      .hero-content {
+        .main-title {
+          color: $theme-glassmorphism-text-primary;
+          text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+          color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .version-tag {
+          .el-tag {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: $theme-glassmorphism-text-primary;
+          }
+        }
+      }
+    }
+  }
+
+  // ========== 分割面板样式(splitpanes)适配 ==========
+  .splitpanes.default-theme .splitpanes__pane {
+    background: $theme-glassmorphism-bg-card !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    color: $theme-glassmorphism-text-primary;
+    
+    // 部门树区域
+    .head-container {
+      background-color: transparent;
+      
+      .el-input__inner {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-color: $theme-glassmorphism-border;
+        color: $theme-glassmorphism-text-primary;
+      }
+    }
+    
+    // 树形组件
+    .el-tree {
+      background-color: transparent;
+      color: $theme-glassmorphism-text-primary;
+      
+      .el-tree-node__content {
+        &:hover {
+          background: $theme-glassmorphism-menu-hover;
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+        }
+      }
+      
+      .is-current > .el-tree-node__content {
+        background: $theme-glassmorphism-menu-active;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        color: $theme-glassmorphism-text-primary;
+      }
+    }
+  }
+
+  // 卡片样式
+  .el-card {
+    background: rgba(255, 255, 255, 0.15) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    color: #ffffff;
+    transition: all 0.3s;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2) !important;
+      border-color: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
+      transform: translateY(-4px);
+    }
+
+    .el-card__header {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      border-radius: 16px 16px 0 0;
+      font-weight: 600;
+    }
+
+    .el-card__body {
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+
+  // 表格样式
+  .el-table {
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+
+    th.el-table__cell {
+      background: rgba(255, 255, 255, 0.15) !important;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.2);
+      font-weight: 600;
+    }
+
+    td.el-table__cell {
+      border-color: rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    tr {
+      background-color: transparent !important;
+    }
+
+    .el-table__body tr:hover > td {
+      background: rgba(255, 255, 255, 0.15) !important;
+    }
+
+    &--striped .el-table__body tr.el-table__row--striped td {
+      background: rgba(255, 255, 255, 0.03) !important;
+    }
+    
+    // 树形表格展开/折叠箭头图标（菜单管理页面）
+    .el-table__expand-icon {
+      color: #ffffff !important;  // 设置为白色
+      
+      .el-icon {
+        color: #ffffff !important;
+      }
+      
+      &:hover {
+        color: rgba(255, 255, 255, 0.8) !important;
+      }
+    }
+    
+    // 通用箭头图标样式
+    .el-icon-arrow-right {
+      color: #ffffff !important;
+    }
+    
+    // 表格内链接文字样式（字典类型等列）
+    .el-link {
+      color: #ffffff !important;
+      font-weight: 500 !important;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+      
+      &:hover {
+        color: #ffffff !important;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.6) !important;
+      }
+      
+      &.el-link--primary {
+        color: #ffffff !important;
+        
+        &:hover {
+          color: #ffffff !important;
+          text-shadow: 0 0 12px rgba(255, 255, 255, 0.7) !important;
+        }
+      }
+    }
+    
+    // 表格单元格内的所有文字都使用白色
+    td.el-table__cell {
+      .cell {
+        color: rgba(255, 255, 255, 0.95) !important;
+        
+        // 强制覆盖链接颜色
+        a, .el-link {
+          color: #ffffff !important;
+          text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+        }
+      }
+    }
+  }
+
+  // ========== 按钮样式 ==========
+  .el-button {
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: all 0.3s;
+  }
+
+  .el-button--primary {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+
+    &:hover,
+    &:focus {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.5);
+      box-shadow: 0 4px 16px rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  .el-button--success {
+    background: rgba(67, 233, 123, 0.3);
+    border: 1px solid rgba(67, 233, 123, 0.5);
+    color: #ffffff;
+
+    &:hover,
+    &:focus {
+      background: rgba(67, 233, 123, 0.4);
+      border-color: rgba(67, 233, 123, 0.6);
+      box-shadow: 0 4px 16px rgba(67, 233, 123, 0.3);
+      transform: translateY(-2px);
+    }
+  }
+
+  .el-button--warning {
+    background: rgba(240, 147, 251, 0.3);
+    border: 1px solid rgba(240, 147, 251, 0.5);
+    color: #ffffff;
+
+    &:hover,
+    &:focus {
+      background: rgba(240, 147, 251, 0.4);
+      border-color: rgba(240, 147, 251, 0.6);
+      box-shadow: 0 4px 16px rgba(240, 147, 251, 0.3);
+      transform: translateY(-2px);
+    }
+  }
+
+  .el-button--danger {
+    background: rgba(245, 87, 108, 0.3);
+    border: 1px solid rgba(245, 87, 108, 0.5);
+    color: #ffffff;
+
+    &:hover,
+    &:focus {
+      background: rgba(245, 87, 108, 0.4);
+      border-color: rgba(245, 87, 108, 0.6);
+      box-shadow: 0 4px 16px rgba(245, 87, 108, 0.3);
+      transform: translateY(-2px);
+    }
+  }
+
+  .el-button--info {
+    background: rgba(79, 172, 254, 0.3);
+    border: 1px solid rgba(79, 172, 254, 0.5);
+    color: #ffffff;
+
+    &:hover,
+    &:focus {
+      background: rgba(79, 172, 254, 0.4);
+      border-color: rgba(79, 172, 254, 0.6);
+      box-shadow: 0 4px 16px rgba(79, 172, 254, 0.3);
+      transform: translateY(-2px);
+    }
+  }
+
+  .el-button--default {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+
+    &:hover,
+    &:focus {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+    }
+  }
+
+  .el-button--text {
+    color: #ffffff;
+
+    &:hover,
+    &:focus {
+      color: rgba(255, 255, 255, 1);
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+    }
+  }
+
+  // Plain样式按钮
+  .el-button.is-plain {
+    background: transparent;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  // ========== 链接组件样式 ==========
+  // 用于字典管理等页面的链接文字，确保在深色背景下清晰可见
+  .el-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 500;
+    
+    &:hover {
+      color: #ffffff !important;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+    }
+    
+    // 主要链接样式（字典类型等）
+    &.el-link--primary {
+      color: rgba(255, 255, 255, 0.95) !important;
+      
+      &:hover {
+        color: #ffffff !important;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+      }
+    }
+    
+    // 成功链接
+    &.el-link--success {
+      color: rgba(150, 255, 150, 0.9) !important;
+      
+      &:hover {
+        color: rgba(150, 255, 150, 1) !important;
+      }
+    }
+    
+    // 警告链接
+    &.el-link--warning {
+      color: rgba(255, 200, 100, 0.9) !important;
+      
+      &:hover {
+        color: rgba(255, 200, 100, 1) !important;
+      }
+    }
+    
+    // 危险链接
+    &.el-link--danger {
+      color: rgba(255, 100, 100, 0.9) !important;
+      
+      &:hover {
+        color: rgba(255, 100, 100, 1) !important;
+      }
+    }
+    
+    // 信息链接
+    &.el-link--info {
+      color: rgba(200, 200, 255, 0.9) !important;
+      
+      &:hover {
+        color: rgba(200, 200, 255, 1) !important;
+      }
+    }
+    
+    // 下划线
+    .el-link--inner {
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  // ========== 输入框样式 ==========
+  .el-input__inner,
+  .el-textarea__inner {
+    background: rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    border-radius: 8px;
+    transition: all 0.3s;
+
+    &:hover {
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    &:focus {
+      border-color: rgba(255, 255, 255, 0.5);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+  }
+
+  // 下拉框
+  .el-select {
+    .el-input__inner {
+      background: rgba(255, 255, 255, 0.08) !important;
+      border-color: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+    }
+
+    .el-input__suffix {
+      .el-icon {
+        color: rgba(255, 255, 255, 0.7);
+      }
+    }
+  }
+
+  // 数字输入框
+  .el-input-number {
+    .el-input__inner {
+      background: rgba(255, 255, 255, 0.08) !important;
+      border-color: rgba(255, 255, 255, 0.22) !important;
+      color: #ffffff !important;
+    }
+
+    .el-input-number__decrease,
+    .el-input-number__increase {
+      background: rgba(255, 255, 255, 0.10) !important;
+      border-color: rgba(255, 255, 255, 0.18) !important;
+      color: rgba(255, 255, 255, 0.78) !important;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.18) !important;
+        color: #ffffff !important;
+      }
+
+      &.is-disabled {
+        background: rgba(255, 255, 255, 0.05) !important;
+        color: rgba(255, 255, 255, 0.28) !important;
+      }
+    }
+
+    &.is-controls-right {
+      .el-input-number__decrease,
+      .el-input-number__increase {
+        border-left-color: rgba(255, 255, 255, 0.18) !important;
+      }
+
+      .el-input-number__decrease {
+        border-top-color: rgba(255, 255, 255, 0.14) !important;
+      }
+    }
+  }
+
+  // ========== 表单样式 ==========
+  .el-form-item__label {
+    color: #ffffff;
+    font-weight: 500;
+  }
+
+  .el-form-item__content {
+    color: #ffffff;
+  }
+
+  // ========== 对话框样式 ==========
+  .el-dialog {
+    background: rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+
+    .el-dialog__header {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px 16px 0 0;
+    }
+
+    .el-dialog__title {
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .el-dialog__headerbtn {
+      .el-dialog__close {
+        color: rgba(255, 255, 255, 0.7);
+
+        &:hover {
+          color: #ffffff;
+        }
+      }
+    }
+
+    .el-dialog__body {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .el-dialog__footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+  }
+
+  // ========== 消息弹出框样式（MessageBox、Confirm、Alert） ==========
+  .el-message-box {
+    background: rgba(20, 20, 40, 0.95) !important;
+    backdrop-filter: blur(30px) !important;
+    -webkit-backdrop-filter: blur(30px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4) !important;
+    
+    // 标题
+    .el-message-box__header {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px 16px 0 0;
+      padding: 18px 20px;
+      
+      .el-message-box__title {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        font-size: 16px !important;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+      
+      .el-message-box__headerbtn {
+        .el-message-box__close {
+          color: rgba(255, 255, 255, 0.7) !important;
+          
+          &:hover {
+            color: #ffffff !important;
+          }
+        }
+      }
+    }
+    
+    // 内容区域
+    .el-message-box__content {
+      padding: 25px 20px;
+      
+      .el-message-box__message {
+        color: rgba(255, 255, 255, 0.95) !important;
+        font-size: 14px !important;
+        line-height: 1.6 !important;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      }
+      
+      // 警告图标
+      .el-message-box__status {
+        &.el-icon-warning {
+          color: #ffb366 !important;
+          filter: drop-shadow(0 2px 6px rgba(255, 179, 102, 0.5));
+        }
+        
+        &.el-icon-info {
+          color: #79c8ff !important;
+          filter: drop-shadow(0 2px 6px rgba(121, 200, 255, 0.5));
+        }
+        
+        &.el-icon-success {
+          color: #67e97b !important;
+          filter: drop-shadow(0 2px 6px rgba(103, 233, 123, 0.5));
+        }
+        
+        &.el-icon-error {
+          color: #ff6b6b !important;
+          filter: drop-shadow(0 2px 6px rgba(255, 107, 107, 0.5));
+        }
+      }
+    }
+    
+    // 按钮区域
+    .el-message-box__btns {
+      padding: 12px 20px 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      
+      .el-button {
+        min-width: 80px;
+        font-weight: 500;
+        
+        // 确定按钮
+        &.el-button--primary {
+          background: rgba(102, 126, 234, 0.9) !important;
+          border: 1px solid rgba(102, 126, 234, 1) !important;
+          color: #ffffff !important;
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+          
+          &:hover {
+            background: rgba(102, 126, 234, 1) !important;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+            transform: translateY(-2px);
+          }
+          
+          &:active {
+            transform: translateY(0);
+          }
+        }
+        
+        // 取消按钮
+        &.el-button--default {
+          background: rgba(255, 255, 255, 0.15) !important;
+          border: 1px solid rgba(255, 255, 255, 0.3) !important;
+          color: #ffffff !important;
+          
+          &:hover {
+            background: rgba(255, 255, 255, 0.25) !important;
+            border-color: rgba(255, 255, 255, 0.5) !important;
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+          }
+          
+          &:active {
+            transform: translateY(0);
+          }
+        }
+      }
+    }
+    
+    // 输入框（prompt 类型）
+    .el-message-box__input {
+      padding-top: 15px;
+      
+      .el-input__inner {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        color: #ffffff !important;
+        
+        &:focus {
+          border-color: rgba(102, 126, 234, 0.8) !important;
+          box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+        
+        &::placeholder {
+          color: rgba(255, 255, 255, 0.5) !important;
+        }
+      }
+      
+      .el-message-box__errormsg {
+        color: #ff6b6b !important;
+      }
+    }
+  }
+
+  // ========== 顶部导航栏样式 ==========
+  .navbar {
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
+    border-bottom: 1px solid $theme-glassmorphism-border;
+
+    // 汉堡菜单
+    .hamburger-container {
+      svg {
+        fill: $theme-glassmorphism-text-primary;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+      }
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+      }
+    }
+
+    // 面包屑导航
+    .breadcrumb-container {
+      .el-breadcrumb__item {
+        .el-breadcrumb__inner {
+          color: $theme-glassmorphism-text-primary !important;  // 统一使用白色
+          font-weight: 500 !important;
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+          a {
+            color: $theme-glassmorphism-text-primary !important;
+            font-weight: 600 !important;
+
+            &:hover {
+              color: rgba(255, 255, 255, 1) !important;
+              text-shadow: 0 2px 8px rgba(255, 255, 255, 0.5);
+            }
+          }
+
+          &.no-redirect {
+            color: $theme-glassmorphism-text-primary !important;  // 不可点击项也使用白色
+          }
+        }
+
+        .el-breadcrumb__separator {
+          color: rgba($theme-glassmorphism-text-primary, 0.6) !important;  // 分隔符使用半透明白色
+        }
+
+        &:last-child .el-breadcrumb__inner {
+          color: $theme-glassmorphism-text-primary !important;  // 当前页也使用白色
+          font-weight: 600 !important;  // 当前页加粗
+        }
+      }
+    }
+
+    // 顶部菜单栏文字颜色
+    .topmenu-container.el-menu--horizontal > .el-menu-item,
+    .topmenu-container.el-menu--horizontal > .el-submenu .el-submenu__title {
+      color: $theme-glassmorphism-text-primary !important;  // 使用白色
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      
+      &:hover {
+        color: rgba(255, 255, 255, 1) !important;
+        text-shadow: 0 2px 8px rgba(255, 255, 255, 0.5);
+      }
+    }
+
+    .topmenu-container.el-menu--horizontal > .el-menu-item.is-active,
+    .el-menu--horizontal > .el-submenu.is-active .el-submenu__title {
+      color: rgba(255, 255, 255, 1) !important;  // 激活时更亮的白色
+      border-bottom-color: rgba(255, 255, 255, 0.9) !important;
+      box-shadow: 0 2px 12px rgba(255, 255, 255, 0.4);
+    }
+
+    // 顶部菜单栏激活状态底边框
+    .topmenu-container.el-menu--horizontal > .el-menu-item.is-active {
+      border-bottom-color: rgba(255, 255, 255, 0.9) !important;
+      box-shadow: 0 2px 12px rgba(255, 255, 255, 0.4);
+    }
+
+    .el-menu--horizontal > .el-submenu.is-active .el-submenu__title {
+      border-bottom-color: rgba(255, 255, 255, 0.9) !important;
+      box-shadow: 0 2px 12px rgba(255, 255, 255, 0.4);
+    }
+
+    // 右侧菜单
+    .right-menu {
+      .right-menu-item {
+        color: $theme-glassmorphism-text-primary;
+
+        svg {
+          fill: $theme-glassmorphism-text-primary;
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+
+        &.hover-effect:hover {
+          background: rgba(255, 255, 255, 0.15);
+          backdrop-filter: blur(10px);
+
+          svg {
+            fill: rgba(255, 255, 255, 1);
+            filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.4));
+          }
+        }
+      }
+
+      // 用户头像容器
+      .avatar-container {
+        .avatar-wrapper {
+          .user-nickname {
+            color: $theme-glassmorphism-text-primary;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          }
+
+          .user-avatar {
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+          }
+        }
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.15);
+          backdrop-filter: blur(10px);
+
+          .user-nickname {
+            color: rgba(255, 255, 255, 1);
+            text-shadow: 0 2px 8px rgba(255, 255, 255, 0.5);
+          }
+        }
+      }
+
+      // 设置按钮
+      .setting {
+        svg {
+          fill: $theme-glassmorphism-text-primary;
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+
+        &:hover svg {
+          fill: rgba(255, 255, 255, 1);
+          filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.4));
+        }
+      }
+    }
+  }
+
+  // ========== Tags View样式 ==========
+  .tags-view-container {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid $theme-glassmorphism-border;
+
+    .tags-view-item {
+      background: $theme-glassmorphism-bg-card;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid $theme-glassmorphism-border;
+      color: $theme-glassmorphism-text-secondary;
+      border-radius: 6px;
+
+      &.active {
+        // 使用纯毛玻璃半透明效果，而非蓝色渐变
+        background: rgba(255, 255, 255, 0.25) !important;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-color: rgba(255, 255, 255, 0.6);
+        color: $theme-glassmorphism-text-primary;
+        font-weight: 600;
+        // 火焰跳动效果
+        animation: tab-flame-glass 3s ease-in-out infinite;
+      }
+    }
+  }
+
+  // 火焰跳动动画 - 毛玻璃风格（同时包含发光和抖动效果）
+  @keyframes tab-flame-glass {
+    0%, 100% { 
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.4),
+                  0 0 20px rgba(255, 255, 255, 0.3),
+                  0 0 30px rgba(255, 255, 255, 0.2),
+                  0 4px 16px rgba(255, 255, 255, 0.3);
+      transform: translateX(0);
+    }
+    1% { transform: translateX(1.5px); }
+    2% { transform: translateX(3px); }
+    3% { transform: translateX(1.5px); }
+    4% { transform: translateX(0); }
+    5% { transform: translateX(-1.5px); }
+    6% { transform: translateX(-3px); }
+    7% { transform: translateX(-1.5px); }
+    8% { transform: translateX(0); }
+    25% { 
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.6),
+                  0 0 25px rgba(255, 255, 255, 0.5),
+                  0 0 35px rgba(255, 255, 255, 0.4),
+                  0 4px 16px rgba(255, 255, 255, 0.3);
+      transform: translateX(0);
+    }
+    50% { 
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.5),
+                  0 0 22px rgba(255, 255, 255, 0.4),
+                  0 0 32px rgba(255, 255, 255, 0.3),
+                  0 4px 16px rgba(255, 255, 255, 0.3);
+      transform: translateX(0);
+    }
+    75% { 
+      box-shadow: 0 0 18px rgba(255, 255, 255, 0.7),
+                  0 0 28px rgba(255, 255, 255, 0.6),
+                  0 0 38px rgba(255, 255, 255, 0.5),
+                  0 4px 16px rgba(255, 255, 255, 0.3);
+      transform: translateX(0);
+    }
+    95% { transform: translateX(0); }
+  }
+
+  // ========== 下拉菜单样式 ==========
+  .el-dropdown-menu {
+    background: $theme-glassmorphism-bg-card !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid $theme-glassmorphism-border;
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+
+    .el-dropdown-menu__item {
+      color: $theme-glassmorphism-text-primary;
+
+      &:hover {
+        background: $theme-glassmorphism-menu-hover;
+      }
+    }
+  }
+
+  // ========== 选择器样式 ==========
+  // 注意：.el-select-dropdown 是挂载到 body 下的，需要使用 & 引用父选择器
+}
+
+// 下拉选择框样式（全局）
+body.theme-glassmorphism {
+  // ========== 侧边栏 popup 子菜单样式（挂载到 body 下）==========
+  // 直接子选择器（主方案）
+  > .el-menu--popup.el-menu--vertical {
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    border-radius: 16px;
+
+    .el-menu-item {
+      background-color: transparent !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+      margin: 4px 12px;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1) !important;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        color: #ffffff !important;
+      }
+
+      &.is-active {
+        background: transparent !important;
+        color: #ffffff !important;
+        font-weight: 600;
+        position: relative;
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          height: 70%;
+          width: 3px;
+          background: #ffffff;
+          border-radius: 0 2px 2px 0;
+        }
+      }
+    }
+  }
+
+  // 后代选择器（兼容方案）
+  .el-menu--popup.el-menu--vertical {
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    border-radius: 16px;
+
+    .el-menu-item {
+      background-color: transparent !important;
+      color: rgba(255, 255, 255, 0.9) !important;
+      margin: 4px 12px;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1) !important;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        color: #ffffff !important;
+      }
+
+      &.is-active {
+        background: transparent !important;
+        color: #ffffff !important;
+        font-weight: 600;
+        position: relative;
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          height: 70%;
+          width: 3px;
+          background: #ffffff;
+          border-radius: 0 2px 2px 0;
+        }
+      }
+    }
+  }
+
+  // ========== 侧边栏内联子菜单样式 ==========
+  ul.el-menu--inline {
+    background: rgba(0, 0, 0, 0.2) !important;
+
+    .el-menu-item {
+      background-color: transparent !important;
+      color: rgba(255, 255, 255, 0.8) !important;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1) !important;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        color: #ffffff !important;
+      }
+
+      &.is-active {
+        background: rgba(255, 255, 255, 0.15) !important;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        color: #ffffff !important;
+        font-weight: 600;
+        position: relative;
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: 3px;
+          background: #ffffff;
+        }
+      }
+    }
+  }
+
+  .el-select-dropdown {
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+    .el-select-dropdown__item {
+      color: #ffffff !important;
+
+      &.hover,
+      &:hover {
+        background: rgba(255, 255, 255, 0.15) !important;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+
+      &.selected {
+        color: #ffffff !important;
+        background: rgba(255, 255, 255, 0.25) !important;
+        font-weight: 600;
+      }
+      
+      &.is-disabled {
+        color: rgba(255, 255, 255, 0.3) !important;
+        cursor: not-allowed;
+      }
+    }
+    
+    .el-select-dropdown__empty {
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
+    
+    .el-select-group__title {
+      color: rgba(255, 255, 255, 0.7) !important;
+    }
+  }
+
+  // ========== 分页样式 ==========
+  .el-pagination {
+    // 总条数和跳转文字颜色 - 设置为白色
+    .el-pagination__total,
+    .el-pagination__jump {
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+
+    // 页码按钮
+    .el-pager li {
+      background: $theme-glassmorphism-bg-card !important;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid $theme-glassmorphism-border !important;
+      color: rgba(255, 255, 255, 0.8) !important;
+      border-radius: 6px !important;
+      transition: all 0.3s;
+
+      &:not(.disabled):hover {
+        background: $theme-glassmorphism-menu-hover !important;
+        border-color: rgba(255, 255, 255, 0.4) !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+      }
+
+      &.active {
+        background: $theme-glassmorphism-menu-active !important;
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border-color: rgba(255, 255, 255, 0.5) !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 16px rgba(255, 255, 255, 0.3);
+        font-weight: 600;
+      }
+
+      &.disabled {
+        color: rgba(255, 255, 255, 0.3) !important;
+        cursor: not-allowed;
+      }
+    }
+
+    // 上一页/下一页按钮
+    .btn-prev,
+    .btn-next {
+      background: $theme-glassmorphism-bg-card !important;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid $theme-glassmorphism-border !important;
+      color: rgba(255, 255, 255, 0.8) !important;
+      border-radius: 6px !important;
+      transition: all 0.3s;
+
+      &:not(.disabled):hover {
+        border-color: rgba(255, 255, 255, 0.4) !important;
+        color: #ffffff !important;
+      }
+
+      &.disabled {
+        color: rgba(255, 255, 255, 0.3) !important;
+        cursor: not-allowed;
+      }
+    }
+
+    // 每页条数下拉框
+    .el-pagination__sizes {
+      .el-input__inner {
+        background: $theme-glassmorphism-bg-card !important;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-color: $theme-glassmorphism-border !important;
+        color: rgba(255, 255, 255, 0.9) !important;
+        border-radius: 6px !important;
+
+        &:hover {
+          border-color: rgba(255, 255, 255, 0.4) !important;
+        }
+      }
+    }
+
+    // 跳转输入框
+    .el-pagination__jump {
+      .el-input__inner {
+        background: $theme-glassmorphism-bg-card !important;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-color: $theme-glassmorphism-border !important;
+        color: rgba(255, 255, 255, 0.9) !important;
+        border-radius: 6px !important;
+
+        &:hover {
+          border-color: rgba(255, 255, 255, 0.4) !important;
+        }
+      }
+    }
+  }
+}
+
+.theme-glassmorphism {
+
+  // ========== 滚动条样式 ==========
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  // ========== 开关组件样式 ==========
+  .el-switch {
+    .el-switch__core {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid $theme-glassmorphism-border;
+    }
+
+    &.is-checked .el-switch__core {
+      background: rgba($theme-glassmorphism-accent, 0.8);
+      border-color: $theme-glassmorphism-accent;
+      box-shadow: 0 0 15px rgba($theme-glassmorphism-accent, 0.5);
+    }
+  }
+
+  // ========== 复选框样式 ==========
+  .el-checkbox {
+    .el-checkbox__inner {
+      background: $theme-glassmorphism-bg-card;
+      backdrop-filter: blur(10px);
+      border-color: $theme-glassmorphism-border;
+    }
+
+    .el-checkbox__input.is-checked .el-checkbox__inner {
+      background: rgba($theme-glassmorphism-accent, 0.8);
+      border-color: $theme-glassmorphism-accent;
+      box-shadow: 0 0 10px rgba($theme-glassmorphism-accent, 0.4);
+    }
+
+    .el-checkbox__input.is-indeterminate .el-checkbox__inner {
+      background: rgba($theme-glassmorphism-accent, 0.8);
+      border-color: $theme-glassmorphism-accent;
+    }
+
+    .el-checkbox__label {
+      color: $theme-glassmorphism-text-primary;
+    }
+  }
+
+  // ========== 单选框样式 ==========
+  .el-radio {
+    .el-radio__inner {
+      background: $theme-glassmorphism-bg-card;
+      backdrop-filter: blur(10px);
+      border-color: $theme-glassmorphism-border;
+    }
+
+    .el-radio__input.is-checked .el-radio__inner {
+      background: rgba($theme-glassmorphism-accent, 0.8);
+      border-color: $theme-glassmorphism-accent;
+      box-shadow: 0 0 10px rgba($theme-glassmorphism-accent, 0.4);
+    }
+
+    .el-radio__label {
+      color: $theme-glassmorphism-text-primary;
+    }
+  }
+
+  // ========== 日期选择器样式 ==========
+  .el-date-editor.el-range-editor.el-input__inner {
+    background: rgba(255, 255, 255, 0.14) !important;
+    border: 1px solid rgba(255, 255, 255, 0.26) !important;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    &:hover,
+    &.is-active {
+      border-color: rgba(255, 255, 255, 0.46) !important;
+      box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.18), 0 10px 26px rgba(0, 0, 0, 0.14);
+    }
+
+    .el-range-input {
+      background: transparent !important;
+      color: $theme-glassmorphism-text-primary !important;
+      font-weight: 500;
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.68) !important;
+      }
+    }
+
+    .el-range-separator,
+    .el-range__icon,
+    .el-range__close-icon {
+      color: rgba(255, 255, 255, 0.82) !important;
+    }
+  }
+
+  .el-picker-panel {
+    background: $theme-glassmorphism-bg-card !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid $theme-glassmorphism-border;
+    border-radius: 8px;
+    color: $theme-glassmorphism-text-primary;
+
+    .el-date-picker__header-label,
+    .el-picker-panel__icon-btn {
+      color: $theme-glassmorphism-text-primary;
+
+      &:hover {
+        color: $theme-glassmorphism-text-primary;
+      }
+    }
+
+    .el-date-table th {
+      color: $theme-glassmorphism-text-secondary;
+    }
+
+    .el-date-table td.available:hover {
+      color: $theme-glassmorphism-text-primary;
+    }
+
+    .el-date-table td.today span {
+      color: $theme-glassmorphism-text-primary;
+      font-weight: 600;
+    }
+
+    .el-date-table td.current:not(.disabled) span {
+      background: $theme-glassmorphism-menu-active;
+      backdrop-filter: blur(10px);
+      color: $theme-glassmorphism-text-primary;
+    }
+
+    // 日期范围选择时的范围内日期背景色
+    .el-date-table td.in-range div,
+    .el-date-table td.in-range div:hover {
+      background-color: rgba(138, 180, 248, 0.15) !important;
+      backdrop-filter: blur(10px);
+    }
+
+    .el-date-table td.in-range span {
+      color: $theme-glassmorphism-text-primary !important;
+    }
+  }
+
+  // ========== 时间选择器样式 ==========
+  .el-time-panel {
+    background: $theme-glassmorphism-bg-card !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid $theme-glassmorphism-border;
+    border-radius: 8px;
+    color: $theme-glassmorphism-text-primary;
+
+    .el-time-spinner__item.active:not(.disabled) {
+      color: $theme-glassmorphism-text-primary;
+      font-weight: 600;
+    }
+  }
+
+  // ========== 级联选择器样式 ==========
+  .el-cascader-menu {
+    background: $theme-glassmorphism-bg-card !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-color: $theme-glassmorphism-border;
+
+    .el-cascader-node {
+      color: $theme-glassmorphism-text-primary;
+
+      &:hover {
+        background: $theme-glassmorphism-menu-hover;
+      }
+
+      &.is-active {
+        color: $theme-glassmorphism-text-primary;
+        font-weight: 600;
+      }
+    }
+  }
+
+  // ========== 树形选择器样式 ==========
+  .el-tree {
+    background-color: transparent;
+    color: $theme-glassmorphism-text-primary;
+
+    .el-tree-node__content:hover {
+      background: $theme-glassmorphism-menu-hover;
+      backdrop-filter: blur(10px);
+    }
+
+    .el-tree-node:focus > .el-tree-node__content {
+      background: $theme-glassmorphism-menu-hover;
+    }
+  }
+
+  // ========== 消息提示样式 ==========
+  .el-message {
+    background: $theme-glassmorphism-bg-card !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid $theme-glassmorphism-border;
+    border-radius: 8px;
+    color: $theme-glassmorphism-text-primary;
+
+    &.el-message--success {
+      background: rgba(255, 255, 255, 0.2) !important;
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+  }
+
+  .el-notification {
+    background: $theme-glassmorphism-bg-card !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid $theme-glassmorphism-border;
+    border-radius: 12px;
+    color: $theme-glassmorphism-text-primary;
+
+    .el-notification__title {
+      color: $theme-glassmorphism-text-primary;
+    }
+  }
+
+  // ========== 标签页样式 ==========
+  .el-tabs {
+    .el-tabs__item {
+      color: $theme-glassmorphism-text-secondary;
+
+      &:hover {
+        color: $theme-glassmorphism-text-primary;
+      }
+
+      &.is-active {
+        color: $theme-glassmorphism-text-primary;
+      }
+    }
+
+    .el-tabs__active-bar {
+      background-color: rgba(255, 255, 255, 0.8);
+    }
+
+    .el-tabs__nav-wrap::after {
+      background-color: $theme-glassmorphism-border;
+    }
+  }
+
+  // ========== 步骤条样式 ==========
+  .el-steps {
+    .el-step__head.is-process {
+      color: $theme-glassmorphism-text-primary;
+      border-color: $theme-glassmorphism-text-primary;
+    }
+
+    .el-step__title.is-process {
+      color: $theme-glassmorphism-text-primary;
+    }
+
+    .el-step__head.is-finish {
+      color: $theme-glassmorphism-text-primary;
+      border-color: $theme-glassmorphism-text-primary;
+    }
+
+    .el-step__title.is-finish {
+      color: $theme-glassmorphism-text-primary;
+    }
+  }
+
+  // ========== 进度条样式 ==========
+  .el-progress-bar__inner {
+    background: linear-gradient(90deg, 
+      rgba(255, 255, 255, 0.6) 0%, 
+      rgba(255, 255, 255, 0.9) 100%);
+  }
+
+  // ========== 徽章样式 ==========
+  .el-badge__content {
+    background: rgba($theme-glassmorphism-accent, 0.9);
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+
+  // ========== 标签样式 ==========
+  .el-tag {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 0 10px;
+    margin-right: 8px;
+
+    &.el-tag--primary {
+      background: rgba(102, 126, 234, 0.3);
+      border-color: rgba(102, 126, 234, 0.5);
+      color: #ffffff;
+    }
+
+    &.el-tag--success {
+      background: rgba(67, 233, 123, 0.3);
+      border-color: rgba(67, 233, 123, 0.5);
+      color: #ffffff;
+    }
+
+    &.el-tag--warning {
+      background: rgba(240, 147, 251, 0.3);
+      border-color: rgba(240, 147, 251, 0.5);
+      color: #ffffff;
+    }
+
+    &.el-tag--danger {
+      background: rgba(245, 87, 108, 0.3);
+      border-color: rgba(245, 87, 108, 0.5);
+      color: #ffffff;
+    }
+
+    &.el-tag--info {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.8);
+    }
+  }
+
+  // ========== 加载样式 ==========
+  .el-loading-mask {
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(5px);
+  }
+
+  .el-loading-spinner .circular {
+    stroke: rgba(255, 255, 255, 0.9);
+  }
+
+  // ========== 面包屑样式 ==========
+  .el-breadcrumb__inner,
+  .el-breadcrumb__inner a {
+    color: $theme-glassmorphism-text-secondary;
+
+    &:hover {
+      color: $theme-glassmorphism-text-primary;
+    }
+  }
+
+  .el-breadcrumb__item:last-child .el-breadcrumb__inner {
+    color: $theme-glassmorphism-text-primary;
+  }
+
+  // ========== 表单验证状态 ==========
+  .el-form-item.is-error {
+    .el-input__inner,
+    .el-textarea__inner {
+      border-color: rgba(245, 108, 108, 0.8);
+    }
+
+    .el-form-item__error {
+      color: #f56c6c;
+    }
+  }
+
+  .el-form-item.is-success {
+    .el-input__inner,
+    .el-textarea__inner {
+      border-color: rgba(255, 255, 255, 0.5);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    }
+  }
+
+  // ========== Popover弹出框样式 ==========
+  .el-popover {
+    background: $theme-glassmorphism-bg-card !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid $theme-glassmorphism-border;
+    border-radius: 8px;
+    color: $theme-glassmorphism-text-primary;
+  }
+
+  .el-popper[x-placement^="top"] .popper__arrow::after {
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+
+  // ========== 抽屉组件样式 ==========
+  .el-drawer {
+    background: $theme-glassmorphism-bg-card !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-left: 1px solid $theme-glassmorphism-border;
+
+    .el-drawer__body {
+      color: $theme-glassmorphism-text-primary;
+    }
+
+    // 设置面板文字颜色适配
+    .drawer-container {
+      .drawer-title,
+      .setting-drawer-title {
+        color: $theme-glassmorphism-text-primary !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      }
+
+      .drawer-item {
+        color: rgba(255, 255, 255, 0.9) !important;
+      }
+    }
+  }
+
+  // ========== 菜单特效颜色适配 ==========
+  // 流光特效
+  .el-menu-item.menu-effect-shine::before {
+    background: linear-gradient(90deg, 
+      transparent, 
+      rgba(255, 255, 255, 0.6), 
+      transparent);
+  }
+
+  // 水波纹特效
+  .ripple-effect {
+    background: radial-gradient(circle, 
+      rgba(255, 255, 255, 0.3), 
+      rgba(255, 255, 255, 0));
+  }
+
+  // 脉冲特效
+  @keyframes theme-glass-pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.6);
+    }
+    50% {
+      box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+  }
+
+  .el-menu-item.menu-effect-pulse.is-active {
+    animation: theme-glass-pulse 1.5s infinite;
+  }
+  
+  // ========== 折叠菜单激活状态动画 ==========
+  // 方案A：炫彩脉冲动画
+  @keyframes glassmorphism-pulse {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+    }
+    50% {
+      transform: scale(1.02);
+      box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+    }
+  }
+  
+  // 方案B：极光呼吸动画
+  @keyframes glassmorphism-breathe {
+    0%, 100% {
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.6);
+    }
+  }
+
+  // ========== 对话框底部提示文字优化 ==========
+  // 解决导入弹窗下方提示文字不可见问题
+  .el-dialog__footer {
+    color: rgba(255, 255, 255, 0.9) !important;
+    
+    // 复选框文字
+    .el-checkbox__label {
+      color: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    // 提示文字
+    .el-upload__tip,
+    .dialog-footer-tip {
+      color: rgba(255, 255, 255, 0.85) !important;
+    }
+  }
+  
+  // 对话框内容区域文字
+  .el-dialog__body {
+    color: rgba(255, 255, 255, 0.9) !important;
+    
+    .el-upload__tip {
+      color: rgba(255, 255, 255, 0.85) !important;
+    }
+  }
+}
+
+// ========== 全局最高优先级覆盖：子菜单激活状态 + hover背景色 ==========
+// 使用body标签提高选择器优先级，确保覆盖所有可能的样式
+body.theme-glassmorphism {
+  // ========== 弹出菜单全局样式（确保在最上层） ==========
+  .el-menu--popup.el-menu--vertical,
+  > .el-menu--popup.el-menu--vertical {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.98) 0%, rgba(118, 75, 162, 0.98) 100%) !important;  // 深蓝紫色渐变背景，与主题匹配
+    backdrop-filter: none !important;  // 关键：移除毛玻璃效果，避免层叠上下文问题
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important;
+    border-radius: 8px !important;
+    z-index: 99999 !important;  // 确保在最上层
+    position: fixed !important;  // 确保固定定位，脱离文档流
+    
+    // 菜单项文字颜色
+    .el-menu-item {
+      color: rgba(255, 255, 255, 0.95) !important;  // 高对比度白色文字
+      
+      &:hover {
+        color: #ffffff !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+      }
+      
+      &.is-active {
+        color: #ffffff !important;
+        background: rgba(255, 255, 255, 0.15) !important;
+      }
+    }
+  }
+  
+  // ========== 【核心修复】移除子菜单容器的背景色 ==========
+  .sidebar-container {
+    // 子菜单容器本身 - 这才是显示紫蓝色背景的元素!
+    .el-submenu__menu {
+      background: transparent !important;
+      background-color: transparent !important;
+      background-image: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    // 内联子菜单容器
+    .el-menu--inline {
+      background: transparent !important;
+      background-color: transparent !important;
+      background-image: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+
+      .el-menu-item.is-active {
+        background-color: transparent !important;
+        background: transparent !important;
+        background-image: none !important;
+      }
+    }
+
+    // 所有菜单容器
+    .el-menu,
+    ul.el-menu {
+      background: transparent !important;
+      background-color: transparent !important;
+      background-image: none !important;
+    }
+  }
+  
+  // 同时覆盖弹出菜单
+  .el-menu--popup.el-menu--vertical {
+    .el-menu-item.is-active {
+      background-color: transparent !important;
+      background: transparent !important;
+    }
+  }
+
+  // ========== hover背景色覆盖 ==========
+  #app .sidebar-container {
+    // 覆盖所有可能的菜单项hover样式
+    .submenu-title-noDropdown:hover,
+    .el-submenu__title:hover,
+    .el-menu-item:hover {
+      background-color: transparent !important;
+      background: transparent !important;
+    }
+
+    // 覆盖嵌套菜单的hover
+    .nest-menu .el-submenu > .el-submenu__title:hover,
+    .el-submenu .el-menu-item:hover {
+      background-color: transparent !important;
+      background: transparent !important;
+    }
+
+    // 覆盖子菜单容器内的菜单项hover
+    .el-menu--inline .el-menu-item:hover {
+      background-color: transparent !important;
+      background: transparent !important;
+    }
+
+    // 覆盖sidebar.scss中的.nest-menu和.el-submenu规则
+    & .nest-menu .el-submenu > .el-submenu__title:hover,
+    & .el-submenu .el-menu-item:hover {
+      background-color: transparent !important;
+      background: transparent !important;
+    }
+  }
+
+  // 覆盖折叠菜单的hover
+  .el-menu--vertical {
+    .nest-menu .el-submenu > .el-submenu__title:hover,
+    .el-menu-item:hover {
+      background-color: transparent !important;
+      background: transparent !important;
+    }
+  }
+
+  // ========== 特别针对子菜单的强制覆盖 ==========
+  // 覆盖侧边栏内联子菜单
+  .sidebar-container ul.el-menu--inline .el-menu-item:hover,
+  .sidebar-container .el-menu--inline > .el-menu-item:hover {
+    background-color: transparent !important;
+    background: transparent !important;
+  }
+
+  // 覆盖body挂载的弹出子菜单
+  body > .el-menu--popup.el-menu--vertical .el-menu-item:hover {
+    background-color: transparent !important;
+    background: transparent !important;
+  }
+
+  // 覆盖所有内联子菜单
+  ul.el-menu--inline .el-menu-item:hover {
+    background-color: transparent !important;
+    background: transparent !important;
+  }
+
+  // 覆盖所有submenu下的子菜单项
+  .sidebar-container .el-submenu .el-menu-item:hover {
+    background-color: transparent !important;
+    background: transparent !important;
+  }
+}
+
+// ========== 毛玻璃背景风格：左侧菜单栏专属适配 ==========
+// 海洋落日、梦幻极光的主背景偏蓝紫粉，通用黑色侧栏会显得割裂。
+// 这里按背景风格覆盖侧栏底色、激活态和悬浮态，让菜单与背景更像同一套视觉系统。
+body.theme-glassmorphism.glass-bg-ocean-sunset #app .sidebar-container {
+  background: linear-gradient(180deg, rgba(9, 28, 78, 0.78) 0%, rgba(55, 24, 118, 0.68) 48%, rgba(126, 29, 105, 0.62) 100%) !important;
+  border-right: 1px solid rgba(236, 72, 153, 0.26) !important;
+  box-shadow: 10px 0 34px rgba(20, 12, 74, 0.24) !important;
+
+  .sidebar-logo-container {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04)) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.16) !important;
+  }
+
+  .el-menu-item,
+  .el-submenu__title {
+    color: rgba(240, 249, 255, 0.88) !important;
+
+    i,
+    svg,
+    .svg-icon {
+      color: rgba(186, 230, 253, 0.9) !important;
+    }
+
+    &:hover {
+      background: linear-gradient(90deg, rgba(56, 189, 248, 0.16), rgba(236, 72, 153, 0.10)) !important;
+      color: #ffffff !important;
+    }
+  }
+
+  .el-submenu.is-active > .el-submenu__title,
+  .el-menu-item.is-active {
+    background: linear-gradient(90deg, rgba(56, 189, 248, 0.24), rgba(236, 72, 153, 0.18)) !important;
+    color: #ffffff !important;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.28);
+
+    &::before {
+      background: linear-gradient(180deg, #38bdf8 0%, #ec4899 100%) !important;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.72), 0 0 24px rgba(236, 72, 153, 0.42) !important;
+    }
+  }
+
+  .el-menu--inline {
+    background: rgba(20, 24, 88, 0.16) !important;
+  }
+}
+
+body.theme-glassmorphism.glass-bg-aurora-dream #app .sidebar-container {
+  background: linear-gradient(180deg, rgba(58, 75, 186, 0.74) 0%, rgba(103, 61, 168, 0.66) 52%, rgba(183, 82, 192, 0.56) 100%) !important;
+  border-right: 1px solid rgba(240, 147, 251, 0.26) !important;
+  box-shadow: 10px 0 34px rgba(76, 29, 149, 0.22) !important;
+
+  .sidebar-logo-container {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.06)) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.18) !important;
+  }
+
+  .el-menu-item,
+  .el-submenu__title {
+    color: rgba(255, 255, 255, 0.9) !important;
+
+    i,
+    svg,
+    .svg-icon {
+      color: rgba(224, 231, 255, 0.92) !important;
+    }
+
+    &:hover {
+      background: linear-gradient(90deg, rgba(199, 210, 254, 0.18), rgba(240, 147, 251, 0.14)) !important;
+      color: #ffffff !important;
+    }
+  }
+
+  .el-submenu.is-active > .el-submenu__title,
+  .el-menu-item.is-active {
+    background: linear-gradient(90deg, rgba(199, 210, 254, 0.28), rgba(240, 147, 251, 0.22)) !important;
+    color: #ffffff !important;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.28);
+
+    &::before {
+      background: linear-gradient(180deg, #c7d2fe 0%, #f093fb 100%) !important;
+      box-shadow: 0 0 16px rgba(199, 210, 254, 0.72), 0 0 24px rgba(240, 147, 251, 0.44) !important;
+    }
+  }
+
+  .el-menu--inline {
+    background: rgba(76, 29, 149, 0.14) !important;
+  }
+}

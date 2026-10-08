@@ -1,0 +1,25 @@
+spring:
+  config:
+    import:
+      - optional:nacos:zero-file-mysql.yml?group=${spring.profiles.active}&refreshEnabled=true
+      - optional:nacos:zero-file-storage-config.yml?group=${spring.profiles.active}&refreshEnabled=true
+  devtools:
+    restart:
+      enabled: true
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+        namespace: d2785810-7346-4859-bcfa-f3bf929a628f
+        username: nacos
+        password: nacos
+        enabled: true
+        ephemeral: true
+      config:
+        enabled: true
+        server-addr: 127.0.0.1:8848
+        namespace: d2785810-7346-4859-bcfa-f3bf929a628f
+        username: nacos
+        password: nacos
+        file-extension: yml
+        refresh-enabled: true

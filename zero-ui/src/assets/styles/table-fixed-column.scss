@@ -1,0 +1,231 @@
+// Element UI renders fixed columns as mirrored tables. Keep their panel, header,
+// rows and empty area aligned with the active theme instead of leaking defaults.
+:root {
+  --zero-fixed-table-panel-bg: #ffffff;
+  --zero-fixed-table-header-bg: #f8f8f9;
+  --zero-fixed-table-row-bg: #ffffff;
+  --zero-fixed-table-row-hover-bg: #f5f7fa;
+  --zero-fixed-table-border: #ebeef5;
+  --zero-fixed-table-text: #606266;
+  --zero-fixed-table-header-text: #515a6e;
+  --zero-fixed-table-shadow-left: 10px 0 18px rgba(31, 45, 61, 0.08);
+  --zero-fixed-table-shadow-right: -10px 0 18px rgba(31, 45, 61, 0.08);
+}
+
+body.theme-luxury-business {
+  --zero-fixed-table-panel-bg: #1a1f2e;
+  --zero-fixed-table-header-bg: #151924;
+  --zero-fixed-table-row-bg: #1a1f2e;
+  --zero-fixed-table-row-hover-bg: rgba(212, 175, 55, 0.12);
+  --zero-fixed-table-border: #2a3142;
+  --zero-fixed-table-text: #b8bcc8;
+  --zero-fixed-table-header-text: #d4af37;
+  --zero-fixed-table-shadow-left: 12px 0 24px rgba(0, 0, 0, 0.28);
+  --zero-fixed-table-shadow-right: -12px 0 24px rgba(0, 0, 0, 0.28);
+}
+
+body.theme-glassmorphism {
+  --zero-fixed-table-panel-bg: rgba(72, 48, 134, 0.58);
+  --zero-fixed-table-header-bg: rgba(93, 68, 145, 0.96);
+  --zero-fixed-table-row-bg: rgba(72, 48, 134, 0.58);
+  --zero-fixed-table-row-hover-bg: rgba(102, 70, 168, 0.74);
+  --zero-fixed-table-border: rgba(255, 255, 255, 0.24);
+  --zero-fixed-table-text: rgba(255, 255, 255, 0.94);
+  --zero-fixed-table-header-text: rgba(255, 255, 255, 0.98);
+  --zero-fixed-table-shadow-left: 1px 0 0 rgba(255, 255, 255, 0.22), 8px 0 16px rgba(31, 16, 72, 0.10);
+  --zero-fixed-table-shadow-right: -1px 0 0 rgba(255, 255, 255, 0.22), -8px 0 16px rgba(31, 16, 72, 0.10);
+}
+
+body.theme-vibrant-tech {
+  --zero-fixed-table-panel-bg: #141a35;
+  --zero-fixed-table-header-bg: #0f1228;
+  --zero-fixed-table-row-bg: #141a35;
+  --zero-fixed-table-row-hover-bg: rgba(0, 242, 254, 0.12);
+  --zero-fixed-table-border: #2a3552;
+  --zero-fixed-table-text: #c0c9ff;
+  --zero-fixed-table-header-text: #00f2fe;
+  --zero-fixed-table-shadow-left: 12px 0 24px rgba(0, 242, 254, 0.10);
+  --zero-fixed-table-shadow-right: -12px 0 24px rgba(0, 242, 254, 0.10);
+}
+
+body.theme-minimalist-future {
+  --zero-fixed-table-panel-bg: rgba(255, 255, 255, 0.90);
+  --zero-fixed-table-header-bg: rgba(232, 247, 255, 0.98);
+  --zero-fixed-table-row-bg: rgba(255, 255, 255, 0.78);
+  --zero-fixed-table-row-hover-bg: rgba(0, 188, 212, 0.08);
+  --zero-fixed-table-border: rgba(0, 188, 212, 0.16);
+  --zero-fixed-table-text: #172033;
+  --zero-fixed-table-header-text: #365065;
+  --zero-fixed-table-shadow-left: 12px 0 24px rgba(26, 73, 105, 0.10);
+  --zero-fixed-table-shadow-right: -12px 0 24px rgba(26, 73, 105, 0.10);
+}
+
+body.theme-warm-nature {
+  --zero-fixed-table-panel-bg: #ffffff;
+  --zero-fixed-table-header-bg: #f5f0e8;
+  --zero-fixed-table-row-bg: #ffffff;
+  --zero-fixed-table-row-hover-bg: rgba(139, 111, 71, 0.08);
+  --zero-fixed-table-border: #d4c4b0;
+  --zero-fixed-table-text: #4a3f35;
+  --zero-fixed-table-header-text: #8b6f47;
+  --zero-fixed-table-shadow-left: 12px 0 24px rgba(139, 111, 71, 0.12);
+  --zero-fixed-table-shadow-right: -12px 0 24px rgba(139, 111, 71, 0.12);
+}
+
+body.theme-material-design {
+  --zero-fixed-table-panel-bg: #ffffff;
+  --zero-fixed-table-header-bg: #fafafa;
+  --zero-fixed-table-row-bg: #ffffff;
+  --zero-fixed-table-row-hover-bg: #fbfbfb;
+  --zero-fixed-table-border: #e5e5e5;
+  --zero-fixed-table-text: #49454f;
+  --zero-fixed-table-header-text: #1c1b1f;
+  --zero-fixed-table-shadow-left: 8px 0 18px rgba(0, 0, 0, 0.12);
+  --zero-fixed-table-shadow-right: -8px 0 18px rgba(0, 0, 0, 0.12);
+}
+
+body.theme-dark-premium {
+  --zero-fixed-table-panel-bg: #18181b;
+  --zero-fixed-table-header-bg: #131316;
+  --zero-fixed-table-row-bg: #18181b;
+  --zero-fixed-table-row-hover-bg: rgba(212, 175, 55, 0.12);
+  --zero-fixed-table-border: #27272a;
+  --zero-fixed-table-text: #a1a1aa;
+  --zero-fixed-table-header-text: #d4af37;
+  --zero-fixed-table-shadow-left: 12px 0 26px rgba(0, 0, 0, 0.45);
+  --zero-fixed-table-shadow-right: -12px 0 26px rgba(0, 0, 0, 0.45);
+}
+
+body.theme-nordic-minimal {
+  --zero-fixed-table-panel-bg: #ffffff;
+  --zero-fixed-table-header-bg: #f1f5f9;
+  --zero-fixed-table-row-bg: #ffffff;
+  --zero-fixed-table-row-hover-bg: rgba(59, 130, 246, 0.08);
+  --zero-fixed-table-border: #d8e1ec;
+  --zero-fixed-table-text: #334155;
+  --zero-fixed-table-header-text: #1e293b;
+  --zero-fixed-table-shadow-left: 10px 0 22px rgba(15, 23, 42, 0.08);
+  --zero-fixed-table-shadow-right: -10px 0 22px rgba(15, 23, 42, 0.08);
+}
+
+body:not([class*="theme-"]) .el-table__fixed,
+body:not([class*="theme-"]) .el-table__fixed-right,
+body[class*="theme-"] .el-table__fixed,
+body[class*="theme-"] .el-table__fixed-right {
+  background: var(--zero-fixed-table-panel-bg) !important;
+  background-color: var(--zero-fixed-table-panel-bg) !important;
+  border-color: var(--zero-fixed-table-border) !important;
+  overflow: hidden;
+}
+
+body:not([class*="theme-"]) .el-table__fixed,
+body[class*="theme-"] .el-table__fixed {
+  box-shadow: var(--zero-fixed-table-shadow-left) !important;
+}
+
+body:not([class*="theme-"]) .el-table__fixed-right,
+body[class*="theme-"] .el-table__fixed-right {
+  box-shadow: var(--zero-fixed-table-shadow-right) !important;
+}
+
+body:not([class*="theme-"]) .el-table__fixed::before,
+body:not([class*="theme-"]) .el-table__fixed-right::before,
+body[class*="theme-"] .el-table__fixed::before,
+body[class*="theme-"] .el-table__fixed-right::before {
+  background: var(--zero-fixed-table-border) !important;
+  background-color: var(--zero-fixed-table-border) !important;
+}
+
+body:not([class*="theme-"]) .el-table__fixed-right-patch,
+body[class*="theme-"] .el-table__fixed-right-patch {
+  background: var(--zero-fixed-table-header-bg) !important;
+  background-color: var(--zero-fixed-table-header-bg) !important;
+  border-color: var(--zero-fixed-table-border) !important;
+}
+
+body:not([class*="theme-"]) .el-table__fixed-header-wrapper,
+body:not([class*="theme-"]) .el-table__fixed-right .el-table__fixed-header-wrapper,
+body:not([class*="theme-"]) .el-table__fixed .el-table__header,
+body:not([class*="theme-"]) .el-table__fixed-right .el-table__header,
+body:not([class*="theme-"]) .el-table__fixed .el-table__header thead,
+body:not([class*="theme-"]) .el-table__fixed-right .el-table__header thead,
+body:not([class*="theme-"]) .el-table__fixed .el-table__header tr,
+body:not([class*="theme-"]) .el-table__fixed-right .el-table__header tr,
+body:not([class*="theme-"]) .el-table__fixed .el-table__fixed-header-wrapper th.el-table__cell,
+body:not([class*="theme-"]) .el-table__fixed-right .el-table__fixed-header-wrapper th.el-table__cell,
+body:not([class*="theme-"]) .el-table__fixed-header-wrapper .cell,
+body:not([class*="theme-"]) .el-table__fixed-right .el-table__fixed-header-wrapper .cell,
+body[class*="theme-"] .el-table__fixed-header-wrapper,
+body[class*="theme-"] .el-table__fixed-right .el-table__fixed-header-wrapper,
+body[class*="theme-"] .el-table__fixed .el-table__header,
+body[class*="theme-"] .el-table__fixed-right .el-table__header,
+body[class*="theme-"] .el-table__fixed .el-table__header thead,
+body[class*="theme-"] .el-table__fixed-right .el-table__header thead,
+body[class*="theme-"] .el-table__fixed .el-table__header tr,
+body[class*="theme-"] .el-table__fixed-right .el-table__header tr,
+body[class*="theme-"] .el-table__fixed .el-table__fixed-header-wrapper th.el-table__cell,
+body[class*="theme-"] .el-table__fixed-right .el-table__fixed-header-wrapper th.el-table__cell,
+body[class*="theme-"] .el-table__fixed-header-wrapper .cell,
+body[class*="theme-"] .el-table__fixed-right .el-table__fixed-header-wrapper .cell {
+  background: var(--zero-fixed-table-header-bg) !important;
+  background-color: var(--zero-fixed-table-header-bg) !important;
+  border-color: var(--zero-fixed-table-border) !important;
+  color: var(--zero-fixed-table-header-text) !important;
+}
+
+body:not([class*="theme-"]) .el-table__fixed-body-wrapper,
+body:not([class*="theme-"]) .el-table__fixed-right .el-table__fixed-body-wrapper,
+body:not([class*="theme-"]) .el-table__fixed .el-table__body-wrapper,
+body:not([class*="theme-"]) .el-table__fixed-right .el-table__body-wrapper,
+body:not([class*="theme-"]) .el-table__fixed .el-table__body,
+body:not([class*="theme-"]) .el-table__fixed-right .el-table__body,
+body:not([class*="theme-"]) .el-table__fixed .el-table__body tbody,
+body:not([class*="theme-"]) .el-table__fixed-right .el-table__body tbody,
+body:not([class*="theme-"]) .el-table__fixed .el-table__body tr,
+body:not([class*="theme-"]) .el-table__fixed-right .el-table__body tr,
+body:not([class*="theme-"]) .el-table__fixed .el-table__body td.el-table__cell,
+body:not([class*="theme-"]) .el-table__fixed-right .el-table__body td.el-table__cell,
+body:not([class*="theme-"]) .el-table__fixed .el-table__empty-block,
+body:not([class*="theme-"]) .el-table__fixed-right .el-table__empty-block,
+body[class*="theme-"] .el-table__fixed-body-wrapper,
+body[class*="theme-"] .el-table__fixed-right .el-table__fixed-body-wrapper,
+body[class*="theme-"] .el-table__fixed .el-table__body-wrapper,
+body[class*="theme-"] .el-table__fixed-right .el-table__body-wrapper,
+body[class*="theme-"] .el-table__fixed .el-table__body,
+body[class*="theme-"] .el-table__fixed-right .el-table__body,
+body[class*="theme-"] .el-table__fixed .el-table__body tbody,
+body[class*="theme-"] .el-table__fixed-right .el-table__body tbody,
+body[class*="theme-"] .el-table__fixed .el-table__body tr,
+body[class*="theme-"] .el-table__fixed-right .el-table__body tr,
+body[class*="theme-"] .el-table__fixed .el-table__body td.el-table__cell,
+body[class*="theme-"] .el-table__fixed-right .el-table__body td.el-table__cell,
+body[class*="theme-"] .el-table__fixed .el-table__empty-block,
+body[class*="theme-"] .el-table__fixed-right .el-table__empty-block {
+  background: var(--zero-fixed-table-row-bg) !important;
+  background-color: var(--zero-fixed-table-row-bg) !important;
+  border-color: var(--zero-fixed-table-border) !important;
+  color: var(--zero-fixed-table-text) !important;
+}
+
+body:not([class*="theme-"]) .el-table__fixed .el-table__empty-text,
+body:not([class*="theme-"]) .el-table__fixed-right .el-table__empty-text,
+body:not([class*="theme-"]) .el-table__fixed .el-table__body .cell,
+body:not([class*="theme-"]) .el-table__fixed-right .el-table__body .cell,
+body[class*="theme-"] .el-table__fixed .el-table__empty-text,
+body[class*="theme-"] .el-table__fixed-right .el-table__empty-text,
+body[class*="theme-"] .el-table__fixed .el-table__body .cell,
+body[class*="theme-"] .el-table__fixed-right .el-table__body .cell {
+  color: var(--zero-fixed-table-text) !important;
+}
+
+body:not([class*="theme-"]) .el-table__fixed .el-table__body tr.hover-row > td.el-table__cell,
+body:not([class*="theme-"]) .el-table__fixed-right .el-table__body tr.hover-row > td.el-table__cell,
+body:not([class*="theme-"]) .el-table__fixed .el-table__body tr:hover > td.el-table__cell,
+body:not([class*="theme-"]) .el-table__fixed-right .el-table__body tr:hover > td.el-table__cell,
+body[class*="theme-"] .el-table__fixed .el-table__body tr.hover-row > td.el-table__cell,
+body[class*="theme-"] .el-table__fixed-right .el-table__body tr.hover-row > td.el-table__cell,
+body[class*="theme-"] .el-table__fixed .el-table__body tr:hover > td.el-table__cell,
+body[class*="theme-"] .el-table__fixed-right .el-table__body tr:hover > td.el-table__cell {
+  background: var(--zero-fixed-table-row-hover-bg) !important;
+  background-color: var(--zero-fixed-table-row-hover-bg) !important;
+}

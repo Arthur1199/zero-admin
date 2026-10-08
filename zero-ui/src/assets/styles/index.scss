@@ -1,0 +1,2057 @@
+@import './variables.scss';
+@import './mixin.scss';
+@import './transition.scss';
+@import './element-ui.scss';
+@import './sidebar.scss';
+@import './btn.scss';
+
+// 导入主题样式
+@import './themes/theme-variables';
+@import './themes/theme-mixins';
+@import './themes/theme-luxury-business.scss';
+@import './themes/theme-vibrant-tech.scss';
+@import './themes/theme-minimalist-future.scss';
+@import './themes/theme-warm-nature.scss';
+@import './themes/theme-glassmorphism.scss';
+@import './themes/theme-material-design.scss';
+@import './themes/theme-dark-premium.scss';
+
+// ========== 默认主题样式 ==========
+// 只在非自定义主题下应用
+body:not([class*="theme-"]) {
+  .navbar {
+    background: #fff;
+  }
+  
+  .tags-view-container {
+    background: #fff;
+  }
+}
+
+// ========== 底部版权主题适配 ==========
+body:not([class*="theme-"]) {
+  --copyright-color: #64748b;
+  --copyright-text-shadow: none;
+}
+
+body.theme-glassmorphism {
+  --copyright-color: rgba(255, 255, 255, 0.82);
+  --copyright-text-shadow: 0 1px 2px rgba(48, 28, 96, 0.32);
+}
+
+body.theme-luxury-business {
+  --copyright-color: rgba(244, 209, 120, 0.86);
+  --copyright-text-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
+}
+
+body.theme-vibrant-tech {
+  --copyright-color: rgba(36, 244, 255, 0.86);
+  --copyright-text-shadow: 0 1px 2px rgba(0, 39, 64, 0.32);
+}
+
+body.theme-minimalist-future {
+  --copyright-color: rgba(255, 255, 255, 0.72);
+  --copyright-text-shadow: 0 1px 2px rgba(0, 0, 0, 0.34);
+}
+
+body.theme-warm-nature {
+  --copyright-color: #8a6a44;
+  --copyright-text-shadow: none;
+}
+
+body.theme-material-design {
+  --copyright-color: #5f6368;
+  --copyright-text-shadow: none;
+}
+
+body.theme-dark-premium {
+  --copyright-color: rgba(255, 215, 0, 0.82);
+  --copyright-text-shadow: 0 1px 2px rgba(0, 0, 0, 0.42);
+}
+
+body {
+  height: 100%;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;
+}
+
+label {
+  font-weight: 700;
+}
+
+html {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+#app {
+  height: 100%;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+.no-padding {
+  padding: 0px !important;
+}
+
+.padding-content {
+  padding: 4px 0;
+}
+
+a:focus,
+a:active {
+  outline: none;
+}
+
+a,
+a:focus,
+a:hover {
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none;
+}
+
+div:focus {
+  outline: none;
+}
+
+.fr {
+  float: right;
+}
+
+.fl {
+  float: left;
+}
+
+.pr-5 {
+  padding-right: 5px;
+}
+
+.pl-5 {
+  padding-left: 5px;
+}
+
+.block {
+  display: block;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.inlineBlock {
+  display: block;
+}
+
+.clearfix {
+  &:after {
+    visibility: hidden;
+    display: block;
+    font-size: 0;
+    content: " ";
+    clear: both;
+    height: 0;
+  }
+}
+
+// 高端暗黑风 TreeSelect 最终兜底：修复弹窗内部门选择器下拉层不可见的问题。
+body.theme-dark-premium {
+  .el-dialog,
+  .el-dialog__body {
+    overflow: visible !important;
+  }
+
+  .el-dialog .vue-treeselect,
+  .vue-treeselect {
+    position: relative !important;
+  }
+
+  .vue-treeselect__control {
+    background: #0b0b0c !important;
+    background-color: #0b0b0c !important;
+    border: 1px solid rgba(212, 175, 55, 0.34) !important;
+    color: #e4e4e7 !important;
+  }
+
+  .vue-treeselect--focused .vue-treeselect__control,
+  .vue-treeselect--open .vue-treeselect__control {
+    border-color: #d4af37 !important;
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.14), 0 0 18px rgba(212, 175, 55, 0.18) !important;
+  }
+
+  .vue-treeselect__placeholder,
+  .vue-treeselect__single-value,
+  .vue-treeselect__input {
+    color: #a1a1aa !important;
+  }
+
+  .vue-treeselect__control-arrow,
+  .vue-treeselect__x {
+    fill: rgba(228, 228, 231, 0.72) !important;
+  }
+
+  .vue-treeselect__menu-container {
+    z-index: 4000 !important;
+    background: #101012 !important;
+    background-color: #101012 !important;
+    border: 1px solid rgba(212, 175, 55, 0.32) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.78), 0 0 28px rgba(212, 175, 55, 0.10) !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  .vue-treeselect--open .vue-treeselect__menu-container {
+    display: block !important;
+    top: calc(100% + 6px) !important;
+  }
+
+  .vue-treeselect__menu,
+  .vue-treeselect__list,
+  .vue-treeselect__list-item,
+  .vue-treeselect__indent {
+    background: #101012 !important;
+    background-color: #101012 !important;
+    color: #e4e4e7 !important;
+    opacity: 1 !important;
+  }
+
+  .vue-treeselect__menu {
+    display: block !important;
+    min-height: 42px !important;
+    max-height: 280px !important;
+    overflow-y: auto !important;
+  }
+
+  .vue-treeselect__option,
+  .vue-treeselect__option *,
+  .vue-treeselect__label,
+  .vue-treeselect__count {
+    background-color: transparent !important;
+    color: #e4e4e7 !important;
+    opacity: 1 !important;
+  }
+
+  .vue-treeselect__option:hover,
+  .vue-treeselect__option--hover {
+    background: linear-gradient(90deg, rgba(212, 175, 55, 0.20) 0%, rgba(212, 175, 55, 0.06) 100%) !important;
+    color: #d4af37 !important;
+  }
+
+  .vue-treeselect__option:hover *,
+  .vue-treeselect__option--hover *,
+  .vue-treeselect__option--selected,
+  .vue-treeselect__option--selected * {
+    color: #d4af37 !important;
+  }
+
+  .vue-treeselect__option--selected {
+    background: linear-gradient(90deg, rgba(212, 175, 55, 0.26) 0%, rgba(212, 175, 55, 0.08) 100%) !important;
+    font-weight: 700 !important;
+  }
+}
+
+body.theme-minimalist-future:not(.form-builder-page) #app {
+  .sidebar-container {
+    background: rgba(246, 252, 255, 0.96) !important;
+
+    .el-scrollbar,
+    .el-scrollbar__view,
+    .el-menu,
+    .el-menu--inline,
+    .el-submenu,
+    .nest-menu,
+    .nest-menu .el-submenu,
+    .nest-menu .el-menu-item,
+    .nest-menu .el-submenu > .el-submenu__title,
+    .el-submenu .el-menu-item,
+    .el-submenu__title,
+    .el-menu-item {
+      background: transparent !important;
+      background-color: transparent !important;
+      background-image: none !important;
+      color: #5c6b82 !important;
+      box-shadow: none !important;
+    }
+
+    .el-menu-item,
+    .el-submenu__title,
+    .nest-menu .el-submenu > .el-submenu__title,
+    .el-submenu .el-menu-item {
+      border-radius: 8px !important;
+      margin: 3px 10px !important;
+      border-left: 3px solid transparent !important;
+      min-width: auto !important;
+    }
+
+    .el-menu-item:hover,
+    .el-submenu__title:hover,
+    .nest-menu .el-submenu > .el-submenu__title:hover,
+    .el-submenu .el-menu-item:hover {
+      background: rgba(0, 188, 212, 0.09) !important;
+      background-color: rgba(0, 188, 212, 0.09) !important;
+      color: #006c9a !important;
+      border-left-color: rgba(0, 188, 212, 0.55) !important;
+    }
+
+    .el-menu-item.is-active,
+    .el-submenu.is-active > .el-submenu__title,
+    .el-submenu.is-opened > .el-submenu__title {
+      background: linear-gradient(90deg, rgba(0, 188, 212, 0.16) 0%, rgba(108, 99, 255, 0.08) 100%) !important;
+      background-color: rgba(0, 188, 212, 0.10) !important;
+      color: #006c9a !important;
+      border-left-color: #00bcd4 !important;
+      box-shadow: 0 8px 18px rgba(0, 188, 212, 0.10) !important;
+    }
+
+    .el-menu-item i,
+    .el-submenu__title i,
+    .svg-icon,
+    .el-submenu__icon-arrow {
+      color: #7a8aa0 !important;
+      fill: #7a8aa0 !important;
+    }
+
+    .el-menu-item.is-active i,
+    .el-submenu.is-active > .el-submenu__title i,
+    .el-submenu.is-opened > .el-submenu__title i,
+    .el-menu-item.is-active .svg-icon,
+    .el-submenu.is-active > .el-submenu__title .svg-icon,
+    .el-submenu.is-opened > .el-submenu__title .svg-icon,
+    .el-submenu.is-active > .el-submenu__title .el-submenu__icon-arrow,
+    .el-submenu.is-opened > .el-submenu__title .el-submenu__icon-arrow {
+      color: #00a7bd !important;
+      fill: #00a7bd !important;
+    }
+  }
+}
+
+body.theme-minimalist-future:not(.form-builder-page) #app .app-main {
+  .el-table,
+  .el-table__header-wrapper,
+  .el-table__fixed-header-wrapper,
+  .el-table__header,
+  .el-table__fixed-header-wrapper .el-table__header,
+  .el-table__header thead,
+  .el-table__header tr,
+  .el-table__header th,
+  .el-table__header th.el-table__cell,
+  .el-table__header th.gutter,
+  .el-table__header .cell {
+    background: rgba(232, 247, 255, 0.98) !important;
+    background-color: rgba(232, 247, 255, 0.98) !important;
+    color: #365065 !important;
+    border-color: rgba(0, 188, 212, 0.14) !important;
+  }
+
+  .el-table__header-wrapper {
+    border-top: 1px solid rgba(0, 188, 212, 0.18) !important;
+    border-bottom: 1px solid rgba(0, 188, 212, 0.18) !important;
+  }
+
+  .el-table__header-wrapper::before,
+  .el-table__header-wrapper::after,
+  .el-table::before,
+  .el-table::after,
+  .el-table__fixed::before,
+  .el-table__fixed-right::before {
+    background: rgba(0, 188, 212, 0.14) !important;
+    background-color: rgba(0, 188, 212, 0.14) !important;
+  }
+}
+
+aside {
+  background: #eef1f6;
+  padding: 8px 24px;
+  margin-bottom: 20px;
+  border-radius: 2px;
+  display: block;
+  line-height: 32px;
+  font-size: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  color: #2c3e50;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  a {
+    color: #337ab7;
+    cursor: pointer;
+
+    &:hover {
+      color: rgb(32, 160, 255);
+    }
+  }
+}
+
+//main-container全局样式
+.app-container {
+  padding: 20px;
+}
+
+.components-container {
+  margin: 30px 50px;
+  position: relative;
+}
+
+.text-center {
+  text-align: center
+}
+
+.sub-navbar {
+  height: 50px;
+  line-height: 50px;
+  position: relative;
+  width: 100%;
+  text-align: right;
+  padding-right: 20px;
+  transition: 600ms ease position;
+  background: linear-gradient(90deg, rgba(32, 182, 249, 1) 0%, rgba(32, 182, 249, 1) 0%, rgba(33, 120, 241, 1) 100%, rgba(33, 120, 241, 1) 100%);
+
+  .subtitle {
+    font-size: 20px;
+    color: #fff;
+  }
+
+  &.draft {
+    background: #d0d0d0;
+  }
+
+  &.deleted {
+    background: #d0d0d0;
+  }
+}
+
+.link-type,
+.link-type:focus {
+  color: #337ab7;
+  cursor: pointer;
+
+  &:hover {
+    color: rgb(32, 160, 255);
+  }
+}
+
+.filter-container {
+  padding-bottom: 10px;
+
+  .filter-item {
+    display: inline-block;
+    vertical-align: middle;
+    margin-bottom: 10px;
+  }
+}
+
+// ========== 强制应用主题下拉框样式 ==========
+// 确保下拉选择框在所有主题下都正确显示
+
+// 轻奢商务风
+body.theme-luxury-business .el-select-dropdown {
+  background-color: #1a1f2e !important;
+  border: 1px solid #2a3142 !important;
+  
+  .el-select-dropdown__item {
+    color: #e8eaf0 !important;
+    
+    &.hover, &:hover {
+      background-color: rgba(212, 175, 55, 0.1) !important;
+      color: #d4af37 !important;
+    }
+    
+    &.selected {
+      color: #d4af37 !important;
+      background-color: rgba(212, 175, 55, 0.15) !important;
+    }
+  }
+}
+
+// 活力科技风
+body.theme-vibrant-tech .el-select-dropdown {
+  background-color: #141a35 !important;
+  border: 1px solid #2a3552 !important;
+  
+  .el-select-dropdown__item {
+    color: #ffffff !important;
+    
+    &.hover, &:hover {
+      background-color: rgba(0, 242, 254, 0.1) !important;
+      color: #00f2fe !important;
+    }
+    
+    &.selected {
+      color: #00f2fe !important;
+      background-color: rgba(0, 242, 254, 0.15) !important;
+    }
+  }
+}
+
+// 极简未来风
+body.theme-minimalist-future .el-select-dropdown {
+  background-color: #1a1a1a !important;
+  border: 1px solid #333333 !important;
+  
+  .el-select-dropdown__item {
+    color: #f0f0f0 !important;
+    
+    &.hover, &:hover {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      color: #ffffff !important;
+    }
+    
+    &.selected {
+      color: #ffffff !important;
+      background-color: rgba(255, 255, 255, 0.08) !important;
+    }
+  }
+}
+
+// 温馨自然风
+body.theme-warm-nature .el-select-dropdown {
+  background-color: #ffffff !important;
+  border: 1px solid #d4c4b0 !important;
+  
+  .el-select-dropdown__item {
+    color: #4a3f35 !important;
+    
+    &.hover, &:hover {
+      background-color: #f9f4ed !important;
+      color: #8b6f47 !important;
+    }
+    
+    &.selected {
+      color: #8b6f47 !important;
+      background-color: #faf7f0 !important;
+    }
+  }
+}
+
+// 毛玻璃拟态风
+body.theme-glassmorphism .el-select-dropdown {
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  
+  .el-select-dropdown__item {
+    color: #ffffff !important;
+    
+    &.hover, &:hover {
+      background: rgba(255, 255, 255, 0.15) !important;
+    }
+    
+    &.selected {
+      color: #ffffff !important;
+      background: rgba(255, 255, 255, 0.25) !important;
+    }
+  }
+}
+
+// 质感设计风
+body.theme-material-design .el-select-dropdown {
+  background-color: #ffffff !important;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  
+  .el-select-dropdown__item {
+    color: #212121 !important;
+    
+    &.hover, &:hover {
+      background-color: rgba(94, 53, 177, 0.08) !important;
+    }
+    
+    &.selected {
+      color: #5e35b1 !important;
+      background-color: rgba(94, 53, 177, 0.12) !important;
+    }
+  }
+}
+
+// 高端暗黑风
+body.theme-dark-premium .el-select-dropdown {
+  background-color: #0a0e27 !important;
+  border: 1px solid #1a1f3a !important;
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  
+  .el-select-dropdown__item {
+    color: #ffffff !important;
+    
+    &.hover, &:hover {
+      background: linear-gradient(90deg, rgba(255, 215, 0, 0.15) 0%, transparent 100%) !important;
+      color: #ffd700 !important;
+    }
+    
+    &.selected {
+      color: #ffd700 !important;
+      background: linear-gradient(90deg, rgba(255, 215, 0, 0.2) 0%, transparent 100%) !important;
+    }
+  }
+}
+
+// ========== vue-treeselect 组件主题适配 ==========
+// TreeSelect下拉菜单的类名是 .vue-treeselect__menu
+
+// 轻奢商务风 - TreeSelect
+body.theme-luxury-business {
+  .vue-treeselect__control {
+    background-color: #1a1f2e !important;
+    border-color: #2a3142 !important;
+    color: #e8eaf0 !important;
+  }
+
+  .vue-treeselect--focused .vue-treeselect__control {
+    border-color: #d4af37 !important;
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.12) !important;
+  }
+
+  .vue-treeselect__placeholder,
+  .vue-treeselect__single-value,
+  .vue-treeselect__input {
+    color: #b8bcc8 !important;
+  }
+
+  .vue-treeselect__x-container,
+  .vue-treeselect__control-arrow-container {
+    color: #b8bcc8 !important;
+  }
+
+  .vue-treeselect__control-arrow {
+    fill: #b8bcc8 !important;
+  }
+
+  .vue-treeselect__menu-container {
+    background-color: #1a1f2e !important;
+    border: 1px solid #2a3142 !important;
+  }
+  
+  .vue-treeselect__menu {
+    background-color: #1a1f2e !important;
+  }
+  
+  .vue-treeselect__list {
+    background-color: #1a1f2e !important;
+  }
+
+  // 通配符：确保所有内部元素背景透明
+  .vue-treeselect__menu *:not(.vue-treeselect__option--hover):not(.vue-treeselect__option--selected) {
+    background-color: transparent !important;
+  }
+  
+  .vue-treeselect__option {
+    color: #e8eaf0 !important;
+    background-color: transparent !important;  // 默认状态也设置为透明
+    
+    &:hover, &.vue-treeselect__option--hover {
+      background-color: rgba(212, 175, 55, 0.1) !important;
+      color: #d4af37 !important;
+    }
+    
+    &.vue-treeselect__option--selected {
+      color: #d4af37 !important;
+      background-color: rgba(212, 175, 55, 0.15) !important;
+      font-weight: 600;
+    }
+  }
+  
+  .vue-treeselect__label {
+    color: #e8eaf0 !important;
+  }
+
+  // 修复子元素白色背景问题
+  .vue-treeselect__list-item,
+  .vue-treeselect__indent {
+    background-color: transparent !important;
+  }
+}
+
+
+// ========== 极简未来风弹层组件最终兜底 ==========
+// Element UI 与 vue-treeselect 的弹层通常挂载到 body，必须放在文件最后统一兜底。
+body.theme-minimalist-future {
+  .vue-treeselect__menu-container,
+  .vue-treeselect__menu,
+  .vue-treeselect__list,
+  .vue-treeselect__list-item,
+  .vue-treeselect__indent,
+  .el-select-dropdown.el-popper,
+  .el-select-dropdown.el-popper .el-scrollbar,
+  .el-select-dropdown.el-popper .el-select-dropdown__wrap,
+  .el-select-dropdown.el-popper .el-select-dropdown__list,
+  .el-cascader__dropdown,
+  .el-cascader-panel,
+  .el-cascader-menu,
+  .el-picker-panel,
+  .el-date-picker,
+  .el-date-range-picker,
+  .el-dropdown-menu,
+  .el-autocomplete-suggestion,
+  .el-popover,
+  .el-menu--popup {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    border-color: rgba(0, 188, 212, 0.26) !important;
+    color: #172033 !important;
+    opacity: 1 !important;
+    box-shadow: 0 18px 44px rgba(26, 73, 105, 0.18) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .vue-treeselect__menu-container,
+  .el-select-dropdown.el-popper,
+  .el-cascader__dropdown,
+  .el-picker-panel,
+  .el-dropdown-menu,
+  .el-autocomplete-suggestion,
+  .el-popover,
+  .el-menu--popup {
+    border: 1px solid rgba(0, 188, 212, 0.30) !important;
+    border-radius: 10px !important;
+    overflow: hidden;
+  }
+
+  .vue-treeselect__menu *,
+  .vue-treeselect__option,
+  .vue-treeselect__label,
+  .vue-treeselect__count,
+  .el-select-dropdown__item,
+  .el-cascader-node,
+  .el-cascader-node__label,
+  .el-picker-panel *,
+  .el-date-table td,
+  .el-date-table td div,
+  .el-month-table td,
+  .el-year-table td,
+  .el-dropdown-menu__item,
+  .el-autocomplete-suggestion li,
+  .el-menu--popup .el-menu-item,
+  .el-menu--popup .el-submenu__title {
+    background-color: transparent !important;
+    color: #172033 !important;
+    opacity: 1 !important;
+  }
+
+  .vue-treeselect__option:hover,
+  .vue-treeselect__option--hover,
+  .el-select-dropdown__item.hover,
+  .el-select-dropdown__item:hover,
+  .el-cascader-node:hover,
+  .el-cascader-node.in-active-path,
+  .el-cascader-node.is-selectable.in-checked-path,
+  .el-date-table td.available:hover,
+  .el-month-table td .cell:hover,
+  .el-year-table td .cell:hover,
+  .el-dropdown-menu__item:hover,
+  .el-autocomplete-suggestion li:hover,
+  .el-menu--popup .el-menu-item:hover,
+  .el-menu--popup .el-submenu__title:hover {
+    background: rgba(0, 188, 212, 0.10) !important;
+    background-color: rgba(0, 188, 212, 0.10) !important;
+    color: #006c9a !important;
+  }
+
+  .vue-treeselect__option--selected,
+  .vue-treeselect__option--selected .vue-treeselect__label,
+  .el-select-dropdown__item.selected,
+  .el-cascader-node.is-active,
+  .el-date-table td.current:not(.disabled) span,
+  .el-month-table td.current:not(.disabled) .cell,
+  .el-year-table td.current:not(.disabled) .cell,
+  .el-menu--popup .el-menu-item.is-active {
+    background: linear-gradient(90deg, rgba(0, 188, 212, 0.18) 0%, rgba(108, 99, 255, 0.10) 100%) !important;
+    background-color: rgba(0, 188, 212, 0.14) !important;
+    color: #006c9a !important;
+    font-weight: 700 !important;
+  }
+
+  .vue-treeselect__control {
+    background: rgba(255, 255, 255, 0.86) !important;
+    border: 1px solid rgba(0, 188, 212, 0.28) !important;
+    border-radius: 10px !important;
+    color: #172033 !important;
+  }
+
+  .vue-treeselect--focused .vue-treeselect__control {
+    border-color: #00bcd4 !important;
+    box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.12) !important;
+  }
+
+  .vue-treeselect__placeholder,
+  .vue-treeselect__input,
+  .el-input__inner::placeholder,
+  .el-textarea__inner::placeholder {
+    color: #7c91a6 !important;
+  }
+
+  .vue-treeselect__single-value {
+    color: #172033 !important;
+  }
+
+  .vue-treeselect__control-arrow,
+  .vue-treeselect__x {
+    fill: #7c91a6 !important;
+  }
+
+  .el-popper .popper__arrow,
+  .el-popper .popper__arrow::after {
+    border-bottom-color: #ffffff !important;
+    border-top-color: #ffffff !important;
+  }
+
+  .el-picker-panel__icon-btn,
+  .el-date-picker__header-label,
+  .el-date-table th {
+    color: #365065 !important;
+  }
+}
+
+body.theme-minimalist-future .el-select-dropdown.el-popper {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border: 1px solid rgba(0, 188, 212, 0.36) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 18px 44px rgba(26, 73, 105, 0.18) !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+body.theme-minimalist-future .el-select-dropdown.el-popper .el-scrollbar,
+body.theme-minimalist-future .el-select-dropdown.el-popper .el-select-dropdown__wrap,
+body.theme-minimalist-future .el-select-dropdown.el-popper .el-select-dropdown__list {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+}
+
+body.theme-minimalist-future .el-select-dropdown.el-popper .el-select-dropdown__item {
+  background: transparent !important;
+  color: #172033 !important;
+  font-weight: 600 !important;
+  opacity: 1 !important;
+}
+
+body.theme-minimalist-future .el-select-dropdown.el-popper .el-select-dropdown__item.hover,
+body.theme-minimalist-future .el-select-dropdown.el-popper .el-select-dropdown__item:hover {
+  background: rgba(0, 188, 212, 0.12) !important;
+  color: #006c9a !important;
+}
+
+body.theme-minimalist-future .el-select-dropdown.el-popper .el-select-dropdown__item.selected {
+  background: linear-gradient(90deg, rgba(0, 188, 212, 0.18) 0%, rgba(108, 99, 255, 0.10) 100%) !important;
+  color: #006c9a !important;
+  font-weight: 700 !important;
+}
+
+body.theme-minimalist-future .el-select-dropdown.el-popper .popper__arrow,
+body.theme-minimalist-future .el-select-dropdown.el-popper .popper__arrow::after {
+  border-bottom-color: #ffffff !important;
+  border-top-color: #ffffff !important;
+}
+
+// ========== 极简未来风最终覆盖 ==========
+// 放在文件末尾，确保不会被该主题历史黑白规则再次覆盖。
+body.theme-minimalist-future {
+  background: linear-gradient(135deg, #f7fcff 0%, #eef8ff 52%, #f5f8ff 100%) !important;
+  color: #172033 !important;
+
+  .app-main,
+  .main-container,
+  .fixed-header,
+  .app-container {
+    background: transparent !important;
+  }
+
+  .sidebar-container {
+    background: rgba(246, 252, 255, 0.96) !important;
+    border-right: 1px solid rgba(0, 188, 212, 0.18) !important;
+    box-shadow: 10px 0 30px rgba(26, 73, 105, 0.08) !important;
+
+    .sidebar-logo-container {
+      background: rgba(248, 253, 255, 0.98) !important;
+      border-bottom: 1px solid rgba(0, 188, 212, 0.16) !important;
+    }
+
+    .el-menu,
+    .el-menu--inline,
+    .nest-menu,
+    .nest-menu .el-submenu,
+    .nest-menu .el-submenu > .el-submenu__title,
+    .el-submenu__title,
+    .el-menu-item {
+      background: transparent !important;
+      background-color: transparent !important;
+      color: #5c6b82 !important;
+      border-radius: 8px !important;
+      box-shadow: none !important;
+    }
+
+    .el-menu-item,
+    .el-submenu__title {
+      margin: 3px 10px !important;
+      border-left: 3px solid transparent !important;
+    }
+
+    .el-menu-item:hover,
+    .el-submenu__title:hover,
+    .nest-menu .el-submenu > .el-submenu__title:hover {
+      background: rgba(0, 188, 212, 0.09) !important;
+      color: #006c9a !important;
+      border-left-color: rgba(0, 188, 212, 0.55) !important;
+    }
+
+    .el-menu-item.is-active,
+    .el-submenu.is-active > .el-submenu__title,
+    .el-submenu.is-opened > .el-submenu__title {
+      background: linear-gradient(90deg, rgba(0, 188, 212, 0.16) 0%, rgba(108, 99, 255, 0.08) 100%) !important;
+      color: #006c9a !important;
+      border-left-color: #00bcd4 !important;
+      box-shadow: 0 8px 18px rgba(0, 188, 212, 0.10) !important;
+    }
+  }
+
+  .navbar,
+  .tags-view-container {
+    background: rgba(255, 255, 255, 0.84) !important;
+    border-color: rgba(0, 188, 212, 0.16) !important;
+    box-shadow: 0 10px 28px rgba(26, 73, 105, 0.08) !important;
+  }
+
+  .tags-view-container .tags-view-item {
+    background: rgba(255, 255, 255, 0.78) !important;
+    border: 1px solid rgba(0, 188, 212, 0.18) !important;
+    border-radius: 6px !important;
+    color: #5c6b82 !important;
+    box-shadow: none !important;
+
+    &.active {
+      background: linear-gradient(135deg, rgba(0, 188, 212, 0.16) 0%, rgba(108, 99, 255, 0.12) 100%) !important;
+      border-color: rgba(0, 188, 212, 0.46) !important;
+      color: #006c9a !important;
+      animation: none !important;
+      box-shadow: 0 8px 18px rgba(0, 188, 212, 0.12) !important;
+    }
+  }
+
+  .el-table,
+  .el-table__fixed,
+  .el-table__fixed-right {
+    background: rgba(255, 255, 255, 0.88) !important;
+    border: 1px solid rgba(0, 188, 212, 0.18) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 16px 40px rgba(26, 73, 105, 0.10) !important;
+    color: #172033 !important;
+    overflow: hidden;
+  }
+
+  .el-table__header-wrapper,
+  .el-table__fixed-header-wrapper {
+    th,
+    th.el-table__cell,
+    tr,
+    .cell {
+      background: rgba(232, 247, 255, 0.98) !important;
+      background-color: rgba(232, 247, 255, 0.98) !important;
+      color: #365065 !important;
+      border-color: rgba(0, 188, 212, 0.14) !important;
+      font-weight: 700 !important;
+    }
+  }
+
+  .el-table th.el-table__cell,
+  .el-table tr,
+  .el-table td.el-table__cell {
+    background-color: rgba(255, 255, 255, 0.76) !important;
+    color: #172033 !important;
+    border-color: rgba(0, 188, 212, 0.10) !important;
+  }
+
+  .el-table .el-table__body tr:hover > td {
+    background: rgba(0, 188, 212, 0.07) !important;
+  }
+
+  .el-button {
+    border-radius: 8px !important;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  .el-button--primary,
+  .el-button--success {
+    background: linear-gradient(135deg, #00bcd4 0%, #6c63ff 100%) !important;
+    border-color: transparent !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 22px rgba(0, 188, 212, 0.20) !important;
+  }
+
+  .el-button--default,
+  .el-button--info,
+  .el-button--warning {
+    background: rgba(255, 255, 255, 0.76) !important;
+    border: 1px solid rgba(0, 188, 212, 0.24) !important;
+    color: #365065 !important;
+  }
+
+  .el-input__inner,
+  .el-textarea__inner,
+  .el-date-editor.el-input__inner,
+  .el-date-editor.el-range-editor.el-input__inner,
+  .vue-treeselect__control {
+    background: rgba(255, 255, 255, 0.84) !important;
+    border: 1px solid rgba(0, 188, 212, 0.24) !important;
+    border-radius: 8px !important;
+    color: #172033 !important;
+    box-shadow: none !important;
+  }
+
+  .el-input__inner:focus,
+  .el-textarea__inner:focus,
+  .vue-treeselect--focused .vue-treeselect__control {
+    border-color: #00bcd4 !important;
+    box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.12) !important;
+  }
+
+  .el-select-dropdown,
+  .el-dropdown-menu,
+  .vue-treeselect__menu-container,
+  .vue-treeselect__menu,
+  .vue-treeselect__list,
+  .el-menu--popup,
+  > .el-menu--popup {
+    background: rgba(255, 255, 255, 0.96) !important;
+    background-color: rgba(255, 255, 255, 0.96) !important;
+    border: 1px solid rgba(0, 188, 212, 0.20) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 18px 44px rgba(26, 73, 105, 0.16) !important;
+  }
+
+  .el-select-dropdown__item,
+  .el-dropdown-menu__item,
+  .vue-treeselect__option,
+  .vue-treeselect__label,
+  .el-menu--popup .el-menu-item,
+  .el-menu--popup .el-submenu__title {
+    background: transparent !important;
+    color: #172033 !important;
+  }
+
+  .el-select-dropdown__item.hover,
+  .el-select-dropdown__item:hover,
+  .el-dropdown-menu__item:hover,
+  .vue-treeselect__option:hover,
+  .vue-treeselect__option--hover,
+  .el-menu--popup .el-menu-item:hover,
+  .el-menu--popup .el-submenu__title:hover {
+    background: rgba(0, 188, 212, 0.10) !important;
+    color: #006c9a !important;
+  }
+
+  .el-select-dropdown__item.selected,
+  .vue-treeselect__option--selected,
+  .el-menu--popup .el-menu-item.is-active {
+    background: rgba(0, 188, 212, 0.14) !important;
+    color: #006c9a !important;
+    font-weight: 700 !important;
+  }
+}
+
+// ========== 极简未来风重塑 ==========
+// 只覆盖 minimalist-future，使用冷白空间、青蓝光感和轻量边框，避免与高端暗黑风格混淆。
+body.theme-minimalist-future {
+  --copyright-color: rgba(23, 32, 51, 0.58);
+  --copyright-text-shadow: none;
+
+  background: linear-gradient(135deg, #f7fcff 0%, #eef8ff 52%, #f5f8ff 100%) !important;
+  color: #172033 !important;
+
+  .app-main,
+  .zero-home,
+  .app-container {
+    background: transparent !important;
+    color: #172033 !important;
+  }
+
+  .main-container,
+  .fixed-header {
+    background: transparent !important;
+  }
+
+  .sidebar-container {
+    background: rgba(246, 252, 255, 0.94) !important;
+    border-right: 1px solid rgba(0, 188, 212, 0.18) !important;
+    box-shadow: 10px 0 30px rgba(26, 73, 105, 0.08) !important;
+
+    .sidebar-logo-container {
+      background: rgba(248, 253, 255, 0.98) !important;
+      border-bottom: 1px solid rgba(0, 188, 212, 0.16) !important;
+
+      .sidebar-title {
+        color: #172033 !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.4px !important;
+      }
+
+      .sidebar-logo {
+        filter: drop-shadow(0 0 8px rgba(0, 188, 212, 0.28)) !important;
+      }
+    }
+
+    .el-menu,
+    .el-menu--inline {
+      background: transparent !important;
+    }
+
+    .el-menu-item,
+    .el-submenu__title {
+      background: transparent !important;
+      color: #5c6b82 !important;
+      border-left: 3px solid transparent !important;
+      border-radius: 8px !important;
+      margin: 3px 10px !important;
+      font-weight: 500 !important;
+
+      i,
+      svg {
+        color: #7a8aa0 !important;
+        fill: #7a8aa0 !important;
+      }
+
+      &:hover {
+        background: rgba(0, 188, 212, 0.09) !important;
+        color: #006c9a !important;
+        border-left-color: rgba(0, 188, 212, 0.55) !important;
+      }
+    }
+
+    .el-menu-item.is-active,
+    .el-submenu.is-active > .el-submenu__title,
+    .el-submenu.is-opened > .el-submenu__title {
+      background: linear-gradient(90deg, rgba(0, 188, 212, 0.16) 0%, rgba(108, 99, 255, 0.08) 100%) !important;
+      color: #006c9a !important;
+      border-left-color: #00bcd4 !important;
+      box-shadow: 0 8px 18px rgba(0, 188, 212, 0.10) !important;
+      font-weight: 700 !important;
+
+      i,
+      svg,
+      .el-submenu__icon-arrow {
+        color: #00a7bd !important;
+        fill: #00a7bd !important;
+      }
+    }
+  }
+
+  .navbar {
+    background: rgba(255, 255, 255, 0.82) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(0, 188, 212, 0.16) !important;
+    box-shadow: 0 10px 28px rgba(26, 73, 105, 0.08) !important;
+
+    .hamburger-container svg,
+    .right-menu svg {
+      fill: #365065 !important;
+    }
+
+    .breadcrumb-container,
+    .breadcrumb-container .el-breadcrumb__inner,
+    .breadcrumb-container .el-breadcrumb__inner a,
+    .right-menu .right-menu-item,
+    .right-menu .avatar-container .user-nickname {
+      color: #172033 !important;
+    }
+
+    .breadcrumb-container .el-breadcrumb__separator {
+      color: #8aa1b4 !important;
+    }
+
+    .hamburger-container:hover,
+    .right-menu .right-menu-item.hover-effect:hover,
+    .right-menu .avatar-container:hover {
+      background: rgba(0, 188, 212, 0.08) !important;
+    }
+  }
+
+  .tags-view-container {
+    background: rgba(255, 255, 255, 0.78) !important;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(0, 188, 212, 0.14) !important;
+
+    .tags-view-item {
+      background: rgba(255, 255, 255, 0.78) !important;
+      border: 1px solid rgba(0, 188, 212, 0.18) !important;
+      border-radius: 6px !important;
+      color: #5c6b82 !important;
+      box-shadow: none !important;
+
+      &.active {
+        background: linear-gradient(135deg, rgba(0, 188, 212, 0.16) 0%, rgba(108, 99, 255, 0.12) 100%) !important;
+        border-color: rgba(0, 188, 212, 0.46) !important;
+        color: #006c9a !important;
+        animation: none !important;
+        box-shadow: 0 8px 18px rgba(0, 188, 212, 0.12) !important;
+      }
+    }
+  }
+
+  .el-card,
+  .el-dialog,
+  .el-table,
+  .splitpanes.default-theme .splitpanes__pane,
+  .el-transfer-panel,
+  .el-collapse-item__wrap {
+    background: rgba(255, 255, 255, 0.88) !important;
+    border: 1px solid rgba(0, 188, 212, 0.18) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 16px 40px rgba(26, 73, 105, 0.10) !important;
+    color: #172033 !important;
+  }
+
+  .el-card:hover {
+    transform: none !important;
+    border-color: rgba(0, 188, 212, 0.35) !important;
+    box-shadow: 0 18px 46px rgba(0, 188, 212, 0.12) !important;
+  }
+
+  .el-card__header,
+  .el-dialog__header,
+  .el-transfer-panel__header,
+  .el-collapse-item__header {
+    background: rgba(244, 251, 255, 0.92) !important;
+    border-bottom: 1px solid rgba(0, 188, 212, 0.16) !important;
+    color: #172033 !important;
+    font-weight: 700 !important;
+  }
+
+  .el-dialog__body,
+  .el-card__body,
+  .el-form-item__label,
+  label {
+    color: #172033 !important;
+  }
+
+  .el-input__inner,
+  .el-textarea__inner,
+  .el-select .el-input__inner,
+  .el-date-editor.el-input__inner,
+  .el-date-editor.el-range-editor.el-input__inner,
+  .vue-treeselect__control {
+    background: rgba(255, 255, 255, 0.82) !important;
+    border: 1px solid rgba(0, 188, 212, 0.24) !important;
+    border-radius: 8px !important;
+    color: #172033 !important;
+    box-shadow: none !important;
+  }
+
+  .el-input__inner:focus,
+  .el-textarea__inner:focus,
+  .vue-treeselect--focused .vue-treeselect__control {
+    border-color: #00bcd4 !important;
+    box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.12) !important;
+  }
+
+  .el-input__inner::placeholder,
+  .el-textarea__inner::placeholder,
+  .vue-treeselect__placeholder,
+  .vue-treeselect__single-value,
+  .vue-treeselect__input {
+    color: #8aa1b4 !important;
+  }
+
+  .el-button {
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  .el-button--primary,
+  .el-button--success {
+    background: linear-gradient(135deg, #00bcd4 0%, #6c63ff 100%) !important;
+    border-color: transparent !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 22px rgba(0, 188, 212, 0.20) !important;
+
+    &:hover,
+    &:focus {
+      filter: brightness(1.04);
+      color: #ffffff !important;
+      box-shadow: 0 12px 26px rgba(0, 188, 212, 0.26) !important;
+    }
+  }
+
+  .el-button--default,
+  .el-button--info,
+  .el-button--warning {
+    background: rgba(255, 255, 255, 0.76) !important;
+    border: 1px solid rgba(0, 188, 212, 0.24) !important;
+    color: #365065 !important;
+
+    &:hover,
+    &:focus {
+      background: rgba(0, 188, 212, 0.08) !important;
+      border-color: rgba(0, 188, 212, 0.45) !important;
+      color: #006c9a !important;
+    }
+  }
+
+  .el-button--danger {
+    background: rgba(255, 255, 255, 0.76) !important;
+    border: 1px solid rgba(239, 68, 68, 0.35) !important;
+    color: #dc2626 !important;
+
+    &:hover,
+    &:focus {
+      background: rgba(239, 68, 68, 0.10) !important;
+      border-color: rgba(239, 68, 68, 0.55) !important;
+    }
+  }
+
+  .el-table {
+    overflow: hidden;
+
+    &::before {
+      background: rgba(0, 188, 212, 0.14) !important;
+      height: 1px !important;
+    }
+
+    th.el-table__cell {
+      background: rgba(232, 247, 255, 0.95) !important;
+      color: #365065 !important;
+      border-color: rgba(0, 188, 212, 0.14) !important;
+      font-weight: 700 !important;
+    }
+
+    td.el-table__cell {
+      background: rgba(255, 255, 255, 0.72) !important;
+      color: #172033 !important;
+      border-color: rgba(0, 188, 212, 0.10) !important;
+    }
+
+    .el-table__body tr:hover > td {
+      background: rgba(0, 188, 212, 0.07) !important;
+    }
+  }
+
+  .el-switch .el-switch__core {
+    background: rgba(138, 161, 180, 0.22) !important;
+    border: 1px solid rgba(138, 161, 180, 0.28) !important;
+    border-radius: 999px !important;
+  }
+
+  .el-switch.is-checked .el-switch__core {
+    background: linear-gradient(135deg, #00bcd4 0%, #6c63ff 100%) !important;
+    border-color: transparent !important;
+  }
+
+  .el-radio__inner,
+  .el-checkbox__inner {
+    background: rgba(255, 255, 255, 0.86) !important;
+    border-color: rgba(0, 188, 212, 0.30) !important;
+  }
+
+  .el-radio__input.is-checked .el-radio__inner,
+  .el-checkbox__input.is-checked .el-checkbox__inner {
+    background: #00bcd4 !important;
+    border-color: #00bcd4 !important;
+  }
+
+  .el-radio__label,
+  .el-checkbox__label,
+  .el-pagination__total,
+  .el-pagination__jump {
+    color: #365065 !important;
+  }
+
+  .el-pagination {
+    .el-pager li,
+    .btn-prev,
+    .btn-next,
+    .el-pagination__sizes .el-input__inner,
+    .el-pagination__jump .el-input__inner {
+      background: rgba(255, 255, 255, 0.78) !important;
+      border: 1px solid rgba(0, 188, 212, 0.20) !important;
+      border-radius: 8px !important;
+      color: #365065 !important;
+      box-shadow: none !important;
+      transform: none !important;
+    }
+
+    .el-pager li.active {
+      background: linear-gradient(135deg, #00bcd4 0%, #6c63ff 100%) !important;
+      border-color: transparent !important;
+      color: #ffffff !important;
+    }
+  }
+
+  .el-select-dropdown,
+  .el-dropdown-menu,
+  .vue-treeselect__menu-container,
+  .vue-treeselect__menu,
+  .vue-treeselect__list {
+    background: rgba(255, 255, 255, 0.96) !important;
+    border: 1px solid rgba(0, 188, 212, 0.20) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 18px 44px rgba(26, 73, 105, 0.16) !important;
+  }
+
+  .el-select-dropdown__item,
+  .el-dropdown-menu__item,
+  .vue-treeselect__option,
+  .vue-treeselect__label {
+    color: #172033 !important;
+  }
+
+  .el-select-dropdown__item.hover,
+  .el-select-dropdown__item:hover,
+  .el-dropdown-menu__item:hover,
+  .vue-treeselect__option:hover,
+  .vue-treeselect__option--hover {
+    background: rgba(0, 188, 212, 0.10) !important;
+    color: #006c9a !important;
+  }
+
+  .el-select-dropdown__item.selected,
+  .vue-treeselect__option--selected {
+    background: rgba(0, 188, 212, 0.14) !important;
+    color: #006c9a !important;
+    font-weight: 700 !important;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(232, 247, 255, 0.72) !important;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 188, 212, 0.42) !important;
+    border-radius: 999px !important;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 188, 212, 0.62) !important;
+  }
+}
+
+// 活力科技风 - TreeSelect
+body.theme-vibrant-tech {
+  .vue-treeselect__control {
+    background-color: #141a35 !important;
+    border-color: #2a3552 !important;
+    color: #ffffff !important;
+  }
+
+  .vue-treeselect--focused .vue-treeselect__control {
+    border-color: #00f2fe !important;
+    box-shadow: 0 0 0 2px rgba(0, 242, 254, 0.14) !important;
+  }
+
+  .vue-treeselect__placeholder,
+  .vue-treeselect__single-value,
+  .vue-treeselect__input {
+    color: #c0c9ff !important;
+  }
+
+  .vue-treeselect__x-container,
+  .vue-treeselect__control-arrow-container {
+    color: #c0c9ff !important;
+  }
+
+  .vue-treeselect__control-arrow {
+    fill: #c0c9ff !important;
+  }
+
+  .vue-treeselect__menu-container {
+    background-color: #141a35 !important;
+    border: 1px solid #2a3552 !important;
+  }
+  
+  .vue-treeselect__menu {
+    background-color: #141a35 !important;
+  }
+  
+  .vue-treeselect__list {
+    background-color: #141a35 !important;
+  }
+
+  // 通配符：确保所有内部元素背景透明
+  .vue-treeselect__menu *:not(.vue-treeselect__option--hover):not(.vue-treeselect__option--selected) {
+    background-color: transparent !important;
+  }
+  
+  .vue-treeselect__option {
+    color: #ffffff !important;
+    background-color: transparent !important;  // 默认状态也设置为透明
+    
+    &:hover, &.vue-treeselect__option--hover {
+      background-color: rgba(0, 242, 254, 0.1) !important;
+      color: #00f2fe !important;
+    }
+    
+    &.vue-treeselect__option--selected {
+      color: #00f2fe !important;
+      background-color: rgba(0, 242, 254, 0.15) !important;
+    }
+  }
+  
+  .vue-treeselect__label {
+    color: #ffffff !important;
+  }
+
+  // 修复子元素白色背景问题
+  .vue-treeselect__list-item,
+  .vue-treeselect__indent {
+    background-color: transparent !important;
+  }
+}
+
+// 极简未来风 - TreeSelect
+body.theme-minimalist-future {
+  .vue-treeselect__menu-container {
+    background-color: #1a1a1a !important;
+    border: 1px solid #333333 !important;
+  }
+  
+  .vue-treeselect__menu {
+    background-color: #1a1a1a !important;
+  }
+  
+  .vue-treeselect__list {
+    background-color: #1a1a1a !important;
+  }
+
+  // 通配符：确保所有内部元素背景透明
+  .vue-treeselect__menu *:not(.vue-treeselect__option--hover):not(.vue-treeselect__option--selected) {
+    background-color: transparent !important;
+  }
+  
+  .vue-treeselect__option {
+    color: #f0f0f0 !important;
+    background-color: transparent !important;  // 默认状态也设置为透明
+    
+    &:hover, &.vue-treeselect__option--hover {
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      color: #ffffff !important;
+    }
+    
+    &.vue-treeselect__option--selected {
+      color: #ffffff !important;
+      background-color: rgba(255, 255, 255, 0.08) !important;
+    }
+  }
+  
+  .vue-treeselect__label {
+    color: #f0f0f0 !important;
+  }
+
+  // 修复子元素白色背景问题
+  .vue-treeselect__list-item,
+  .vue-treeselect__indent {
+    background-color: transparent !important;
+  }
+}
+
+// 温馨自然风 - TreeSelect
+body.theme-warm-nature {
+  .vue-treeselect__menu-container {
+    background-color: #ffffff !important;
+    border: 1px solid #d4c4b0 !important;
+    border-radius: 8px;
+  }
+  
+  .vue-treeselect__menu {
+    background-color: #ffffff !important;
+  }
+  
+  .vue-treeselect__list {
+    background-color: #ffffff !important;
+  }
+
+  // 通配符：确保所有内部元素背景透明
+  .vue-treeselect__menu *:not(.vue-treeselect__option--hover):not(.vue-treeselect__option--selected) {
+    background-color: transparent !important;
+  }
+  
+  .vue-treeselect__option {
+    color: #4a3f35 !important;
+    background-color: transparent !important;  // 默认状态也设置为透明
+    
+    &:hover, &.vue-treeselect__option--hover {
+      background-color: #f9f4ed !important;
+      color: #8b6f47 !important;
+    }
+    
+    &.vue-treeselect__option--selected {
+      color: #8b6f47 !important;
+      background-color: #faf7f0 !important;
+    }
+  }
+  
+  .vue-treeselect__label {
+    color: #4a3f35 !important;
+  }
+
+  // 修复子元素白色背景问题
+  .vue-treeselect__list-item,
+  .vue-treeselect__indent {
+    background-color: transparent !important;
+  }
+}
+
+// 毛玻璃拟态风 - TreeSelect
+body.theme-glassmorphism {
+  // TreeSelect 输入框样式
+  .vue-treeselect__control {
+    background: rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 6px;
+  }
+
+  .vue-treeselect__placeholder,
+  .vue-treeselect__single-value {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  .vue-treeselect__multi-value {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: #ffffff !important;
+  }
+
+  .vue-treeselect__input {
+    color: #ffffff !important;
+  }
+
+  // TreeSelect 下拉面板样式 - 完全不透明修复
+  .vue-treeselect__menu-container {
+    background: #1a1e30 !important;  // 完全不透明的深色背景
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important;
+    z-index: 9999 !important;
+  }
+  
+  .vue-treeselect__menu {
+    background: #1a1e30 !important;  // 完全不透明
+    border-radius: 8px;
+  }
+  
+  .vue-treeselect__list {
+    background: #1a1e30 !important;  // 完全不透明
+  }
+
+  // 通配符：确保所有内部元素背景透明
+  .vue-treeselect__menu *:not(.vue-treeselect__option--hover):not(.vue-treeselect__option--selected) {
+    background-color: transparent !important;
+  }
+  
+  .vue-treeselect__option {
+    color: rgba(255, 255, 255, 0.9) !important;
+    background-color: transparent !important;  // 默认状态也设置为透明
+    
+    &:hover, &.vue-treeselect__option--hover {
+      background: rgba(255, 255, 255, 0.15) !important;
+      color: #ffffff !important;
+    }
+    
+    &.vue-treeselect__option--selected {
+      color: #ffffff !important;
+      background: rgba(255, 255, 255, 0.25) !important;
+      font-weight: 600;
+    }
+
+    &.vue-treeselect__option--disabled {
+      color: rgba(255, 255, 255, 0.3) !important;
+      cursor: not-allowed;
+    }
+  }
+  
+  .vue-treeselect__label {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  // 修复子元素白色背景问题
+  .vue-treeselect__list-item,
+  .vue-treeselect__indent {
+    background-color: transparent !important;
+  }
+}
+
+// 质感设计风 - TreeSelect
+body.theme-material-design {
+  .vue-treeselect__menu-container {
+    background-color: #ffffff !important;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .vue-treeselect__menu {
+    background-color: #ffffff !important;
+  }
+  
+  .vue-treeselect__list {
+    background-color: #ffffff !important;
+  }
+
+  // 通配符：确保所有内部元素背景透明
+  .vue-treeselect__menu *:not(.vue-treeselect__option--hover):not(.vue-treeselect__option--selected) {
+    background-color: transparent !important;
+  }
+  
+  .vue-treeselect__option {
+    color: #212121 !important;
+    background-color: transparent !important;  // 默认状态也设置为透明
+    
+    &:hover, &.vue-treeselect__option--hover {
+      background-color: rgba(94, 53, 177, 0.08) !important;
+    }
+    
+    &.vue-treeselect__option--selected {
+      color: #5e35b1 !important;
+      background-color: rgba(94, 53, 177, 0.12) !important;
+    }
+  }
+  
+  .vue-treeselect__label {
+    color: #212121 !important;
+  }
+
+  // 修复子元素白色背景问题
+  .vue-treeselect__list-item,
+  .vue-treeselect__indent {
+    background-color: transparent !important;
+  }
+}
+
+// 高端暗黑风 - TreeSelect
+body.theme-dark-premium {
+  .vue-treeselect__control {
+    background-color: #0b0b0c !important;
+    border: 1px solid rgba(212, 175, 55, 0.30) !important;
+    border-radius: 8px !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.45) !important;
+    color: #e4e4e7 !important;
+  }
+
+  .vue-treeselect--focused .vue-treeselect__control {
+    border-color: #d4af37 !important;
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.14), 0 0 18px rgba(212, 175, 55, 0.16) !important;
+  }
+
+  .vue-treeselect__placeholder,
+  .vue-treeselect__single-value,
+  .vue-treeselect__input {
+    color: #a1a1aa !important;
+  }
+
+  .vue-treeselect__input {
+    background: transparent !important;
+  }
+
+  .vue-treeselect__x-container,
+  .vue-treeselect__control-arrow-container {
+    color: rgba(228, 228, 231, 0.72) !important;
+  }
+
+  .vue-treeselect__control-arrow {
+    fill: rgba(228, 228, 231, 0.72) !important;
+  }
+
+  .vue-treeselect__x {
+    fill: rgba(228, 228, 231, 0.60) !important;
+  }
+
+  .vue-treeselect__menu-container {
+    background-color: #101012 !important;
+    border: 1px solid rgba(212, 175, 55, 0.28) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.72), 0 0 24px rgba(212, 175, 55, 0.08) !important;
+    overflow: hidden;
+  }
+  
+  .vue-treeselect__menu {
+    background-color: #101012 !important;
+  }
+  
+  .vue-treeselect__list {
+    background-color: #101012 !important;
+  }
+
+  // 通配符：确保所有内部元素背景透明
+  .vue-treeselect__menu *:not(.vue-treeselect__option--hover):not(.vue-treeselect__option--selected) {
+    background-color: transparent !important;
+  }
+  
+  .vue-treeselect__option {
+    color: #e4e4e7 !important;
+    background-color: transparent !important;  // 默认状态也设置为透明
+    
+    &:hover, &.vue-treeselect__option--hover {
+      background: linear-gradient(90deg, rgba(212, 175, 55, 0.18) 0%, rgba(212, 175, 55, 0.04) 100%) !important;
+      color: #d4af37 !important;
+    }
+    
+    &.vue-treeselect__option--selected {
+      color: #d4af37 !important;
+      background: linear-gradient(90deg, rgba(212, 175, 55, 0.24) 0%, rgba(212, 175, 55, 0.08) 100%) !important;
+      font-weight: 600;
+    }
+  }
+  
+  .vue-treeselect__label {
+    color: #e4e4e7 !important;
+  }
+
+  .vue-treeselect__count {
+    color: rgba(228, 228, 231, 0.58) !important;
+  }
+
+  .vue-treeselect__option--selected .vue-treeselect__label,
+  .vue-treeselect__option--hover .vue-treeselect__label,
+  .vue-treeselect__option:hover .vue-treeselect__label {
+    color: #d4af37 !important;
+  }
+
+  // 修复子元素白色背景问题
+  .vue-treeselect__list-item,
+  .vue-treeselect__indent {
+    background-color: transparent !important;
+  }
+}
+
+// ========== 极简未来风最终兜底（文件末尾） ==========
+// Element UI 与 vue-treeselect 的弹层通常挂载到 body，必须在文件最后统一覆盖旧黑底规则。
+body.theme-minimalist-future {
+  .el-table th,
+  .el-table__header-wrapper th,
+  .el-table__fixed-header-wrapper th {
+    background: linear-gradient(90deg, rgba(232, 250, 255, 0.96) 0%, rgba(244, 248, 255, 0.96) 100%) !important;
+    background-color: #eaf8ff !important;
+    color: #365065 !important;
+    border-color: rgba(0, 188, 212, 0.18) !important;
+  }
+
+  .el-table tr,
+  .el-table td,
+  .el-table__body-wrapper,
+  .el-table__fixed,
+  .el-table__fixed-right {
+    background-color: #ffffff !important;
+    color: #172033 !important;
+    border-color: rgba(0, 188, 212, 0.12) !important;
+  }
+
+  .el-table--enable-row-hover .el-table__body tr:hover > td {
+    background-color: rgba(0, 188, 212, 0.07) !important;
+  }
+
+  .el-dialog {
+    background: rgba(255, 255, 255, 0.96) !important;
+    color: #172033 !important;
+  }
+
+  .el-dialog__header {
+    background: linear-gradient(90deg, rgba(232, 250, 255, 0.96) 0%, rgba(248, 253, 255, 0.96) 100%) !important;
+    border-bottom: 1px solid rgba(0, 188, 212, 0.22) !important;
+    padding: 18px 52px 18px 24px !important;
+  }
+
+  .el-dialog__title {
+    color: #172033 !important;
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    text-shadow: none !important;
+  }
+
+  .el-dialog__headerbtn {
+    top: 19px !important;
+    right: 24px !important;
+  }
+
+  .el-dialog__headerbtn .el-dialog__close {
+    color: #7c91a6 !important;
+    font-weight: 700 !important;
+  }
+
+  .el-dialog__headerbtn:hover .el-dialog__close {
+    color: #00a7bd !important;
+  }
+
+  .vue-treeselect__control,
+  .el-input__inner,
+  .el-textarea__inner,
+  .el-input-number,
+  .el-input-number__increase,
+  .el-input-number__decrease {
+    background: rgba(255, 255, 255, 0.90) !important;
+    background-color: rgba(255, 255, 255, 0.90) !important;
+    border-color: rgba(0, 188, 212, 0.28) !important;
+    color: #172033 !important;
+  }
+
+  .vue-treeselect--focused .vue-treeselect__control,
+  .el-input__inner:focus,
+  .el-textarea__inner:focus {
+    border-color: #00bcd4 !important;
+    box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.12) !important;
+  }
+
+  .vue-treeselect__placeholder,
+  .vue-treeselect__single-value,
+  .vue-treeselect__input,
+  .el-input__inner::placeholder,
+  .el-textarea__inner::placeholder {
+    color: #7c91a6 !important;
+  }
+
+  .vue-treeselect__control-arrow,
+  .vue-treeselect__x {
+    fill: #7c91a6 !important;
+  }
+
+  .el-dialog .vue-treeselect,
+  .vue-treeselect {
+    position: relative !important;
+  }
+
+  .vue-treeselect__menu-container,
+  .vue-treeselect__menu,
+  .vue-treeselect__list,
+  .vue-treeselect__list-item,
+  .vue-treeselect__indent,
+  .el-select-dropdown.el-popper,
+  .el-select-dropdown.el-popper .el-scrollbar,
+  .el-select-dropdown.el-popper .el-select-dropdown__wrap,
+  .el-select-dropdown.el-popper .el-select-dropdown__list,
+  .el-cascader__dropdown,
+  .el-cascader-panel,
+  .el-cascader-menu,
+  .el-picker-panel,
+  .el-date-picker,
+  .el-date-range-picker,
+  .el-dropdown-menu,
+  .el-autocomplete-suggestion,
+  .el-popover,
+  .el-menu--popup {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    border-color: rgba(0, 188, 212, 0.26) !important;
+    color: #172033 !important;
+    opacity: 1 !important;
+    box-shadow: 0 18px 44px rgba(26, 73, 105, 0.18) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .vue-treeselect__menu-container {
+    z-index: 4000 !important;
+    overflow: visible !important;
+  }
+
+  .vue-treeselect--open .vue-treeselect__menu-container {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    top: calc(100% + 6px) !important;
+  }
+
+  .vue-treeselect__menu {
+    display: block !important;
+    min-height: 42px !important;
+    max-height: 280px !important;
+    overflow-y: auto !important;
+  }
+
+  .vue-treeselect__menu-container,
+  .el-select-dropdown.el-popper,
+  .el-cascader__dropdown,
+  .el-picker-panel,
+  .el-dropdown-menu,
+  .el-autocomplete-suggestion,
+  .el-popover,
+  .el-menu--popup {
+    border: 1px solid rgba(0, 188, 212, 0.30) !important;
+    border-radius: 10px !important;
+    overflow: hidden;
+  }
+
+  .vue-treeselect__menu-container {
+    overflow: visible !important;
+  }
+
+  .vue-treeselect__menu *,
+  .vue-treeselect__option,
+  .vue-treeselect__label,
+  .vue-treeselect__count,
+  .el-select-dropdown__item,
+  .el-cascader-node,
+  .el-cascader-node__label,
+  .el-picker-panel *,
+  .el-date-table td,
+  .el-date-table td div,
+  .el-month-table td,
+  .el-year-table td,
+  .el-dropdown-menu__item,
+  .el-autocomplete-suggestion li,
+  .el-menu--popup .el-menu-item,
+  .el-menu--popup .el-submenu__title {
+    background-color: transparent !important;
+    color: #172033 !important;
+    opacity: 1 !important;
+  }
+
+  .vue-treeselect__option:hover,
+  .vue-treeselect__option--hover,
+  .el-select-dropdown__item.hover,
+  .el-select-dropdown__item:hover,
+  .el-cascader-node:hover,
+  .el-cascader-node.in-active-path,
+  .el-cascader-node.is-selectable.in-checked-path,
+  .el-date-table td.available:hover,
+  .el-month-table td .cell:hover,
+  .el-year-table td .cell:hover,
+  .el-dropdown-menu__item:hover,
+  .el-autocomplete-suggestion li:hover,
+  .el-menu--popup .el-menu-item:hover,
+  .el-menu--popup .el-submenu__title:hover {
+    background: rgba(0, 188, 212, 0.10) !important;
+    background-color: rgba(0, 188, 212, 0.10) !important;
+    color: #006c9a !important;
+  }
+
+  .vue-treeselect__option--selected,
+  .vue-treeselect__option--selected .vue-treeselect__label,
+  .el-select-dropdown__item.selected,
+  .el-cascader-node.is-active,
+  .el-date-table td.current:not(.disabled) span,
+  .el-month-table td.current:not(.disabled) .cell,
+  .el-year-table td.current:not(.disabled) .cell,
+  .el-menu--popup .el-menu-item.is-active {
+    background: linear-gradient(90deg, rgba(0, 188, 212, 0.18) 0%, rgba(108, 99, 255, 0.10) 100%) !important;
+    background-color: rgba(0, 188, 212, 0.14) !important;
+    color: #006c9a !important;
+    font-weight: 700 !important;
+  }
+
+  .el-popper .popper__arrow,
+  .el-popper .popper__arrow::after {
+    border-bottom-color: #ffffff !important;
+    border-top-color: #ffffff !important;
+  }
+
+  .el-picker-panel__icon-btn,
+  .el-date-picker__header-label,
+  .el-date-table th {
+    color: #365065 !important;
+  }
+}

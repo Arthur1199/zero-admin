@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<system>
+    <category name="system" description="系统相关配置,在不经常变化的情况下可以在该配置文件中配置">
+    </category>
+
+    <!--telegram电报机器人配置 arthur 暂时弃用，使用Slack进行发送-->
+    <category name="robotConfig" description="teleGram电报机器人配置">
+        <item name="dev"  value="5768006799:AAGIhpG_ikNIQLQCz4THBbkdPkUztUjL8IE|-1002472984677" desc="机器人token和chatId,用‘|’区分"/>
+        <item name="test" value="5768006799:AAGIhpG_ikNIQLQCz4THBbkdPkUztUjL8IE|-1002472984677" desc="机器人token和chatId,用‘|’区分"/>
+        <item name="prod" value="5768006799:AAGIhpG_ikNIQLQCz4THBbkdPkUztUjL8IE|-4637281358" desc="机器人token和chatId,用‘|’区分"/>
+    </category>
+
+    <!--Slack电报机器人配置 arthur-->
+    <category name="slackRobotConfig" description="slack电报机器人配置">
+        <item name="api"  value="https://slack.com/api/chat.postMessage"/>
+        <item name="dev"  value="C08SMDRQT47|xoxb-8883940453492-8912317441798-VqKlggTxPtGAZwMj0D2qpWCc" desc="机器人channel房间号和授权令牌,用‘|’区分"/>
+        <item name="test"  value="C08SMDRQT47|xoxb-8883940453492-8912317441798-VqKlggTxPtGAZwMj0D2qpWCc" desc="机器人channel房间号和授权令牌,用‘|’区分"/>
+        <item name="prod"  value="C092ZCEG858|xoxb-8883940453492-8912317441798-VqKlggTxPtGAZwMj0D2qpWCc" desc="机器人channel房间号和授权令牌,用‘|’区分"/>
+        <item name="prod-docker"  value="C092ZCEG858|xoxb-8883940453492-8912317441798-VqKlggTxPtGAZwMj0D2qpWCc" desc="机器人channel房间号和授权令牌,用‘|’区分"/>
+    </category>
+
+
+</system>
