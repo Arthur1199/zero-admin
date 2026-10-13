@@ -15,7 +15,7 @@
           placeholder="请输入API请求路径"
           clearable
           style="width: 240px"
-          @keyup.enter.native="handleQuery"
+@keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="权限标识" prop="apiPermission">
@@ -24,7 +24,7 @@
           placeholder="请输入API权限标识"
           clearable
           style="width: 220px"
-          @keyup.enter.native="handleQuery"
+@keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="请求方式" prop="apiMethod">
@@ -61,7 +61,7 @@
         <el-date-picker
           v-model="dateRange"
           style="width: 240px"
-          value-format="yyyy-MM-dd"
+value-format="YYYY-MM-DD"
           type="daterange"
           range-separator="-"
           start-placeholder="开始日期"
@@ -69,8 +69,8 @@
         ></el-date-picker>
       </el-form-item>
       <el-form-item class="api-auth-query-buttons">
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+        <el-button type="primary" :icon="resolveIcon('el-icon-search')" size="small" @click="handleQuery">搜索</el-button>
+        <el-button :icon="resolveIcon('el-icon-refresh')" size="small" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
@@ -79,13 +79,13 @@
         <el-button
           type="primary"
           plain
-          icon="el-icon-plus"
-          size="mini"
+:icon="resolveIcon('el-icon-plus')"
+size="small"
           @click="handleAdd"
           v-hasPermi="['system:apiAuth:add']"
         >新增</el-button>
       </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
+      <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <el-table v-loading="loading" :data="apiAuthList" @selection-change="handleSelectionChange">
@@ -95,14 +95,14 @@
       <el-table-column label="权限标识" align="center" prop="apiPermission" min-width="180" :show-overflow-tooltip="true" />
       <el-table-column label="请求方式" align="center" prop="apiMethod" width="100" />
       <el-table-column label="是否开启谷歌验证" align="center" prop="isNeedGoogle" width="150">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-tag :type="scope.row.isNeedGoogle === 1 ? 'warning' : 'info'">
             {{ formatGoogle(scope.row.isNeedGoogle) }}
           </el-tag>
         </template>
       </el-table-column>
       <el-table-column label="状态" align="center" prop="apiStatus" width="90">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-tag :type="formatStatusTagType(scope.row.apiStatus)">
             {{ formatStatus(scope.row.apiStatus) }}
           </el-tag>
@@ -112,29 +112,29 @@
       <el-table-column label="备注" align="center" prop="remark" min-width="160" :show-overflow-tooltip="true" />
       <el-table-column label="创建人" align="center" prop="createBy" width="100" />
       <el-table-column label="创建时间" align="center" prop="createTime" width="160">
-        <template slot-scope="scope">
+        <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="最后更新人" align="center" prop="updateBy" width="100" />
       <el-table-column label="最后更新日期" align="center" prop="updateTime" width="160">
-        <template slot-scope="scope">
+        <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="150" fixed="right">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
+size="small"
+             link type="primary"
+:icon="resolveIcon('el-icon-edit')"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['system:apiAuth:edit']"
           >修改</el-button>
           <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
+size="small"
+             link type="primary"
+:icon="resolveIcon('el-icon-delete')"
             :disabled="scope.row.apiStatus === -1"
             @click="handleDelete(scope.row)"
             v-hasPermi="['system:apiAuth:remove']"
@@ -146,13 +146,13 @@
     <pagination
       v-show="total>0"
       :total="total"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
+v-model:page="queryParams.pageNum"
+v-model:limit="queryParams.pageSize"
       @pagination="getList"
     />
 
     <!-- 添加或修改API谷歌验证配置对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="720px" append-to-body :close-on-click-modal="false">
+    <el-dialog :title="title" v-model="open" width="720px" append-to-body :close-on-click-modal="false">
       <el-form ref="form" :model="form" :rules="rules" label-width="108px">
         <el-form-item label="请求路径" prop="apiUrl">
           <el-input v-model="form.apiUrl" placeholder="请输入API请求路径" maxlength="500" />
@@ -175,7 +175,7 @@
             <el-radio
               v-for="item in googleOptions"
               :key="item.value"
-              :label="item.value"
+:value="item.value"
             >{{ item.label }}</el-radio>
           </el-radio-group>
         </el-form-item>
@@ -184,7 +184,7 @@
             <el-radio
               v-for="item in formStatusOptions"
               :key="item.value"
-              :label="item.value"
+:value="item.value"
             >{{ item.label }}</el-radio>
           </el-radio-group>
         </el-form-item>
@@ -195,10 +195,10 @@
           <el-input v-model="form.remark" type="textarea" :rows="3" placeholder="请输入内容" maxlength="500" />
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <template #footer><div  class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
         <el-button @click="cancel">取 消</el-button>
-      </div>
+      </div></template>
     </el-dialog>
   </div>
 </template>
@@ -297,6 +297,8 @@ export default {
         this.apiAuthList = response.rows
         this.total = response.total
         this.loading = false
+      }).catch(() => {
+        this.loading = false
       })
     },
     // 取消按钮
@@ -352,7 +354,7 @@ export default {
         }
         this.open = true
         this.title = "修改API谷歌验证"
-      })
+      }).catch(() => {})
     },
     /** 提交按钮 */
     submitForm: function() {
@@ -364,14 +366,14 @@ export default {
               this.open = false
               this.getList()
               this.refreshGoogleAuthApisCache()
-            })
+            }).catch(() => {})
           } else {
             addApiAuth(this.form).then(response => {
               this.$modal.msgSuccess("新增成功")
               this.open = false
               this.getList()
               this.refreshGoogleAuthApisCache()
-            })
+            }).catch(() => {})
           }
         }
       })
@@ -425,18 +427,18 @@ export default {
 </script>
 
 <style scoped>
-::v-deep .api-auth-query-form {
+:deep(.api-auth-query-form) {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
 }
 
-::v-deep .api-auth-query-form .el-form-item {
+:deep(.api-auth-query-form .el-form-item) {
   margin-right: 24px;
   margin-bottom: 12px;
 }
 
-::v-deep .api-auth-query-buttons {
+:deep(.api-auth-query-buttons) {
   margin-left: 0;
 }
 </style>

@@ -32,7 +32,7 @@
           placeholder="请输入字典组名称"
           clearable
           style="width: 220px"
-          @keyup.enter.native="handleQuery"
+@keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="状态" prop="status">
@@ -69,7 +69,7 @@
         <el-date-picker
           v-model="dateRange"
           style="width: 240px"
-          value-format="yyyy-MM-dd"
+value-format="YYYY-MM-DD"
           type="daterange"
           range-separator="-"
           start-placeholder="开始日期"
@@ -77,8 +77,8 @@
         />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+        <el-button type="primary" :icon="resolveIcon('el-icon-search')" size="small" @click="handleQuery">搜索</el-button>
+        <el-button :icon="resolveIcon('el-icon-refresh')" size="small" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
@@ -87,13 +87,13 @@
         <el-button
           type="primary"
           plain
-          icon="el-icon-plus"
-          size="mini"
+:icon="resolveIcon('el-icon-plus')"
+size="small"
           @click="handleAddGroup"
           v-hasPermi="['reportSystem:bizDict:add']"
         >新增字典组</el-button>
       </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
+      <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <el-table
@@ -105,28 +105,28 @@
       @expand-change="handleExpandChange"
     >
       <el-table-column type="expand" width="42">
-        <template slot-scope="scope">
+        <template #default="scope">
           <div class="dict-item-panel">
             <div class="dict-item-toolbar">
               <div class="dict-item-actions">
                 <el-button
                   type="primary"
                   plain
-                  icon="el-icon-plus"
-                  size="mini"
+:icon="resolveIcon('el-icon-plus')"
+size="small"
                   :disabled="isDeleted(scope.row)"
                   @click="handleAddItem(scope.row)"
                   v-hasPermi="['reportSystem:bizDict:add']"
                 >新增字典项</el-button>
                 <el-button
-                  icon="el-icon-refresh"
-                  size="mini"
+:icon="resolveIcon('el-icon-refresh')"
+size="small"
                   @click="loadItemList(scope.row, true)"
                 >刷新</el-button>
               </div>
             </div>
             <el-table
-              size="mini"
+size="small"
               :data="itemMap[scope.row.id] || []"
               v-loading="itemLoadingMap[scope.row.id]"
               class="dict-item-table"
@@ -139,15 +139,15 @@
               <el-table-column label="字典值" prop="itemValue" min-width="100" :show-overflow-tooltip="true" />
               <el-table-column label="排序" prop="itemSort" width="70" align="center" />
               <el-table-column label="状态" prop="status" width="80" align="center" class-name="dict-tag-cell">
-                <template slot-scope="itemScope">
-                  <el-tag :type="statusTagType(itemScope.row.status)" size="mini">
+                <template #default="itemScope">
+                  <el-tag :type="statusTagType(itemScope.row.status)" size="small">
                     {{ statusText(itemScope.row.status) }}
                   </el-tag>
                 </template>
               </el-table-column>
               <el-table-column label="删除标志" prop="delFlag" width="90" align="center" class-name="dict-tag-cell">
-                <template slot-scope="itemScope">
-                  <el-tag :type="deleteStatusTagType(itemScope.row.delFlag)" size="mini">
+                <template #default="itemScope">
+                  <el-tag :type="deleteStatusTagType(itemScope.row.delFlag)" size="small">
                     {{ deleteStatusText(itemScope.row.delFlag) }}
                   </el-tag>
                 </template>
@@ -156,29 +156,29 @@
               <el-table-column label="备注" prop="remark" min-width="130" :show-overflow-tooltip="true" />
               <el-table-column label="创建人" prop="createBy" min-width="110" :show-overflow-tooltip="true" />
               <el-table-column label="创建时间" prop="createTime" width="170" align="center">
-                <template slot-scope="itemScope">
+                <template #default="itemScope">
                   <span>{{ parseTime(itemScope.row.createTime) }}</span>
                 </template>
               </el-table-column>
               <el-table-column label="更新人" prop="updateBy" min-width="110" :show-overflow-tooltip="true" />
               <el-table-column label="更新时间" prop="updateTime" width="170" align="center">
-                <template slot-scope="itemScope">
+                <template #default="itemScope">
                   <span>{{ parseTime(itemScope.row.updateTime) }}</span>
                 </template>
               </el-table-column>
               <el-table-column label="操作" width="120" align="center" fixed="right" class-name="small-padding fixed-width">
-                <template slot-scope="itemScope">
+                <template #default="itemScope">
                   <el-button
-                    size="mini"
-                    type="text"
-                    icon="el-icon-edit"
+size="small"
+                     link type="primary"
+:icon="resolveIcon('el-icon-edit')"
                     :disabled="isDeleted(itemScope.row) || isDeleted(scope.row)"
                     @click="handleUpdateItem(itemScope.row, scope.row)"
                     v-hasPermi="['reportSystem:bizDict:edit']"
                   >修改</el-button>
                   <el-button
-                    size="mini"
-                    type="text"
+size="small"
+                     link type="primary"
                     :icon="removeOrRestoreIcon(itemScope.row)"
                     :disabled="isDeleted(scope.row)"
                     @click="handleRemoveOrRestoreItem(itemScope.row, scope.row)"
@@ -194,15 +194,15 @@
       <el-table-column label="字典组编码" prop="groupCode" min-width="180" :show-overflow-tooltip="true" />
       <el-table-column label="字典组名称" prop="groupName" min-width="160" :show-overflow-tooltip="true" />
       <el-table-column label="状态" prop="status" width="100" align="center" class-name="dict-tag-cell">
-        <template slot-scope="scope">
-          <el-tag :type="statusTagType(scope.row.status)" size="mini">
+        <template #default="scope">
+          <el-tag :type="statusTagType(scope.row.status)" size="small">
             {{ statusText(scope.row.status) }}
           </el-tag>
         </template>
       </el-table-column>
       <el-table-column label="删除标志" prop="delFlag" width="100" align="center" class-name="dict-tag-cell">
-        <template slot-scope="scope">
-          <el-tag :type="deleteStatusTagType(scope.row.delFlag)" size="mini">
+        <template #default="scope">
+          <el-tag :type="deleteStatusTagType(scope.row.delFlag)" size="small">
             {{ deleteStatusText(scope.row.delFlag) }}
           </el-tag>
         </template>
@@ -210,37 +210,37 @@
       <el-table-column label="备注" prop="remark" min-width="180" :show-overflow-tooltip="true" />
       <el-table-column label="创建人" prop="createBy" min-width="120" :show-overflow-tooltip="true" />
       <el-table-column label="创建时间" prop="createTime" width="170" align="center">
-        <template slot-scope="scope">
+        <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="更新人" prop="updateBy" min-width="120" :show-overflow-tooltip="true" />
       <el-table-column label="更新时间" prop="updateTime" width="170" align="center">
-        <template slot-scope="scope">
+        <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" width="230" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-plus"
+size="small"
+             link type="primary"
+:icon="resolveIcon('el-icon-plus')"
             :disabled="isDeleted(scope.row)"
             @click="handleAddItem(scope.row)"
             v-hasPermi="['reportSystem:bizDict:add']"
           >新增项</el-button>
           <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
+size="small"
+             link type="primary"
+:icon="resolveIcon('el-icon-edit')"
             :disabled="isDeleted(scope.row)"
             @click="handleUpdateGroup(scope.row)"
             v-hasPermi="['reportSystem:bizDict:edit']"
           >修改</el-button>
           <el-button
-            size="mini"
-            type="text"
+size="small"
+             link type="primary"
             :icon="removeOrRestoreIcon(scope.row)"
             @click="handleRemoveOrRestoreGroup(scope.row)"
             v-hasPermi="['reportSystem:bizDict:remove']"
@@ -252,12 +252,12 @@
     <pagination
       v-show="total > 0"
       :total="total"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
+v-model:page="queryParams.pageNum"
+v-model:limit="queryParams.pageSize"
       @pagination="getList"
     />
 
-    <el-dialog :title="groupTitle" :visible.sync="groupOpen" width="720px" append-to-body :close-on-click-modal="false">
+    <el-dialog :title="groupTitle" v-model="groupOpen" width="720px" append-to-body :close-on-click-modal="false">
       <el-form ref="groupForm" :model="groupForm" :rules="groupRules" label-width="96px">
         <el-form-item label="字典组编码" prop="groupCode">
           <el-input v-model="groupForm.groupCode" placeholder="请输入字典组编码" />
@@ -267,20 +267,20 @@
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="groupForm.status">
-            <el-radio v-for="item in statusOptions" :key="item.value" :label="item.value">{{ item.label }}</el-radio>
+            <el-radio v-for="item in statusOptions" :key="item.value" :value="item.value">{{ item.label }}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
           <el-input v-model="groupForm.remark" type="textarea" placeholder="请输入备注" />
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <template #footer><div  class="dialog-footer">
         <el-button type="primary" @click="submitGroupForm">确 定</el-button>
         <el-button @click="cancelGroup">取 消</el-button>
-      </div>
+      </div></template>
     </el-dialog>
 
-    <el-dialog :title="itemTitle" :visible.sync="itemOpen" width="860px" append-to-body :close-on-click-modal="false">
+    <el-dialog :title="itemTitle" v-model="itemOpen" width="860px" append-to-body :close-on-click-modal="false">
       <el-form ref="itemForm" :model="itemForm" :rules="itemRules" label-width="96px">
         <el-form-item label="所属字典组">
           <el-input :value="currentGroupName" disabled />
@@ -299,7 +299,7 @@
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="itemForm.status">
-            <el-radio v-for="item in statusOptions" :key="item.value" :label="item.value">{{ item.label }}</el-radio>
+            <el-radio v-for="item in statusOptions" :key="item.value" :value="item.value">{{ item.label }}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="拓展配置JSON" prop="extraJson">
@@ -314,10 +314,10 @@
           <el-input v-model="itemForm.remark" type="textarea" placeholder="请输入备注" />
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <template #footer><div  class="dialog-footer">
         <el-button type="primary" @click="submitItemForm">确 定</el-button>
         <el-button @click="cancelItem">取 消</el-button>
-      </div>
+      </div></template>
     </el-dialog>
   </div>
 </template>
@@ -474,16 +474,16 @@ export default {
       if (!force && this.itemMap[group.id]) {
         return
       }
-      this.$set(this.itemLoadingMap, group.id, true)
+      this.itemLoadingMap[group.id] = true
       listDictItem({
         groupId: group.id,
         pageNum: 1,
         pageSize: 500
       }).then(response => {
-        this.$set(this.itemMap, group.id, response.rows || [])
-        this.$set(this.itemLoadingMap, group.id, false)
+        this.itemMap[group.id] = response.rows || []
+        this.itemLoadingMap[group.id] = false
       }).catch(() => {
-        this.$set(this.itemLoadingMap, group.id, false)
+        this.itemLoadingMap[group.id] = false
       })
     },
     resetGroup() {
@@ -516,7 +516,7 @@ export default {
         this.groupForm = response.data || {}
         this.groupOpen = true
         this.groupTitle = '修改字典组'
-      })
+      }).catch(() => {}) // 详情失败由请求拦截器提示，不打开空表单。
     },
     submitGroupForm() {
       this.$refs.groupForm.validate(valid => {
@@ -529,7 +529,7 @@ export default {
           this.groupOpen = false
           this.getList()
           this.loadGroupCodeOptions()
-        })
+        }).catch(() => {}) // 请求失败或安全验证取消时保留表单，允许重试。
       })
     },
     cancelGroup() {
@@ -586,7 +586,7 @@ export default {
         this.currentGroup = group || this.findGroup(this.itemForm.groupId)
         this.itemOpen = true
         this.itemTitle = '修改字典项'
-      })
+      }).catch(() => {})
     },
     submitItemForm() {
       this.$refs.itemForm.validate(valid => {
@@ -599,7 +599,7 @@ export default {
           this.itemOpen = false
           const group = this.currentGroup || this.findGroup(this.itemForm.groupId)
           this.loadItemList(group, true)
-        })
+        }).catch(() => {})
       })
     },
     cancelItem() {
@@ -698,43 +698,43 @@ export default {
   background: transparent;
 }
 
-::v-deep .el-table__expanded-cell,
-::v-deep .el-table__expanded-cell[class*="cell"] {
+:deep(.el-table__expanded-cell),
+:deep(.el-table__expanded-cell[class*="cell"]) {
   padding: 0 !important;
   background: transparent !important;
 }
 
-::v-deep .dict-item-table,
-::v-deep .dict-item-table tr,
-::v-deep .dict-item-table th,
-::v-deep .dict-item-table td {
+:deep(.dict-item-table),
+:deep(.dict-item-table tr),
+:deep(.dict-item-table th),
+:deep(.dict-item-table td) {
   background: transparent !important;
 }
 
-::v-deep .dict-item-table th {
+:deep(.dict-item-table th) {
   color: var(--dict-header-color);
   border-bottom-color: var(--dict-border);
 }
 
-::v-deep .dict-item-table td {
+:deep(.dict-item-table td) {
   color: var(--dict-cell-color);
   border-bottom-color: var(--dict-border);
 }
 
-::v-deep .dict-item-table .el-table__row {
+:deep(.dict-item-table .el-table__row) {
   background: var(--dict-row-bg) !important;
 }
 
-::v-deep .dict-item-table .el-table__row:hover > td {
+:deep(.dict-item-table .el-table__row:hover > td) {
   background: var(--dict-row-hover-bg) !important;
 }
 
-::v-deep .dict-item-table::before,
-::v-deep .dict-item-table::after {
+:deep(.dict-item-table::before),
+:deep(.dict-item-table::after) {
   background-color: var(--dict-border);
 }
 
-::v-deep .biz-dict-query-form .el-form-item {
+:deep(.biz-dict-query-form .el-form-item) {
   margin-bottom: 14px;
 }
 </style>

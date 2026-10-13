@@ -1,5 +1,5 @@
-import router from '@/router'
-import { MessageBox, } from 'element-ui'
+import router, { resetRouter } from '@/router'
+import { ElMessageBox as MessageBox} from 'element-plus'
 import { login, logout, getInfo } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { isHttp, isEmpty } from "@/utils/validate"
@@ -42,14 +42,16 @@ const user = {
 
   actions: {
     // 登录
-    Login({ commit }, userInfo) {
+    Login({ commit, dispatch }, userInfo) {
       const username = userInfo.username.trim()
       const password = userInfo.password
       const code = userInfo.code
       const uuid = userInfo.uuid
       const googleCode = userInfo.googleCode
       return new Promise((resolve, reject) => {
-        login(username, password, code, uuid, googleCode).then(res => {
+        login(username, password, code, uuid, googleCode).then(async res => {
+          // Cookie过期后的同页登录也需清理旧身份、动态路由和页面缓存，再按新Token初始化。
+          await dispatch('FedLogOut')
           setToken(res.token)
           commit('SET_TOKEN', res.token)
           resolve()
@@ -66,7 +68,7 @@ const user = {
           const user = res.user
           let avatar = user.avatar || ""
           if (!isHttp(avatar)) {
-            avatar = (isEmpty(avatar)) ? defAva : process.env.VUE_APP_BASE_API + avatar
+            avatar = (isEmpty(avatar)) ? defAva : import.meta.env.VITE_APP_BASE_API + avatar
           }
           if (res.roles && res.roles.length > 0) { // 验证返回的roles是否是一个非空数组
             commit('SET_ROLES', res.roles)
@@ -81,13 +83,13 @@ const user = {
           /* 初始密码提示 */
           if(res.isDefaultModifyPwd) {
             MessageBox.confirm('您的密码还是初始密码，请修改密码！',  '安全提示', {  confirmButtonText: '确定',  cancelButtonText: '取消',  type: 'warning' }).then(() => {
-              router.push({ name: 'Profile', params: { activeTab: 'resetPwd' } })
+              router.push({ name: 'Profile', query: { activeTab: 'resetPwd' } })
             }).catch(() => {})
           }
           /* 过期密码提示 */
           if(!res.isDefaultModifyPwd && res.isPasswordExpired) {
             MessageBox.confirm('您的密码已过期，请尽快修改密码！',  '安全提示', {  confirmButtonText: '确定',  cancelButtonText: '取消',  type: 'warning' }).then(() => {
-              router.push({ name: 'Profile', params: { activeTab: 'resetPwd' } })
+              router.push({ name: 'Profile', query: { activeTab: 'resetPwd' } })
             }).catch(() => {})
           }
           resolve(res)
@@ -98,13 +100,15 @@ const user = {
     },
 
     // 退出系统
-    LogOut({ commit, state }) {
+    LogOut({ commit, state, dispatch }) {
       return new Promise((resolve, reject) => {
         logout(state.token).then(() => {
           commit('SET_TOKEN', '')
           commit('SET_ROLES', [])
           commit('SET_PERMISSIONS', [])
           removeToken()
+          resetRouter()
+          dispatch('tagsView/delAllViews')
           // 清除 localStorage 中的 Tab 标签数据
           localStorage.removeItem('visitedViews')
           localStorage.removeItem('google_auth_apis')
@@ -116,10 +120,14 @@ const user = {
     },
 
     // 前端 登出
-    FedLogOut({ commit }) {
+    FedLogOut({ commit, dispatch }) {
       return new Promise(resolve => {
         commit('SET_TOKEN', '')
+        commit('SET_ROLES', [])
+        commit('SET_PERMISSIONS', [])
+        dispatch('tagsView/delAllViews')
         removeToken()
+        resetRouter()
         // 清除 localStorage 中的 Tab 标签数据
         localStorage.removeItem('visitedViews')
         localStorage.removeItem('google_auth_apis')

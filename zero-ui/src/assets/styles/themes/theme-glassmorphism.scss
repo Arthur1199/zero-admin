@@ -37,11 +37,11 @@
 // 必须放在文件最前面，确保被正确编译
 // ==========================================
 body.theme-glassmorphism #app .sidebar-container .submenu-title-noDropdown:hover,
-body.theme-glassmorphism #app .sidebar-container .el-submenu__title:hover,
-body.theme-glassmorphism #app .sidebar-container .nest-menu .el-submenu > .el-submenu__title:hover,
-body.theme-glassmorphism #app .sidebar-container .el-submenu .el-menu-item:hover,
+body.theme-glassmorphism #app .sidebar-container .el-sub-menu__title:hover,
+body.theme-glassmorphism #app .sidebar-container .nest-menu .el-sub-menu > .el-sub-menu__title:hover,
+body.theme-glassmorphism #app .sidebar-container .el-sub-menu .el-menu-item:hover,
 body.theme-glassmorphism #app .sidebar-container .el-menu--inline .el-menu-item:hover,
-body.theme-glassmorphism .el-menu--vertical .nest-menu .el-submenu > .el-submenu__title:hover,
+body.theme-glassmorphism .el-menu--vertical .nest-menu .el-sub-menu > .el-sub-menu__title:hover,
 body.theme-glassmorphism .el-menu--vertical .el-menu-item:hover {
   background-color: transparent !important;
   background: none !important;
@@ -495,7 +495,7 @@ body.theme-glassmorphism {
         }
       }
       
-      .el-submenu.is-active > .el-submenu__title {
+      .el-sub-menu.is-active > .el-sub-menu__title {
         background: linear-gradient(90deg, 
           rgba(102, 126, 234, 0.4) 0%,
           rgba(118, 75, 162, 0.3) 50%,
@@ -560,7 +560,7 @@ body.theme-glassmorphism {
         }
       }
       
-      .el-submenu.is-active > .el-submenu__title {
+      .el-sub-menu.is-active > .el-sub-menu__title {
         background: linear-gradient(90deg, 
           rgba(255, 255, 255, 0.35) 0%,
           rgba(255, 255, 255, 0.15) 100%) !important;
@@ -620,7 +620,7 @@ body.theme-glassmorphism {
         }
       }
       
-      .el-submenu.is-active > .el-submenu__title {
+      .el-sub-menu.is-active > .el-sub-menu__title {
         background: linear-gradient(90deg, rgba(255, 255, 255, 0.15) 0%, transparent 100%) !important;
         
         i, svg {
@@ -643,7 +643,7 @@ body.theme-glassmorphism {
     }
 
     // 子菜单标题
-    .el-submenu__title {
+    .el-sub-menu__title {
       background-color: transparent !important;
       color: rgba(255, 255, 255, 0.9) !important;
       margin: 0 !important;
@@ -672,14 +672,14 @@ body.theme-glassmorphism {
         }
       }
 
-      .el-submenu__icon-arrow {
+      .el-sub-menu__icon-arrow {
         color: rgba(255, 255, 255, 0.9) !important;
         transition: all 0.3s !important;
       }
     }
 
     // 激活的父菜单 - 移除背景色，只保留左边框和文字样式
-    .el-submenu.is-active > .el-submenu__title {
+    .el-sub-menu.is-active > .el-sub-menu__title {
       background: transparent !important;  // 完全透明，移除背景色
       backdrop-filter: none !important;  // 移除模糊效果
       -webkit-backdrop-filter: none !important;
@@ -693,7 +693,7 @@ body.theme-glassmorphism {
         color: #ffffff !important;
       }
 
-      .el-submenu__icon-arrow {
+      .el-sub-menu__icon-arrow {
         color: #ffffff !important;
       }
 
@@ -715,7 +715,7 @@ body.theme-glassmorphism {
     }
 
     // 展开状态的父菜单（未激活）- 也要保持透明
-    .el-submenu.is-opened > .el-submenu__title {
+    .el-sub-menu.is-opened > .el-sub-menu__title {
       background: transparent !important;
       backdrop-filter: none !important;
       -webkit-backdrop-filter: none !important;
@@ -727,7 +727,7 @@ body.theme-glassmorphism {
         color: rgba(255, 255, 255, 0.9) !important;
       }
 
-      .el-submenu__icon-arrow {
+      .el-sub-menu__icon-arrow {
         color: rgba(255, 255, 255, 0.9) !important;
       }
 
@@ -739,7 +739,7 @@ body.theme-glassmorphism {
           color: #ffffff !important;
         }
 
-        .el-submenu__icon-arrow {
+        .el-sub-menu__icon-arrow {
           color: #ffffff !important;
         }
       }
@@ -755,7 +755,7 @@ body.theme-glassmorphism {
     }
 
     // 展开的子菜单容器 - 这才是真正显示子菜单的容器!
-    .el-submenu__menu {
+    .el-sub-menu__menu {
       background: transparent !important;
       background-color: transparent !important;
       background-image: none !important;
@@ -977,17 +977,17 @@ body.theme-glassmorphism {
     }
 
     // ========== 全局强制覆盖sidebar.scss中的hover样式 ==========
-    // 覆盖 .submenu-title-noDropdown 和 .el-submenu__title 的hover
+    // 覆盖 .submenu-title-noDropdown 和 .el-sub-menu__title 的hover
     .submenu-title-noDropdown:hover,
-    .el-submenu__title:hover {
+    .el-sub-menu__title:hover {
       background-color: transparent !important;
       background: none !important;
       background-image: none !important;
     }
 
     // 覆盖子菜单项的hover
-    .nest-menu .el-submenu > .el-submenu__title:hover,
-    .el-submenu .el-menu-item:hover {
+    .nest-menu .el-sub-menu > .el-sub-menu__title:hover,
+    .el-sub-menu .el-menu-item:hover {
       background-color: transparent !important;
       background: none !important;
       background-image: none !important;
@@ -997,7 +997,7 @@ body.theme-glassmorphism {
   // ========== 覆盖折叠菜单的hover样式 ==========
   .el-menu--vertical {
     & > .el-menu {
-      .nest-menu .el-submenu > .el-submenu__title:hover,
+      .nest-menu .el-sub-menu > .el-sub-menu__title:hover,
       .el-menu-item:hover {
         background-color: transparent !important;
         background: none !important;
@@ -1729,7 +1729,7 @@ body.theme-glassmorphism {
 
     // 顶部菜单栏文字颜色
     .topmenu-container.el-menu--horizontal > .el-menu-item,
-    .topmenu-container.el-menu--horizontal > .el-submenu .el-submenu__title {
+    .topmenu-container.el-menu--horizontal > .el-sub-menu .el-sub-menu__title {
       color: $theme-glassmorphism-text-primary !important;  // 使用白色
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
       
@@ -1740,7 +1740,7 @@ body.theme-glassmorphism {
     }
 
     .topmenu-container.el-menu--horizontal > .el-menu-item.is-active,
-    .el-menu--horizontal > .el-submenu.is-active .el-submenu__title {
+    .el-menu--horizontal > .el-sub-menu.is-active .el-sub-menu__title {
       color: rgba(255, 255, 255, 1) !important;  // 激活时更亮的白色
       border-bottom-color: rgba(255, 255, 255, 0.9) !important;
       box-shadow: 0 2px 12px rgba(255, 255, 255, 0.4);
@@ -1752,7 +1752,7 @@ body.theme-glassmorphism {
       box-shadow: 0 2px 12px rgba(255, 255, 255, 0.4);
     }
 
-    .el-menu--horizontal > .el-submenu.is-active .el-submenu__title {
+    .el-menu--horizontal > .el-sub-menu.is-active .el-sub-menu__title {
       border-bottom-color: rgba(255, 255, 255, 0.9) !important;
       box-shadow: 0 2px 12px rgba(255, 255, 255, 0.4);
     }
@@ -2702,7 +2702,7 @@ body.theme-glassmorphism {
   // ========== 【核心修复】移除子菜单容器的背景色 ==========
   .sidebar-container {
     // 子菜单容器本身 - 这才是显示紫蓝色背景的元素!
-    .el-submenu__menu {
+    .el-sub-menu__menu {
       background: transparent !important;
       background-color: transparent !important;
       background-image: none !important;
@@ -2748,15 +2748,15 @@ body.theme-glassmorphism {
   #app .sidebar-container {
     // 覆盖所有可能的菜单项hover样式
     .submenu-title-noDropdown:hover,
-    .el-submenu__title:hover,
+    .el-sub-menu__title:hover,
     .el-menu-item:hover {
       background-color: transparent !important;
       background: transparent !important;
     }
 
     // 覆盖嵌套菜单的hover
-    .nest-menu .el-submenu > .el-submenu__title:hover,
-    .el-submenu .el-menu-item:hover {
+    .nest-menu .el-sub-menu > .el-sub-menu__title:hover,
+    .el-sub-menu .el-menu-item:hover {
       background-color: transparent !important;
       background: transparent !important;
     }
@@ -2767,9 +2767,9 @@ body.theme-glassmorphism {
       background: transparent !important;
     }
 
-    // 覆盖sidebar.scss中的.nest-menu和.el-submenu规则
-    & .nest-menu .el-submenu > .el-submenu__title:hover,
-    & .el-submenu .el-menu-item:hover {
+    // 覆盖sidebar.scss中的.nest-menu和.el-sub-menu规则
+    & .nest-menu .el-sub-menu > .el-sub-menu__title:hover,
+    & .el-sub-menu .el-menu-item:hover {
       background-color: transparent !important;
       background: transparent !important;
     }
@@ -2777,7 +2777,7 @@ body.theme-glassmorphism {
 
   // 覆盖折叠菜单的hover
   .el-menu--vertical {
-    .nest-menu .el-submenu > .el-submenu__title:hover,
+    .nest-menu .el-sub-menu > .el-sub-menu__title:hover,
     .el-menu-item:hover {
       background-color: transparent !important;
       background: transparent !important;
@@ -2805,7 +2805,7 @@ body.theme-glassmorphism {
   }
 
   // 覆盖所有submenu下的子菜单项
-  .sidebar-container .el-submenu .el-menu-item:hover {
+  .sidebar-container .el-sub-menu .el-menu-item:hover {
     background-color: transparent !important;
     background: transparent !important;
   }
@@ -2825,7 +2825,7 @@ body.theme-glassmorphism.glass-bg-ocean-sunset #app .sidebar-container {
   }
 
   .el-menu-item,
-  .el-submenu__title {
+  .el-sub-menu__title {
     color: rgba(240, 249, 255, 0.88) !important;
 
     i,
@@ -2840,7 +2840,7 @@ body.theme-glassmorphism.glass-bg-ocean-sunset #app .sidebar-container {
     }
   }
 
-  .el-submenu.is-active > .el-submenu__title,
+  .el-sub-menu.is-active > .el-sub-menu__title,
   .el-menu-item.is-active {
     background: linear-gradient(90deg, rgba(56, 189, 248, 0.24), rgba(236, 72, 153, 0.18)) !important;
     color: #ffffff !important;
@@ -2868,7 +2868,7 @@ body.theme-glassmorphism.glass-bg-aurora-dream #app .sidebar-container {
   }
 
   .el-menu-item,
-  .el-submenu__title {
+  .el-sub-menu__title {
     color: rgba(255, 255, 255, 0.9) !important;
 
     i,
@@ -2883,7 +2883,7 @@ body.theme-glassmorphism.glass-bg-aurora-dream #app .sidebar-container {
     }
   }
 
-  .el-submenu.is-active > .el-submenu__title,
+  .el-sub-menu.is-active > .el-sub-menu__title,
   .el-menu-item.is-active {
     background: linear-gradient(90deg, rgba(199, 210, 254, 0.28), rgba(240, 147, 251, 0.22)) !important;
     color: #ffffff !important;

@@ -1,12 +1,15 @@
+<template>
+  <div />
+</template>
+
 <script>
 export default {
-  created() {
+  mounted() {
     const { params, query } = this.$route
     const { path } = params
-    this.$router.replace({ path: '/' + path, query })
-  },
-  render: function(h) {
-    return h() // avoid warning message
+    // 等待刷新中转页挂载，避免KeepAlive/Transition访问尚未建立的组件树。
+    const target = Array.isArray(path) ? path.join('/') : path
+    this.$router.replace({ path: '/' + (target || ''), query })
   }
 }
 </script>

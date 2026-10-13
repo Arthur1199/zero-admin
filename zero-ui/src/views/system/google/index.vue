@@ -8,17 +8,17 @@
           clearable
           size="small"
           style="width: 240px"
-          @keyup.enter.native="handleQuery"
+@keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+        <el-button type="primary" :icon="resolveIcon('el-icon-search')" size="small" @click="handleQuery">搜索</el-button>
+        <el-button :icon="resolveIcon('el-icon-refresh')" size="small" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
     <el-row :gutter="10" class="mb8">
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
+      <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <el-table v-loading="loading" :data="googleList">
@@ -26,38 +26,38 @@
       <el-table-column label="用户名" align="center" prop="userName" :show-overflow-tooltip="true" />
       <el-table-column label="用户昵称" align="center" prop="nickName" :show-overflow-tooltip="true" />
       <el-table-column label="绑定状态" align="center" width="100">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-tag :type="scope.row.bound ? 'success' : 'info'">{{ scope.row.bound ? '已绑定' : '未绑定' }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="谷歌登录秘钥片段" align="center" prop="googleAuthKeyMask" :show-overflow-tooltip="true" />
       <el-table-column label="创建者" align="center" prop="createBy" width="120" />
       <el-table-column label="创建时间" align="center" prop="createTime" width="160">
-        <template slot-scope="scope">
+        <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="更新者" align="center" prop="updateBy" width="120" />
       <el-table-column label="更新时间" align="center" prop="updateTime" width="160">
-        <template slot-scope="scope">
+        <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="180">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-button
             v-if="scope.row.bound"
-            size="mini"
-            type="text"
-            icon="el-icon-view"
+size="small"
+             link type="primary"
+:icon="resolveIcon('el-icon-view')"
             @click="handleViewKey(scope.row)"
             v-hasPermi="['system:google:viewKey']"
           >查看明文</el-button>
           <el-button
             v-if="scope.row.bound"
-            size="mini"
-            type="text"
-            icon="el-icon-refresh-left"
+size="small"
+             link type="primary"
+:icon="resolveIcon('el-icon-refresh-left')"
             @click="handleUnbind(scope.row)"
             v-hasPermi="['system:google:unbind']"
           >解绑</el-button>
@@ -68,20 +68,20 @@
     <pagination
       v-show="total > 0"
       :total="total"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
+v-model:page="queryParams.pageNum"
+v-model:limit="queryParams.pageSize"
       @pagination="getList"
     />
 
-    <el-dialog title="谷歌登录秘钥全文" custom-class="google-key-dialog" :visible.sync="keyOpen" width="520px" append-to-body :close-on-click-modal="false">
+    <el-dialog title="谷歌登录秘钥全文" class="google-key-dialog" v-model="keyOpen" width="520px" append-to-body :close-on-click-modal="false">
       <el-alert title="该信息属于敏感密钥，请勿截图、转发或记录到日志中。" type="warning" show-icon :closable="false" />
       <div class="key-box">
         <el-input ref="googleAuthKeyInput" v-model="googleAuthKey" readonly class="key-input" />
-        <el-button type="text" icon="el-icon-document-copy" class="copy-key-btn" @click="copyGoogleAuthKey">复制</el-button>
+        <el-button  link type="primary" :icon="resolveIcon('el-icon-document-copy')" class="copy-key-btn" @click="copyGoogleAuthKey">复制</el-button>
       </div>
-      <div slot="footer" class="dialog-footer">
+      <template #footer><div  class="dialog-footer">
         <el-button @click="keyOpen = false">关 闭</el-button>
-      </div>
+      </div></template>
     </el-dialog>
   </div>
 </template>
@@ -117,7 +117,7 @@ export default {
         this.total = response.total
       }).finally(() => {
         this.loading = false
-      })
+      }).catch(() => {})
     },
     handleQuery() {
       this.queryParams.pageNum = 1
@@ -188,7 +188,7 @@ export default {
   padding: 0;
 }
 
-::v-deep .google-key-dialog {
+:deep(.google-key-dialog) {
   min-height: 0 !important;
   max-height: none !important;
 

@@ -95,8 +95,8 @@
     }
 
     // 子菜单标题 - Material Design 3.0 风格
-    .el-submenu > .el-submenu__title,
-    .el-submenu__title {
+    .el-sub-menu > .el-sub-menu__title,
+    .el-sub-menu__title {
       background-color: $theme-material-design-menu-bg !important;
       color: $theme-material-design-text-secondary !important;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -111,29 +111,29 @@
         color: $theme-material-design-text-primary !important;
       }
 
-      .el-submenu__icon-arrow {
+      .el-sub-menu__icon-arrow {
         color: $theme-material-design-text-secondary !important;
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       }
     }
 
     // 展开状态的子菜单(但未被激活)
-    .el-menu .el-submenu.is-opened > .el-submenu__title,
-    .el-submenu.is-opened > .el-submenu__title {
+    .el-menu .el-sub-menu.is-opened > .el-sub-menu__title,
+    .el-sub-menu.is-opened > .el-sub-menu__title {
       color: $theme-material-design-text-primary !important;
       background-color: $theme-material-design-menu-hover !important;
       
-      .el-submenu__icon-arrow {
+      .el-sub-menu__icon-arrow {
         color: $theme-material-design-text-primary !important;
       }
     }
     
     // 激活状态的子菜单
-    .el-menu .el-submenu.is-active > .el-submenu__title,
-    .el-submenu.is-active > .el-submenu__title {
+    .el-menu .el-sub-menu.is-active > .el-sub-menu__title,
+    .el-sub-menu.is-active > .el-sub-menu__title {
       color: $theme-material-design-menu-active !important;
       
-      .el-submenu__icon-arrow {
+      .el-sub-menu__icon-arrow {
         color: $theme-material-design-menu-active !important;
       }
     }
@@ -692,7 +692,7 @@
 
     // 顶部菜单栏文字颜色
     .topmenu-container.el-menu--horizontal > .el-menu-item,
-    .topmenu-container.el-menu--horizontal > .el-submenu .el-submenu__title {
+    .topmenu-container.el-menu--horizontal > .el-sub-menu .el-sub-menu__title {
       color: #ffffff !important;  // 使用白色
       
       &:hover {
@@ -702,7 +702,7 @@
     }
 
     .topmenu-container.el-menu--horizontal > .el-menu-item.is-active,
-    .el-menu--horizontal > .el-submenu.is-active .el-submenu__title {
+    .el-menu--horizontal > .el-sub-menu.is-active .el-sub-menu__title {
       color: #ffffff !important;  // 激活时保持白色
       border-bottom-color: #ffffff !important;  // 底边框也使用白色
       box-shadow: 0 2px 4px rgba(255, 255, 255, 0.3);
@@ -714,7 +714,7 @@
       box-shadow: 0 2px 4px rgba(255, 255, 255, 0.3);
     }
 
-    .el-menu--horizontal > .el-submenu.is-active .el-submenu__title {
+    .el-menu--horizontal > .el-sub-menu.is-active .el-sub-menu__title {
       border-bottom-color: #ffffff !important;
       box-shadow: 0 2px 4px rgba(255, 255, 255, 0.3);
     }
@@ -851,7 +851,7 @@ body.theme-material-design {
     margin-left: 8px !important;
   }
   
-  #app .hideSidebar .el-submenu > .el-submenu__title .svg-icon {
+  #app .hideSidebar .el-sub-menu > .el-sub-menu__title .svg-icon {
     margin-left: 8px !important;
   }
   

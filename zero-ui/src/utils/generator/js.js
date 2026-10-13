@@ -1,3 +1,5 @@
+import { timeRangeProps } from './timeRange'
+import { legacyIconAliases } from '@/utils/icons'
 import { exportDefault, titleCase } from '@/utils/index'
 import { trigger } from './config'
 
@@ -95,7 +97,7 @@ function mixinMethod(type) {
         this.$refs['${confGlobal.formRef}'].resetFields()
       },`,
         close: `close() {
-        this.$emit('update:visible', false)
+        this.$emit('update:modelValue', false)
       },`,
         handleConfirm: `handleConfirm() {
         this.$refs['${confGlobal.formRef}'].validate(valid => {
@@ -140,7 +142,9 @@ function buildRules(conf, ruleList) {
     if (conf.regList && Array.isArray(conf.regList)) {
       conf.regList.forEach(item => {
         if (item.pattern) {
-          rules.push(`{ pattern: ${eval(item.pattern)}, message: '${item.message}', trigger: '${trigger[conf.tag]}' }`)
+          const literal = /^\/([\s\S]*)\/([dgimsuvy]*)$/.exec(item.pattern)
+          const pattern = literal ? new RegExp(literal[1], literal[2]) : new RegExp(item.pattern)
+          rules.push(`{ pattern: ${pattern.toString()}, message: '${item.message}', trigger: '${trigger[conf.tag]}' }`)
         }
       })
     }
@@ -206,10 +210,14 @@ function buildOptionMethod(methodName, model, methodList) {
 }
 
 function buildexport(conf, type, data, rules, selectOptions, uploadVar, props, methods) {
-  const str = `${exportDefault}{
+  const str = `import * as icons from '@element-plus/icons-vue'
+const iconAliases = ${JSON.stringify(legacyIconAliases)}
+${timeRangeProps.toString()}
+${exportDefault}{
   ${inheritAttrs[type]}
   components: {},
-  props: [],
+  props: ${type === 'dialog' ? "{ modelValue: Boolean }" : '[]'},
+  emits: ['update:modelValue'],
   data () {
     return {
       ${conf.formModel}: {
@@ -228,6 +236,11 @@ function buildexport(conf, type, data, rules, selectOptions, uploadVar, props, m
   created () {},
   mounted () {},
   methods: {
+    timeRangeProps,
+    resolveIcon(name) {
+      const key = name.replace(/^el-icon-/, '')
+      return icons[iconAliases[key] || key.replace(/(^|-)([a-z])/g, (_, __, char) => char.toUpperCase())]
+    },
     ${methods}
   }
 }`

@@ -4,14 +4,14 @@
     <div class="preview-header">
       <div class="header-content">
         <div class="title-section">
-          <i class="el-icon-moon-night theme-icon"></i>
+          <AppIcon icon-class="el-icon-moon-night" class="theme-icon"></AppIcon>
           <div class="title-text">
             <h1>高端暗黑风</h1>
             <p class="subtitle">Dark Mode Premium - OLED Optimized</p>
           </div>
         </div>
-        <el-button type="primary" size="medium" @click="goBack" class="back-btn">
-          <i class="el-icon-back"></i>
+        <el-button type="primary" size="default" @click="goBack" class="back-btn">
+          <AppIcon icon-class="el-icon-back" class=""></AppIcon>
           返回首页
         </el-button>
       </div>
@@ -22,43 +22,43 @@
       <!-- 左侧:模拟侧边栏 -->
       <div class="sidebar-preview">
         <div class="sidebar-logo">
-          <i class="el-icon-s-grid"></i>
+          <AppIcon icon-class="el-icon-s-grid" class=""></AppIcon>
           <span>零号管理系统</span>
         </div>
         <div class="sidebar-menu">
           <div class="menu-item active">
-            <i class="el-icon-s-home"></i>
+            <AppIcon icon-class="el-icon-s-home" class=""></AppIcon>
             <span>系统首页</span>
           </div>
           <div class="menu-item has-submenu expanded">
-            <i class="el-icon-user"></i>
+            <AppIcon icon-class="el-icon-user" class=""></AppIcon>
             <span>系统管理</span>
-            <i class="el-icon-arrow-down submenu-arrow"></i>
+            <AppIcon icon-class="el-icon-arrow-down" class="submenu-arrow"></AppIcon>
           </div>
           <div class="submenu">
             <div class="submenu-item">
-              <i class="el-icon-user-solid"></i>
+              <AppIcon icon-class="el-icon-user-solid" class=""></AppIcon>
               <span>用户管理</span>
             </div>
             <div class="submenu-item active">
-              <i class="el-icon-s-custom"></i>
+              <AppIcon icon-class="el-icon-s-custom" class=""></AppIcon>
               <span>角色管理</span>
             </div>
             <div class="submenu-item">
-              <i class="el-icon-menu"></i>
+              <AppIcon icon-class="el-icon-menu" class=""></AppIcon>
               <span>菜单管理</span>
             </div>
           </div>
           <div class="menu-item">
-            <i class="el-icon-monitor"></i>
+            <AppIcon icon-class="el-icon-monitor" class=""></AppIcon>
             <span>系统监控</span>
           </div>
           <div class="menu-item">
-            <i class="el-icon-s-tools"></i>
+            <AppIcon icon-class="el-icon-s-tools" class=""></AppIcon>
             <span>系统工具</span>
           </div>
           <div class="menu-item">
-            <i class="el-icon-document"></i>
+            <AppIcon icon-class="el-icon-document" class=""></AppIcon>
             <span>日志管理</span>
           </div>
         </div>
@@ -69,7 +69,7 @@
         <!-- 主题描述 -->
         <div class="theme-description">
           <h2>
-            <i class="el-icon-star-on"></i>
+            <AppIcon icon-class="el-icon-star-on" class=""></AppIcon>
             主题特色
           </h2>
           <p>真黑背景,香槟金点缀,柔和发光效果,OLED友好的高端暗黑体验</p>
@@ -79,7 +79,7 @@
         <div class="components-demo">
           <div class="demo-card">
             <h3>
-              <i class="el-icon-trophy"></i>
+              <AppIcon icon-class="el-icon-trophy" class=""></AppIcon>
               按钮组件
             </h3>
             <el-button type="primary" class="premium-btn">香槟金按钮</el-button>
@@ -88,7 +88,7 @@
 
           <div class="demo-card">
             <h3>
-              <i class="el-icon-collection-tag"></i>
+              <AppIcon icon-class="el-icon-collection-tag" class=""></AppIcon>
               标签组件
             </h3>
             <el-tag class="premium-tag gold">金色标签</el-tag>
@@ -98,7 +98,7 @@
 
           <div class="demo-card">
             <h3>
-              <i class="el-icon-edit"></i>
+              <AppIcon icon-class="el-icon-edit" class=""></AppIcon>
               输入框
             </h3>
             <el-input placeholder="请输入内容" class="premium-input"></el-input>
@@ -108,7 +108,7 @@
         <!-- 配色方案 -->
         <div class="color-scheme">
           <h2>
-            <i class="el-icon-brush"></i>
+            <AppIcon icon-class="el-icon-brush" class=""></AppIcon>
             配色方案
           </h2>
           <div class="color-palette">
@@ -147,21 +147,21 @@
         <div class="features-grid">
           <div class="feature-card">
             <div class="feature-icon">
-              <i class="el-icon-moon-night"></i>
+              <AppIcon icon-class="el-icon-moon-night" class=""></AppIcon>
             </div>
             <h3>OLED优化</h3>
             <p>真黑背景,省电护眼,完美适配OLED屏幕</p>
           </div>
           <div class="feature-card">
             <div class="feature-icon">
-              <i class="el-icon-trophy"></i>
+              <AppIcon icon-class="el-icon-trophy" class=""></AppIcon>
             </div>
             <h3>奢华质感</h3>
             <p>香槟金与铂金银点缀,彰显高端品质</p>
           </div>
           <div class="feature-card">
             <div class="feature-icon">
-              <i class="el-icon-magic-stick"></i>
+              <AppIcon icon-class="el-icon-magic-stick" class=""></AppIcon>
             </div>
             <h3>柔和发光</h3>
             <p>精致的光晕效果,营造沉浸式体验</p>
@@ -564,7 +564,7 @@ export default {
       }
 
       .premium-input {
-        ::v-deep .el-input__inner {
+        :deep(.el-input__inner) {
           background: #000000;
           border: 1px solid #3f3f46;
           color: #e4e4e7;

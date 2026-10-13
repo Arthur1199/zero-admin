@@ -4,8 +4,9 @@
  */
 
 export default {
-  bind(el) {
-    const dragDom = el.querySelector('.el-dialog')
+  mounted(el) {
+    const dragDom = el.matches?.('.el-dialog') ? el : el.querySelector('.el-dialog')
+    if (!dragDom) return
     const lineEl = document.createElement('div')
     lineEl.style = 'width: 6px; background: inherit; height: 10px; position: absolute; right: 0; bottom: 0; margin: auto; z-index: 1; cursor: nwse-resize;'
     lineEl.addEventListener('mousedown',

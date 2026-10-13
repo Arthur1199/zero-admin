@@ -3,8 +3,9 @@
 </template>
 
 <script>
+import { markRaw } from "vue"
 import * as echarts from 'echarts'
-require('echarts/theme/macarons') // echarts theme
+import 'echarts/theme/macarons' // echarts theme
 import resize from './mixins/resize'
 
 const animationDuration = 3000
@@ -35,7 +36,7 @@ export default {
       this.initChart()
     })
   },
-  beforeDestroy() {
+  beforeUnmount() {
     if (!this.chart) {
       return
     }
@@ -44,7 +45,7 @@ export default {
   },
   methods: {
     initChart() {
-      this.chart = echarts.init(this.$el, 'macarons')
+      this.chart = markRaw(echarts.init(this.$el, 'macarons'))
 
       this.chart.setOption({
         tooltip: {

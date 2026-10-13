@@ -18,7 +18,7 @@
 
 <script>
 import logoImg from '@/assets/logo/logo.png'
-import variables from '@/assets/styles/variables.scss'
+import variables from '@/assets/styles/variables.module.scss'
 
 export default {
   name: 'SidebarLogo',
@@ -68,7 +68,7 @@ export default {
   },
   data() {
     return {
-      title: process.env.VUE_APP_TITLE,
+      title: import.meta.env.VITE_APP_TITLE,
       logo: logoImg
     }
   }
@@ -80,7 +80,7 @@ export default {
   transition: opacity 1.5s;
 }
 
-.sidebarLogoFade-enter,
+.sidebarLogoFade-enter-from,
 .sidebarLogoFade-leave-to {
   opacity: 0;
 }

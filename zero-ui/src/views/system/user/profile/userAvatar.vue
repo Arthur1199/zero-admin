@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="user-info-head" @click="editCropper()"><img v-bind:src="options.img" title="点击上传头像" class="img-circle img-lg" /></div>
-    <el-dialog :title="title" :visible.sync="open" width="50%" append-to-body @opened="modalOpened"  @close="closeDialog" :close-on-click-modal="false">
+    <el-dialog :title="title" v-model="open" width="50%" append-to-body @opened="modalOpened"  @close="closeDialog" :close-on-click-modal="false">
       <el-row>
         <el-col :xs="24" :md="12" :style="{height: '350px'}">
           <vue-cropper
@@ -29,21 +29,21 @@
           <el-upload action="#" :http-request="requestUpload" :show-file-list="false" :before-upload="beforeUpload">
             <el-button size="small">
               选择
-              <i class="el-icon-upload el-icon--right"></i>
+              <AppIcon icon-class="el-icon-upload" class="el-icon--right"></AppIcon>
             </el-button>
           </el-upload>
         </el-col>
         <el-col :lg="{span: 1, offset: 2}" :sm="2" :xs="2">
-          <el-button icon="el-icon-plus" size="small" @click="changeScale(1)"></el-button>
+          <el-button :icon="resolveIcon('el-icon-plus')" size="small" aria-label="放大" @click="changeScale(1)"></el-button>
         </el-col>
         <el-col :lg="{span: 1, offset: 1}" :sm="2" :xs="2">
-          <el-button icon="el-icon-minus" size="small" @click="changeScale(-1)"></el-button>
+          <el-button :icon="resolveIcon('el-icon-minus')" size="small" aria-label="缩小" @click="changeScale(-1)"></el-button>
         </el-col>
         <el-col :lg="{span: 1, offset: 1}" :sm="2" :xs="2">
-          <el-button icon="el-icon-refresh-left" size="small" @click="rotateLeft()"></el-button>
+          <el-button :icon="resolveIcon('el-icon-refresh-left')" size="small" aria-label="向左旋转" @click="rotateLeft()"></el-button>
         </el-col>
         <el-col :lg="{span: 1, offset: 1}" :sm="2" :xs="2">
-          <el-button icon="el-icon-refresh-right" size="small" @click="rotateRight()"></el-button>
+          <el-button :icon="resolveIcon('el-icon-refresh-right')" size="small" aria-label="向右旋转" @click="rotateRight()"></el-button>
         </el-col>
         <el-col :lg="{span: 2, offset: 6}" :sm="2" :xs="2">
           <el-button type="primary" size="small" @click="uploadImg()">提 交</el-button>
@@ -56,6 +56,7 @@
 <script>
 import store from "@/store"
 import { VueCropper } from "vue-cropper"
+import "vue-cropper/dist/index.css"
 import { uploadAvatar } from "@/api/system/user"
 import { debounce } from '@/utils'
 import { isHttp } from "@/utils/validate"
@@ -139,10 +140,12 @@ export default {
         uploadAvatar(formData).then(response => {
           this.open = false
           const imgUrl = response.imgUrl
-          this.options.img = isHttp(imgUrl) ? imgUrl : process.env.VUE_APP_BASE_API + imgUrl
+          this.options.img = isHttp(imgUrl) ? imgUrl : import.meta.env.VITE_APP_BASE_API + imgUrl
           store.commit('SET_AVATAR', this.options.img)
           this.$modal.msgSuccess("修改成功")
           this.visible = false
+        }).catch(() => {
+          // 上传失败由请求拦截器提示，保留裁剪结果供重试，避免回调中的未处理异常。
         })
       })
     },

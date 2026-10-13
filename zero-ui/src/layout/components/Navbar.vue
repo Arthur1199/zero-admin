@@ -22,14 +22,14 @@
           <img :src="avatar" class="user-avatar">
           <span class="user-nickname"> {{ nickName }} </span>
         </div>
-        <el-dropdown-menu slot="dropdown">
+        <template #dropdown><el-dropdown-menu >
           <router-link to="/user/profile">
             <el-dropdown-item>个人中心</el-dropdown-item>
           </router-link>
-          <el-dropdown-item divided @click.native="logout">
+          <el-dropdown-item divided @click="logout">
             <span>退出登录</span>
           </el-dropdown-item>
-        </el-dropdown-menu>
+        </el-dropdown-menu></template>
       </el-dropdown>
 
       <div class="right-menu-item hover-effect setting" @click="setLayout" v-if="setting">

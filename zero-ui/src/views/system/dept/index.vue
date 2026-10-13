@@ -6,7 +6,7 @@
           v-model="queryParams.deptName"
           placeholder="请输入部门名称"
           clearable
-          @keyup.enter.native="handleQuery"
+@keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="状态" prop="status">
@@ -20,8 +20,8 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+        <el-button type="primary" :icon="resolveIcon('el-icon-search')" size="small" @click="handleQuery">搜索</el-button>
+        <el-button :icon="resolveIcon('el-icon-refresh')" size="small" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
@@ -30,8 +30,8 @@
         <el-button
           type="primary"
           plain
-          icon="el-icon-plus"
-          size="mini"
+:icon="resolveIcon('el-icon-plus')"
+size="small"
           @click="handleAdd"
           v-hasPermi="['system:dept:add']"
         >新增</el-button>
@@ -40,12 +40,12 @@
         <el-button
           type="info"
           plain
-          icon="el-icon-sort"
-          size="mini"
+:icon="resolveIcon('el-icon-sort')"
+size="small"
           @click="toggleExpandAll"
         >展开/折叠</el-button>
       </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
+      <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <el-table
@@ -59,36 +59,36 @@
       <el-table-column prop="deptName" label="部门名称" width="260"></el-table-column>
       <el-table-column prop="orderNum" label="排序" width="200"></el-table-column>
       <el-table-column prop="status" label="状态" width="100">
-        <template slot-scope="scope">
+        <template #default="scope">
           <dict-tag :options="dict.type.sys_normal_disable" :value="scope.row.status"/>
         </template>
       </el-table-column>
       <el-table-column label="创建时间" align="center" prop="createTime" width="200">
-        <template slot-scope="scope">
+        <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
+size="small"
+             link type="primary"
+:icon="resolveIcon('el-icon-edit')"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['system:dept:edit']"
           >修改</el-button>
           <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-plus"
+size="small"
+             link type="primary"
+:icon="resolveIcon('el-icon-plus')"
             @click="handleAdd(scope.row)"
             v-hasPermi="['system:dept:add']"
           >新增</el-button>
           <el-button
             v-if="scope.row.parentId != 0"
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
+size="small"
+             link type="primary"
+:icon="resolveIcon('el-icon-delete')"
             @click="handleDelete(scope.row)"
             v-hasPermi="['system:dept:remove']"
           >删除</el-button>
@@ -97,7 +97,7 @@
     </el-table>
 
     <!-- 添加或修改部门对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="50%" append-to-body :close-on-click-modal="false">
+    <el-dialog :title="title" v-model="open" width="50%" append-to-body :close-on-click-modal="false">
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-row>
           <el-col :span="24" v-if="form.parentId !== 0">
@@ -142,26 +142,24 @@
                 <el-radio
                   v-for="dict in dict.type.sys_normal_disable"
                   :key="dict.value"
-                  :label="dict.value"
+:value="dict.value"
                 >{{dict.label}}</el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
         </el-row>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <template #footer><div  class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
         <el-button @click="cancel">取 消</el-button>
-      </div>
+      </div></template>
     </el-dialog>
   </div>
 </template>
 
 <script>
 import { listDept, getDept, delDept, addDept, updateDept, listDeptExcludeChild } from "@/api/system/dept"
-import Treeselect from "@riophae/vue-treeselect"
-import "@riophae/vue-treeselect/dist/vue-treeselect.css"
-
+import Treeselect from '@/components/TreeSelect'
 export default {
   name: "Dept",
   dicts: ['sys_normal_disable'],
@@ -180,6 +178,8 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
+      // 上级树与详情齐备后打开表单，避免连续点击覆盖回显。
+      formLoading: false,
       // 是否展开，默认全部展开
       isExpandAll: true,
       // 重新渲染表格状态
@@ -229,6 +229,8 @@ export default {
       listDept(this.queryParams).then(response => {
         this.deptList = this.handleTree(response.data, "deptId")
         this.loading = false
+      }).catch(() => {
+        this.loading = false
       })
     },
     /** 转换部门数据结构 */
@@ -272,14 +274,19 @@ export default {
     },
     /** 新增按钮操作 */
     handleAdd(row) {
+      if (this.formLoading) return
+      this.formLoading = true
       this.reset()
       if (row != undefined) {
         this.form.parentId = row.deptId
       }
-      this.open = true
-      this.title = "添加部门"
+      this.deptOptions = []
       listDept().then(response => {
         this.deptOptions = this.handleTree(response.data, "deptId")
+        this.open = true
+        this.title = "添加部门"
+      }).catch(() => {}).finally(() => {
+        this.formLoading = false
       })
     },
     /** 展开/折叠操作 */
@@ -292,18 +299,23 @@ export default {
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
+      if (this.formLoading) return
+      this.formLoading = true
       this.reset()
+      this.deptOptions = []
       getDept(row.deptId).then(response => {
         this.form = response.data
-        this.open = true
-        this.title = "修改部门"
-        listDeptExcludeChild(row.deptId).then(response => {
+        return listDeptExcludeChild(row.deptId).then(response => {
           this.deptOptions = this.handleTree(response.data, "deptId")
           if (this.deptOptions.length == 0) {
             const noResultsOptions = { deptId: this.form.parentId, deptName: this.form.parentName, children: [] }
             this.deptOptions.push(noResultsOptions)
           }
+          this.open = true
+          this.title = "修改部门"
         })
+      }).catch(() => {}).finally(() => {
+        this.formLoading = false
       })
     },
     /** 提交按钮 */
@@ -315,13 +327,13 @@ export default {
               this.$modal.msgSuccess("修改成功")
               this.open = false
               this.getList()
-            })
+            }).catch(() => {})
           } else {
             addDept(this.form).then(response => {
               this.$modal.msgSuccess("新增成功")
               this.open = false
               this.getList()
-            })
+            }).catch(() => {})
           }
         }
       })

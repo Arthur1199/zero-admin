@@ -2,31 +2,31 @@
   <div class="top-right-btn" :style="style">
     <el-row>
       <el-tooltip class="item" effect="dark" :content="showSearch ? '隐藏搜索' : '显示搜索'" placement="top" v-if="search">
-        <el-button size="mini" circle icon="el-icon-search" @click="toggleSearch()" />
+        <el-button size="small" circle :icon="resolveIcon('el-icon-search')" @click="toggleSearch()" />
       </el-tooltip>
       <el-tooltip class="item" effect="dark" content="刷新" placement="top">
-        <el-button size="mini" circle icon="el-icon-refresh" @click="refresh()" />
+        <el-button size="small" circle :icon="resolveIcon('el-icon-refresh')" @click="refresh()" />
       </el-tooltip>
       <el-tooltip class="item" effect="dark" content="显隐列" placement="top" v-if="columns">
-        <el-button size="mini" circle icon="el-icon-menu" @click="showColumn()" v-if="showColumnsType == 'transfer'"/>
+        <el-button size="small" circle :icon="resolveIcon('el-icon-menu')" @click="showColumn()" v-if="showColumnsType == 'transfer'"/>
         <el-dropdown trigger="click" :hide-on-click="false" style="padding-left: 12px" v-if="showColumnsType == 'checkbox'">
-          <el-button size="mini" circle icon="el-icon-menu" />
-          <el-dropdown-menu slot="dropdown">
+          <el-button size="small" circle :icon="resolveIcon('el-icon-menu')" />
+          <template #dropdown><el-dropdown-menu >
             <!-- 全选/反选 按钮 -->
             <el-dropdown-item>
               <el-checkbox :indeterminate="isIndeterminate" v-model="isChecked" @change="toggleCheckAll"> 列展示 </el-checkbox>
             </el-dropdown-item>
             <div class="check-line"></div>
-            <template v-for="item in columns">
-              <el-dropdown-item :key="item.key">
-                <el-checkbox v-model="item.visible" @change="checkboxChange($event, item.label)" :label="item.label" />
+            <template v-for="item in columns" :key="item.key">
+              <el-dropdown-item>
+                <el-checkbox v-model="item.visible" @change="checkboxChange($event, item.label)" :value="item.label" :label="item.label"  />
               </el-dropdown-item>
             </template>
-          </el-dropdown-menu>
+          </el-dropdown-menu></template>
         </el-dropdown>
       </el-tooltip>
     </el-row>
-    <el-dialog width="50%" :title="title" :visible.sync="open" append-to-body :close-on-click-modal="false">
+    <el-dialog width="50%" :title="title" v-model="open" append-to-body :close-on-click-modal="false">
       <el-transfer
         :titles="['显示', '隐藏']"
         v-model="value"
@@ -136,13 +136,13 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-::v-deep .el-transfer__button {
+:deep(.el-transfer__button) {
   border-radius: 50%;
   padding: 12px;
   display: block;
   margin-left: 0px;
 }
-::v-deep .el-transfer__button:first-child {
+:deep(.el-transfer__button:first-child) {
   margin-bottom: 10px;
 }
 .check-line {

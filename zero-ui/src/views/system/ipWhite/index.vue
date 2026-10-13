@@ -6,7 +6,7 @@
           v-model="queryParams.ipAddr"
           placeholder="请输入IP地址"
           clearable
-          @keyup.enter.native="handleQuery"
+@keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="IP地区" prop="ipRegion">
@@ -14,7 +14,7 @@
           v-model="queryParams.ipRegion"
           placeholder="请输入IP地区"
           clearable
-          @keyup.enter.native="handleQuery"
+@keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="状态" prop="status">
@@ -31,7 +31,7 @@
         <el-date-picker
           v-model="dateRange"
           style="width: 240px"
-          value-format="yyyy-MM-dd"
+value-format="YYYY-MM-DD"
           type="daterange"
           range-separator="-"
           start-placeholder="开始日期"
@@ -39,8 +39,8 @@
         ></el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+        <el-button type="primary" :icon="resolveIcon('el-icon-search')" size="small" @click="handleQuery">搜索</el-button>
+        <el-button :icon="resolveIcon('el-icon-refresh')" size="small" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
@@ -49,8 +49,8 @@
         <el-button
           type="primary"
           plain
-          icon="el-icon-plus"
-          size="mini"
+:icon="resolveIcon('el-icon-plus')"
+size="small"
           @click="handleAdd"
           v-hasPermi="['system:ipWhite:add']"
         >新增</el-button>
@@ -59,8 +59,8 @@
         <el-button
           type="success"
           plain
-          icon="el-icon-edit"
-          size="mini"
+:icon="resolveIcon('el-icon-edit')"
+size="small"
           :disabled="single"
           @click="handleUpdate"
           v-hasPermi="['system:ipWhite:edit']"
@@ -70,14 +70,14 @@
         <el-button
           type="danger"
           plain
-          icon="el-icon-delete"
-          size="mini"
+:icon="resolveIcon('el-icon-delete')"
+size="small"
           :disabled="multiple"
           @click="handleDelete"
           v-hasPermi="['system:ipWhite:remove']"
         >删除</el-button>
       </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
+      <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <el-table v-loading="loading" :data="ipWhiteList" @selection-change="handleSelectionChange">
@@ -86,7 +86,7 @@
       <el-table-column label="IP地址" align="center" prop="ipAddr" min-width="160" :show-overflow-tooltip="true" />
       <el-table-column label="IP地区" align="center" prop="ipRegion" min-width="180" :show-overflow-tooltip="true" />
       <el-table-column label="状态" align="center" prop="status" width="100">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-tag :type="scope.row.status === '1' ? 'success' : 'info'">
             {{ formatStatus(scope.row.status) }}
           </el-tag>
@@ -94,24 +94,24 @@
       </el-table-column>
       <el-table-column label="创建者" align="center" prop="createBy" width="100" />
       <el-table-column label="创建时间" align="center" prop="createTime" width="160">
-        <template slot-scope="scope">
+        <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="备注" align="center" prop="remark" :show-overflow-tooltip="true" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="150">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
+size="small"
+             link type="primary"
+:icon="resolveIcon('el-icon-edit')"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['system:ipWhite:edit']"
           >修改</el-button>
           <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
+size="small"
+             link type="primary"
+:icon="resolveIcon('el-icon-delete')"
             @click="handleDelete(scope.row)"
             v-hasPermi="['system:ipWhite:remove']"
           >删除</el-button>
@@ -122,18 +122,18 @@
     <pagination
       v-show="total>0"
       :total="total"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
+v-model:page="queryParams.pageNum"
+v-model:limit="queryParams.pageSize"
       @pagination="getList"
     />
 
     <!-- 添加或修改登录白名单对话框 -->
     <el-dialog
       :title="title"
-      :visible.sync="open"
+v-model="open"
       width="520px"
       append-to-body
-      custom-class="ip-white-dialog"
+class="ip-white-dialog"
       :close-on-click-modal="false"
     >
       <el-form ref="form" :model="form" :rules="rules" label-width="86px">
@@ -153,7 +153,7 @@
             <el-radio
               v-for="item in statusOptions"
               :key="item.value"
-              :label="item.value"
+:value="item.value"
             >{{ item.label }}</el-radio>
           </el-radio-group>
         </el-form-item>
@@ -161,10 +161,10 @@
           <el-input v-model="form.remark" type="textarea" :rows="2" placeholder="请输入内容" />
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <template #footer><div  class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
         <el-button @click="cancel">取 消</el-button>
-      </div>
+      </div></template>
     </el-dialog>
   </div>
 </template>
@@ -234,6 +234,8 @@ export default {
       listIpWhite(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
         this.ipWhiteList = response.rows
         this.total = response.total
+        this.loading = false
+      }).catch(() => {
         this.loading = false
       })
     },
@@ -342,7 +344,7 @@ export default {
 </script>
 
 <style scoped>
-::v-deep .ip-white-dialog {
+:deep(.ip-white-dialog) {
   min-height: 0 !important;
   max-height: none !important;
 

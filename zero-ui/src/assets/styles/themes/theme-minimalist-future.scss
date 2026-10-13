@@ -75,7 +75,7 @@
     }
 
     // 子菜单标题
-    .el-submenu__title {
+    .el-sub-menu__title {
       background-color: #1a1a1a !important;
       color: $theme-minimalist-future-text-secondary !important;
       margin: 0 !important;
@@ -87,30 +87,30 @@
         color: $theme-minimalist-future-accent !important;
       }
 
-      .el-submenu__icon-arrow {
+      .el-sub-menu__icon-arrow {
         color: $theme-minimalist-future-text-secondary;
       }
     }
 
     // 展开状态的父菜单（重要！）
-    .el-submenu.is-opened > .el-submenu__title {
+    .el-sub-menu.is-opened > .el-sub-menu__title {
       background-color: $theme-minimalist-future-menu-hover !important;
       color: $theme-minimalist-future-accent !important;
       font-weight: 600;
 
-      .el-submenu__icon-arrow {
+      .el-sub-menu__icon-arrow {
         color: $theme-minimalist-future-accent;
       }
     }
 
     // 激活的父菜单
-    .el-submenu.is-active > .el-submenu__title {
+    .el-sub-menu.is-active > .el-sub-menu__title {
       background-color: $theme-minimalist-future-menu-hover !important;
       color: $theme-minimalist-future-accent !important;
       font-weight: 600;
       border-left: 2px solid $theme-minimalist-future-accent;
 
-      .el-submenu__icon-arrow {
+      .el-sub-menu__icon-arrow {
         color: $theme-minimalist-future-accent;
       }
     }
@@ -247,7 +247,7 @@
       }
 
       // 弹出菜单中的子菜单标题样式
-      .el-submenu__title {
+      .el-sub-menu__title {
         background-color: transparent !important;
         color: $theme-minimalist-future-text-secondary !important;
         border-left: 2px solid transparent;
@@ -263,13 +263,13 @@
           color: $theme-minimalist-future-text-secondary;
         }
 
-        .el-submenu__icon-arrow {
+        .el-sub-menu__icon-arrow {
           color: $theme-minimalist-future-text-secondary;
         }
       }
 
       // 弹出菜单中展开的子菜单
-      .el-submenu.is-opened > .el-submenu__title {
+      .el-sub-menu.is-opened > .el-sub-menu__title {
         background: $theme-minimalist-future-menu-hover !important;
         color: $theme-minimalist-future-accent !important;
         border-left-color: $theme-minimalist-future-accent;
@@ -278,7 +278,7 @@
           color: $theme-minimalist-future-accent;
         }
 
-        .el-submenu__icon-arrow {
+        .el-sub-menu__icon-arrow {
           color: $theme-minimalist-future-accent;
         }
       }
@@ -815,7 +815,7 @@
 
     // 顶部菜单栏文字颜色
     .topmenu-container.el-menu--horizontal > .el-menu-item,
-    .topmenu-container.el-menu--horizontal > .el-submenu .el-submenu__title {
+    .topmenu-container.el-menu--horizontal > .el-sub-menu .el-sub-menu__title {
       color: $theme-minimalist-future-text-primary !important;  // 使用白色
       
       &:hover {
@@ -824,7 +824,7 @@
     }
 
     .topmenu-container.el-menu--horizontal > .el-menu-item.is-active,
-    .el-menu--horizontal > .el-submenu.is-active .el-submenu__title {
+    .el-menu--horizontal > .el-sub-menu.is-active .el-sub-menu__title {
       color: $theme-minimalist-future-text-primary !important;  // 激活时保持白色
       border-bottom-color: $theme-minimalist-future-accent !important;  // 底边框使用紫色
     }
@@ -834,7 +834,7 @@
       border-bottom-color: $theme-minimalist-future-accent !important;
     }
 
-    .el-menu--horizontal > .el-submenu.is-active .el-submenu__title {
+    .el-menu--horizontal > .el-sub-menu.is-active .el-sub-menu__title {
       border-bottom-color: $theme-minimalist-future-accent !important;
     }
 

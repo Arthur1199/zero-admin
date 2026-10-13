@@ -7,7 +7,7 @@
           placeholder="请输入原始文件名"
           clearable
           style="width: 240px"
-          @keyup.enter.native="handleQuery"
+@keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="存储平台" prop="platform">
@@ -16,7 +16,7 @@
           placeholder="请输入存储平台"
           clearable
           style="width: 200px"
-          @keyup.enter.native="handleQuery"
+@keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="文件后缀" prop="ext">
@@ -25,14 +25,14 @@
           placeholder="请输入后缀"
           clearable
           style="width: 160px"
-          @keyup.enter.native="handleQuery"
+@keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="创建时间">
         <el-date-picker
           v-model="dateRange"
           style="width: 240px"
-          value-format="yyyy-MM-dd"
+value-format="YYYY-MM-DD"
           type="daterange"
           range-separator="-"
           start-placeholder="开始日期"
@@ -40,8 +40,8 @@
         />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+        <el-button type="primary" :icon="resolveIcon('el-icon-search')" size="small" @click="handleQuery">搜索</el-button>
+        <el-button :icon="resolveIcon('el-icon-refresh')" size="small" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
@@ -56,18 +56,18 @@
           :on-error="handleUploadError"
           v-hasPermi="['systemTools:fileManagement:add']"
         >
-          <el-button type="primary" plain icon="el-icon-upload" size="mini">上传文件</el-button>
+          <el-button type="primary" plain :icon="resolveIcon('el-icon-upload')" size="small">上传文件</el-button>
         </el-upload>
       </el-col>
       <el-col :span="8" class="upload-tip">请上传大小不超过 <b>{{ uploadLimitText }}</b> 的文件</el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList" />
+      <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" />
     </el-row>
 
     <el-table v-loading="loading" :data="fileList" @selection-change="handleSelectionChange" border>
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="文件ID" align="center" prop="id" width="90" />
       <el-table-column label="文件访问地址" align="center" prop="url" min-width="220" :show-overflow-tooltip="true">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-link v-if="scope.row.url" :href="scope.row.url" target="_blank" type="primary">
             {{ scope.row.url }}
           </el-link>
@@ -76,7 +76,7 @@
       <el-table-column label="文件名" align="center" prop="filename" min-width="160" :show-overflow-tooltip="true" />
       <el-table-column label="原始文件名" align="center" prop="originalFilename" min-width="180" :show-overflow-tooltip="true" />
       <el-table-column label="文件大小" align="center" prop="size" width="120">
-        <template slot-scope="scope">
+        <template #default="scope">
           <span>{{ formatFileSize(scope.row.size) }}</span>
         </template>
       </el-table-column>
@@ -86,27 +86,28 @@
       <el-table-column label="缩略图地址" align="center" prop="thUrl" min-width="180" :show-overflow-tooltip="true" />
       <el-table-column label="缩略图名" align="center" prop="thFilename" min-width="140" :show-overflow-tooltip="true" />
       <el-table-column label="缩略图大小" align="center" prop="thSize" width="120">
-        <template slot-scope="scope">
+        <template #default="scope">
           <span>{{ formatFileSize(scope.row.thSize) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="对象ID" align="center" prop="objectId" width="120" :show-overflow-tooltip="true" />
       <el-table-column label="对象类型" align="center" prop="objectType" width="150" :show-overflow-tooltip="true" />
       <el-table-column label="创建时间" align="center" prop="createTime" width="170">
-        <template slot-scope="scope">
+        <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="文件预览" align="center" width="160">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-image
             v-if="isImage(scope.row)"
             class="file-preview-image"
             :src="getPreviewUrl(scope.row)"
             :preview-src-list="[getPreviewUrl(scope.row)]"
+            :preview-teleported="true"
             fit="cover"
           >
-            <div slot="error" class="preview-empty">无法预览</div>
+            <template #error><div  class="preview-empty">无法预览</div></template>
           </el-image>
           <video
             v-else-if="isVideo(scope.row)"
@@ -119,17 +120,17 @@
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="150" fixed="right">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-view"
+size="small"
+             link type="primary"
+:icon="resolveIcon('el-icon-view')"
             @click="handleDetail(scope.row)"
           >查看详情</el-button>
           <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
+size="small"
+             link type="primary"
+:icon="resolveIcon('el-icon-delete')"
             @click="handleDelete(scope.row)"
             v-hasPermi="['systemTools:fileManagement:remove']"
           >删除</el-button>
@@ -140,12 +141,12 @@
     <pagination
       v-show="total>0"
       :total="total"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
+v-model:page="queryParams.pageNum"
+v-model:limit="queryParams.pageSize"
       @pagination="getList"
     />
 
-    <el-dialog :title="title" :visible.sync="open" width="720px" append-to-body :close-on-click-modal="false">
+    <el-dialog :title="title" v-model="open" width="720px" append-to-body :close-on-click-modal="false">
       <el-form ref="form" :model="form" label-width="110px">
         <el-row>
           <el-col :span="12">
@@ -196,9 +197,9 @@
           <el-input v-model="form.thUrl" type="textarea" :rows="2" disabled />
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <template #footer><div  class="dialog-footer">
         <el-button @click="cancel">关闭</el-button>
-      </div>
+      </div></template>
     </el-dialog>
   </div>
 </template>
@@ -223,7 +224,7 @@ export default {
       title: "",
       uploadLimitBytes: 30 * 1024 * 1024,
       uploadLimitText: "30MB",
-      uploadUrl: process.env.VUE_APP_BASE_API + "/systemTools/fileManagement/upload",
+      uploadUrl: import.meta.env.VITE_APP_BASE_API + "/systemTools/fileManagement/upload",
       headers: {
         Authorization: "Bearer " + getToken()
       },
@@ -252,13 +253,18 @@ export default {
         if (data.maxFileSizeText) {
           this.uploadLimitText = data.maxFileSizeText
         }
-      })
+      }).catch(() => {})
     },
     getList() {
       this.loading = true
       listFile(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
-        this.fileList = response.rows
-        this.total = response.total
+        this.fileList = response.rows || []
+        this.total = response.total || 0
+      }).catch(() => {
+        // 请求封装已展示下游错误，结束加载后允许用户重新查询。
+        this.fileList = []
+        this.total = 0
+      }).finally(() => {
         this.loading = false
       })
     },
@@ -332,7 +338,7 @@ export default {
         this.form = response.data || {}
         this.title = "文件详情"
         this.open = true
-      })
+      }).catch(() => {})
     },
     handleDelete(row) {
       const ids = row.id || this.ids

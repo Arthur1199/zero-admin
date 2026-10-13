@@ -19,11 +19,11 @@
       :on-preview="handlePictureCardPreview"
       :class="{hide: this.fileList.length >= this.limit}"
     >
-      <i class="el-icon-plus"></i>
+      <AppIcon icon-class="el-icon-plus" class=""></AppIcon>
     </el-upload>
 
     <!-- 上传提示 -->
-    <div class="el-upload__tip" slot="tip" v-if="showTip && !disabled">
+    <div class="el-upload__tip"  v-if="showTip && !disabled">
       请上传
       <template v-if="fileSize"> 大小不超过 <b style="color: #f56c6c">{{ fileSize }}MB</b> </template>
       <template v-if="fileType"> 格式为 <b style="color: #f56c6c">{{ fileType.join("/") }}</b> </template>
@@ -31,7 +31,7 @@
     </div>
 
     <el-dialog
-      :visible.sync="dialogVisible"
+v-model="dialogVisible"
       title="预览"
       width="50%"
       append-to-body
@@ -48,10 +48,12 @@
 import { getToken } from "@/utils/auth"
 import { isExternal } from "@/utils/validate"
 import Sortable from 'sortablejs'
+import { markRaw } from 'vue'
 
 export default {
+  emits: ['update:modelValue'],
   props: {
-    value: [String, Object, Array],
+    modelValue: [String, Object, Array],
     // 上传接口地址
     action: {
       type: String,
@@ -95,38 +97,41 @@ export default {
   data() {
     return {
       number: 0,
+      sortable: null,
       uploadList: [],
       dialogImageUrl: "",
       dialogVisible: false,
       hideUpload: false,
-      baseUrl: process.env.VUE_APP_BASE_API,
-      uploadImgUrl: process.env.VUE_APP_BASE_API + this.action, // 上传的图片服务器地址
+      baseUrl: import.meta.env.VITE_APP_BASE_API,
+      uploadImgUrl: import.meta.env.VITE_APP_BASE_API + this.action, // 上传的图片服务器地址
       headers: {
         Authorization: "Bearer " + getToken(),
       },
       fileList: []
     }
   },
+  beforeUnmount() { this.sortable?.destroy() },
   mounted() {
     if (this.drag && !this.disabled) {
       this.$nextTick(() => {
         const element = this.$refs.imageUpload?.$el?.querySelector('.el-upload-list')
-        Sortable.create(element, {
+        if (!element) return
+        this.sortable = markRaw(Sortable.create(element, {
           onEnd: (evt) => {
             const movedItem = this.fileList.splice(evt.oldIndex, 1)[0]
             this.fileList.splice(evt.newIndex, 0, movedItem)
-            this.$emit("input", this.listToString(this.fileList))
+            this.$emit("update:modelValue", this.listToString(this.fileList))
           }
-        })
+        }))
       })
     }
   },
   watch: {
-    value: {
+    modelValue: {
       handler(val) {
         if (val) {
           // 首先将值转为数组
-          const list = Array.isArray(val) ? val : this.value.split(',')
+          const list = Array.isArray(val) ? val : this.modelValue.split(',')
           // 然后将数组转为对象数组
           this.fileList = list.map(item => {
             if (typeof item === "string") {
@@ -156,6 +161,7 @@ export default {
   methods: {
     // 上传前loading加载
     handleBeforeUpload(file) {
+      this.headers.Authorization = "Bearer " + getToken()
       let isImg = false
       if (this.fileType.length) {
         let fileExtension = ""
@@ -212,12 +218,14 @@ export default {
       const findex = this.fileList.map(f => f.name).indexOf(file.name)
       if (findex > -1) {
         this.fileList.splice(findex, 1)
-        this.$emit("input", this.listToString(this.fileList))
+        this.$emit("update:modelValue", this.listToString(this.fileList))
       }
     },
     // 上传失败
     handleUploadError() {
       this.$modal.msgError("上传图片失败，请重试")
+      this.number = Math.max(0, this.number - 1)
+      this.uploadedSuccessfully()
       this.$modal.closeLoading()
     },
     // 上传结束处理
@@ -226,7 +234,7 @@ export default {
         this.fileList = this.fileList.concat(this.uploadList)
         this.uploadList = []
         this.number = 0
-        this.$emit("input", this.listToString(this.fileList))
+        this.$emit("update:modelValue", this.listToString(this.fileList))
         this.$modal.closeLoading()
       }
     },
@@ -254,21 +262,21 @@ export default {
 </script>
 <style scoped lang="scss">
 // .el-upload--picture-card 控制加号部分
-::v-deep.hide .el-upload--picture-card {
+:deep(.hide .el-upload--picture-card){
   display: none;
 }
 
-::v-deep .el-upload-list--picture-card.is-disabled + .el-upload--picture-card {
+:deep(.el-upload-list--picture-card.is-disabled + .el-upload--picture-card) {
   display: none !important;
 } 
 
 // 去掉动画效果
-::v-deep .el-list-enter-active,
-::v-deep .el-list-leave-active {
+:deep(.el-list-enter-active),
+:deep(.el-list-leave-active) {
   transition: all 0s;
 }
 
-::v-deep .el-list-enter, .el-list-leave-active {
+:deep(.el-list-enter-from, .el-list-leave-active) {
   opacity: 0;
   transform: translateY(0);
 }

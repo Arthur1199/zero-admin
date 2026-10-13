@@ -10,14 +10,14 @@
         tag="span"
         class="tags-view-item"
         :style="activeStyle(tag)"
-        @click.middle.native="!isAffix(tag)?closeSelectedTag(tag):''"
-        @click.native="handleTabClick(tag)"
-        @contextmenu.prevent.native="openMenu(tag,$event)"
-        @dblclick.native="locateMenuByTag(tag)"
+@click.middle="!isAffix(tag)?closeSelectedTag(tag):''"
+@click="handleTabClick(tag)"
+@contextmenu.prevent="openMenu(tag,$event)"
+@dblclick="locateMenuByTag(tag, $event)"
       >
         <svg-icon v-if="tagsIcon && tag.meta && tag.meta.icon && tag.meta.icon !== '#'" :icon-class="tag.meta.icon" />
         {{ tag.title }}
-        <span v-if="!isAffix(tag)" class="el-icon-close" @click.prevent.stop="closeSelectedTag(tag)" />
+        <AppIcon v-if="!isAffix(tag)" icon-class="el-icon-close" class="" @click.prevent.stop="closeSelectedTag(tag)" />
       </router-link>
     </scroll-pane>
   </div>
@@ -25,7 +25,7 @@
 
 <script>
 import ScrollPane from './ScrollPane'
-import path from 'path'
+import path from '@/utils/path'
 import { playSound, SoundType } from '@/utils/audio'
 
 export default {
@@ -41,6 +41,7 @@ export default {
       isTabClick: false     // 标志位：是否由Tab点击触发的路由变化
     }
   },
+  inject: ['getSidebar'],
   computed: {
     visitedViews() {
       return this.$store.state.tagsView.visitedViews
@@ -86,7 +87,7 @@ export default {
     // 创建右键菜单并插入到body，避免被毛玻璃主题的backdrop-filter遮罩
     this.createContextMenu()
   },
-  beforeDestroy() {
+  beforeUnmount() {
     // 组件销毁时移除菜单
     this.destroyContextMenu()
   },
@@ -298,60 +299,16 @@ export default {
         }, 600)
       }
 
-      // 1. 获取侧边栏的 el-menu 引用 - 使用多种方式尝试
-      let sidebar = null
-      let menu = null
-
-      // 尝试方式1: 通过DOM查找
-      const sidebarEl = document.querySelector('.sidebar-container')
-      if (sidebarEl) {
-        sidebar = sidebarEl.__vue__
-      }
-
-      // 尝试方式2: 通过$parent链
-      if (!sidebar) {
-        let parent = this.$parent
-        let depth = 0
-        while (parent && depth < 5) {
-          if (parent.$refs && parent.$refs.sidebar) {
-            sidebar = parent.$refs.sidebar
-            break
-          }
-          parent = parent.$parent
-          depth++
-        }
-      }
-
-      // 尝试方式3: 通过$root查找
-      if (!sidebar) {
-        const findLayout = (vm) => {
-          if (vm.$options.name === 'Layout') return vm
-          if (vm.$children) {
-            for (let child of vm.$children) {
-              const result = findLayout(child)
-              if (result) return result
-            }
-          }
-          return null
-        }
-
-        const layout = findLayout(this.$root)
-        if (layout && layout.$refs && layout.$refs.sidebar) {
-          sidebar = layout.$refs.sidebar
-        }
-      }
-
-      if (!sidebar) {
-        return
-      }
-
+      const sidebar = this.getSidebar()
+      if (!sidebar) return
+      let menu
       menu = sidebar.$refs.menuRef
       if (!menu) {
         return
       }
 
       // 检查菜单是否被折叠，如果折叠则先展开
-      if (menu.collapse) {
+      if (!this.$store.getters.sidebar.opened) {
         // 切换侧边栏展开/折叠状态
         this.$store.dispatch('app/toggleSideBar')
 

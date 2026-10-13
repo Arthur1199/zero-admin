@@ -104,7 +104,7 @@
     }
 
     // 子菜单标题
-    .el-submenu__title {
+    .el-sub-menu__title {
       background-color: $theme-dark-premium-menu-bg !important;
       color: $theme-dark-premium-text-secondary !important;
       margin: 0 !important;
@@ -118,7 +118,7 @@
         color: #e4e4e7 !important;
       }
 
-      .el-submenu__icon-arrow {
+      .el-sub-menu__icon-arrow {
         color: $theme-dark-premium-text-secondary;
         transition: transform 0.3s ease;
       }
@@ -668,7 +668,7 @@
 
     // 顶部菜单栏文字颜色
     .topmenu-container.el-menu--horizontal > .el-menu-item,
-    .topmenu-container.el-menu--horizontal > .el-submenu .el-submenu__title {
+    .topmenu-container.el-menu--horizontal > .el-sub-menu .el-sub-menu__title {
       color: $theme-dark-premium-accent !important;  // 使用金色强调色
       text-shadow: 0 0 8px rgba($theme-dark-premium-accent, 0.5);
       
@@ -679,7 +679,7 @@
     }
 
     .topmenu-container.el-menu--horizontal > .el-menu-item.is-active,
-    .el-menu--horizontal > .el-submenu.is-active .el-submenu__title {
+    .el-menu--horizontal > .el-sub-menu.is-active .el-sub-menu__title {
       color: lighten($theme-dark-premium-accent, 5%) !important;  // 激活时更亮
       border-bottom-color: $theme-dark-premium-accent !important;
       box-shadow: 0 2px 12px rgba($theme-dark-premium-accent, 0.6);
@@ -691,7 +691,7 @@
       box-shadow: 0 2px 12px rgba($theme-dark-premium-accent, 0.6);
     }
 
-    .el-menu--horizontal > .el-submenu.is-active .el-submenu__title {
+    .el-menu--horizontal > .el-sub-menu.is-active .el-sub-menu__title {
       border-bottom-color: $theme-dark-premium-accent !important;
       box-shadow: 0 2px 12px rgba($theme-dark-premium-accent, 0.6);
     }
@@ -849,7 +849,7 @@ body.theme-dark-premium {
     margin-left: 8px !important;
   }
   
-  #app .hideSidebar .el-submenu > .el-submenu__title .svg-icon {
+  #app .hideSidebar .el-sub-menu > .el-sub-menu__title .svg-icon {
     margin-left: 8px !important;
   }
   
@@ -938,7 +938,7 @@ body.theme-dark-premium {
     }
 
     // 弹出菜单中的子菜单标题样式
-    .el-submenu__title {
+    .el-sub-menu__title {
       background-color: transparent !important;
       color: #a1a1aa !important;
       margin: 2px 8px !important;
@@ -955,13 +955,13 @@ body.theme-dark-premium {
         color: #a1a1aa;
       }
 
-      .el-submenu__icon-arrow {
+      .el-sub-menu__icon-arrow {
         color: #a1a1aa;
       }
     }
 
     // 弹出菜单中展开的子菜单
-    .el-submenu.is-opened > .el-submenu__title {
+    .el-sub-menu.is-opened > .el-sub-menu__title {
       background: rgba(212, 175, 55, 0.12) !important;
       color: #d4af37 !important;
       box-shadow: 0 0 15px rgba(212, 175, 55, 0.2) !important;
@@ -971,7 +971,7 @@ body.theme-dark-premium {
         filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.5));
       }
 
-      .el-submenu__icon-arrow {
+      .el-sub-menu__icon-arrow {
         color: #d4af37;
       }
     }

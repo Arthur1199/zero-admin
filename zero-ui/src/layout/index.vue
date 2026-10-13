@@ -1,5 +1,5 @@
 <template>
-  <div :class="[classObj, themeClass]" class="app-wrapper" :style="layoutStyle">
+  <div :class="[classObj, themeClass, `zero-density-${$store.getters.size}`]" class="app-wrapper" :style="layoutStyle">
     <div v-if="device==='mobile'&&sidebar.opened" class="drawer-bg" @click="handleClickOutside"/>
     <sidebar ref="sidebar" v-if="!sidebar.hide" class="sidebar-container"/>
     <div
@@ -26,7 +26,7 @@
 import { AppMain, Navbar, Settings, Sidebar, TagsView } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
 import { mapState } from 'vuex'
-import variables from '@/assets/styles/variables.scss'
+import variables from '@/assets/styles/variables.module.scss'
 
 export default {
   name: 'Layout',
@@ -38,6 +38,7 @@ export default {
     TagsView
   },
   mixins: [ResizeMixin],
+  provide() { return { getSidebar: () => this.$refs.sidebar } },
   data() {
     return {
       resizingSidebar: false,
@@ -88,7 +89,7 @@ export default {
       return this.device !== 'mobile' && !this.sidebar.hide && this.sidebar.opened
     }
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.stopResizeSidebar()
   },
   methods: {
@@ -136,8 +137,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  @import "~@/assets/styles/mixin.scss";
-  @import "~@/assets/styles/variables.scss";
+  @import "@/assets/styles/mixin.scss";
+  @import "@/assets/styles/variables.scss";
 
   .app-wrapper {
     @include clearfix;

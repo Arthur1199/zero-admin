@@ -4,12 +4,12 @@ let confGlobal
 let someSpanIsNot24
 
 export function dialogWrapper(str) {
-  return `<el-dialog width="50%" v-bind="$attrs" v-on="$listeners" @open="onOpen" @close="onClose" title="Dialog Title" :close-on-click-modal="false">
+  return `<el-dialog width="50%" :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event)" v-bind="$attrs"  @open="onOpen" @close="onClose" title="Dialog Title" :close-on-click-modal="false">
     ${str}
-    <div slot="footer">
+    <template #footer>
       <el-button @click="close">取消</el-button>
       <el-button type="primary" @click="handleConfirm">确定</el-button>
-    </div>
+    </template>
   </el-dialog>`
 }
 
@@ -67,9 +67,9 @@ function buildFromBtns(conf, type) {
   return str
 }
 
-// span不为24的用el-col包裹
-function colWrapper(element, str) {
-  if (someSpanIsNot24 || element.span !== 24) {
+// 行内字段保留列容器，顶层表单仅在分栏时输出列。
+function colWrapper(element, str, forceColumn = false) {
+  if (forceColumn || someSpanIsNot24 || element.span !== 24) {
     return `<el-col :span="${element.span}">
       ${str}
     </el-col>`
@@ -78,7 +78,7 @@ function colWrapper(element, str) {
 }
 
 const layouts = {
-  colFormItem(element) {
+  colFormItem(element, forceColumn = false) {
     let labelWidth = ''
     if (element.labelWidth && element.labelWidth !== confGlobal.labelWidth) {
       labelWidth = `label-width="${element.labelWidth}px"`
@@ -88,19 +88,21 @@ const layouts = {
     let str = `<el-form-item ${labelWidth} label="${element.label}" prop="${element.vModel}" ${required}>
         ${tagDom}
       </el-form-item>`
-    str = colWrapper(element, str)
+    str = colWrapper(element, str, forceColumn)
     return str
   },
-  rowFormItem(element) {
+  rowFormItem(element, forceColumn = false) {
     const type = element.type === 'default' ? '' : `type="${element.type}"`
     const justify = element.type === 'default' ? '' : `justify="${element.justify}"`
     const align = element.type === 'default' ? '' : `align="${element.align}"`
-    const gutter = element.gutter ? `gutter="${element.gutter}"` : ''
-    const children = element.children.map(el => layouts[el.layout](el))
+    const gutterValue = Number(element.gutter)
+    const gutter = Number.isFinite(gutterValue) && gutterValue > 0 ? `:gutter="${gutterValue}"` : ''
+    // Plus行始终使用flex，行内字段必须保留列容器，才能按画布span占满或分栏。
+    const children = element.children.map(el => layouts[el.layout](el, true))
     let str = `<el-row ${type} ${justify} ${align} ${gutter}>
       ${children.join('\n')}
     </el-row>`
-    str = colWrapper(element, str)
+    str = colWrapper(element, str, forceColumn)
     return str
   }
 }
@@ -220,7 +222,8 @@ const tags = {
     const isRange = el['is-range'] ? 'is-range' : ''
     const format = el.format ? `format="${el.format}"` : ''
     const valueFormat = el['value-format'] ? `value-format="${el['value-format']}"` : ''
-    const pickerOptions = el['picker-options'] ? `:picker-options='${JSON.stringify(el['picker-options'])}'` : ''
+    const range = el['picker-options']?.selectableRange
+    const pickerOptions = range ? ['hours', 'minutes', 'seconds'].map(unit => `:disabled-${unit}='timeRangeProps(${JSON.stringify(range)}).disabled${unit[0].toUpperCase() + unit.slice(1)}'`).join(' ') : ''
 
     return `<${el.tag} ${vModel} ${isRange} ${format} ${valueFormat} ${pickerOptions} ${width} ${placeholder} ${startPlaceholder} ${endPlaceholder} ${rangeSeparator} ${clearable} ${disabled}></${el.tag}>`
   },
@@ -296,10 +299,10 @@ function buildElButtonChild(conf) {
 function buildElInputChild(conf) {
   const children = []
   if (conf.prepend) {
-    children.push(`<template slot="prepend">${conf.prepend}</template>`)
+    children.push(`<template #prepend>${conf.prepend}</template>`)
   }
   if (conf.append) {
-    children.push(`<template slot="append">${conf.append}</template>`)
+    children.push(`<template #append>${conf.append}</template>`)
   }
   return children.join('\n')
 }
@@ -317,7 +320,7 @@ function buildElRadioGroupChild(conf) {
   if (conf.options && conf.options.length) {
     const tag = conf.optionType === 'button' ? 'el-radio-button' : 'el-radio'
     const border = conf.border ? 'border' : ''
-    children.push(`<${tag} v-for="(item, index) in ${conf.vModel}Options" :key="index" :label="item.value" :disabled="item.disabled" ${border}>{{item.label}}</${tag}>`)
+    children.push(`<${tag} v-for="(item, index) in ${conf.vModel}Options" :key="index" :value="item.value" :disabled="item.disabled" ${border}>{{item.label}}</${tag}>`)
   }
   return children.join('\n')
 }
@@ -327,7 +330,7 @@ function buildElCheckboxGroupChild(conf) {
   if (conf.options && conf.options.length) {
     const tag = conf.optionType === 'button' ? 'el-checkbox-button' : 'el-checkbox'
     const border = conf.border ? 'border' : ''
-    children.push(`<${tag} v-for="(item, index) in ${conf.vModel}Options" :key="index" :label="item.value" :disabled="item.disabled" ${border}>{{item.label}}</${tag}>`)
+    children.push(`<${tag} v-for="(item, index) in ${conf.vModel}Options" :key="index" :value="item.value" :disabled="item.disabled" ${border}>{{item.label}}</${tag}>`)
   }
   return children.join('\n')
 }
@@ -336,7 +339,7 @@ function buildElUploadChild(conf) {
   const list = []
   if (conf['list-type'] === 'picture-card') list.push('<i class="el-icon-plus"></i>')
   else list.push(`<el-button size="small" type="primary" icon="el-icon-upload">${conf.buttonText}</el-button>`)
-  if (conf.showTip) list.push(`<div slot="tip" class="el-upload__tip">只能上传不超过 ${conf.fileSize}${conf.sizeUnit} 的${conf.accept}文件</div>`)
+  if (conf.showTip) list.push(`<template #tip><div class="el-upload__tip">只能上传不超过 ${conf.fileSize}${conf.sizeUnit} 的${conf.accept}文件</div></template>`)
   return list.join('\n')
 }
 
@@ -350,6 +353,10 @@ export function makeUpHtml(conf, type) {
   const htmlStr = htmlList.join('\n')
 
   let temp = buildFormTemplate(conf, htmlStr, type)
+  temp = temp.replace(/size="(medium|mini)"/g, (_, size) => 'size="' + (size === 'mini' ? 'small' : 'default') + '"')
+    .replace(/yyyy/g, 'YYYY').replace(/dd(?=[-"\s])/g, 'DD')
+    .replace(/(prefix-icon|suffix-icon|icon)=(['"])(el-icon-[\w-]+)\2/g, (_, prop, quote, name) => ':' + prop + '="resolveIcon(\'' + name + '\')"')
+    .replace(/<i class="(el-icon-[\w-]+)"><\/i>/g, (_, name) => '<el-icon><component :is="resolveIcon(\'' + name + '\')" /></el-icon>')
   if (type === 'dialog') {
     temp = dialogWrapper(temp)
   }

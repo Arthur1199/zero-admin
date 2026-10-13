@@ -94,7 +94,7 @@
     }
 
     // 子菜单标题
-    .el-submenu__title {
+    .el-sub-menu__title {
       background-color: #151924 !important;
       color: #b8bcc8 !important;
       margin: 0 !important;
@@ -115,13 +115,13 @@
         }
       }
 
-      .el-submenu__icon-arrow {
+      .el-sub-menu__icon-arrow {
         color: #b8bcc8;
       }
     }
 
     // 展开状态的父菜单（重要！）
-    .el-submenu.is-opened > .el-submenu__title {
+    .el-sub-menu.is-opened > .el-sub-menu__title {
       background: rgba(212, 175, 55, 0.12) !important;
       color: #d4af37 !important;
       font-weight: 600;
@@ -130,13 +130,13 @@
         color: #d4af37;
       }
 
-      .el-submenu__icon-arrow {
+      .el-sub-menu__icon-arrow {
         color: #d4af37;
       }
     }
 
     // 激活的父菜单
-    .el-submenu.is-active > .el-submenu__title {
+    .el-sub-menu.is-active > .el-sub-menu__title {
       background: rgba(212, 175, 55, 0.15) !important;
       color: #d4af37 !important;
       font-weight: 600;
@@ -146,7 +146,7 @@
         color: #d4af37;
       }
 
-      .el-submenu__icon-arrow {
+      .el-sub-menu__icon-arrow {
         color: #d4af37;
       }
 
@@ -905,7 +905,7 @@
 
     // 顶部菜单栏文字颜色
     .topmenu-container.el-menu--horizontal > .el-menu-item,
-    .topmenu-container.el-menu--horizontal > .el-submenu .el-submenu__title {
+    .topmenu-container.el-menu--horizontal > .el-sub-menu .el-sub-menu__title {
       color: $theme-luxury-business-accent !important;  // 使用金色强调色
       
       &:hover {
@@ -914,7 +914,7 @@
     }
 
     .topmenu-container.el-menu--horizontal > .el-menu-item.is-active,
-    .el-menu--horizontal > .el-submenu.is-active .el-submenu__title {
+    .el-menu--horizontal > .el-sub-menu.is-active .el-sub-menu__title {
       color: lighten($theme-luxury-business-accent, 5%) !important;  // 激活时更亮
       border-bottom-color: $theme-luxury-business-accent !important;
     }
@@ -924,7 +924,7 @@
       border-bottom-color: $theme-luxury-business-accent !important;
     }
 
-    .el-menu--horizontal > .el-submenu.is-active .el-submenu__title {
+    .el-menu--horizontal > .el-sub-menu.is-active .el-sub-menu__title {
       border-bottom-color: $theme-luxury-business-accent !important;
     }
 
@@ -1137,7 +1137,7 @@ body.theme-luxury-business {
     }
 
     // 弹出菜单中的子菜单标题样式
-    .el-submenu__title {
+    .el-sub-menu__title {
       background-color: transparent !important;
       color: #b8bcc8 !important;
       margin: 2px 8px !important;
@@ -1153,13 +1153,13 @@ body.theme-luxury-business {
         color: #b8bcc8;
       }
 
-      .el-submenu__icon-arrow {
+      .el-sub-menu__icon-arrow {
         color: #b8bcc8;
       }
     }
 
     // 弹出菜单中展开的子菜单
-    .el-submenu.is-opened > .el-submenu__title {
+    .el-sub-menu.is-opened > .el-sub-menu__title {
       background: rgba(212, 175, 55, 0.12) !important;
       color: #d4af37 !important;
       box-shadow: 0 0 8px rgba(212, 175, 55, 0.2) !important;
@@ -1168,7 +1168,7 @@ body.theme-luxury-business {
         color: #d4af37;
       }
 
-      .el-submenu__icon-arrow {
+      .el-sub-menu__icon-arrow {
         color: #d4af37;
       }
     }

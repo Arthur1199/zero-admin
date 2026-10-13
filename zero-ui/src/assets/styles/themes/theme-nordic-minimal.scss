@@ -83,7 +83,7 @@
     }
 
     // 子菜单标题
-    .el-submenu__title {
+    .el-sub-menu__title {
       background-color: $theme-nordic-minimal-menu-bg !important;
       color: $theme-nordic-minimal-text-secondary !important;
       margin: 0 !important;
@@ -95,7 +95,7 @@
         color: $theme-nordic-minimal-accent !important;
       }
 
-      .el-submenu__icon-arrow {
+      .el-sub-menu__icon-arrow {
         color: $theme-nordic-minimal-text-secondary;
       }
     }

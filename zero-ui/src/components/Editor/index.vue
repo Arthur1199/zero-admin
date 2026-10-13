@@ -1,5 +1,6 @@
 <template>
   <div>
+    <input ref="imageInput" type="file" accept="image/*" style="display: none" @change="selectImage" />
     <el-upload
       :action="uploadUrl"
       :before-upload="handleBeforeUpload"
@@ -20,6 +21,7 @@
 <script>
 import axios from "axios"
 import Quill from "quill"
+import { markRaw } from "vue"
 import "quill/dist/quill.core.css"
 import "quill/dist/quill.snow.css"
 import "quill/dist/quill.bubble.css"
@@ -28,9 +30,10 @@ import { isExternal } from "@/utils/validate"
 
 export default {
   name: "Editor",
+  emits: ['update:modelValue', 'on-change', 'on-text-change', 'on-selection-change', 'on-editor-change'],
   props: {
     /* 编辑器的内容 */
-    value: {
+    modelValue: {
       type: String,
       default: "",
     },
@@ -62,7 +65,7 @@ export default {
   },
   data() {
     return {
-      uploadUrl: process.env.VUE_APP_BASE_API + "/common/upload", // 上传的图片服务器地址
+      uploadUrl: import.meta.env.VITE_APP_BASE_API + "/common/upload", // 上传的图片服务器地址
       headers: {
         Authorization: "Bearer " + getToken()
       },
@@ -105,7 +108,7 @@ export default {
     }
   },
   watch: {
-    value: {
+    modelValue: {
       handler(val) {
         if (val !== this.currentValue) {
           this.currentValue = val === null ? "" : val
@@ -120,21 +123,30 @@ export default {
   mounted() {
     this.init()
   },
-  beforeDestroy() {
+  beforeUnmount() {
+    this.Quill?.root.removeEventListener('paste', this.handlePasteCapture, true)
+    this.Quill?.off('text-change')
+    this.Quill?.off('selection-change')
+    this.Quill?.off('editor-change')
     this.Quill = null
   },
   methods: {
+    selectImage(event) {
+      const file = event.target.files?.[0]
+      if (file && this.handleBeforeUpload(file)) this.insertImage(file)
+      event.target.value = ''
+    },
     init() {
       const editor = this.$refs.editor
-      this.Quill = new Quill(editor, this.options)
+      this.Quill = markRaw(new Quill(editor, this.options))
       // 如果设置了上传地址则自定义图片上传事件
       if (this.type == 'url') {
         let toolbar = this.Quill.getModule("toolbar")
         toolbar.addHandler("image", (value) => {
           if (value) {
-            this.$refs.upload.$children[0].$refs.input.click()
+            this.$refs.imageInput.click()
           } else {
-            this.quill.format("image", false)
+            this.Quill.format("image", false)
           }
         })
         this.Quill.root.addEventListener('paste', this.handlePasteCapture, true)
@@ -145,7 +157,7 @@ export default {
         const text = this.Quill.getText()
         const quill = this.Quill
         this.currentValue = html
-        this.$emit("input", html)
+        this.$emit("update:modelValue", html)
         this.$emit("on-change", { html, text, quill })
       })
       this.Quill.on("text-change", (delta, oldDelta, source) => {
@@ -183,10 +195,10 @@ export default {
         // 获取富文本组件实例
         let quill = this.Quill
         // 获取光标所在位置
-        let length = quill.getSelection().index
+        let length = quill.getSelection()?.index ?? Math.max(0, quill.getLength() - 1)
         // 插入图片  res.url为服务器返回的图片地址
         const imgUrl = this.getUploadUrl(res)
-        quill.insertEmbed(length, "image", isExternal(imgUrl) ? imgUrl : process.env.VUE_APP_BASE_API + imgUrl)
+        quill.insertEmbed(length, "image", isExternal(imgUrl) ? imgUrl : import.meta.env.VITE_APP_BASE_API + imgUrl)
         // 调整光标到最后
         quill.setSelection(length + 1)
       } else {
@@ -208,17 +220,19 @@ export default {
           if (item.type.indexOf('image') !== -1) {
             e.preventDefault()
             const file = item.getAsFile()
-            this.insertImage(file)
+            // 粘贴与选图使用相同限制，避免绕过已配置的格式和大小校验。
+            if (file && this.handleBeforeUpload(file)) this.insertImage(file)
           }
         }
       }
     },
     insertImage(file) {
+      if (!file) return
       const formData = new FormData()
       formData.append("file", file)
       axios.post(this.uploadUrl, formData, { headers: { "Content-Type": "multipart/form-data", Authorization: this.headers.Authorization } }).then(res => {
         this.handleUploadSuccess(res.data)
-      })
+      }).catch(() => this.handleUploadError())
     }
   }
 }

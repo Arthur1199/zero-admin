@@ -2,8 +2,8 @@
   <div class="header-search">
     <svg-icon class-name="search-icon" icon-class="search" @click.stop="click" />
     <el-dialog
-      :visible.sync="show"
-      custom-class="header-search-dialog"
+v-model="show"
+class="header-search-dialog"
       width="720px"
       top="8vh"
       @close="close"
@@ -17,16 +17,16 @@
             ref="headerSearchSelectRef"
             size="large"
             @input="querySearch"
-            prefix-icon="el-icon-search"
+:prefix-icon="resolveIcon('el-icon-search')"
             placeholder="菜单搜索，支持标题、URL模糊查询"
             clearable
-            @keyup.enter.native="selectActiveResult"
-            @keydown.up.native="navigateResult('up')"
-            @keydown.down.native="navigateResult('down')"
+@keyup.enter="selectActiveResult"
+@keydown.up="navigateResult('up')"
+@keydown.down="navigateResult('down')"
           >
           </el-input>
           <button class="search-close" type="button" title="关闭" @click="close">
-            <i class="el-icon-close"></i>
+            <AppIcon icon-class="el-icon-close" class=""></AppIcon>
           </button>
         </div>
         <div class="search-summary">
@@ -36,7 +36,7 @@
         <div class="search-result-scrollbar">
           <div class="result-wrap">
             <div v-if="options.length === 0" class="empty-result">
-              <i class="el-icon-search"></i>
+              <AppIcon icon-class="el-icon-search" class=""></AppIcon>
               <span>暂无匹配菜单</span>
             </div>
             <div
@@ -70,7 +70,7 @@
 
 <script>
 import Fuse from 'fuse.js/dist/fuse.min.js'
-import path from 'path'
+import path from '@/utils/path'
 import { isHttp } from '@/utils/validate'
 
 export default {
@@ -238,7 +238,7 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-::v-deep {
+:deep(*) {
   .header-search-dialog {
     max-width: calc(100vw - 32px);
     border-radius: 8px;

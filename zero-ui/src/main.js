@@ -1,14 +1,19 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 
 import Cookies from 'js-cookie'
 
-import Element from 'element-ui'
+import Element from 'element-plus'
+import zhCn from 'element-plus/es/locale/lang/zh-cn'
+import AppIcon from '@/components/AppIcon'
+import { resolveIcon, normalizeSize } from '@/utils/icons'
+import 'element-plus/dist/index.css'
 import './assets/styles/element-variables.scss'
 
 import '@/assets/styles/index.scss' // global css
 import '@/assets/styles/zero.scss' // zero css
 import '@/assets/styles/pagination-override.scss' // pagination theme override
 import '@/assets/styles/glassmorphism-readable.scss' // glassmorphism readable overlay override
+import '@/assets/styles/vue3-compat.scss'
 import '@/assets/styles/table-fixed-column.scss' // final table fixed column hover override
 import App from './App'
 import store from './store'
@@ -17,7 +22,7 @@ import directive from './directive' // directive
 import plugins from './plugins' // plugins
 import { download } from '@/utils/request'
 
-import './assets/icons' // icon
+import registerIcons from './assets/icons' // icon
 import './permission' // permission control
 import { watchThemeChange } from '@/utils/removeMenuHover' // 移除毛玻璃主题菜单hover背景色
 import { getDicts } from "@/api/system/dict/data"
@@ -40,51 +45,15 @@ import DictTag from '@/components/DictTag'
 // 字典数据组件
 import DictData from '@/components/DictData'
 
-// 全局方法挂载
-Vue.prototype.getDicts = getDicts
-Vue.prototype.getConfigKey = getConfigKey
-Vue.prototype.parseTime = parseTime
-Vue.prototype.resetForm = resetForm
-Vue.prototype.addDateRange = addDateRange
-Vue.prototype.selectDictLabel = selectDictLabel
-Vue.prototype.selectDictLabels = selectDictLabels
-Vue.prototype.download = download
-Vue.prototype.handleTree = handleTree
-
-// 全局组件挂载
-Vue.component('DictTag', DictTag)
-Vue.component('Pagination', Pagination)
-Vue.component('RightToolbar', RightToolbar)
-Vue.component('Editor', Editor)
-Vue.component('FileUpload', FileUpload)
-Vue.component('ImageUpload', ImageUpload)
-Vue.component('ImagePreview', ImagePreview)
-
-Vue.use(directive)
-Vue.use(plugins)
-DictData.install()
-
-/**
- * If you don't want to use mock-server
- * you want to use MockJs for mock api
- * you can execute: mockXHR()
- *
- * Currently MockJs will be used in the production environment,
- * please remove it before going online! ! !
- */
-
-Vue.use(Element, {
-  size: Cookies.get('size') || 'medium' // set element-ui default size
-})
-
-Vue.config.productionTip = false
-
-// 启动主题监听，移除毛玻璃主题菜单hover背景色
+const app = createApp(App)
+Object.assign(app.config.globalProperties, { getDicts, getConfigKey, parseTime, resetForm, addDateRange, selectDictLabel, selectDictLabels, download, handleTree, resolveIcon, normalizeSize })
+Object.entries({ DictTag, Pagination, RightToolbar, Editor, FileUpload, ImageUpload, ImagePreview, AppIcon }).forEach(([name, component]) => app.component(name, component))
+app.use(store)
+app.use(Element, { locale: zhCn, size: normalizeSize(Cookies.get('size') || 'medium') })
+app.use(directive)
+app.use(plugins)
+DictData.install(app)
+registerIcons(app)
 watchThemeChange()
-
-new Vue({
-  el: '#app',
-  router,
-  store,
-  render: h => h(App)
-})
+app.use(router)
+app.mount('#app')

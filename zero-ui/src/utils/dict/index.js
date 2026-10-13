@@ -1,14 +1,15 @@
+import { reactive } from 'vue'
 import Dict from './Dict'
 import { mergeOptions } from './DictOptions'
 
-export default function(Vue, options) {
+export default function(app, options) {
   mergeOptions(options)
-  Vue.mixin({
+  app.mixin({
     data() {
       if (this.$options === undefined || this.$options.dicts === undefined || this.$options.dicts === null) {
         return {}
       }
-      const dict = new Dict()
+      const dict = reactive(new Dict())
       dict.owner = this
       return {
         dict

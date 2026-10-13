@@ -1,11 +1,12 @@
 <template>
   <div id="app">
-    <router-view />
-    <theme-picker />
+    <el-config-provider :size="elementSize"><router-view /></el-config-provider>
+    <theme-picker :show-picker="false" />
   </div>
 </template>
 
 <script>
+import { normalizeSize } from '@/utils/icons'
 import ThemePicker from "@/components/ThemePicker"
 import { mapState } from 'vuex'
 import { glassmorphismBackgrounds, getGlassmorphismBackground } from '@/assets/styles/themes/glassmorphism-backgrounds'
@@ -25,6 +26,7 @@ export default {
   name: "App",
   components: { ThemePicker },
   computed: {
+    elementSize() { return normalizeSize(this.$store.getters.size) },
     ...mapState({
       themeStyle: state => state.settings.themeStyle,
       glassmorphismBgStyle: state => state.settings.glassmorphismBgStyle
@@ -165,8 +167,3 @@ export default {
   }
 }
 </script>
-<style scoped>
-#app .theme-picker {
-  display: none;
-}
-</style>

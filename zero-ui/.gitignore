@@ -19,5 +19,6 @@ selenium-debug.log
 *.sln
 *.local
 
-package-lock.json
+# 升级依赖需要提交锁文件以保证npm ci可复现。
 yarn.lock
+output/

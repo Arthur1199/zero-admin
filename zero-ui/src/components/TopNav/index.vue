@@ -14,8 +14,8 @@
     </template>
 
     <!-- 顶部菜单超出数量折叠 -->
-    <el-submenu :style="{'--theme': theme}" index="more" :key="visibleNumber" v-if="topMenus.length > visibleNumber">
-      <template slot="title">更多菜单</template>
+    <el-sub-menu :style="{'--theme': theme}" index="more" :key="visibleNumber" v-if="topMenus.length > visibleNumber">
+      <template #title>更多菜单</template>
       <template v-for="(item, index) in topMenus">
         <el-menu-item
           :index="item.path"
@@ -27,7 +27,7 @@
           {{ item.meta.title }}
         </el-menu-item>
       </template>
-    </el-submenu>
+    </el-sub-menu>
   </el-menu>
 </template>
 
@@ -111,7 +111,7 @@ export default {
   beforeMount() {
     window.addEventListener('resize', this.setVisibleNumber)
   },
-  beforeDestroy() {
+  beforeUnmount() {
     window.removeEventListener('resize', this.setVisibleNumber)
   },
   mounted() {
@@ -184,14 +184,14 @@ export default {
   font-weight: 600 !important;
 }
 
-.el-menu--horizontal > .el-submenu.is-active .el-submenu__title {
+.el-menu--horizontal > .el-sub-menu.is-active .el-sub-menu__title {
   border-bottom: 4px solid #{'var(--theme)'} !important;
   color: rgba(255, 255, 255, 1) !important;  /* 激活时全白 */
   font-weight: 600 !important;
 }
 
 /* submenu item */
-.topmenu-container.el-menu--horizontal > .el-submenu .el-submenu__title {
+.topmenu-container.el-menu--horizontal > .el-sub-menu .el-sub-menu__title {
   float: left;
   height: 50px !important;
   line-height: 50px !important;
@@ -204,7 +204,7 @@ export default {
 
 /* hover状态 */
 .topmenu-container.el-menu--horizontal > .el-menu-item:hover,
-.topmenu-container.el-menu--horizontal > .el-submenu .el-submenu__title:hover {
+.topmenu-container.el-menu--horizontal > .el-sub-menu .el-sub-menu__title:hover {
   color: rgba(255, 255, 255, 1) !important;
 }
 
@@ -218,7 +218,7 @@ body[class*="theme-"] .topmenu-container.el-menu--horizontal > .el-menu-item.is-
   background-color: transparent !important;
 }
 
-body[class*="theme-"] .el-menu--horizontal > .el-submenu.is-active .el-submenu__title {
+body[class*="theme-"] .el-menu--horizontal > .el-sub-menu.is-active .el-sub-menu__title {
   background-color: transparent !important;
 }
 
@@ -227,7 +227,7 @@ body[class*="theme-"] .topmenu-container.el-menu--horizontal > .el-menu-item:hov
   background-color: transparent !important;
 }
 
-body[class*="theme-"] .el-menu--horizontal > .el-submenu .el-submenu__title:hover {
+body[class*="theme-"] .el-menu--horizontal > .el-sub-menu .el-sub-menu__title:hover {
   background-color: transparent !important;
 }
 </style>
