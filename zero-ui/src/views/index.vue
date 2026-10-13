@@ -19,11 +19,11 @@
     <div class="intro-section">
       <el-card shadow="hover" class="intro-card">
         <div class="section-title">
-          <i class="el-icon-info"></i>
+          <AppIcon icon-class="el-icon-info" class=""></AppIcon>
           <span>系统简介</span>
         </div>
         <p class="intro-text">
-          Zero管理系统是一套基于 Java 17、Spring Boot 3.5、Vue 2 和 Element UI 构建的前后端分离管理平台。
+          Zero管理系统是一套基于 Java 17、Spring Boot 3.5、Vue 3 和 Element Plus 构建的前后端分离管理平台。
           后端以 Spring Security、JWT、MyBatis、Redis、Quartz、Druid 和 Nacos 为核心支撑，前端通过 Vue Router、
           Vuex、Axios 和组件化页面完成业务交互。系统已集成用户、角色、菜单、部门、岗位、数据字典、参数配置、
           操作日志、登录日志、在线用户、系统监控、代码生成、定时任务、API谷歌验证、谷歌动态码验证、IP白名单等能力，
@@ -37,7 +37,7 @@
     <div class="theme-preview-section">
       <el-card shadow="hover" class="theme-preview-card">
         <div class="section-title">
-          <i class="el-icon-brush"></i>
+          <AppIcon icon-class="el-icon-brush" class=""></AppIcon>
           <span>主题风格预览</span>
         </div>
         <p class="theme-preview-desc">
@@ -51,11 +51,11 @@
             @click="previewTheme(theme.value)"
           >
             <div class="theme-card-icon">
-              <i :class="theme.icon"></i>
+              <AppIcon :icon-class="theme.icon" />
             </div>
             <div class="theme-card-content">
               <h4>{{ theme.name }}</h4>
-              <el-tag :type="theme.type" size="mini" effect="plain">点击预览</el-tag>
+              <el-tag :type="theme.type" size="small" effect="plain">点击预览</el-tag>
             </div>
           </div>
         </div>
@@ -65,39 +65,39 @@
     <!-- 技术架构 -->
     <div class="tech-section">
       <div class="section-title-center">
-        <i class="el-icon-cpu"></i>
+        <AppIcon icon-class="el-icon-cpu" class=""></AppIcon>
         <span>技术架构</span>
       </div>
       <el-row :gutter="20">
         <el-col :xs="24" :sm="12" :md="12" :lg="12">
           <el-card shadow="hover" class="tech-card backend-card">
             <div class="card-header">
-              <i class="el-icon-guide"></i>
+              <AppIcon icon-class="el-icon-guide" class=""></AppIcon>
               <h3>后端技术栈</h3>
             </div>
             <div class="tech-list">
               <div class="tech-item">
-                <el-tag effect="plain" size="medium">Spring Boot 3.5.12</el-tag>
+                <el-tag effect="plain" size="default">Spring Boot 3.5.12</el-tag>
                 <span class="tech-desc">核心框架</span>
               </div>
               <div class="tech-item">
-                <el-tag effect="plain" size="medium" type="success">Spring Security</el-tag>
+                <el-tag effect="plain" size="default" type="success">Spring Security</el-tag>
                 <span class="tech-desc">安全框架</span>
               </div>
               <div class="tech-item">
-                <el-tag effect="plain" size="medium" type="warning">MyBatis + PageHelper</el-tag>
+                <el-tag effect="plain" size="default" type="warning">MyBatis + PageHelper</el-tag>
                 <span class="tech-desc">数据访问与分页</span>
               </div>
               <div class="tech-item">
-                <el-tag effect="plain" size="medium" type="danger">Redis</el-tag>
+                <el-tag effect="plain" size="default" type="danger">Redis</el-tag>
                 <span class="tech-desc">缓存数据库</span>
               </div>
               <div class="tech-item">
-                <el-tag effect="plain" size="medium" type="info">JWT</el-tag>
+                <el-tag effect="plain" size="default" type="info">JWT</el-tag>
                 <span class="tech-desc">Token认证</span>
               </div>
               <div class="tech-item">
-                <el-tag effect="plain" size="medium">Druid 1.2.25</el-tag>
+                <el-tag effect="plain" size="default">Druid 1.2.25</el-tag>
                 <span class="tech-desc">数据库连接池</span>
               </div>
             </div>
@@ -106,32 +106,32 @@
         <el-col :xs="24" :sm="12" :md="12" :lg="12">
           <el-card shadow="hover" class="tech-card frontend-card">
             <div class="card-header">
-              <i class="el-icon-monitor"></i>
+              <AppIcon icon-class="el-icon-monitor" class=""></AppIcon>
               <h3>前端技术栈</h3>
             </div>
             <div class="tech-list">
               <div class="tech-item">
-                <el-tag effect="plain" size="medium">Vue 2.6.12</el-tag>
+                <el-tag effect="plain" size="default">Vue 3.5.43</el-tag>
                 <span class="tech-desc">前端框架</span>
               </div>
               <div class="tech-item">
-                <el-tag effect="plain" size="medium" type="success">Element UI 2.15.x</el-tag>
+                <el-tag effect="plain" size="default" type="success">Element Plus 2.14.7</el-tag>
                 <span class="tech-desc">UI组件库</span>
               </div>
               <div class="tech-item">
-                <el-tag effect="plain" size="medium" type="warning">Vuex</el-tag>
+                <el-tag effect="plain" size="default" type="warning">Vuex 4</el-tag>
                 <span class="tech-desc">状态管理</span>
               </div>
               <div class="tech-item">
-                <el-tag effect="plain" size="medium" type="danger">Vue Router</el-tag>
+                <el-tag effect="plain" size="default" type="danger">Vue Router 4</el-tag>
                 <span class="tech-desc">路由管理</span>
               </div>
               <div class="tech-item">
-                <el-tag effect="plain" size="medium" type="info">Axios</el-tag>
+                <el-tag effect="plain" size="default" type="info">Axios</el-tag>
                 <span class="tech-desc">HTTP客户端</span>
               </div>
               <div class="tech-item">
-                <el-tag effect="plain" size="medium">Sass/Webpack</el-tag>
+                <el-tag effect="plain" size="default">Sass/Vite</el-tag>
                 <span class="tech-desc">构建工具</span>
               </div>
             </div>
@@ -142,14 +142,14 @@
         <!-- 核心特性 -->
     <div class="features-section">
       <div class="section-title-center">
-        <i class="el-icon-trophy"></i>
+        <AppIcon icon-class="el-icon-trophy" class=""></AppIcon>
         <span>核心特性</span>
       </div>
       <el-row :gutter="20">
         <el-col :xs="24" :sm="12" :md="8" :lg="6" v-for="(feature, index) in features" :key="index">
           <el-card shadow="hover" class="feature-card">
             <div class="feature-icon" :style="{background: feature.color}">
-              <i :class="feature.icon"></i>
+              <AppIcon :icon-class="feature.icon" />
             </div>
             <h4>{{ feature.title }}</h4>
             <p>{{ feature.desc }}</p>
@@ -161,7 +161,7 @@
     <!-- 系统架构 -->
     <div class="architecture-section">
       <div class="section-title-center">
-        <i class="el-icon-connection"></i>
+        <AppIcon icon-class="el-icon-connection" class=""></AppIcon>
         <span>系统架构</span>
       </div>
       <el-card shadow="hover" class="architecture-card">
@@ -170,7 +170,7 @@
             <h4>表现层 (Presentation Layer)</h4>
             <div class="arch-components">
               <span class="arch-tag">Vue Components</span>
-              <span class="arch-tag">Element UI</span>
+              <span class="arch-tag">Element Plus</span>
               <span class="arch-tag">Responsive Design</span>
             </div>
           </div>
@@ -199,13 +199,13 @@
     <!-- 功能模块 -->
     <div class="modules-section">
       <div class="section-title-center">
-        <i class="el-icon-menu"></i>
+        <AppIcon icon-class="el-icon-menu" class=""></AppIcon>
         <span>功能模块</span>
       </div>
       <el-row :gutter="15">
         <el-col :xs="12" :sm="8" :md="6" :lg="4" v-for="(module, index) in modules" :key="index">
           <div class="module-item">
-            <i :class="module.icon" :style="{color: module.color}"></i>
+            <AppIcon :icon-class="module.icon" :style="{color: module.color}" />
             <span>{{ module.name }}</span>
           </div>
         </el-col>
@@ -216,7 +216,7 @@
     <div class="footer-section">
       <el-card shadow="never" class="footer-card">
         <p class="footer-text">
-          <i class="el-icon-star-off"></i>
+          <AppIcon icon-class="el-icon-star-off" class=""></AppIcon>
           Zero管理框架 - 让开发更简单，让管理更高效
         </p>
         <p class="copyright">

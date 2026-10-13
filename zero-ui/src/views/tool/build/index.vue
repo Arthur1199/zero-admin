@@ -19,9 +19,9 @@
             draggable=".components-item"
             :sort="false"
             @end="onEnd"
-          >
+           item-key="tag"><template #item="{ element: element, index: index }">
             <div
-              v-for="(element, index) in inputComponents" :key="index" class="components-item"
+                class="components-item"
               @click="addComponent(element)"
             >
               <div class="components-body">
@@ -29,7 +29,7 @@
                 {{ element.label }}
               </div>
             </div>
-          </draggable>
+          </template></draggable>
           <div class="components-title">
             <svg-icon icon-class="component" />选择型组件
           </div>
@@ -41,10 +41,8 @@
             draggable=".components-item"
             :sort="false"
             @end="onEnd"
-          >
+           item-key="tag"><template #item="{ element: element, index: index }">
             <div
-              v-for="(element, index) in selectComponents"
-              :key="index"
               class="components-item"
               @click="addComponent(element)"
             >
@@ -53,7 +51,7 @@
                 {{ element.label }}
               </div>
             </div>
-          </draggable>
+          </template></draggable>
           <div class="components-title">
             <svg-icon icon-class="component" /> 布局型组件
           </div>
@@ -61,9 +59,9 @@
             class="components-draggable" :list="layoutComponents"
             :group="{ name: 'componentsGroup', pull: 'clone', put: false }" :clone="cloneComponent"
             draggable=".components-item" :sort="false" @end="onEnd"
-          >
+           item-key="tag"><template #item="{ element: element, index: index }">
             <div
-              v-for="(element, index) in layoutComponents" :key="index" class="components-item"
+                class="components-item"
               @click="addComponent(element)"
             >
               <div class="components-body">
@@ -71,35 +69,33 @@
                 {{ element.label }}
               </div>
             </div>
-          </draggable>
+          </template></draggable>
         </div>
       </el-scrollbar>
     </div>
 
     <div class="center-board">
       <div class="action-bar">
-        <el-button icon="el-icon-download" type="text" @click="download">
+        <el-button :icon="resolveIcon('el-icon-download')"  link type="primary" @click="download">
           导出vue文件
         </el-button>
-        <el-button class="copy-btn-main" icon="el-icon-document-copy" type="text" @click="copy">
+        <el-button class="copy-btn-main" :icon="resolveIcon('el-icon-document-copy')"  link type="primary" @click="copy">
           复制代码
         </el-button>
-        <el-button class="delete-btn" icon="el-icon-delete" type="text" @click="empty">
+        <el-button class="delete-btn" :icon="resolveIcon('el-icon-delete')"  link type="primary" @click="empty">
           清空
         </el-button>
       </div>
       <el-scrollbar class="center-scrollbar">
         <el-row class="center-board-row" :gutter="formConf.gutter">
           <el-form
-            :size="formConf.size"
+            :size="normalizeSize(formConf.size)"
             :label-position="formConf.labelPosition"
             :disabled="formConf.disabled"
             :label-width="formConf.labelWidth + 'px'"
           >
-            <draggable class="drawing-board" :list="drawingList" :animation="340" group="componentsGroup">
+            <draggable class="drawing-board" :list="drawingList" :animation="340" group="componentsGroup" item-key="formId"><template #item="{ element: element, index: index }">
               <draggable-item
-                v-for="(element, index) in drawingList"
-                :key="element.renderKey"
                 :drawing-list="drawingList"
                 :element="element"
                 :index="index"
@@ -109,7 +105,7 @@
                 @copyItem="drawingItemCopy"
                 @deleteItem="drawingItemDelete"
               />
-            </draggable>
+            </template></draggable>
             <div v-show="!drawingList.length" class="empty-info">
               从左侧拖入或点选组件进行表单设计
             </div>
@@ -126,20 +122,22 @@
     />
 
     <code-type-dialog
-      :visible.sync="dialogVisible"
+      ref="codeTypeDialog"
+v-model="dialogVisible"
       title="选择生成类型"
       :show-file-name="showFileName"
       @confirm="generate"
     />
-    <input id="copyNode" type="hidden">
+    <input ref="copyNode" id="copyNode" type="hidden">
   </div>
 </template>
 
 <script>
 import draggable from 'vuedraggable'
+import { markRaw } from 'vue'
 import beautifier from 'js-beautify'
 import ClipboardJS from 'clipboard'
-import render from '@/utils/generator/render'
+import render from '@/utils/generator/render.jsx'
 import RightPanel from './RightPanel'
 import { inputComponents, selectComponents, layoutComponents, formConf } from '@/utils/generator/config'
 import { beautifierConf, titleCase } from '@/utils/index'
@@ -165,6 +163,7 @@ export default {
   data() {
     return {
       logo,
+      clipboard: null,
       idGlobal: 100,
       formConf,
       inputComponents,
@@ -173,21 +172,20 @@ export default {
       labelWidth: 100,
       drawingList: drawingDefault,
       drawingData: {},
-      activeId: drawingDefault[0].formId,
+      activeId: drawingDefault[0]?.formId || 0,
       drawerVisible: false,
       formData: {},
       dialogVisible: false,
       generateConf: null,
       showFileName: false,
-      activeData: drawingDefault[0]
+      activeData: drawingDefault[0] || {}
     }
   },
   created() {
+    // 主题切换重建页面时保留旧画布，并从现有字段最大 ID 继续生成，避免克隆键冲突。
+    this.idGlobal = Math.max(this.idGlobal, this.getMaxFormId(this.drawingList))
     // 防止 firefox 下拖拽会新打开一个选项卡
-    document.body.ondrop = event => {
-      event.preventDefault()
-      event.stopPropagation()
-    }
+    document.body.addEventListener('drop', this.preventBrowserDrop)
   },
   watch: {
     'activeData.label': function (val, oldVal) {
@@ -207,23 +205,22 @@ export default {
       immediate: true
     }
   },
-  mounted() {
-    const clipboard = new ClipboardJS('#copyNode', {
-      text: trigger => {
-        const codeStr = this.generateCode()
-        this.$notify({
-          title: '成功',
-          message: '代码已复制到剪贴板，可粘贴。',
-          type: 'success'
-        })
-        return codeStr
-      }
-    })
-    clipboard.on('error', e => {
-      this.$message.error('代码复制失败')
-    })
+  beforeUnmount() {
+    this.clipboard?.destroy()
+    document.body.removeEventListener('drop', this.preventBrowserDrop)
   },
   methods: {
+    preventBrowserDrop(event) {
+      // 仅阻止浏览器打开拖入文件，保留事件传播让 Sortable 的 document drop 完成收尾。
+      event.preventDefault()
+    },
+    getMaxFormId(fields) {
+      if (!Array.isArray(fields)) return 0
+      return fields.reduce((maximum, field) => {
+        const id = Number(field?.formId)
+        return Math.max(maximum, Number.isFinite(id) ? id : 0, this.getMaxFormId(field?.children))
+      }, 0)
+    },
     activeFormItem(element) {
       this.activeData = element
       this.activeId = element.formId
@@ -278,7 +275,48 @@ export default {
       this.$download.saveAs(blob, data.fileName)
     },
     execCopy(data) {
-      document.getElementById('copyNode').click()
+      try {
+        const codeStr = this.generateCode()
+        if (!codeStr.trim()) throw new Error('生成代码为空')
+        // 先更新选区复制缓冲，再写标准API；兼容两类浏览器剪贴板通道，内容保持一致。
+        const copied = this.copyCodeLegacy(codeStr)
+        if (window.isSecureContext && navigator.clipboard?.writeText) {
+          navigator.clipboard.writeText(codeStr).then(() => {
+            this.$notify({ title: '成功', message: '代码已复制到剪贴板，可粘贴。', type: 'success' })
+          }).catch(() => {
+            if (copied) this.$notify({ title: '成功', message: '代码已复制到剪贴板，可粘贴。', type: 'success' })
+            else this.$message.error('代码复制失败')
+          })
+        } else if (copied) {
+          this.$notify({ title: '成功', message: '代码已复制到剪贴板，可粘贴。', type: 'success' })
+        } else {
+          this.$message.error('代码复制失败')
+        }
+      } catch {
+        this.$message.error('代码复制失败')
+      }
+    },
+    copyCodeLegacy(codeStr) {
+      const trigger = this.$refs.copyNode
+      const dialog = this.$refs.codeTypeDialog?.$el?.querySelector('.el-dialog')
+      const container = dialog?.getClientRects().length ? dialog : this.$el
+      if (!trigger || !container) return false
+      let copied = false
+      try {
+        this.clipboard?.destroy()
+        // 临时选区必须位于弹窗内部，避免 Element Plus 焦点约束夺走复制选区。
+        this.clipboard = markRaw(new ClipboardJS(trigger, { container, text: () => codeStr }))
+        this.clipboard.on('success', event => {
+          copied = true
+          event.clearSelection()
+        })
+        this.clipboard.on('error', () => { copied = false })
+        trigger.click()
+        return copied
+      } catch {
+        this.clipboard?.destroy()
+        return false
+      }
     },
     empty() {
       this.$confirm('确定要清空所有组件吗？', '提示', { type: 'warning' }).then(
@@ -579,6 +617,7 @@ $lighterBlue: #409EFF;
   background: var(--form-build-canvas-bg, #fff);
 }
 .empty-info{
+  pointer-events: none;
   position: absolute;
   top: 46%;
   left: 0;
@@ -637,6 +676,7 @@ $lighterBlue: #409EFF;
   padding: 12px 12px 15px 12px;
   box-sizing: border-box;
   & > .el-form {
+    width: 100%;
     // 69 = 12+15+42
     height: calc(100vh - 69px);
   }
@@ -713,6 +753,7 @@ $lighterBlue: #409EFF;
     margin-bottom: 0;
   }
   .drag-wrapper{
+    width: 100%;
     min-height: 80px;
   }
   &.active-from-item{
@@ -1206,21 +1247,21 @@ body.theme-minimalist-future.form-builder-page #app {
     .el-scrollbar__view,
     .el-menu,
     .el-menu--inline,
-    .el-submenu,
+    .el-sub-menu,
     .el-menu-item,
-    .el-submenu__title,
-    .el-menu .el-submenu > .el-submenu__title,
+    .el-sub-menu__title,
+    .el-menu .el-sub-menu > .el-sub-menu__title,
     .nest-menu .el-menu-item,
-    .nest-menu .el-submenu > .el-submenu__title {
+    .nest-menu .el-sub-menu > .el-sub-menu__title {
       background: transparent !important;
       background-color: transparent !important;
       color: #5c6b82 !important;
     }
 
     .el-menu-item,
-    .el-submenu__title,
+    .el-sub-menu__title,
     .nest-menu .el-menu-item,
-    .nest-menu .el-submenu > .el-submenu__title {
+    .nest-menu .el-sub-menu > .el-sub-menu__title {
       border-radius: 8px !important;
       margin: 3px 10px !important;
       border-left: 3px solid transparent !important;
@@ -1228,17 +1269,17 @@ body.theme-minimalist-future.form-builder-page #app {
     }
 
     .el-menu-item:hover,
-    .el-submenu__title:hover,
+    .el-sub-menu__title:hover,
     .nest-menu .el-menu-item:hover,
-    .nest-menu .el-submenu > .el-submenu__title:hover {
+    .nest-menu .el-sub-menu > .el-sub-menu__title:hover {
       background: rgba(0, 188, 212, 0.09) !important;
       color: #006c9a !important;
       border-left-color: rgba(0, 188, 212, 0.55) !important;
     }
 
     .el-menu-item.is-active,
-    .el-submenu.is-active > .el-submenu__title,
-    .el-submenu.is-opened > .el-submenu__title {
+    .el-sub-menu.is-active > .el-sub-menu__title,
+    .el-sub-menu.is-opened > .el-sub-menu__title {
       background: linear-gradient(90deg, rgba(0, 188, 212, 0.16) 0%, rgba(108, 99, 255, 0.08) 100%) !important;
       color: #006c9a !important;
       border-left-color: #00bcd4 !important;
@@ -1246,22 +1287,22 @@ body.theme-minimalist-future.form-builder-page #app {
     }
 
     .el-menu-item i,
-    .el-submenu__title i,
+    .el-sub-menu__title i,
     .el-menu-item span,
-    .el-submenu__title span,
+    .el-sub-menu__title span,
     .svg-icon,
-    .el-submenu__icon-arrow {
+    .el-sub-menu__icon-arrow {
       color: #7a8aa0 !important;
       fill: #7a8aa0 !important;
     }
 
     .el-menu-item.is-active i,
-    .el-submenu.is-active > .el-submenu__title i,
+    .el-sub-menu.is-active > .el-sub-menu__title i,
     .el-menu-item.is-active .svg-icon,
-    .el-submenu.is-active > .el-submenu__title .svg-icon,
-    .el-submenu.is-active > .el-submenu__title .el-submenu__icon-arrow,
+    .el-sub-menu.is-active > .el-sub-menu__title .svg-icon,
+    .el-sub-menu.is-active > .el-sub-menu__title .el-sub-menu__icon-arrow,
     .el-menu-item.is-active span,
-    .el-submenu.is-active > .el-submenu__title span {
+    .el-sub-menu.is-active > .el-sub-menu__title span {
       color: #00a7bd !important;
       fill: #00a7bd !important;
     }
@@ -1296,16 +1337,16 @@ body.theme-minimalist-future.form-builder-page #app {
 }
 
 body.theme-minimalist-future.form-builder-page #app .sidebar-container .el-menu .el-menu-item,
-body.theme-minimalist-future.form-builder-page #app .sidebar-container .el-menu .el-submenu > .el-submenu__title,
+body.theme-minimalist-future.form-builder-page #app .sidebar-container .el-menu .el-sub-menu > .el-sub-menu__title,
 body.theme-minimalist-future.form-builder-page #app .sidebar-container .el-menu .el-menu-item span,
-body.theme-minimalist-future.form-builder-page #app .sidebar-container .el-menu .el-submenu > .el-submenu__title span {
+body.theme-minimalist-future.form-builder-page #app .sidebar-container .el-menu .el-sub-menu > .el-sub-menu__title span {
   color: #5c6b82 !important;
 }
 
 body.theme-minimalist-future.form-builder-page #app .sidebar-container .el-menu .el-menu-item.is-active,
-body.theme-minimalist-future.form-builder-page #app .sidebar-container .el-menu .el-submenu.is-active > .el-submenu__title,
+body.theme-minimalist-future.form-builder-page #app .sidebar-container .el-menu .el-sub-menu.is-active > .el-sub-menu__title,
 body.theme-minimalist-future.form-builder-page #app .sidebar-container .el-menu .el-menu-item.is-active span,
-body.theme-minimalist-future.form-builder-page #app .sidebar-container .el-menu .el-submenu.is-active > .el-submenu__title span {
+body.theme-minimalist-future.form-builder-page #app .sidebar-container .el-menu .el-sub-menu.is-active > .el-sub-menu__title span {
   color: #006c9a !important;
 }
 

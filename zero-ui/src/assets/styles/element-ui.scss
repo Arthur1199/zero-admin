@@ -201,9 +201,9 @@ body.theme-glassmorphism > .el-menu--popup.el-menu--vertical {
 /* 
 .el-menu--collapse
   > div
-  > .el-submenu
-  > .el-submenu__title
-  .el-submenu__icon-arrow {
+  > .el-sub-menu
+  > .el-sub-menu__title
+  .el-sub-menu__icon-arrow {
   display: none;
 }
 */
@@ -502,7 +502,7 @@ body.theme-dark-premium {
   }
 
   // 弹出菜单中的子菜单样式
-  .el-menu--popup .el-submenu__title {
+  .el-menu--popup .el-sub-menu__title {
     background-color: transparent !important;
     color: #a1a1aa !important;
 
@@ -512,7 +512,7 @@ body.theme-dark-premium {
     }
   }
 
-  .el-menu--popup .el-submenu.is-opened > .el-submenu__title {
+  .el-menu--popup .el-sub-menu.is-opened > .el-sub-menu__title {
     background: rgba(212, 175, 55, 0.12) !important;
     color: #d4af37 !important;
   }
@@ -544,7 +544,7 @@ body.theme-luxury-business {
   }
 
   // 弹出菜单中的子菜单样式
-  .el-menu--popup .el-submenu__title {
+  .el-menu--popup .el-sub-menu__title {
     background-color: transparent !important;
     color: #b8bcc8 !important;
 
@@ -554,7 +554,7 @@ body.theme-luxury-business {
     }
   }
 
-  .el-menu--popup .el-submenu.is-opened > .el-submenu__title {
+  .el-menu--popup .el-sub-menu.is-opened > .el-sub-menu__title {
     background: rgba(212, 175, 55, 0.12) !important;
     color: #d4af37 !important;
   }
@@ -586,7 +586,7 @@ body.theme-vibrant-tech {
   }
 
   // 弹出菜单中的子菜单样式
-  .el-menu--popup .el-submenu__title {
+  .el-menu--popup .el-sub-menu__title {
     background-color: transparent !important;
     color: #c0c9ff !important;
 
@@ -596,7 +596,7 @@ body.theme-vibrant-tech {
     }
   }
 
-  .el-menu--popup .el-submenu.is-opened > .el-submenu__title {
+  .el-menu--popup .el-sub-menu.is-opened > .el-sub-menu__title {
     background: rgba(0, 242, 254, 0.12) !important;
     color: #00f2fe !important;
   }
@@ -628,7 +628,7 @@ body.theme-minimalist-future {
   }
 
   // 弹出菜单中的子菜单样式
-  .el-menu--popup .el-submenu__title {
+  .el-menu--popup .el-sub-menu__title {
     background-color: transparent !important;
     color: #999999 !important;
 
@@ -638,7 +638,7 @@ body.theme-minimalist-future {
     }
   }
 
-  .el-menu--popup .el-submenu.is-opened > .el-submenu__title {
+  .el-menu--popup .el-sub-menu.is-opened > .el-sub-menu__title {
     background: rgba(255, 255, 255, 0.12) !important;
     color: #ffffff !important;
   }

@@ -1,16 +1,19 @@
 <template>
-  <el-drawer size="280px" :visible="showSettings" :with-header="false" :append-to-body="true" :modal="false" :before-close="closeSetting" :lock-scroll="false">
-    <div class="drawer-container">
+  <el-drawer size="280px" :model-value="showSettings" modal-class="zero-settings-overlay" :with-header="false" :append-to-body="true" :modal="false" :before-close="closeSetting" :lock-scroll="false">
+    <div ref="settingsContent" class="drawer-container">
       <div>
         <div class="setting-drawer-content">
           <div class="setting-drawer-title">
             <h3 class="drawer-title">主题风格设置</h3>
+            <button type="button" class="settings-close" aria-label="关闭设置" @click="closeSetting">
+              <el-icon><component :is="resolveIcon('el-icon-close')" /></el-icon>
+            </button>
           </div>
           
           <!-- 主题风格选择 -->
           <div class="drawer-item">
             <span>主题风格</span>
-            <el-select v-model="themeStyle" placeholder="请选择" size="mini" class="drawer-select">
+            <el-select v-model="themeStyle" placeholder="请选择" size="small" class="drawer-select" popper-class="zero-settings-popper">
               <el-option label="毛玻璃拟态风" value="glassmorphism" />
               <el-option label="轻奢商务风" value="luxury-business" />
               <el-option label="活力科技风" value="vibrant-tech" />
@@ -25,7 +28,7 @@
           <!-- 毛玻璃主题背景风格选择 -->
           <div v-if="themeStyle === 'glassmorphism'" class="drawer-item">
             <span>背景风格</span>
-            <el-select v-model="glassmorphismBgStyle" placeholder="请选择" size="mini" class="drawer-select-wide">
+            <el-select v-model="glassmorphismBgStyle" placeholder="请选择" size="small" class="drawer-select-wide" popper-class="zero-settings-popper">
               <el-option
                 v-for="option in backgroundOptions"
                 :key="option.value"
@@ -64,7 +67,7 @@
 
             <div class="drawer-item">
               <span>主题颜色</span>
-              <theme-picker style="float: right;height: 26px;margin: -3px 8px 0 0;" @change="themeChange" />
+              <theme-picker popper-class="theme-picker-dropdown zero-settings-popper" style="float: right;height: 26px;margin: -3px 8px 0 0;" @change="themeChange" />
             </div>
           </div>
         </div>
@@ -105,7 +108,7 @@
 
         <div class="drawer-item">
           <span>菜单点击特效</span>
-          <el-select v-model="menuClickEffect" placeholder="请选择" size="mini" class="drawer-select">
+          <el-select v-model="menuClickEffect" placeholder="请选择" size="small" class="drawer-select" popper-class="zero-settings-popper">
             <el-option label="绚丽流光" value="gradient-gorgeous" />
             <el-option label="绚丽水波纹" value="ripple-gorgeous" />
             <el-option label="绚丽脉冲" value="pulse-gorgeous" />
@@ -126,8 +129,8 @@
         <el-divider/>
 
         <div class="drawer-footer-buttons">
-          <el-button size="small" type="primary" icon="el-icon-document-add" @click="saveSetting">保存配置</el-button>
-          <el-button size="small" icon="el-icon-refresh" @click="resetSetting">重置配置</el-button>
+          <el-button size="small" type="primary" :icon="resolveIcon('el-icon-document-add')" @click="saveSetting">保存配置</el-button>
+          <el-button size="small" :icon="resolveIcon('el-icon-refresh')" @click="resetSetting">重置配置</el-button>
         </div>
       </div>
     </div>
@@ -279,6 +282,12 @@ export default {
       }
     }
   },
+  mounted() {
+    document.addEventListener('pointerdown', this.handleClickOutside, true)
+  },
+  beforeUnmount() {
+    document.removeEventListener('pointerdown', this.handleClickOutside, true)
+  },
   methods: {
     themeChange(val) {
       this.$store.dispatch('settings/changeSetting', {
@@ -297,8 +306,16 @@ export default {
     openSetting() {
       this.showSettings = true
     },
-    closeSetting(){
+    closeSetting(done) {
       this.showSettings = false
+      if (typeof done === 'function') done()
+    },
+    handleClickOutside(event) {
+      if (!this.showSettings || !(event.target instanceof Element)) return
+      const drawer = this.$refs.settingsContent?.closest('.el-drawer')
+      // 设置下拉层挂在 body 下，选择主题或颜色时仍属于设置栏内部操作。
+      if (drawer?.contains(event.target) || event.target.closest('.zero-settings-popper, .navbar .setting')) return
+      this.closeSetting()
     },
     updateGlassmorphismBackground(styleKey) {
       // 动态更新CSS变量
@@ -310,25 +327,28 @@ export default {
     },
     saveSetting() {
       this.$modal.loading("正在保存到本地，请稍候...")
-      this.$cache.local.set(
-        "layout-setting",
-        `{
-            "topNav":${this.topNav},
-            "tagsView":${this.tagsView},
-            "tagsIcon":${this.tagsIcon},
-            "fixedHeader":${this.fixedHeader},
-            "sidebarLogo":${this.sidebarLogo},
-            "dynamicTitle":${this.dynamicTitle},
-            "footerVisible":${this.footerVisible},
-            "sideTheme":"${this.sideTheme}",
-            "theme":"${this.theme}",
-            "menuClickEffect":"${this.menuClickEffect}",
-            "menuSoundEnabled":${this.menuSoundEnabled},
-            "themeStyle":"${this.themeStyle}",
-            "glassmorphismBgStyle":"${this.glassmorphismBgStyle}"
-          }`
-      )
-      setTimeout(this.$modal.closeLoading(), 1000)
+      try {
+        this.$cache.local.setJSON("layout-setting", {
+          topNav: this.topNav,
+          tagsView: this.tagsView,
+          tagsIcon: this.tagsIcon,
+          fixedHeader: this.fixedHeader,
+          sidebarLogo: this.sidebarLogo,
+          dynamicTitle: this.dynamicTitle,
+          footerVisible: this.footerVisible,
+          sideTheme: this.sideTheme,
+          theme: this.theme,
+          menuClickEffect: this.menuClickEffect,
+          menuSoundEnabled: this.menuSoundEnabled,
+          themeStyle: this.themeStyle,
+          glassmorphismBgStyle: this.glassmorphismBgStyle
+        })
+        this.closeSetting()
+      } catch {
+        this.$modal.msgError("配置保存失败，请检查浏览器本地存储是否可用")
+      } finally {
+        this.$modal.closeLoading()
+      }
     },
     resetSetting() {
       this.$modal.loading("正在清除设置缓存并刷新，请稍候...")
@@ -342,11 +362,29 @@ export default {
 <style lang="scss" scoped>
   .setting-drawer-content {
     .setting-drawer-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       margin-bottom: 12px;
       color: rgba(0, 0, 0, .85);
       font-size: 14px;
       line-height: 22px;
       font-weight: bold;
+
+      .drawer-title { margin: 0; }
+      .settings-close {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        font-size: 18px;
+      }
     }
 
     .setting-drawer-block-checbox {
@@ -414,13 +452,13 @@ export default {
       flex-shrink: 0;
       font-size: 12px;
       
-      ::v-deep .el-input__inner {
+      :deep(.el-input__inner) {
         font-size: 12px;
         padding-left: 8px;
         padding-right: 24px;
       }
       
-      ::v-deep .el-input__icon {
+      :deep(.el-input__icon) {
         width: 20px;
       }
     }
@@ -430,13 +468,13 @@ export default {
       flex-shrink: 0;
       font-size: 12px;
       
-      ::v-deep .el-input__inner {
+      :deep(.el-input__inner) {
         font-size: 12px;
         padding-left: 8px;
         padding-right: 24px;
       }
       
-      ::v-deep .el-input__icon {
+      :deep(.el-input__icon) {
         width: 20px;
       }
     }

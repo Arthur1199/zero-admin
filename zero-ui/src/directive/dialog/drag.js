@@ -4,12 +4,13 @@
 */
 
 export default {
-  bind(el, binding, vnode, oldVnode) {
+  mounted(el, binding, vnode, oldVnode) {
     const value = binding.value
     if (value == false) return
     // 获取拖拽内容头部
     const dialogHeaderEl = el.querySelector('.el-dialog__header')
-    const dragDom = el.querySelector('.el-dialog')
+    const dragDom = el.matches?.('.el-dialog') ? el : el.querySelector('.el-dialog')
+    if (!dragDom) return
     dialogHeaderEl.style.cursor = 'move'
     // 获取原有属性 ie dom元素.currentStyle 火狐谷歌 window.getComputedStyle(dom元素, null)
     const sty = dragDom.currentStyle || window.getComputedStyle(dragDom, null)

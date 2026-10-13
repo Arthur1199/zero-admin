@@ -4,14 +4,14 @@
     <div class="preview-header">
       <div class="header-content">
         <div class="title-section">
-          <i class="el-icon-sunny theme-icon"></i>
+          <AppIcon icon-class="el-icon-sunny" class="theme-icon"></AppIcon>
           <div class="title-text">
             <h1>温馨自然风</h1>
             <p class="subtitle">Warm Nature Theme</p>
           </div>
         </div>
-        <el-button type="primary" size="medium" @click="goBack" class="back-btn">
-          <i class="el-icon-back"></i>
+        <el-button type="primary" size="default" @click="goBack" class="back-btn">
+          <AppIcon icon-class="el-icon-back" class=""></AppIcon>
           返回首页
         </el-button>
       </div>
@@ -22,18 +22,18 @@
       <!-- 左侧：模拟侧边栏 -->
       <div class="sidebar-preview">
         <div class="sidebar-logo">
-          <i class="el-icon-s-grid"></i>
+          <AppIcon icon-class="el-icon-s-grid" class=""></AppIcon>
           <span>零号管理系统</span>
         </div>
         <div class="sidebar-menu">
           <div class="menu-item active">
-            <i class="el-icon-s-home"></i>
+            <AppIcon icon-class="el-icon-s-home" class=""></AppIcon>
             <span>系统首页</span>
           </div>
           <div class="menu-item has-submenu">
-            <i class="el-icon-user"></i>
+            <AppIcon icon-class="el-icon-user" class=""></AppIcon>
             <span>系统管理</span>
-            <i class="el-icon-arrow-down submenu-arrow"></i>
+            <AppIcon icon-class="el-icon-arrow-down" class="submenu-arrow"></AppIcon>
           </div>
           <div class="submenu-items">
             <div class="submenu-item">
@@ -47,15 +47,15 @@
             </div>
           </div>
           <div class="menu-item">
-            <i class="el-icon-setting"></i>
+            <AppIcon icon-class="el-icon-setting" class=""></AppIcon>
             <span>系统监控</span>
           </div>
           <div class="menu-item">
-            <i class="el-icon-s-tools"></i>
+            <AppIcon icon-class="el-icon-s-tools" class=""></AppIcon>
             <span>系统工具</span>
           </div>
           <div class="menu-item">
-            <i class="el-icon-s-order"></i>
+            <AppIcon icon-class="el-icon-s-order" class=""></AppIcon>
             <span>日志管理</span>
           </div>
         </div>
@@ -72,10 +72,10 @@
           <el-row :gutter="20">
             <el-col :span="8">
               <el-card shadow="hover" class="demo-card">
-                <div slot="header" class="card-header">
-                  <i class="el-icon-sunny"></i>
+                <template #header><div  class="card-header">
+                  <AppIcon icon-class="el-icon-sunny" class=""></AppIcon>
                   <span>温馨卡片</span>
-                </div>
+                </div></template>
                 <div class="card-body">
                   <p>柔和的暖色调配色</p>
                   <p>圆角卡片设计</p>
@@ -85,10 +85,10 @@
             </el-col>
             <el-col :span="8">
               <el-card shadow="hover" class="demo-card">
-                <div slot="header" class="card-header">
-                  <i class="el-icon-data-analysis"></i>
+                <template #header><div  class="card-header">
+                  <AppIcon icon-class="el-icon-data-analysis" class=""></AppIcon>
                   <span>标签展示</span>
-                </div>
+                </div></template>
                 <div class="card-body">
                   <el-tag type="warning">温馨</el-tag>
                   <el-tag type="success">自然</el-tag>
@@ -98,10 +98,10 @@
             </el-col>
             <el-col :span="8">
               <el-card shadow="hover" class="demo-card">
-                <div slot="header" class="card-header">
-                  <i class="el-icon-setting"></i>
+                <template #header><div  class="card-header">
+                  <AppIcon icon-class="el-icon-setting" class=""></AppIcon>
                   <span>操作按钮</span>
-                </div>
+                </div></template>
                 <div class="card-body">
                   <el-button type="primary" size="small">主要操作</el-button>
                   <el-button type="warning" size="small" plain>次要操作</el-button>
@@ -139,17 +139,17 @@
 
         <div class="features-grid">
           <div class="feature-box">
-            <i class="el-icon-coffee-cup"></i>
+            <AppIcon icon-class="el-icon-coffee-cup" class=""></AppIcon>
             <h4>暖色调配色</h4>
             <p>米色与暖橙营造温馨氛围</p>
           </div>
           <div class="feature-box">
-            <i class="el-icon-brush"></i>
+            <AppIcon icon-class="el-icon-brush" class=""></AppIcon>
             <h4>圆角设计</h4>
             <p>柔和的圆角带来舒适感受</p>
           </div>
           <div class="feature-box">
-            <i class="el-icon-view"></i>
+            <AppIcon icon-class="el-icon-view" class=""></AppIcon>
             <h4>自然质感</h4>
             <p>接近自然的视觉体验</p>
           </div>

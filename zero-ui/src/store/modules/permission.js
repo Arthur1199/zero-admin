@@ -1,7 +1,8 @@
+import { loadView } from '@/utils/viewLoader'
 import auth from '@/plugins/auth'
-import router, { constantRoutes, dynamicRoutes } from '@/router'
+import { isExternal } from '@/utils/validate'
+import { addDynamicRoutes, constantRoutes, dynamicRoutes, Layout } from '@/router'
 import { getRouters } from '@/api/menu'
-import Layout from '@/layout/index'
 import ParentView from '@/components/ParentView'
 import InnerLink from '@/layout/components/InnerLink'
 
@@ -30,24 +31,19 @@ const permission = {
   },
   actions: {
     // 生成路由
-    GenerateRoutes({ commit }) {
-      return new Promise(resolve => {
-        // 向后端请求路由数据
-        getRouters().then(res => {
-          const sdata = JSON.parse(JSON.stringify(res.data))
-          const rdata = JSON.parse(JSON.stringify(res.data))
-          const sidebarRoutes = filterAsyncRouter(sdata)
-          const rewriteRoutes = filterAsyncRouter(rdata, false, true)
-          const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
-          rewriteRoutes.push({ path: '*', redirect: '/404', hidden: true })
-          router.addRoutes(asyncRoutes)
-          commit('SET_ROUTES', rewriteRoutes)
-          commit('SET_SIDEBAR_ROUTERS', constantRoutes.concat(sidebarRoutes))
-          commit('SET_DEFAULT_ROUTES', sidebarRoutes)
-          commit('SET_TOPBAR_ROUTES', sidebarRoutes)
-          resolve(rewriteRoutes)
-        })
-      })
+    async GenerateRoutes({ commit }) {
+      const response = await getRouters()
+      const data = Array.isArray(response.data) ? response.data : []
+      const sidebarRoutes = filterAsyncRouter(JSON.parse(JSON.stringify(data)))
+      const rewriteRoutes = filterAsyncRouter(JSON.parse(JSON.stringify(data)), false, true)
+      const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
+      rewriteRoutes.push({ path: '/:pathMatch(.*)*', redirect: '/404', hidden: true })
+      addDynamicRoutes(asyncRoutes)
+      commit('SET_ROUTES', rewriteRoutes)
+      commit('SET_SIDEBAR_ROUTERS', constantRoutes.concat(sidebarRoutes))
+      commit('SET_DEFAULT_ROUTES', sidebarRoutes)
+      commit('SET_TOPBAR_ROUTES', sidebarRoutes)
+      return rewriteRoutes
     }
   }
 }
@@ -55,6 +51,8 @@ const permission = {
 // 遍历后台传来的路由字符串，转换为组件对象
 function filterAsyncRouter(asyncRouterMap, lastRouter = false, type = false) {
   return asyncRouterMap.filter(route => {
+    // 外链仍在侧栏展示，由AppLink打开，不注册为Vue Router站内路由。
+    if (type && isExternal(route.path)) return false
     if (type && route.children) {
       route.children = filterChildren(route.children)
     }
@@ -83,6 +81,7 @@ function filterAsyncRouter(asyncRouterMap, lastRouter = false, type = false) {
 function filterChildren(childrenMap, lastRouter = false) {
   var children = []
   childrenMap.forEach(el => {
+    if (isExternal(el.path)) return
     el.path = lastRouter ? lastRouter.path + '/' + el.path : el.path
     if (el.children && el.children.length && el.component === 'ParentView') {
       children = children.concat(filterChildren(el.children, el))
@@ -110,13 +109,6 @@ export function filterDynamicRoutes(routes) {
   return res
 }
 
-export const loadView = (view) => {
-  if (process.env.NODE_ENV === 'development') {
-    return (resolve) => require([`@/views/${view}`], resolve)
-  } else {
-    // 使用 import 实现生产环境的路由懒加载
-    return () => import(`@/views/${view}`)
-  }
-}
+export { loadView } from '@/utils/viewLoader'
 
 export default permission

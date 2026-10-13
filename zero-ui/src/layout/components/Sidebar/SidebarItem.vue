@@ -1,28 +1,27 @@
 <template>
   <div v-if="!item.hidden">
     <template v-if="hasOneShowingChild(item.children,item) && (!onlyOneChild.children||onlyOneChild.noShowingChildren)&&!item.alwaysShow">
-      <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path, onlyOneChild.query)">
+      <app-link v-if="onlyOneChild.meta" :to="resolvePath(onlyOneChild.path, onlyOneChild.query)" @click="handleMenuClick">
         <el-menu-item 
           :index="resolvePathString(onlyOneChild.path)" 
-          :class="{'submenu-title-noDropdown':!isNest}"
-          @click.native="handleMenuClick">
-          <item :icon="onlyOneChild.meta.icon||(item.meta&&item.meta.icon)" :title="onlyOneChild.meta.title" />
+          :class="{'submenu-title-noDropdown':!isNest}">
+          <item :icon="onlyOneChild.meta.icon||(item.meta&&item.meta.icon)" />
+          <template #title><item :title="onlyOneChild.meta.title" /></template>
         </el-menu-item>
       </app-link>
     </template>
 
-    <el-submenu 
+    <el-sub-menu
       v-else 
       ref="subMenu" 
       :index="resolvePathString(item.path)" 
       :data-menu-id="item.menuId"
-      popper-append-to-body>
-      <template slot="title">
+      teleported @click="handleSubmenuClick">
+      <template #title>
         <item 
           v-if="item.meta" 
           :icon="item.meta && item.meta.icon" 
-          :title="item.meta.title" 
-          @click.native="handleSubmenuClick" />
+          :title="item.meta.title" />
       </template>
       <sidebar-item
         v-for="(child, index) in item.children"
@@ -32,12 +31,12 @@
         :base-path="resolvePath(child.path)"
         class="nest-menu"
       />
-    </el-submenu>
+    </el-sub-menu>
   </div>
 </template>
 
 <script>
-import path from 'path'
+import path from '@/utils/path'
 import { isExternal } from '@/utils/validate'
 import Item from './Item'
 import AppLink from './Link'
@@ -66,13 +65,17 @@ export default {
   data() {
     this.onlyOneChild = null
     return {
-      clickEffectTimer: null
+      clickEffectTimer: null,
+      clickEffectElement: null
     }
   },
   computed: {
     menuClickEffect() {
-      return this.$store.state.settings.menuClickEffect || 'ripple'
+      return this.$store.state.settings.menuClickEffect || 'gradient-gorgeous'
     }
+  },
+  watch: {
+    menuClickEffect() { this.clearClickEffect() }
   },
   methods: {
     hasOneShowingChild(children = [], parent) {
@@ -137,7 +140,8 @@ export default {
       
       if (this.menuClickEffect === 'none') return
       
-      const target = event.currentTarget
+      // Plus 的菜单 click 回调传入菜单对象，通过链接原生事件取得真实菜单元素。
+      const target = event?.target?.closest?.('.el-menu-item') || event?.currentTarget?.querySelector?.('.el-menu-item')
       this.triggerClickEffect(target)
     },
 
@@ -147,8 +151,8 @@ export default {
     handleSubmenuClick(event) {
       // 检查是否点击的是父菜单标题，而非子项
       // 如果点击的是子项，则不播放父菜单音效，避免音效重叠
-      const isClickingSubmenuTitle = event.target.closest('.el-submenu__title') && 
-                                    !event.target.closest('.nest-menu')
+      const target = event?.target?.closest?.('.el-sub-menu__title')
+      const isClickingSubmenuTitle = target?.parentElement === event?.currentTarget
       
       if (!isClickingSubmenuTitle) {
         // 点击的是子项，不触发特效，也不播放音效
@@ -159,12 +163,6 @@ export default {
       // 如果在这里也播放，会导致音效重复
       
       if (this.menuClickEffect === 'none') return
-      
-      // 查找父级 el-submenu__title 元素
-      let target = event.target
-      while (target && !target.classList.contains('el-submenu__title')) {
-        target = target.parentElement
-      }
       
       if (target) {
         this.triggerClickEffect(target)
@@ -177,19 +175,22 @@ export default {
     triggerClickEffect(element) {
       if (!element || this.menuClickEffect === 'none') return
 
-      // 清除之前的动画
-      element.classList.remove('menu-clicking')
+      this.clearClickEffect()
+      this.clickEffectElement = element
+      element.dataset.zeroMenuEffect = this.menuClickEffect
+      // 独立动画层避免复用主题的选中指示伪元素，折叠菜单弹层也能显示特效。
+      if (['ripple-gorgeous', 'pulse-gorgeous'].includes(this.menuClickEffect)) {
+        const layer = document.createElement('span')
+        layer.className = 'zero-menu-click-effect'
+        layer.setAttribute('aria-hidden', 'true')
+        element.appendChild(layer)
+      }
       
       // 强制重绘以重启动画
       void element.offsetWidth
       
       // 添加点击样式
       element.classList.add('menu-clicking')
-      
-      // 清除之前的定时器
-      if (this.clickEffectTimer) {
-        clearTimeout(this.clickEffectTimer)
-      }
       
       // 根据绚丽版特效设置动画时间
       let duration = 800 // 绚丽水波纹和绚丽脉冲默认 800ms
@@ -198,16 +199,23 @@ export default {
       }
       
       this.clickEffectTimer = setTimeout(() => {
-        element.classList.remove('menu-clicking')
+        this.clearClickEffect()
       }, duration)
+    },
+    clearClickEffect() {
+      if (this.clickEffectTimer) clearTimeout(this.clickEffectTimer)
+      const element = this.clickEffectElement
+      element?.classList.remove('menu-clicking')
+      element?.querySelector(':scope > .zero-menu-click-effect')?.remove()
+      element?.removeAttribute('data-zero-menu-effect')
+      this.clickEffectTimer = null
+      this.clickEffectElement = null
     }
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     // 组件销毁时清理定时器
-    if (this.clickEffectTimer) {
-      clearTimeout(this.clickEffectTimer)
-    }
+    this.clearClickEffect()
   }
 }
 </script>

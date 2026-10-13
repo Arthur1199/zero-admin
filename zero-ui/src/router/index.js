@@ -1,10 +1,7 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-
-Vue.use(Router)
+import { createRouter, createWebHistory } from 'vue-router'
 
 /* Layout */
-import Layout from '@/layout'
+export const Layout = () => import('@/layout/index.vue')
 
 /**
  * Note: 路由配置项
@@ -201,20 +198,17 @@ export const dynamicRoutes = [
   }
 ]
 
-// 防止连续点击多次路由报错
-let routerPush = Router.prototype.push
-let routerReplace = Router.prototype.replace
-// push
-Router.prototype.push = function push(location) {
-  return routerPush.call(this, location).catch(err => err)
-}
-// replace
-Router.prototype.replace = function push(location) {
-  return routerReplace.call(this, location).catch(err => err)
-}
-
-export default new Router({
-  mode: 'history', // 去掉url中的#
-  scrollBehavior: () => ({ y: 0 }),
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  scrollBehavior: () => ({ top: 0 }),
   routes: constantRoutes
 })
+const removeDynamicRoutes = []
+/** 退出和切换账号时只清理动态菜单，保留登录及公共路由。 */
+export function resetRouter() {
+  removeDynamicRoutes.splice(0).forEach(remove => remove())
+}
+export function addDynamicRoutes(routes) {
+  routes.forEach(route => removeDynamicRoutes.push(router.addRoute(route)))
+}
+export default router

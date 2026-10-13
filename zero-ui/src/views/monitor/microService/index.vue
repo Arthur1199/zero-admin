@@ -6,7 +6,7 @@
           v-model="queryParams.serviceName"
           placeholder="请输入服务名称"
           clearable
-          @keyup.enter.native="handleQuery"
+@keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="状态" prop="status">
@@ -24,21 +24,21 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+        <el-button type="primary" :icon="resolveIcon('el-icon-search')" size="small" @click="handleQuery">搜索</el-button>
+        <el-button :icon="resolveIcon('el-icon-refresh')" size="small" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
     <div v-loading="loading" class="service-card-grid">
       <el-empty v-if="!loading && list.length === 0" description="暂无微服务实例" />
       <el-card v-for="item in list" :key="item.instanceId" shadow="hover" class="service-card">
-        <div slot="header" class="service-card-header">
+        <template #header><div  class="service-card-header">
           <div class="service-title">
-            <i class="el-icon-monitor"></i>
+            <AppIcon icon-class="el-icon-monitor" class=""></AppIcon>
             <span>{{ item.serviceName }}</span>
           </div>
           <el-tag :type="statusType(item.status)" size="small" class="status-tag">{{ statusText(item.status) }}</el-tag>
-        </div>
+        </div></template>
         <div class="service-address">
           <div class="address-label">注册地址</div>
           <div class="address-main">{{ item.ip }}:{{ item.port }}</div>
@@ -186,7 +186,7 @@ export default {
     this.getList()
     this.handleRefreshChange()
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.clearRefreshTimer()
   },
   methods: {
@@ -310,14 +310,14 @@ export default {
   box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
 }
 
-.service-card ::v-deep .el-card__header {
+.service-card :deep(.el-card__header) {
   display: block !important;
   color: #172033;
   background: rgba(246, 248, 252, 0.96);
   border-bottom: 1px solid rgba(148, 163, 184, 0.22);
 }
 
-.service-card ::v-deep .el-card__body {
+.service-card :deep(.el-card__body) {
   color: #172033;
   background: rgba(255, 255, 255, 0.94);
 }

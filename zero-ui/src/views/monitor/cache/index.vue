@@ -3,7 +3,7 @@
     <el-row :gutter="10">
       <el-col :span="24" class="card-box">
         <el-card>
-          <div slot="header"><span><i class="el-icon-monitor"></i> 基本信息</span></div>
+          <template #header><div ><span><AppIcon icon-class="el-icon-monitor" class=""></AppIcon> 基本信息</span></div></template>
           <div class="el-table el-table--enable-row-hover el-table--medium">
             <table cellspacing="0" style="width: 100%">
               <tbody>
@@ -45,7 +45,7 @@
 
       <el-col :span="12" class="card-box">
         <el-card>
-          <div slot="header"><span><i class="el-icon-pie-chart"></i> 命令统计</span></div>
+          <template #header><div ><span><AppIcon icon-class="el-icon-pie-chart" class=""></AppIcon> 命令统计</span></div></template>
           <div class="el-table el-table--enable-row-hover el-table--medium">
             <div ref="commandstats" style="height: 420px" />
           </div>
@@ -54,7 +54,7 @@
 
       <el-col :span="12" class="card-box">
         <el-card>
-          <div slot="header"><span><i class="el-icon-odometer"></i> 内存信息</span></div>
+          <template #header><div ><span><AppIcon icon-class="el-icon-odometer" class=""></AppIcon> 内存信息</span></div></template>
           <div class="el-table el-table--enable-row-hover el-table--medium">
             <div ref="usedmemory" style="height: 420px" />
           </div>
@@ -65,6 +65,7 @@
 </template>
 
 <script>
+import { markRaw } from "vue"
 import { getCache } from "@/api/monitor/cache"
 import * as echarts from "echarts"
 
@@ -84,14 +85,20 @@ export default {
     this.getList()
     this.openLoading()
   },
+  beforeUnmount() {
+    window.removeEventListener('resize', this.resizeCharts)
+    this.commandstats?.dispose()
+    this.usedmemory?.dispose()
+  },
   methods: {
+    resizeCharts() { this.commandstats?.resize(); this.usedmemory?.resize() },
     /** 查缓存询信息 */
     getList() {
       getCache().then((response) => {
         this.cache = response.data
         this.$modal.closeLoading()
 
-        this.commandstats = echarts.init(this.$refs.commandstats, "macarons")
+        this.commandstats = markRaw(echarts.init(this.$refs.commandstats, "macarons"))
         this.commandstats.setOption({
           tooltip: {
             trigger: "item",
@@ -110,7 +117,7 @@ export default {
             }
           ]
         })
-        this.usedmemory = echarts.init(this.$refs.usedmemory, "macarons")
+        this.usedmemory = markRaw(echarts.init(this.$refs.usedmemory, "macarons"))
         this.usedmemory.setOption({
           tooltip: {
             formatter: "{b} <br/>{a} : " + this.cache.info.used_memory_human,
@@ -133,10 +140,9 @@ export default {
             }
           ]
         })
-        window.addEventListener("resize", () => {
-          this.commandstats.resize()
-          this.usedmemory.resize()
-        })
+        window.addEventListener('resize', this.resizeCharts)
+      }).catch(() => {
+        this.$modal.closeLoading()
       })
     },
     // 打开加载层

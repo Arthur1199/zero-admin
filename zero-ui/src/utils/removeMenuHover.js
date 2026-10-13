@@ -24,12 +24,12 @@ export function removeMenuHoverBackground() {
   style.textContent = `
     /* 毛玻璃主题菜单hover背景色移除 - 运行时强制覆盖 */
     html body.theme-glassmorphism #app .sidebar-container .submenu-title-noDropdown:hover,
-    html body.theme-glassmorphism #app .sidebar-container .el-submenu__title:hover,
-    html body.theme-glassmorphism #app .sidebar-container .nest-menu .el-submenu > .el-submenu__title:hover,
-    html body.theme-glassmorphism #app .sidebar-container .el-submenu .el-menu-item:hover,
+    html body.theme-glassmorphism #app .sidebar-container .el-sub-menu__title:hover,
+    html body.theme-glassmorphism #app .sidebar-container .nest-menu .el-sub-menu > .el-sub-menu__title:hover,
+    html body.theme-glassmorphism #app .sidebar-container .el-sub-menu .el-menu-item:hover,
     html body.theme-glassmorphism #app .sidebar-container .el-menu--inline .el-menu-item:hover,
     html body.theme-glassmorphism #app .sidebar-container ul.el-menu--inline li.el-menu-item:hover,
-    html body.theme-glassmorphism .el-menu--vertical .nest-menu .el-submenu > .el-submenu__title:hover,
+    html body.theme-glassmorphism .el-menu--vertical .nest-menu .el-sub-menu > .el-sub-menu__title:hover,
     html body.theme-glassmorphism .el-menu--vertical .el-menu-item:hover {
       background-color: transparent !important;
       background: none !important;
@@ -38,7 +38,7 @@ export function removeMenuHoverBackground() {
     
     /* 子菜单项特殊处理 - 使用多种选择器组合 */
     html body.theme-glassmorphism #app .sidebar-container .el-menu--inline > .el-menu-item:hover,
-    html body.theme-glassmorphism #app .sidebar-container .el-submenu > .el-menu--inline > .el-menu-item:hover,
+    html body.theme-glassmorphism #app .sidebar-container .el-sub-menu > .el-menu--inline > .el-menu-item:hover,
     html body.theme-glassmorphism .sidebar-container .el-menu .el-menu-item:hover {
       background-color: transparent !important;
       background: none !important;
@@ -47,7 +47,7 @@ export function removeMenuHoverBackground() {
     
     /* 使用属性选择器再次强制覆盖 */
     html body[class*="theme-glassmorphism"] #app .sidebar-container [class*="el-menu-item"]:hover,
-    html body[class*="theme-glassmorphism"] #app .sidebar-container [class*="el-submenu__title"]:hover {
+    html body[class*="theme-glassmorphism"] #app .sidebar-container [class*="el-sub-menu__title"]:hover {
       background-color: transparent !important;
       background: none !important;
       background-image: none !important;
@@ -113,7 +113,7 @@ function watchMenuItems() {
       
       // 查找所有菜单项（包括父菜单和子菜单）
       const menuItems = sidebar.querySelectorAll(
-        '.el-menu-item, .el-submenu__title, .submenu-title-noDropdown'
+        '.el-menu-item, .el-sub-menu__title, .submenu-title-noDropdown'
       )
       
       menuItems.forEach(item => {

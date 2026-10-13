@@ -1,13 +1,13 @@
 <template>
   <el-dropdown trigger="click" @command="handleSetSize">
-    <div>
+    <div class="size-select-trigger">
       <svg-icon class-name="size-icon" icon-class="size" />
     </div>
-    <el-dropdown-menu slot="dropdown">
+    <template #dropdown><el-dropdown-menu >
       <el-dropdown-item v-for="item of sizeOptions" :key="item.value" :disabled="size===item.value" :command="item.value">
         {{ item.label }}
       </el-dropdown-item>
-    </el-dropdown-menu>
+    </el-dropdown-menu></template>
   </el-dropdown>
 </template>
 
@@ -30,7 +30,6 @@ export default {
   },
   methods: {
     handleSetSize(size) {
-      this.$ELEMENT.size = size
       this.$store.dispatch('app/setSize', size)
       this.refreshView()
       this.$message({
@@ -53,3 +52,11 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.size-select-trigger {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+</style>

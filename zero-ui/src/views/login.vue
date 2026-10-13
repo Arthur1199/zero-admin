@@ -16,7 +16,7 @@
           auto-complete="off"
           placeholder="账号"
         >
-          <svg-icon slot="prefix" icon-class="user" class="el-input__icon input-icon" />
+          <template #prefix><svg-icon  icon-class="user" class="el-input__icon input-icon" /></template>
         </el-input>
       </el-form-item>
       <el-form-item prop="password">
@@ -26,9 +26,9 @@
           auto-complete="off"
           placeholder="密码"
           show-password
-          @keyup.enter.native="handleLogin"
+@keyup.enter="handleLogin"
         >
-          <svg-icon slot="prefix" icon-class="password" class="el-input__icon input-icon" />
+          <template #prefix><svg-icon  icon-class="password" class="el-input__icon input-icon" /></template>
         </el-input>
       </el-form-item>
       <el-form-item prop="googleCode" v-if="googleAuthEnabled">
@@ -37,9 +37,9 @@
           maxlength="6"
           auto-complete="off"
           placeholder="谷歌验证码(首次绑定请输入123456)"
-          @keyup.enter.native="handleLogin"
+@keyup.enter="handleLogin"
         >
-          <svg-icon slot="prefix" icon-class="validCode" class="el-input__icon input-icon" />
+          <template #prefix><svg-icon  icon-class="validCode" class="el-input__icon input-icon" /></template>
         </el-input>
       </el-form-item>
       <el-form-item prop="code" v-if="captchaEnabled">
@@ -48,9 +48,9 @@
           auto-complete="off"
           placeholder="验证码"
           style="width: 63%"
-          @keyup.enter.native="handleLogin"
+@keyup.enter="handleLogin"
         >
-          <svg-icon slot="prefix" icon-class="validCode" class="el-input__icon input-icon" />
+          <template #prefix><svg-icon  icon-class="validCode" class="el-input__icon input-icon" /></template>
         </el-input>
         <div class="login-code">
           <img :src="codeUrl" @click="getCode" class="login-code-img"/>
@@ -60,10 +60,10 @@
       <el-form-item style="width:100%;">
         <el-button
           :loading="loading"
-          size="medium"
+size="default"
           type="primary"
           style="width:100%;"
-          @click.native.prevent="handleLogin"
+@click.prevent="handleLogin"
         >
           <span v-if="!loading">登 录</span>
           <span v-else>登 录 中...</span>
@@ -75,18 +75,18 @@
       <span>Copyright © 2026 Zero. All Rights Reserved.</span>
     </div>
     <el-dialog
-      custom-class="google-bind-dialog"
-      :visible.sync="googleBindOpen"
+class="google-bind-dialog"
+v-model="googleBindOpen"
       append-to-body
       width="420px"
       :close-on-click-modal="false"
     >
-      <div slot="title" class="google-dialog-title">
+      <template #header><div  class="google-dialog-title">
         <span class="google-title-icon">
           <svg-icon icon-class="lock" />
         </span>
         <span>绑定谷歌动态码</span>
-      </div>
+      </div></template>
       <el-form ref="googleBindForm" :model="googleBindForm" :rules="googleBindRules" class="google-bind-form">
         <div class="google-qrcode-wrap">
           <img :src="googleImageUrl" class="google-qrcode" alt="">
@@ -96,16 +96,16 @@
             v-model="googleBindForm.googleCode"
             maxlength="6"
             placeholder="请输入6位谷歌验证码"
-            @keyup.enter.native="handleBindGoogle"
+@keyup.enter="handleBindGoogle"
           >
-            <svg-icon slot="prefix" icon-class="validCode" class="el-input__icon input-icon" />
+            <template #prefix><svg-icon  icon-class="validCode" class="el-input__icon input-icon" /></template>
           </el-input>
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <template #footer><div  class="dialog-footer">
         <el-button @click="googleBindOpen = false">取 消</el-button>
         <el-button type="primary" :loading="bindLoading" @click="handleBindGoogle">确 定</el-button>
-      </div>
+      </div></template>
     </el-dialog>
   </div>
 </template>
@@ -119,11 +119,11 @@ export default {
   name: "Login",
   data() {
     return {
-      title: process.env.VUE_APP_TITLE,
+      title: import.meta.env.VITE_APP_TITLE,
       codeUrl: "",
       loginForm: {
         username: "admin",
-        password: "admin123",
+        password: "",
         rememberMe: false,
         code: "",
         uuid: "",
@@ -217,7 +217,7 @@ export default {
         return
       }
       this.googleBindForm.googleCode = ""
-      this.googleImageUrl = process.env.VUE_APP_BASE_API + "/google/generateGaImage?userName=" + encodeURIComponent(this.loginForm.username) + "&t=" + new Date().getTime()
+      this.googleImageUrl = import.meta.env.VITE_APP_BASE_API + "/google/generateGaImage?userName=" + encodeURIComponent(this.loginForm.username) + "&t=" + new Date().getTime()
       this.googleBindOpen = true
     },
     handleBindGoogle() {
@@ -233,6 +233,8 @@ export default {
           this.$modal.msgSuccess("绑定成功，请重新登录")
           this.loginForm.googleCode = ""
           this.googleBindOpen = false
+        }).catch(() => {
+          // 接口错误由全局拦截器提示，保留输入供重试，避免未处理的绑定异常。
         }).finally(() => {
           this.bindLoading = false
         })
@@ -252,7 +254,7 @@ export default {
             Cookies.remove('rememberMe')
           }
           this.$store.dispatch("Login", this.loginForm).then(() => {
-            this.$router.push({ path: this.redirect || "/" }).catch(()=>{})
+            return this.$router.push({ path: this.redirect || "/" })
           }).catch(error => {
             this.loading = false
             if (this.captchaEnabled) {
@@ -261,6 +263,8 @@ export default {
             if (error && error.code === -1001) {
               this.openGoogleBindDialog()
             }
+          }).finally(() => {
+            this.loading = false
           })
         }
       })
@@ -402,7 +406,7 @@ export default {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-::v-deep .google-bind-dialog {
+:deep(.google-bind-dialog) {
   min-height: 0 !important;
   max-height: none !important;
   border-radius: 16px;

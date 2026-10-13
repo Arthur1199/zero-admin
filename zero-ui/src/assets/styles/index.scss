@@ -266,13 +266,13 @@ body.theme-minimalist-future:not(.form-builder-page) #app {
     .el-scrollbar__view,
     .el-menu,
     .el-menu--inline,
-    .el-submenu,
+    .el-sub-menu,
     .nest-menu,
-    .nest-menu .el-submenu,
+    .nest-menu .el-sub-menu,
     .nest-menu .el-menu-item,
-    .nest-menu .el-submenu > .el-submenu__title,
-    .el-submenu .el-menu-item,
-    .el-submenu__title,
+    .nest-menu .el-sub-menu > .el-sub-menu__title,
+    .el-sub-menu .el-menu-item,
+    .el-sub-menu__title,
     .el-menu-item {
       background: transparent !important;
       background-color: transparent !important;
@@ -282,9 +282,9 @@ body.theme-minimalist-future:not(.form-builder-page) #app {
     }
 
     .el-menu-item,
-    .el-submenu__title,
-    .nest-menu .el-submenu > .el-submenu__title,
-    .el-submenu .el-menu-item {
+    .el-sub-menu__title,
+    .nest-menu .el-sub-menu > .el-sub-menu__title,
+    .el-sub-menu .el-menu-item {
       border-radius: 8px !important;
       margin: 3px 10px !important;
       border-left: 3px solid transparent !important;
@@ -292,9 +292,9 @@ body.theme-minimalist-future:not(.form-builder-page) #app {
     }
 
     .el-menu-item:hover,
-    .el-submenu__title:hover,
-    .nest-menu .el-submenu > .el-submenu__title:hover,
-    .el-submenu .el-menu-item:hover {
+    .el-sub-menu__title:hover,
+    .nest-menu .el-sub-menu > .el-sub-menu__title:hover,
+    .el-sub-menu .el-menu-item:hover {
       background: rgba(0, 188, 212, 0.09) !important;
       background-color: rgba(0, 188, 212, 0.09) !important;
       color: #006c9a !important;
@@ -302,8 +302,8 @@ body.theme-minimalist-future:not(.form-builder-page) #app {
     }
 
     .el-menu-item.is-active,
-    .el-submenu.is-active > .el-submenu__title,
-    .el-submenu.is-opened > .el-submenu__title {
+    .el-sub-menu.is-active > .el-sub-menu__title,
+    .el-sub-menu.is-opened > .el-sub-menu__title {
       background: linear-gradient(90deg, rgba(0, 188, 212, 0.16) 0%, rgba(108, 99, 255, 0.08) 100%) !important;
       background-color: rgba(0, 188, 212, 0.10) !important;
       color: #006c9a !important;
@@ -312,21 +312,21 @@ body.theme-minimalist-future:not(.form-builder-page) #app {
     }
 
     .el-menu-item i,
-    .el-submenu__title i,
+    .el-sub-menu__title i,
     .svg-icon,
-    .el-submenu__icon-arrow {
+    .el-sub-menu__icon-arrow {
       color: #7a8aa0 !important;
       fill: #7a8aa0 !important;
     }
 
     .el-menu-item.is-active i,
-    .el-submenu.is-active > .el-submenu__title i,
-    .el-submenu.is-opened > .el-submenu__title i,
+    .el-sub-menu.is-active > .el-sub-menu__title i,
+    .el-sub-menu.is-opened > .el-sub-menu__title i,
     .el-menu-item.is-active .svg-icon,
-    .el-submenu.is-active > .el-submenu__title .svg-icon,
-    .el-submenu.is-opened > .el-submenu__title .svg-icon,
-    .el-submenu.is-active > .el-submenu__title .el-submenu__icon-arrow,
-    .el-submenu.is-opened > .el-submenu__title .el-submenu__icon-arrow {
+    .el-sub-menu.is-active > .el-sub-menu__title .svg-icon,
+    .el-sub-menu.is-opened > .el-sub-menu__title .svg-icon,
+    .el-sub-menu.is-active > .el-sub-menu__title .el-sub-menu__icon-arrow,
+    .el-sub-menu.is-opened > .el-sub-menu__title .el-sub-menu__icon-arrow {
       color: #00a7bd !important;
       fill: #00a7bd !important;
     }
@@ -732,7 +732,7 @@ body.theme-minimalist-future {
   .el-dropdown-menu__item,
   .el-autocomplete-suggestion li,
   .el-menu--popup .el-menu-item,
-  .el-menu--popup .el-submenu__title {
+  .el-menu--popup .el-sub-menu__title {
     background-color: transparent !important;
     color: #172033 !important;
     opacity: 1 !important;
@@ -751,7 +751,7 @@ body.theme-minimalist-future {
   .el-dropdown-menu__item:hover,
   .el-autocomplete-suggestion li:hover,
   .el-menu--popup .el-menu-item:hover,
-  .el-menu--popup .el-submenu__title:hover {
+  .el-menu--popup .el-sub-menu__title:hover {
     background: rgba(0, 188, 212, 0.10) !important;
     background-color: rgba(0, 188, 212, 0.10) !important;
     color: #006c9a !important;
@@ -881,9 +881,9 @@ body.theme-minimalist-future {
     .el-menu,
     .el-menu--inline,
     .nest-menu,
-    .nest-menu .el-submenu,
-    .nest-menu .el-submenu > .el-submenu__title,
-    .el-submenu__title,
+    .nest-menu .el-sub-menu,
+    .nest-menu .el-sub-menu > .el-sub-menu__title,
+    .el-sub-menu__title,
     .el-menu-item {
       background: transparent !important;
       background-color: transparent !important;
@@ -893,22 +893,22 @@ body.theme-minimalist-future {
     }
 
     .el-menu-item,
-    .el-submenu__title {
+    .el-sub-menu__title {
       margin: 3px 10px !important;
       border-left: 3px solid transparent !important;
     }
 
     .el-menu-item:hover,
-    .el-submenu__title:hover,
-    .nest-menu .el-submenu > .el-submenu__title:hover {
+    .el-sub-menu__title:hover,
+    .nest-menu .el-sub-menu > .el-sub-menu__title:hover {
       background: rgba(0, 188, 212, 0.09) !important;
       color: #006c9a !important;
       border-left-color: rgba(0, 188, 212, 0.55) !important;
     }
 
     .el-menu-item.is-active,
-    .el-submenu.is-active > .el-submenu__title,
-    .el-submenu.is-opened > .el-submenu__title {
+    .el-sub-menu.is-active > .el-sub-menu__title,
+    .el-sub-menu.is-opened > .el-sub-menu__title {
       background: linear-gradient(90deg, rgba(0, 188, 212, 0.16) 0%, rgba(108, 99, 255, 0.08) 100%) !important;
       color: #006c9a !important;
       border-left-color: #00bcd4 !important;
@@ -1036,7 +1036,7 @@ body.theme-minimalist-future {
   .vue-treeselect__option,
   .vue-treeselect__label,
   .el-menu--popup .el-menu-item,
-  .el-menu--popup .el-submenu__title {
+  .el-menu--popup .el-sub-menu__title {
     background: transparent !important;
     color: #172033 !important;
   }
@@ -1047,7 +1047,7 @@ body.theme-minimalist-future {
   .vue-treeselect__option:hover,
   .vue-treeselect__option--hover,
   .el-menu--popup .el-menu-item:hover,
-  .el-menu--popup .el-submenu__title:hover {
+  .el-menu--popup .el-sub-menu__title:hover {
     background: rgba(0, 188, 212, 0.10) !important;
     color: #006c9a !important;
   }
@@ -1108,7 +1108,7 @@ body.theme-minimalist-future {
     }
 
     .el-menu-item,
-    .el-submenu__title {
+    .el-sub-menu__title {
       background: transparent !important;
       color: #5c6b82 !important;
       border-left: 3px solid transparent !important;
@@ -1130,8 +1130,8 @@ body.theme-minimalist-future {
     }
 
     .el-menu-item.is-active,
-    .el-submenu.is-active > .el-submenu__title,
-    .el-submenu.is-opened > .el-submenu__title {
+    .el-sub-menu.is-active > .el-sub-menu__title,
+    .el-sub-menu.is-opened > .el-sub-menu__title {
       background: linear-gradient(90deg, rgba(0, 188, 212, 0.16) 0%, rgba(108, 99, 255, 0.08) 100%) !important;
       color: #006c9a !important;
       border-left-color: #00bcd4 !important;
@@ -1140,7 +1140,7 @@ body.theme-minimalist-future {
 
       i,
       svg,
-      .el-submenu__icon-arrow {
+      .el-sub-menu__icon-arrow {
         color: #00a7bd !important;
         fill: #00a7bd !important;
       }
@@ -2004,7 +2004,7 @@ body.theme-minimalist-future {
   .el-dropdown-menu__item,
   .el-autocomplete-suggestion li,
   .el-menu--popup .el-menu-item,
-  .el-menu--popup .el-submenu__title {
+  .el-menu--popup .el-sub-menu__title {
     background-color: transparent !important;
     color: #172033 !important;
     opacity: 1 !important;
@@ -2023,7 +2023,7 @@ body.theme-minimalist-future {
   .el-dropdown-menu__item:hover,
   .el-autocomplete-suggestion li:hover,
   .el-menu--popup .el-menu-item:hover,
-  .el-menu--popup .el-submenu__title:hover {
+  .el-menu--popup .el-sub-menu__title:hover {
     background: rgba(0, 188, 212, 0.10) !important;
     background-color: rgba(0, 188, 212, 0.10) !important;
     color: #006c9a !important;

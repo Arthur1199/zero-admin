@@ -4,14 +4,14 @@
     <div class="preview-header">
       <div class="header-content">
         <div class="title-section">
-          <i class="el-icon-trophy theme-icon"></i>
+          <AppIcon icon-class="el-icon-trophy" class="theme-icon"></AppIcon>
           <div class="title-text">
             <h1>轻奢商务风</h1>
             <p class="subtitle">Luxury Business Theme</p>
           </div>
         </div>
-        <el-button type="primary" size="medium" @click="goBack" class="back-btn">
-          <i class="el-icon-back"></i>
+        <el-button type="primary" size="default" @click="goBack" class="back-btn">
+          <AppIcon icon-class="el-icon-back" class=""></AppIcon>
           返回首页
         </el-button>
       </div>
@@ -22,18 +22,18 @@
       <!-- 左侧：模拟侧边栏 -->
       <div class="sidebar-preview">
         <div class="sidebar-logo">
-          <i class="el-icon-s-grid"></i>
+          <AppIcon icon-class="el-icon-s-grid" class=""></AppIcon>
           <span>零号管理系统</span>
         </div>
         <div class="sidebar-menu">
           <div class="menu-item active">
-            <i class="el-icon-s-home"></i>
+            <AppIcon icon-class="el-icon-s-home" class=""></AppIcon>
             <span>系统首页</span>
           </div>
           <div class="menu-item has-submenu">
-            <i class="el-icon-user"></i>
+            <AppIcon icon-class="el-icon-user" class=""></AppIcon>
             <span>系统管理</span>
-            <i class="el-icon-arrow-down submenu-arrow"></i>
+            <AppIcon icon-class="el-icon-arrow-down" class="submenu-arrow"></AppIcon>
           </div>
           <div class="submenu-items">
             <div class="submenu-item">
@@ -47,15 +47,15 @@
             </div>
           </div>
           <div class="menu-item">
-            <i class="el-icon-setting"></i>
+            <AppIcon icon-class="el-icon-setting" class=""></AppIcon>
             <span>系统监控</span>
           </div>
           <div class="menu-item">
-            <i class="el-icon-s-tools"></i>
+            <AppIcon icon-class="el-icon-s-tools" class=""></AppIcon>
             <span>系统工具</span>
           </div>
           <div class="menu-item">
-            <i class="el-icon-s-order"></i>
+            <AppIcon icon-class="el-icon-s-order" class=""></AppIcon>
             <span>日志管理</span>
           </div>
         </div>
@@ -72,10 +72,10 @@
           <el-row :gutter="20">
             <el-col :span="8">
               <el-card shadow="hover" class="demo-card">
-                <div slot="header" class="card-header">
-                  <i class="el-icon-trophy"></i>
+                <template #header><div  class="card-header">
+                  <AppIcon icon-class="el-icon-trophy" class=""></AppIcon>
                   <span>商务卡片</span>
-                </div>
+                </div></template>
                 <div class="card-body">
                   <p>深蓝紫色调搭配</p>
                   <p>金色点缀高亮</p>
@@ -85,10 +85,10 @@
             </el-col>
             <el-col :span="8">
               <el-card shadow="hover" class="demo-card">
-                <div slot="header" class="card-header">
-                  <i class="el-icon-data-analysis"></i>
+                <template #header><div  class="card-header">
+                  <AppIcon icon-class="el-icon-data-analysis" class=""></AppIcon>
                   <span>标签展示</span>
-                </div>
+                </div></template>
                 <div class="card-body">
                   <el-tag type="warning" effect="dark">轻奢</el-tag>
                   <el-tag type="success" effect="dark">商务</el-tag>
@@ -98,10 +98,10 @@
             </el-col>
             <el-col :span="8">
               <el-card shadow="hover" class="demo-card">
-                <div slot="header" class="card-header">
-                  <i class="el-icon-setting"></i>
+                <template #header><div  class="card-header">
+                  <AppIcon icon-class="el-icon-setting" class=""></AppIcon>
                   <span>操作按钮</span>
-                </div>
+                </div></template>
                 <div class="card-body">
                   <el-button type="primary" size="small">主要操作</el-button>
                   <el-button type="warning" size="small" plain>次要操作</el-button>
@@ -139,17 +139,17 @@
 
         <div class="features-grid">
           <div class="feature-box">
-            <i class="el-icon-medal"></i>
+            <AppIcon icon-class="el-icon-medal" class=""></AppIcon>
             <h4>高端质感</h4>
             <p>深邃的商务色彩营造专业氛围</p>
           </div>
           <div class="feature-box">
-            <i class="el-icon-trophy-1"></i>
+            <AppIcon icon-class="el-icon-trophy-1" class=""></AppIcon>
             <h4>金色点缀</h4>
             <p>轻奢的金色高亮提升品质</p>
           </div>
           <div class="feature-box">
-            <i class="el-icon-star-off"></i>
+            <AppIcon icon-class="el-icon-star-off" class=""></AppIcon>
             <h4>玻璃态效果</h4>
             <p>现代化的视觉设计风格</p>
           </div>

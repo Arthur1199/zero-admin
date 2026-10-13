@@ -3,8 +3,8 @@
     <el-dialog width="50%"
       v-bind="$attrs"
       :close-on-click-modal="false"
-      :modal-append-to-body="false"
-      v-on="$listeners"
+:teleported="false"
+
       @open="onOpen"
       @close="onClose"
     >
@@ -38,8 +38,8 @@
                 placeholder="请输入选项值"
                 clearable
               >
-                <el-select
-                  slot="append"
+                <template #append><el-select
+
                   v-model="dataType"
                   :style="{width: '100px'}"
                 >
@@ -50,13 +50,13 @@
                     :value="item.value"
                     :disabled="item.disabled"
                   />
-                </el-select>
+                </el-select></template>
               </el-input>
             </el-form-item>
           </el-col>
         </el-form>
       </el-row>
-      <div slot="footer">
+      <template #footer><div >
         <el-button
           type="primary"
           @click="handleConfirm"
@@ -66,7 +66,7 @@
         <el-button @click="close">
           取消
         </el-button>
-      </div>
+      </div></template>
     </el-dialog>
   </div>
 </template>
@@ -130,7 +130,7 @@ export default {
     },
     onClose() {},
     close() {
-      this.$emit('update:visible', false)
+      this.$emit('update:modelValue', false)
     },
     handleConfirm() {
       this.$refs.elForm.validate(valid => {

@@ -6,7 +6,7 @@
           v-model="queryParams.tableName"
           placeholder="请输入表名称"
           clearable
-          @keyup.enter.native="handleQuery"
+@keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="表描述" prop="tableComment">
@@ -14,14 +14,14 @@
           v-model="queryParams.tableComment"
           placeholder="请输入表描述"
           clearable
-          @keyup.enter.native="handleQuery"
+@keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="创建时间">
         <el-date-picker
           v-model="dateRange"
           style="width: 240px"
-          value-format="yyyy-MM-dd"
+value-format="YYYY-MM-DD"
           type="daterange"
           range-separator="-"
           start-placeholder="开始日期"
@@ -29,8 +29,8 @@
         ></el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+        <el-button type="primary" :icon="resolveIcon('el-icon-search')" size="small" @click="handleQuery">搜索</el-button>
+        <el-button :icon="resolveIcon('el-icon-refresh')" size="small" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
@@ -39,8 +39,8 @@
         <el-button
           type="primary"
           plain
-          icon="el-icon-download"
-          size="mini"
+:icon="resolveIcon('el-icon-download')"
+size="small"
           :disabled="multiple"
           @click="handleGenTable"
           v-hasPermi="['tool:gen:code']"
@@ -50,8 +50,8 @@
         <el-button
           type="primary"
           plain
-          icon="el-icon-plus"
-          size="mini"
+:icon="resolveIcon('el-icon-plus')"
+size="small"
           @click="openCreateTable"
           v-hasRole="['admin']"
         >创建</el-button>
@@ -60,8 +60,8 @@
         <el-button
           type="info"
           plain
-          icon="el-icon-upload"
-          size="mini"
+:icon="resolveIcon('el-icon-upload')"
+size="small"
           @click="openImportTable"
           v-hasPermi="['tool:gen:import']"
         >导入</el-button>
@@ -70,8 +70,8 @@
         <el-button
           type="success"
           plain
-          icon="el-icon-edit"
-          size="mini"
+:icon="resolveIcon('el-icon-edit')"
+size="small"
           :disabled="single"
           @click="handleEditTable"
           v-hasPermi="['tool:gen:edit']"
@@ -81,20 +81,20 @@
         <el-button
           type="danger"
           plain
-          icon="el-icon-delete"
-          size="mini"
+:icon="resolveIcon('el-icon-delete')"
+size="small"
           :disabled="multiple"
           @click="handleDelete"
           v-hasPermi="['tool:gen:remove']"
         >删除</el-button>
       </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
+      <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <el-table ref="tables" v-loading="loading" :data="tableList" @selection-change="handleSelectionChange" :default-sort="defaultSort" @sort-change="handleSortChange">
       <el-table-column type="selection" align="center" width="55"></el-table-column>
       <el-table-column label="序号" type="index" width="50" align="center">
-        <template slot-scope="scope">
+        <template #default="scope">
           <span>{{(queryParams.pageNum - 1) * queryParams.pageSize + scope.$index + 1}}</span>
         </template>
       </el-table-column>
@@ -104,39 +104,39 @@
       <el-table-column label="创建时间" align="center" prop="createTime" sortable="custom" :sort-orders="['descending', 'ascending']" width="160" />
       <el-table-column label="更新时间" align="center" prop="updateTime" sortable="custom" :sort-orders="['descending', 'ascending']" width="160" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-button
-            type="text"
+             link type="primary"
             size="small"
-            icon="el-icon-view"
+:icon="resolveIcon('el-icon-view')"
             @click="handlePreview(scope.row)"
             v-hasPermi="['tool:gen:preview']"
           >预览</el-button>
           <el-button
-            type="text"
+             link type="primary"
             size="small"
-            icon="el-icon-edit"
+:icon="resolveIcon('el-icon-edit')"
             @click="handleEditTable(scope.row)"
             v-hasPermi="['tool:gen:edit']"
           >编辑</el-button>
           <el-button
-            type="text"
+             link type="primary"
             size="small"
-            icon="el-icon-delete"
+:icon="resolveIcon('el-icon-delete')"
             @click="handleDelete(scope.row)"
             v-hasPermi="['tool:gen:remove']"
           >删除</el-button>
           <el-button
-            type="text"
+             link type="primary"
             size="small"
-            icon="el-icon-refresh"
+:icon="resolveIcon('el-icon-refresh')"
             @click="handleSynchDb(scope.row)"
             v-hasPermi="['tool:gen:edit']"
           >同步</el-button>
           <el-button
-            type="text"
+             link type="primary"
             size="small"
-            icon="el-icon-download"
+:icon="resolveIcon('el-icon-download')"
             @click="handleGenTable(scope.row)"
             v-hasPermi="['tool:gen:code']"
           >生成代码</el-button>
@@ -146,12 +146,12 @@
     <pagination
       v-show="total>0"
       :total="total"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
+v-model:page="queryParams.pageNum"
+v-model:limit="queryParams.pageSize"
       @pagination="getList"
     />
     <!-- 预览界面 -->
-    <el-dialog :title="preview.title" :visible.sync="preview.open" width="50%" top="5vh" append-to-body class="scrollbar" :close-on-click-modal="false">
+    <el-dialog :title="preview.title" v-model="preview.open" width="50%" top="5vh" append-to-body class="scrollbar" :close-on-click-modal="false">
       <el-tabs v-model="preview.activeName">
         <el-tab-pane
           v-for="(value, key) in preview.data"
@@ -159,7 +159,7 @@
           :name="key.substring(key.lastIndexOf('/')+1,key.indexOf('.vm'))"
           :key="key"
         >
-          <el-link :underline="false" icon="el-icon-document-copy" v-clipboard:copy="value" v-clipboard:success="clipboardSuccess" style="float:right">复制</el-link>
+          <el-link :underline="false" :icon="resolveIcon('el-icon-document-copy')" v-clipboard:copy="value" v-clipboard:success="clipboardSuccess" style="float:right">复制</el-link>
           <pre><code class="hljs" v-html="highlightedCode(value, key)"></code></pre>
         </el-tab-pane>
       </el-tabs>
@@ -173,14 +173,20 @@
 import { listTable, previewTable, delTable, genCode, synchDb } from "@/api/tool/gen"
 import importTable from "./importTable"
 import createTable from "./createTable"
+import javaLanguage from 'highlight.js/lib/languages/java'
+import xmlLanguage from 'highlight.js/lib/languages/xml'
+import htmlLanguage from 'highlight.js/lib/languages/xml'
+import vueLanguage from 'highlight.js/lib/languages/xml'
+import javascriptLanguage from 'highlight.js/lib/languages/javascript'
+import sqlLanguage from 'highlight.js/lib/languages/sql'
 import hljs from "highlight.js/lib/highlight"
 import "highlight.js/styles/github-gist.css"
-hljs.registerLanguage("java", require("highlight.js/lib/languages/java"))
-hljs.registerLanguage("xml", require("highlight.js/lib/languages/xml"))
-hljs.registerLanguage("html", require("highlight.js/lib/languages/xml"))
-hljs.registerLanguage("vue", require("highlight.js/lib/languages/xml"))
-hljs.registerLanguage("javascript", require("highlight.js/lib/languages/javascript"))
-hljs.registerLanguage("sql", require("highlight.js/lib/languages/sql"))
+hljs.registerLanguage("java", javaLanguage)
+hljs.registerLanguage("xml", xmlLanguage)
+hljs.registerLanguage("html", htmlLanguage)
+hljs.registerLanguage("vue", vueLanguage)
+hljs.registerLanguage("javascript", javascriptLanguage)
+hljs.registerLanguage("sql", sqlLanguage)
 
 export default {
   name: "Gen",
@@ -247,7 +253,9 @@ export default {
           this.total = response.total
           this.loading = false
         }
-      )
+      ).catch(() => {
+        this.loading = false
+      })
     },
     /** 搜索按钮操作 */
     handleQuery() {

@@ -3,22 +3,22 @@
     <el-dialog
       v-bind="$attrs"
       width="50%"
-      :modal-append-to-body="false"
-      v-on="$listeners"
+:teleported="false"
+
       @open="onOpen"
       @close="onClose"
      :close-on-click-modal="false">
-      <div slot="title">
+      <template #header><div >
         选择图标
         <el-input
           v-model="key"
-          size="mini"
+size="small"
           :style="{width: '260px'}"
           placeholder="请输入图标名称"
-          prefix-icon="el-icon-search"
+:prefix-icon="resolveIcon('el-icon-search')"
           clearable
         />
-      </div>
+      </div></template>
       <ul class="icon-ul">
         <li
           v-for="icon in iconList"
@@ -26,7 +26,7 @@
           :class="active===icon?'active-item':''"
           @click="onSelect(icon)"
         >
-          <i :class="icon" />
+          <AppIcon :icon-class="icon" />
           <div>{{ icon }}</div>
         </li>
       </ul>
@@ -66,7 +66,7 @@ export default {
     onSelect(icon) {
       this.active = icon
       this.$emit('select', icon)
-      this.$emit('update:visible', false)
+      this.$emit('update:modelValue', false)
     }
   }
 }
@@ -101,7 +101,7 @@ export default {
   }
 }
 .icon-dialog {
-  ::v-deep .el-dialog {
+  :deep(.el-dialog) {
     border-radius: 8px;
     margin-bottom: 0;
     margin-top: 4vh !important;

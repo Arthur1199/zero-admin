@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { Notification, MessageBox, Message, Loading } from 'element-ui'
+import { ElNotification as Notification, ElMessageBox as MessageBox, ElMessage as Message, ElLoading as Loading } from 'element-plus'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
 import errorCode from '@/utils/errorCode'
@@ -7,7 +7,6 @@ import { tansParams, blobValidate } from '@/utils/zero'
 import cache from '@/plugins/cache'
 import { saveAs } from 'file-saver'
 
-let downloadLoadingInstance
 export let isRelogin = { show: false }
 
 const googleAuthApisKey = 'google_auth_apis'
@@ -20,7 +19,7 @@ const googleCodePattern = /^\d{6}$/
 axios.defaults.headers['Content-Type'] = 'application/json;charset=utf-8'
 
 const service = axios.create({
-  baseURL: process.env.VUE_APP_BASE_API,
+  baseURL: import.meta.env.VITE_APP_BASE_API,
   timeout: 10000
 })
 
@@ -71,7 +70,6 @@ service.interceptors.request.use(async config => {
   }
   return config
 }, error => {
-  console.log(error)
   return Promise.reject(error)
 })
 
@@ -116,8 +114,9 @@ service.interceptors.response.use(res => {
     return res.data
   }
 }, error => {
-  console.log('err' + error)
-  let { message } = error
+  // 用户取消安全验证时终止调用，不改写成网络错误或暴露请求配置。
+  if (error === 'cancel' || error === 'close') return Promise.reject(error)
+  let message = error?.message || '请求失败，请重试'
   if (message === 'Network Error') {
     message = '后端接口连接异常,请检查网络连接!'
   } else if (message.includes('timeout')) {
@@ -131,7 +130,7 @@ service.interceptors.response.use(res => {
 })
 
 export function download(url, params, filename, config) {
-  downloadLoadingInstance = Loading.service({
+  const downloadLoadingInstance = Loading.service({
     text: '正在下载数据，请稍候',
     spinner: 'el-icon-loading',
     background: 'rgba(0, 0, 0, 0.7)'
@@ -155,9 +154,9 @@ export function download(url, params, filename, config) {
       Message.error(errMsg)
     }
     downloadLoadingInstance.close()
-  }).catch((r) => {
-    console.error(r)
-    Message.error('下载文件出现错误，请联系管理员！')
+  }).catch((error) => {
+    // 验证取消不提示下载故障，也不输出含凭据的 Axios 请求配置。
+    if (error !== 'cancel' && error !== 'close') Message.error('下载文件出现错误，请联系管理员！')
     downloadLoadingInstance.close()
   })
 }
@@ -291,7 +290,7 @@ function normalizeApiPath(url) {
       return ''
     }
   }
-  const baseApi = process.env.VUE_APP_BASE_API
+  const baseApi = import.meta.env.VITE_APP_BASE_API
   if (baseApi && apiPath.startsWith(baseApi)) {
     apiPath = apiPath.substring(baseApi.length)
   }

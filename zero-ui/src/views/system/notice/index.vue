@@ -6,7 +6,7 @@
           v-model="queryParams.noticeTitle"
           placeholder="请输入公告标题"
           clearable
-          @keyup.enter.native="handleQuery"
+@keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="操作人员" prop="createBy">
@@ -14,7 +14,7 @@
           v-model="queryParams.createBy"
           placeholder="请输入操作人员"
           clearable
-          @keyup.enter.native="handleQuery"
+@keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="类型" prop="noticeType">
@@ -28,8 +28,8 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+        <el-button type="primary" :icon="resolveIcon('el-icon-search')" size="small" @click="handleQuery">搜索</el-button>
+        <el-button :icon="resolveIcon('el-icon-refresh')" size="small" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
@@ -38,8 +38,8 @@
         <el-button
           type="primary"
           plain
-          icon="el-icon-plus"
-          size="mini"
+:icon="resolveIcon('el-icon-plus')"
+size="small"
           @click="handleAdd"
           v-hasPermi="['system:notice:add']"
         >新增</el-button>
@@ -48,8 +48,8 @@
         <el-button
           type="success"
           plain
-          icon="el-icon-edit"
-          size="mini"
+:icon="resolveIcon('el-icon-edit')"
+size="small"
           :disabled="single"
           @click="handleUpdate"
           v-hasPermi="['system:notice:edit']"
@@ -59,14 +59,14 @@
         <el-button
           type="danger"
           plain
-          icon="el-icon-delete"
-          size="mini"
+:icon="resolveIcon('el-icon-delete')"
+size="small"
           :disabled="multiple"
           @click="handleDelete"
           v-hasPermi="['system:notice:remove']"
         >删除</el-button>
       </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
+      <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <el-table v-loading="loading" :data="noticeList" @selection-change="handleSelectionChange">
@@ -79,34 +79,34 @@
         :show-overflow-tooltip="true"
       />
       <el-table-column label="公告类型" align="center" prop="noticeType" width="100">
-        <template slot-scope="scope">
+        <template #default="scope">
           <dict-tag :options="dict.type.sys_notice_type" :value="scope.row.noticeType"/>
         </template>
       </el-table-column>
       <el-table-column label="状态" align="center" prop="status" width="100">
-        <template slot-scope="scope">
+        <template #default="scope">
           <dict-tag :options="dict.type.sys_notice_status" :value="scope.row.status"/>
         </template>
       </el-table-column>
       <el-table-column label="创建者" align="center" prop="createBy" width="100" />
       <el-table-column label="创建时间" align="center" prop="createTime" width="100">
-        <template slot-scope="scope">
+        <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
+size="small"
+             link type="primary"
+:icon="resolveIcon('el-icon-edit')"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['system:notice:edit']"
           >修改</el-button>
           <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
+size="small"
+             link type="primary"
+:icon="resolveIcon('el-icon-delete')"
             @click="handleDelete(scope.row)"
             v-hasPermi="['system:notice:remove']"
           >删除</el-button>
@@ -117,13 +117,13 @@
     <pagination
       v-show="total>0"
       :total="total"
-      :page.sync="queryParams.pageNum"
-      :limit.sync="queryParams.pageSize"
+v-model:page="queryParams.pageNum"
+v-model:limit="queryParams.pageSize"
       @pagination="getList"
     />
 
     <!-- 添加或修改公告对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="50%" append-to-body :close-on-click-modal="false">
+    <el-dialog :title="title" v-model="open" width="50%" append-to-body :close-on-click-modal="false">
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-row>
           <el-col :span="12">
@@ -149,7 +149,7 @@
                 <el-radio
                   v-for="dict in dict.type.sys_notice_status"
                   :key="dict.value"
-                  :label="dict.value"
+:value="dict.value"
                 >{{dict.label}}</el-radio>
               </el-radio-group>
             </el-form-item>
@@ -161,10 +161,10 @@
           </el-col>
         </el-row>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <template #footer><div  class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
         <el-button @click="cancel">取 消</el-button>
-      </div>
+      </div></template>
     </el-dialog>
   </div>
 </template>
@@ -227,6 +227,8 @@ export default {
         this.noticeList = response.rows
         this.total = response.total
         this.loading = false
+      }).catch(() => {
+        this.loading = false
       })
     },
     // 取消按钮
@@ -275,7 +277,7 @@ export default {
         this.form = response.data
         this.open = true
         this.title = "修改公告"
-      })
+      }).catch(() => {}) // 详情失败由请求拦截器提示，不打开空表单。
     },
     /** 提交按钮 */
     submitForm: function() {
@@ -286,13 +288,13 @@ export default {
               this.$modal.msgSuccess("修改成功")
               this.open = false
               this.getList()
-            })
+            }).catch(() => {}) // 校验或保存失败保留正文和输入，错误提示复用请求拦截器。
           } else {
             addNotice(this.form).then(response => {
               this.$modal.msgSuccess("新增成功")
               this.open = false
               this.getList()
-            })
+            }).catch(() => {})
           }
         }
       })
