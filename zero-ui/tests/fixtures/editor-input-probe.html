@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>富文本输入诊断</title></head>
+<body>
+  <div id="app"></div>
+  <h2>原生输入</h2><div id="native-editor" contenteditable="true"></div>
+  <h2>独立Quill</h2><div id="plain-editor"></div><output id="plain-model"></output>
+  <script type="module">
+    import { createApp, h } from 'vue'
+    import ElementPlus from 'element-plus'
+    import 'element-plus/dist/index.css'
+    import Quill from 'quill'
+    import Editor from '../../src/components/Editor/index.vue'
+    window.editorWrites = []
+    const clipboard = Quill.import('modules/clipboard').prototype
+    const pasteHTML = clipboard.dangerouslyPasteHTML
+    clipboard.dangerouslyPasteHTML = function(...args) {
+      window.editorWrites.push({ args: args.filter(value => typeof value === 'string'), before: this.quill.root.innerHTML })
+      return pasteHTML.apply(this, args)
+    }
+    createApp({ data: () => ({ content: '' }), render() { return [h('h2', '项目Editor'), h(Editor, { modelValue: this.content, 'onUpdate:modelValue': value => { this.content = value } }), h('output', { id: 'vue-model' }, this.content)] } }).use(ElementPlus).mount('#app')
+    const editor = new Quill('#plain-editor', { theme: 'snow', modules: { toolbar: [['bold']] } })
+    editor.on('text-change', () => { document.querySelector('#plain-model').textContent = editor.root.innerHTML })
+  </script>
+</body>
+</html>

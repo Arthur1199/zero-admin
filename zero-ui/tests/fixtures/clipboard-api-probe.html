@@ -1,0 +1,15 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><title>剪贴板原生接口对照</title></head><body>
+<textarea id="source">legacy-probe</textarea><button id="legacy">原生复制</button><button id="modern">标准API复制</button>
+<output id="status"></output><textarea id="paste" aria-label="粘贴对照"></textarea>
+<script>
+document.querySelector('#legacy').onclick = () => {
+  const input = document.querySelector('#source'); input.focus(); input.select();
+  document.querySelector('#status').textContent = 'legacy:' + document.execCommand('copy')
+}
+document.querySelector('#modern').onclick = async () => {
+  const result = {}
+  try { await navigator.clipboard.writeText('modern-probe'); result.written = true } catch (error) { result.writeError = error.name }
+  try { result.read = await navigator.clipboard.readText() } catch (error) { result.readError = error.name }
+  document.querySelector('#status').textContent = JSON.stringify(result)
+}
+</script></body></html>

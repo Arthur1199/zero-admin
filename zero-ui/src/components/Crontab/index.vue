@@ -70,10 +70,13 @@
         <p class="title">时间表达式</p>
         <table>
           <thead>
+            <tr>
             <th v-for="item of tabTitles" width="40" :key="item">{{item}}</th>
             <th>Cron 表达式</th>
+            </tr>
           </thead>
           <tbody>
+            <tr>
             <td>
               <span>{{crontabValueObj.second}}</span>
             </td>
@@ -98,6 +101,7 @@
             <td>
               <span>{{crontabValueString}}</span>
             </td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -179,7 +183,6 @@ export default {
     },
     // 由子组件触发，更改表达式组成的字段值
     updateCrontabValue(name, value, from) {
-      "updateCrontabValue", name, value, from
       this.crontabValueObj[name] = value
       if (from && from !== name) {
         console.log(`来自组件 ${from} 改变了 ${name} ${value}`)
@@ -201,19 +204,19 @@ export default {
           let indexArr = value.split("-")
           isNaN(indexArr[0])
             ? (this.$refs[refName].cycle01 = 0)
-            : (this.$refs[refName].cycle01 = indexArr[0])
-          this.$refs[refName].cycle02 = indexArr[1]
+            : (this.$refs[refName].cycle01 = Number(indexArr[0]))
+          this.$refs[refName].cycle02 = Number(indexArr[1])
           insValue = 2
         } else if (value.indexOf("/") > -1) {
           let indexArr = value.split("/")
           isNaN(indexArr[0])
             ? (this.$refs[refName].average01 = 0)
-            : (this.$refs[refName].average01 = indexArr[0])
-          this.$refs[refName].average02 = indexArr[1]
+            : (this.$refs[refName].average01 = Number(indexArr[0]))
+          this.$refs[refName].average02 = Number(indexArr[1])
           insValue = 3
         } else {
           insValue = 4
-          this.$refs[refName].checkboxList = value.split(",")
+          this.$refs[refName].checkboxList = value.split(",").map(item => name === "week" ? item : Number(item))
         }
       } else if (name == "day") {
         if (value === "*") {
@@ -224,26 +227,26 @@ export default {
           let indexArr = value.split("-")
           isNaN(indexArr[0])
             ? (this.$refs[refName].cycle01 = 0)
-            : (this.$refs[refName].cycle01 = indexArr[0])
-          this.$refs[refName].cycle02 = indexArr[1]
+            : (this.$refs[refName].cycle01 = Number(indexArr[0]))
+          this.$refs[refName].cycle02 = Number(indexArr[1])
           insValue = 3
         } else if (value.indexOf("/") > -1) {
           let indexArr = value.split("/")
           isNaN(indexArr[0])
             ? (this.$refs[refName].average01 = 0)
-            : (this.$refs[refName].average01 = indexArr[0])
-          this.$refs[refName].average02 = indexArr[1]
+            : (this.$refs[refName].average01 = Number(indexArr[0]))
+          this.$refs[refName].average02 = Number(indexArr[1])
           insValue = 4
         } else if (value.indexOf("W") > -1) {
           let indexArr = value.split("W")
           isNaN(indexArr[0])
             ? (this.$refs[refName].workday = 0)
-            : (this.$refs[refName].workday = indexArr[0])
+            : (this.$refs[refName].workday = Number(indexArr[0]))
           insValue = 5
         } else if (value === "L") {
           insValue = 6
         } else {
-          this.$refs[refName].checkboxList = value.split(",")
+          this.$refs[refName].checkboxList = value.split(",").map(item => name === "week" ? item : Number(item))
           insValue = 7
         }
       } else if (name == "week") {
@@ -255,24 +258,23 @@ export default {
           let indexArr = value.split("-")
           isNaN(indexArr[0])
             ? (this.$refs[refName].cycle01 = 0)
-            : (this.$refs[refName].cycle01 = indexArr[0])
-          this.$refs[refName].cycle02 = indexArr[1]
+            : (this.$refs[refName].cycle01 = Number(indexArr[0]))
+          this.$refs[refName].cycle02 = Number(indexArr[1])
           insValue = 3
         } else if (value.indexOf("#") > -1) {
           let indexArr = value.split("#")
-          isNaN(indexArr[0])
-            ? (this.$refs[refName].average01 = 1)
-            : (this.$refs[refName].average01 = indexArr[0])
-          this.$refs[refName].average02 = indexArr[1]
+          // Quartz为“星期#第几次”，界面先显示第几周，再显示星期。
+          this.$refs[refName].average01 = Number(indexArr[1])
+          this.$refs[refName].average02 = Number(indexArr[0])
           insValue = 4
         } else if (value.indexOf("L") > -1) {
           let indexArr = value.split("L")
           isNaN(indexArr[0])
             ? (this.$refs[refName].weekday = 1)
-            : (this.$refs[refName].weekday = indexArr[0])
+            : (this.$refs[refName].weekday = Number(indexArr[0]))
           insValue = 5
         } else {
-          this.$refs[refName].checkboxList = value.split(",")
+          this.$refs[refName].checkboxList = value.split(",").map(item => name === "week" ? item : Number(item))
           insValue = 6
         }
       } else if (name == "year") {
@@ -281,11 +283,17 @@ export default {
         } else if (value == "*") {
           insValue = 2
         } else if (value.indexOf("-") > -1) {
+          const years = value.split("-").map(Number)
+          this.$refs[refName].cycle01 = years[0]
+          this.$refs[refName].cycle02 = years[1]
           insValue = 3
         } else if (value.indexOf("/") > -1) {
+          const years = value.split("/").map(Number)
+          this.$refs[refName].average01 = years[0]
+          this.$refs[refName].average02 = years[1]
           insValue = 4
         } else {
-          this.$refs[refName].checkboxList = value.split(",")
+          this.$refs[refName].checkboxList = value.split(",").map(item => name === "week" ? item : Number(item))
           insValue = 5
         }
       }
@@ -293,6 +301,7 @@ export default {
     },
     // 表单选项的子组件校验数字格式（通过-props传递）
     checkNumber(value, minLimit, maxLimit) {
+      if (value == null || value === "" || !Number.isFinite(Number(value))) return minLimit
       // 检查必须为整数
       value = Math.floor(value)
       if (value < minLimit) {
@@ -313,7 +322,6 @@ export default {
     },
     clearCron() {
       // 还原选择项
-      ("准备还原")
       this.crontabValueObj = {
         second: "*",
         min: "*",
@@ -376,7 +384,8 @@ export default {
 .popup-main {
   position: relative;
   margin: 10px auto;
-  background: #fff;
+  background: var(--el-bg-color);
+  color: var(--el-text-color-primary);
   border-radius: 5px;
   font-size: 12px;
   overflow: hidden;
@@ -385,14 +394,14 @@ export default {
   overflow: hidden;
   line-height: 34px;
   padding-top: 6px;
-  background: #f2f2f2;
+  background: var(--el-fill-color-light);
 }
 .popup-result {
   box-sizing: border-box;
   line-height: 24px;
   margin: 25px auto;
   padding: 15px 10px 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--el-border-color);
   position: relative;
 }
 .popup-result .title {
@@ -404,7 +413,7 @@ export default {
   margin-left: -70px;
   text-align: center;
   line-height: 30px;
-  background: #fff;
+  background: var(--el-bg-color);
 }
 .popup-result table {
   text-align: center;
@@ -419,7 +428,7 @@ export default {
   height: 30px;
   white-space: nowrap;
   overflow: hidden;
-  border: 1px solid #e8e8e8;
+  border: 1px solid var(--el-border-color);
 }
 .popup-result-scroll {
   font-size: 12px;

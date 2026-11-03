@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>上传及富文本组件验收</title></head>
+<body>
+  <div id="app"></div>
+  <script type="module">
+    import { createApp } from 'vue'
+    import ElementPlus from 'element-plus'
+    import zhCn from 'element-plus/es/locale/lang/zh-cn'
+    import 'element-plus/dist/index.css'
+    import Plugins from '../../src/plugins/index.js'
+    import AppIcon from '../../src/components/AppIcon/index.vue'
+    import Harness from './UploadEditor.vue'
+    createApp(Harness).use(ElementPlus, { locale: zhCn }).use(Plugins).component('AppIcon', AppIcon).mount('#app')
+  </script>
+</body>
+</html>

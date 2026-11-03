@@ -17,8 +17,9 @@
 - `zero-tools` 承载跨服务复用的基础常量、统一返回对象和通用工具，`zero-report` 当前直接依赖它；不要把只属于 admin 的 `common` 类误搬到 `zero-tools`。
 - `zero-bootAdmin` 是服务监控相关模块，分析监控功能时需单独读取该模块和各服务 Actuator 暴露配置。
 - `zero-file` 是独立文件服务，入口为 `com.zero.ZeroFileApplication`，通过 `@EnableFileStorage` 启用存储能力，使用 MyBatis-Plus、dynamic-datasource 和 `zero-tools`，文件记录表为业务库的 `biz_file_detail`。
-- 前端模块：`zero-ui`，Vue 2.6 + Vue CLI 4 + Vue Router 3 + Vuex 3 + Element UI 2。
-- 前端请求：Axios 封装在 `zero-ui/src/utils/request.js`，开发代理在 `zero-ui/vue.config.js`，后端默认 `http://localhost:9099`。
+- 前端模块：`zero-ui`，Vue 3.5.43 + Vite 8.3.3 + Vue Router 4.6.4 + Vuex 4.1.0 + Element Plus 2.14.7，保留 Options API，使用 Node 24.21.0。
+- 前端请求：Axios 封装在 `zero-ui/src/utils/request.js`，开发代理在 `zero-ui/vite.config.mjs`，浏览器变量使用 `VITE_APP_*`，后端默认 `http://localhost:9099`。
+- Vue3升级后的构建、缓存、主题和固定列规则以 `zero-ui/AGENTS.md`、`前段项目升级方案` 为准；下文旧 Element UI 字样仅指历史实现。当前固定列采用 Element Plus sticky 单元格，不能按旧镜像表结构新增覆盖。
 - 数据库脚本当前分为 `sql/zero_admin.sql`、`sql/zero_biz.sql`、`sql/quartz.sql`。`zero_admin` 承载管理后台和若依系 `sys_*`、`gen_*`、监控/配置等表；`zero_biz` 承载业务库表，例如 `biz_dict_group`、`biz_dict_item`。
 
 ## 后端结构规则
@@ -204,7 +205,7 @@
 
 ## 前端结构规则
 
-- 前端是 Vue2 Options API 项目，不使用 Vue3、Pinia、Vite、Composition API，除非用户明确要求大改并确认风险。
+- 前端已按授权升级为 Vue3 + Vite，继续使用 Options API、Vuex4 和 Element Plus；不擅自引入 Pinia、TypeScript 或批量改为 Composition API。
 - API 请求统一放在 `src/api/**`，通过 `@/utils/request` 发起。
 - 页面放在 `src/views/**`，布局在 `src/layout/**`，公共组件在 `src/components/**`。
 - 路由分两类：`router/index.js` 中的静态/动态路由，以及后端 `getRouters` 返回的菜单路由。后端菜单的 `component` 会按 `@/views/${view}` 动态加载，例如 report 页面组件应写成 `reportSystem/bizDict/index`。
@@ -272,7 +273,7 @@
 - 保持当前文件风格，精准局部改动，不做无关重构。
 - Java 代码使用现有工具类：`StringUtils`、`SecurityUtils`、`DateUtils`、`ExcelUtil`、`RedisCache` 等。
 - 新增或修改 Java 代码时，必须同步维护注释；注释要贴合项目现有风格，说明业务职责、参数含义、返回语义、边界和安全原因，避免空话、过期注释和与代码不一致的注释。
-- 前端保持 Vue2 写法、单引号/双引号风格按当前文件就近一致，不批量格式化。
+- 前端保持 Vue3 Options API 写法、单引号/双引号风格按当前文件就近一致，不批量格式化。
 - 中文文件按 UTF-8 读取和写入；如果发现乱码，必须重新确认编码后再编辑。
 - 不新增全局依赖、不升级框架、不改构建配置，除非需求必须且已说明影响范围。
 

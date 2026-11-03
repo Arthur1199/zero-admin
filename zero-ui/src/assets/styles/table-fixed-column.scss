@@ -1,5 +1,4 @@
-// Element UI renders fixed columns as mirrored tables. Keep their panel, header,
-// rows and empty area aligned with the active theme instead of leaking defaults.
+// Element Plus固定列使用sticky单元格，统一面板、表头、行和空数据区域的主题变量。
 :root {
   --zero-fixed-table-panel-bg: #ffffff;
   --zero-fixed-table-header-bg: #f8f8f9;
