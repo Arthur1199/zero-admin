@@ -13,7 +13,7 @@
 
 零号是一套全部开源的快速开发平台，毫无保留给个人及企业免费使用。
 
-* 前端采用Vue、Element UI。
+* 当前 zero-ui 采用 Vue 3 + Vite + Element Plus，保留 Options API 和 Vuex 4。使用 Node 24.21.0、npm ci；升级说明见根目录“前段项目升级方案”。
 * 后端采用Spring Boot、Spring Security、Redis & Jwt。
 * 权限认证使用Jwt，支持多终端认证系统。
 * 支持加载动态权限菜单，多方式轻松权限控制。

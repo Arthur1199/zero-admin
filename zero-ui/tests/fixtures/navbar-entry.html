@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>布局入口回归</title></head>
+<body>
+  <div id="app"></div>
+  <script type="module">
+    // 从顶部栏开始加载也应正常初始化，覆盖布局与路由的循环引用。
+    import '../../src/layout/components/Navbar.vue'
+    import '../../src/main.js'
+    import router from '../../src/router/index.js'
+    router.isReady().then(() => router.replace('/index'))
+  </script>
+</body>
+</html>

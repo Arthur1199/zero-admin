@@ -1,4 +1,7 @@
-import JSEncrypt from 'jsencrypt/bin/jsencrypt.min'
+import JSEncryptModule from 'jsencrypt/bin/jsencrypt.min'
+
+// 旧版本UMD导出的是模块对象，Vite不会自动取内部的构造函数。
+const { JSEncrypt } = JSEncryptModule
 
 // 密钥对生成 http://web.chacuo.net/netrsakeypair
 
@@ -27,4 +30,3 @@ export function decrypt(txt) {
   encryptor.setPrivateKey(privateKey) // 设置私钥
   return encryptor.decrypt(txt) // 对数据进行解密
 }
-

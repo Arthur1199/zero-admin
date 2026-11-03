@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>公共图片预览回归</title></head>
+<body>
+  <div id="app"></div>
+  <script type="module">
+    import { createApp, h } from 'vue'
+    import ElementPlus from 'element-plus'
+    import 'element-plus/dist/index.css'
+    import ImagePreview from '../../src/components/ImagePreview/index.vue'
+    import AppIcon from '../../src/components/AppIcon/index.vue'
+    import '../../src/assets/styles/vue3-compat.scss'
+    createApp({
+      render() {
+        return h('div', { style: 'transform:translateZ(0);overflow:hidden;width:140px;height:100px' }, [
+          h(ImagePreview, { src: 'http://127.0.0.1:5178/preview-test.svg,http://127.0.0.1:5178/preview-test.svg?second', width: 96, height: 72 })
+        ])
+      }
+    }).use(ElementPlus).component('AppIcon', AppIcon).mount('#app')
+  </script>
+</body>
+</html>
