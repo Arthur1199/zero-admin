@@ -1,0 +1,88 @@
+{
+  "repository": "https://github.com/yangzongzhuan/RuoYi-Vue",
+  "tag": "v3.9.0",
+  "commit": "fa88922637fa674026ef0a6f3db5f46a3d946945",
+  "upstreamPath": "ruoyi-generator/src/main/resources/vm",
+  "downloadedAt": "2026-11-16T15:36:58.3353152+08:00",
+  "templateCount": 13,
+  "files": [
+    {
+      "path": "vm/java/controller.java.vm",
+      "bytes": 4150,
+      "gitBlobSha": "bf8898879a90dfff108d6ddf0b0fe852d3db8f8a",
+      "sha256": "99eb51490fd3b0cf72ad09d3012f6c543747b707f763e4182a78326fb4a43e03"
+    },
+    {
+      "path": "vm/java/domain.java.vm",
+      "bytes": 3016,
+      "gitBlobSha": "4535e84cadbf51b77e9609ddd0b5a05b5edc2964",
+      "sha256": "8a0752b525cde544d7674ff0e6523dc3a8237b784f540362f9208cd52666211a"
+    },
+    {
+      "path": "vm/java/mapper.java.vm",
+      "bytes": 2448,
+      "gitBlobSha": "7e7d7c26f4f967da6ff36ed9978e9798cdfeaeaa",
+      "sha256": "ea02469315fc6341b73b014e0887f6297c500d1fdee19ba422528ae0937dfd36"
+    },
+    {
+      "path": "vm/java/service.java.vm",
+      "bytes": 1645,
+      "gitBlobSha": "250f68c8c1d49a63ddbe3c728f74f96dbfe82f75",
+      "sha256": "6df595e246fa8f8a8bd7505b3d1d7a44cf4836668906e796706d9f69d53451a5"
+    },
+    {
+      "path": "vm/java/serviceImpl.java.vm",
+      "bytes": 5041,
+      "gitBlobSha": "116f6c544d5f09f966dc0d3e1e4274023c9377e1",
+      "sha256": "b1730089c40431f7fb242cdf5c8e14fc249de568554a31def34c2dffabd8c110"
+    },
+    {
+      "path": "vm/java/sub-domain.java.vm",
+      "bytes": 2325,
+      "gitBlobSha": "b5e308cf7428a9c9ecfc280dfda9098d32bb3a2c",
+      "sha256": "549d5e96c53b871b90e39c2054b033dece9646db5a5c45d9fdd78371944e5593"
+    },
+    {
+      "path": "vm/js/api.js.vm",
+      "bytes": 1023,
+      "gitBlobSha": "d78cd2f64a7661af83d6bf3ad204475e8b46db47",
+      "sha256": "1a8f020223fa7c9885cee79e910b72a77b1241d90ab3b6d929a53e3af9fad89a"
+    },
+    {
+      "path": "vm/sql/sql.vm",
+      "bytes": 2240,
+      "gitBlobSha": "b50ef2155edfc79857ecbfb05d347a054d520053",
+      "sha256": "bea5cef7107327fafa064a43b3025c503f8cd0be80e33d864e0f0d6efc60e0f0"
+    },
+    {
+      "path": "vm/vue/index-tree.vue.vm",
+      "bytes": 18145,
+      "gitBlobSha": "2bd92899130e1e47162e1566ce20163dbf8c5fdf",
+      "sha256": "aeb2b11e9b8f3f941136ac4d0feb3e35679419f5e78f18d2b3fe6345eb9e55b7"
+    },
+    {
+      "path": "vm/vue/index.vue.vm",
+      "bytes": 22329,
+      "gitBlobSha": "725326659b5d3d6d79a2e0e72e64e2407851a70e",
+      "sha256": "01ef439ec5c30fe1e127e85f2d7661ba6a209fbb0ac68cc7cba49d2cd2e333ee"
+    },
+    {
+      "path": "vm/vue/v3/index-tree.vue.vm",
+      "bytes": 16448,
+      "gitBlobSha": "765a5e300a9320f52be25fd3eb6d101ed04c7119",
+      "sha256": "8f9aa7340f3140565ab5e561c5f8ea17973adc9cad1ad43c970dd8b2e843fa54"
+    },
+    {
+      "path": "vm/vue/v3/index.vue.vm",
+      "bytes": 20775,
+      "gitBlobSha": "936b4651f415407b3dfc970f6409d7d63e623a7c",
+      "sha256": "52283ff85da722eb4d2be1ac091b6bf67aa265e8dcfe4e8554d2d89ecedb5193"
+    },
+    {
+      "path": "vm/xml/mapper.xml.vm",
+      "bytes": 7055,
+      "gitBlobSha": "84ce337b16856c275c4e1679e7baba8cf6d6dfe5",
+      "sha256": "0d7c16bf0ce152adc7c1256fab259076b3ae788848ac86b6697b05a9d2190d5b"
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.zero.common.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -48,23 +49,31 @@ public class SysUserOnlineController extends BaseController
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
-     * 说明: 查询
+     * 说明: 向具有在线用户菜单权限的账号返回所有会话及完整JWT，响应禁止缓存且不记录响应日志
      * @param ipaddr IP地址参数
      * @param userName 用户名称参数
+     * @param response 响应对象，用于禁止浏览器和代理缓存授权令牌
      * @return
      * 返回值: TableDataInfo
-     * 返回值说明：查询
+     * 返回值说明：在线会话列表，包含不遮挡的完整授权令牌
      */
 
     @RequiresPermissions("monitor:online:list")
     @GetMapping("/list")
-    public TableDataInfo list(String ipaddr, String userName)
+    public TableDataInfo list(String ipaddr, String userName, HttpServletResponse response)
     {
+        response.setHeader("Cache-Control", "no-store");
+        response.setHeader("Pragma", "no-cache");
         Collection<String> keys = redisCache.keys(CacheConstants.LOGIN_TOKEN_KEY + "*");
         List<SysUserOnline> userOnlineList = new ArrayList<SysUserOnline>();
         for (String key : keys)
         {
             LoginUser user = redisCache.getCacheObject(key);
+            // 扫描后会话可能并发过期或被强退，跳过失效缓存。
+            if (user == null || user.getUser() == null)
+            {
+                continue;
+            }
             if (StringUtils.isNotEmpty(ipaddr) && StringUtils.isNotEmpty(userName))
             {
                 userOnlineList.add(userOnlineService.selectOnlineByInfo(ipaddr, userName, user));

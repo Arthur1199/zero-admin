@@ -116,6 +116,8 @@ public class SecurityConfig
                 requests.requestMatchers("/login", "/captchaImage", "/google/generateGaImage", "/google/bind").permitAll()
                     // 静态资源，可匿名访问
                     .requestMatchers(HttpMethod.GET, "/","/*.html", "/**.html", "/**.css", "/**.js", "/profile/**").permitAll()
+                    // Swagger UI独立读取配置和分组文档，仅放行文档子路径的GET请求。
+                    .requestMatchers(HttpMethod.GET, "/v3/api-docs/**").permitAll()
                     .requestMatchers("/swagger-ui/index.html", "/swagger-ui/**", "/webjars/**", "/*/api-docs", "/druid/**", "/actuator/**").permitAll()
 //                    .requestMatchers(HttpMethod.POST, "/", "/*").permitAll()
                     // 除上面外的所有请求全部需要鉴权认证

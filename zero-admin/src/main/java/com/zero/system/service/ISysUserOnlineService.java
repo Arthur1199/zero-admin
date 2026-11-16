@@ -55,7 +55,7 @@ public interface ISysUserOnlineService
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
-     * 说明: 设置在线用户信息
+     * 说明: 设置在线用户信息及含Bearer前缀的完整授权令牌，调用入口须校验monitor:online:list权限
      * @param user 用户信息
      * @return
      * 返回值: 在线用户

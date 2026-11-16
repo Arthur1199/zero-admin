@@ -57,6 +57,8 @@ export default {
         if (valid) {
           updateUserPwd(this.user.oldPassword, this.user.newPassword).then(response => {
             this.$modal.msgSuccess("修改成功")
+          }).catch(() => {
+            // 保存失败保留表单，不重复提示接口错误。
           })
         }
       })

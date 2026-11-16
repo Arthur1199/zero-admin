@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test'
 import { authenticated } from './mock-api'
 
-test('八主题水波纹、脉冲和流光点击动画可见，关闭特效和重复点击会清理', async ({ page }) => {
-  test.setTimeout(180000)
+for (const theme of ['毛玻璃拟态风', '高端暗黑风', '极简未来风', '原始风格', '轻奢商务风', '活力科技风', '温馨自然风', '质感设计风']) {
+test(`${theme}水波纹、脉冲和流光点击动画可见，关闭特效和重复点击会清理`, async ({ page }) => {
+  test.setTimeout(45000)
   const errors = []; page.on('pageerror', error => errors.push(error.message))
   await authenticated(page, { menus: [{ path: '/system', component: 'Layout', alwaysShow: true, meta: { title: '系统管理' }, children: [
     { path: 'config', name: 'Config', component: 'system/config/index', meta: { title: '后台参数设置' } },
@@ -14,7 +15,6 @@ test('八主题水波纹、脉冲和流光点击动画可见，关闭特效和�
   const sidebar = page.locator('.sidebar-container')
   const menu = sidebar.locator('a[href="/index"] .el-menu-item')
   const settings = page.locator('.el-drawer')
-  for (const theme of ['毛玻璃拟态风', '高端暗黑风', '极简未来风', '原始风格', '轻奢商务风', '活力科技风', '温馨自然风', '质感设计风']) {
     await page.locator('.navbar .setting').click()
     await settings.locator('.drawer-select').first().click()
     await page.getByRole('option', { name: theme, exact: true }).click()
@@ -50,7 +50,6 @@ test('八主题水波纹、脉冲和流光点击动画可见，关闭特效和�
       await expect(menu).not.toHaveClass(/menu-clicking/)
       await expect(menu.locator('.zero-menu-click-effect')).toHaveCount(0)
     }
-  }
   await page.locator('.navbar .setting').click()
   await settings.locator('.drawer-select').last().click()
   await page.getByRole('option', { name: '绚丽脉冲', exact: true }).click()
@@ -70,3 +69,4 @@ test('八主题水波纹、脉冲和流光点击动画可见，关闭特效和�
   await expect(sidebar.locator('.zero-menu-click-effect')).toHaveCount(0)
   expect(errors).toEqual([])
 })
+}

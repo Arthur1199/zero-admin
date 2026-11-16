@@ -113,7 +113,7 @@ export default {
           this.visible = false
           this.$emit("ok")
         }
-      })
+      }).catch(() => {})
     }
   }
 }

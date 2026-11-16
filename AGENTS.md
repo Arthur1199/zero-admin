@@ -13,6 +13,8 @@
 - 后端是 Maven 多模块项目，父工程 `pom.xml` 当前模块为：`zero-tools`、`zero-admin`、`zero-bootAdmin`、`zero-report`、`zero-file`。
 - 父工程当前基线：Java 17、Spring Boot 3.5.12、Spring Framework 6.2.18、Spring Cloud 2025.0.2、Spring Cloud Alibaba 2025.0.0.0。不要按 Java 8 或旧 Spring Boot 2 项目处理，也不要引入未经项目验证的新框架。
 - `zero-admin` 是管理后台服务，主入口为 `com.zero.ZeroAdminApplication`，启用 Nacos 注册/配置、OpenFeign、LoadBalancer，并排除默认数据源自动配置。主要技术包括 Spring Security、JWT、MyBatis XML、PageHelper、Druid、Redis、Quartz、Actuator、SpringDoc、Kaptcha、Fastjson2、POI。
+- 系统接口文档使用 SpringDoc 2.8.17，与当前 Boot 3.5 / Spring 6.2 配套；文档子路径 `/v3/api-docs/**` 仅额外放行 GET，保证 Swagger UI 可读取配置和文档，不扩大业务接口的匿名访问。
+- Swagger3Config声明HTTP Bearer/JWT方案；后台Axios登录请求头不会自动继承到Swagger，调试受保护接口须在Authorize输入原始Token，不带Bearer前缀。不要把Token写入文档、日志、URL或测试产物。
 - `zero-report` 是报表/业务服务，主入口为 `com.zero.ZeroReportApplication`，启用 Nacos 注册/配置、OpenFeign、`@MapperScan`。主要技术包括 MyBatis-Plus、MyBatis-Plus 分页拦截器、dynamic-datasource、PageHelper（复杂 XML 报表 SQL 保留使用）、Redis、Actuator、Validation、Lombok。
 - `zero-tools` 承载跨服务复用的基础常量、统一返回对象和通用工具，`zero-report` 当前直接依赖它；不要把只属于 admin 的 `common` 类误搬到 `zero-tools`。
 - `zero-bootAdmin` 是服务监控相关模块，分析监控功能时需单独读取该模块和各服务 Actuator 暴露配置。
@@ -181,6 +183,7 @@
 ## 后端安全与权限
 
 - `zero-admin` Spring Security 是无状态 JWT 模式，Token 请求头为 `Authorization: Bearer <token>`。
+- 在线用户列表按用户明确授权，向具备`monitor:online:list`菜单权限的所有账号返回每条会话的完整`authorizationToken`（含`Bearer `前缀），不遮挡、不另加超级管理员限制。该菜单权限包含读取其它账号会话凭证的能力；列表响应禁止缓存，不记录令牌日志，不写入数据库，不刷新被查看会话有效期。页面完整显示会话编号，并保留底部横向滚动条。
 - `zero-admin` 匿名路径在 `SecurityConfig` 和 `@Anonymous` / `PermitAllUrlProperties` 相关逻辑中体现，新增匿名接口必须谨慎确认。
 - `zero-admin` 登录验证码由 `/captchaImage`、`SysLoginService.validateCaptcha`、`ISysConfigService.selectCaptchaEnabled()` 和配置项 `sys.account.captchaEnabled` 控制。
 - `zero-admin` 当前 XSS 配置在 `application.yml` 的 `xss` 节，匹配 `/system/*,/monitor/*,/tool/*`，不要认为所有 JSON 请求都天然安全。

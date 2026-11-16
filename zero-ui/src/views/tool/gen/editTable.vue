@@ -1,5 +1,5 @@
 <template>
-  <el-card>
+  <el-card v-loading="loading">
     <el-tabs v-model="activeName">
       <el-tab-pane label="基本信息" name="basic">
         <basic-info-form ref="basicInfo" :info="info" />
@@ -40,22 +40,22 @@
 
           <el-table-column label="插入" min-width="5%">
             <template #default="scope">
-              <el-checkbox true-label="1" false-label="0" v-model="scope.row.isInsert"></el-checkbox>
+              <el-checkbox true-value="1" false-value="0" v-model="scope.row.isInsert"></el-checkbox>
             </template>
           </el-table-column>
           <el-table-column label="编辑" min-width="5%">
             <template #default="scope">
-              <el-checkbox true-label="1" false-label="0" v-model="scope.row.isEdit"></el-checkbox>
+              <el-checkbox true-value="1" false-value="0" v-model="scope.row.isEdit"></el-checkbox>
             </template>
           </el-table-column>
           <el-table-column label="列表" min-width="5%">
             <template #default="scope">
-              <el-checkbox true-label="1" false-label="0" v-model="scope.row.isList"></el-checkbox>
+              <el-checkbox true-value="1" false-value="0" v-model="scope.row.isList"></el-checkbox>
             </template>
           </el-table-column>
           <el-table-column label="查询" min-width="5%">
             <template #default="scope">
-              <el-checkbox true-label="1" false-label="0" v-model="scope.row.isQuery"></el-checkbox>
+              <el-checkbox true-value="1" false-value="0" v-model="scope.row.isQuery"></el-checkbox>
             </template>
           </el-table-column>
           <el-table-column label="查询方式" min-width="10%">
@@ -74,7 +74,7 @@
           </el-table-column>
           <el-table-column label="必填" min-width="5%">
             <template #default="scope">
-              <el-checkbox true-label="1" false-label="0" v-model="scope.row.isRequired"></el-checkbox>
+              <el-checkbox true-value="1" false-value="0" v-model="scope.row.isRequired"></el-checkbox>
             </template>
           </el-table-column>
           <el-table-column label="显示类型" min-width="12%">
@@ -114,7 +114,7 @@
     </el-tabs>
     <el-form label-width="100px">
       <el-form-item style="text-align: center;margin-left:-100px;margin-top:10px;">
-        <el-button type="primary" @click="submitForm()">提交</el-button>
+        <el-button type="primary" :disabled="loading || !loaded" :loading="submitting" @click="submitForm()">提交</el-button>
         <el-button @click="close()">返回</el-button>
       </el-form-item>
     </el-form>
@@ -128,6 +128,7 @@ import { listMenu as getMenuTreeselect } from "@/api/system/menu"
 import basicInfoForm from "./basicInfoForm"
 import genInfoForm from "./genInfoForm"
 import Sortable from 'sortablejs'
+import { markRaw } from 'vue'
 
 export default {
   name: "GenEdit",
@@ -137,6 +138,10 @@ export default {
   },
   data() {
     return {
+      loading: false,
+      loaded: false,
+      submitting: false,
+      sortable: null,
       // 选中选项卡的 name
       activeName: "columnInfo",
       // 表格的高度
@@ -154,33 +159,46 @@ export default {
     }
   },
   created() {
-    const tableId = this.$route.params && this.$route.params.tableId
-    if (tableId) {
-      // 获取表详细信息
-      getGenTable(tableId).then(res => {
-        this.columns = res.data.rows
-        this.info = res.data.info
-        this.tables = res.data.tables
-      })
-      /** 查询字典下拉列表 */
-      getDictOptionselect().then(response => {
-        this.dictOptions = response.data
-      })
-      /** 查询菜单下拉列表 */
-      getMenuTreeselect().then(response => {
-        this.menus = this.handleTree(response.data, "menuId")
-      })
-    }
+    this.loadTable()
   },
   methods: {
+    /** 详情及选项齐备后允许提交，避免保存半份配置。 */
+    async loadTable() {
+      const tableId = this.$route.params && this.$route.params.tableId
+      if (!tableId) return
+      this.loading = true
+      this.loaded = false
+      try {
+        const [table, dict, menu] = await Promise.all([
+          getGenTable(tableId), getDictOptionselect(), getMenuTreeselect()
+        ])
+        this.columns = table.data.rows || []
+        this.info = table.data.info || {}
+        this.tables = table.data.tables || []
+        this.dictOptions = dict.data || []
+        this.menus = this.handleTree(menu.data || [], "menuId")
+        this.loaded = Boolean(this.info.tableId)
+      } catch {
+        this.columns = []
+        this.info = {}
+        this.tables = []
+        this.dictOptions = []
+        this.menus = []
+      } finally {
+        this.loading = false
+      }
+    },
     /** 提交按钮 */
-    submitForm() {
-      const basicForm = this.$refs.basicInfo.$refs.basicInfoForm
-      const genForm = this.$refs.genInfo.$refs.genInfoForm
-      Promise.all([basicForm, genForm].map(this.getFormPromise)).then(res => {
+    async submitForm() {
+      if (!this.loaded || this.loading || this.submitting) return
+      this.submitting = true
+      try {
+        const basicForm = this.$refs.basicInfo.$refs.basicInfoForm
+        const genForm = this.$refs.genInfo.$refs.genInfoForm
+        const res = await Promise.all([basicForm, genForm].map(this.getFormPromise))
         const validateResult = res.every(item => !!item)
         if (validateResult) {
-          const genTable = Object.assign({}, basicForm.model, genForm.model)
+          const genTable = Object.assign({}, this.info)
           genTable.columns = this.columns
           genTable.params = {
             treeCode: genTable.treeCode,
@@ -188,16 +206,19 @@ export default {
             treeParentCode: genTable.treeParentCode,
             parentMenuId: genTable.parentMenuId
           }
-          updateGenTable(genTable).then(res => {
-            this.$modal.msgSuccess(res.msg)
-            if (res.code === 200) {
-              this.close()
-            }
-          })
+          const response = await updateGenTable(genTable)
+          this.$modal.msgSuccess(response.msg)
+          if (response.code === 200) {
+            this.close()
+          }
         } else {
           this.$modal.msgError("表单校验未通过，请重新检查提交内容")
         }
-      })
+      } catch {
+        // 请求提示由拦截器处理，失败保留配置供重试。
+      } finally {
+        this.submitting = false
+      }
     },
     getFormPromise(form) {
       return new Promise(resolve => {
@@ -213,17 +234,27 @@ export default {
     }
   },
   mounted() {
-    const el = this.$refs.dragTable.$el.querySelectorAll(".el-table__body-wrapper > table > tbody")[0]
-    const sortable = Sortable.create(el, {
+    const el = this.$refs.dragTable.$el.querySelector(".el-table__body-wrapper tbody")
+    if (!el) return
+    this.sortable = markRaw(Sortable.create(el, {
       handle: ".allowDrag",
       onEnd: evt => {
+        if (!Number.isInteger(evt.oldIndex) || !Number.isInteger(evt.newIndex) || evt.oldIndex === evt.newIndex) return
+        if (evt.oldIndex < 0 || evt.newIndex < 0 || evt.oldIndex >= this.columns.length || evt.newIndex >= this.columns.length) return
+        // Sortable先移动真实节点，恢复原顺序后交给Vue按稳定key重排。
+        const parent = evt.item.parentNode
+        parent.removeChild(evt.item)
+        parent.insertBefore(evt.item, parent.children[evt.oldIndex] || null)
         const targetRow = this.columns.splice(evt.oldIndex, 1)[0]
         this.columns.splice(evt.newIndex, 0, targetRow)
         for (let index in this.columns) {
           this.columns[index].sort = parseInt(index) + 1
         }
       }
-    })
+    }))
+  },
+  beforeUnmount() {
+    this.sortable?.destroy()
   }
 }
 </script>

@@ -13,6 +13,38 @@ public class SysUserOnline
      */
     private String tokenId;
 
+    /** 在线会话完整授权头，含Bearer前缀；仅向具有在线用户菜单权限的账号返回，不得记录日志 */
+    private String authorizationToken;
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/16 14:56
+     * 说明: 获取在线会话的授权令牌
+     * @return
+     * 返回值: String
+     * 返回值说明: Bearer前缀及完整JWT，缺失会话信息时为空字符串
+     */
+    public String getAuthorizationToken()
+    {
+        return authorizationToken;
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/16 14:56
+     * 说明: 设置仅用于在线用户授权展示的JWT，不持久化
+     * @param authorizationToken Bearer前缀及完整JWT
+     * @return
+     * 返回值: void
+     * 返回值说明: 更新当前响应对象的授权令牌
+     */
+    public void setAuthorizationToken(String authorizationToken)
+    {
+        this.authorizationToken = authorizationToken;
+    }
+
     /**
      * 部门名称
      */

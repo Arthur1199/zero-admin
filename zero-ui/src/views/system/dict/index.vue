@@ -342,6 +342,8 @@ export default {
       refreshCache().then(() => {
         this.$modal.msgSuccess("刷新成功")
         this.$store.dispatch('dict/cleanDict')
+      }).catch(() => {
+        // 服务端刷新失败时保留本地字典缓存。
       })
     }
   }

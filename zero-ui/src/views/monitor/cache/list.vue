@@ -125,12 +125,12 @@ size="small"
             <el-row :gutter="32">
               <el-col :offset="1" :span="22">
                 <el-form-item label="缓存名称:" prop="cacheName">
-                  <el-input v-model="cacheForm.cacheName" :readOnly="true" />
+                  <el-input v-model="cacheForm.cacheName" readonly />
                 </el-form-item>
               </el-col>
               <el-col :offset="1" :span="22">
                 <el-form-item label="缓存键名:" prop="cacheKey">
-                  <el-input v-model="cacheForm.cacheKey" :readOnly="true" />
+                  <el-input v-model="cacheForm.cacheKey" readonly />
                 </el-form-item>
               </el-col>
               <el-col :offset="1" :span="22">
@@ -139,7 +139,7 @@ size="small"
                     v-model="cacheForm.cacheValue"
                     type="textarea"
                     :rows="8"
-                    :readOnly="true"
+                    readonly
                   />
                 </el-form-item>
               </el-col>
@@ -164,6 +164,8 @@ export default {
       loading: true,
       subLoading: false,
       nowCacheName: "",
+      keysRequestId: 0,
+      valueRequestId: 0,
       tableHeight: window.innerHeight - 200
     }
   },
@@ -172,53 +174,58 @@ export default {
   },
   methods: {
     /** 查询缓存名称列表 */
-    getCacheNames() {
+    getCacheNames(showMessage = false) {
       this.loading = true
       listCacheName().then(response => {
         this.cacheNames = response.data
         this.loading = false
+        if (showMessage) this.$modal.msgSuccess("刷新缓存列表成功")
       }).catch(() => {
         this.loading = false
       })
     },
     /** 刷新缓存名称列表 */
     refreshCacheNames() {
-      this.getCacheNames()
-      this.$modal.msgSuccess("刷新缓存列表成功")
+      this.getCacheNames(true)
     },
     /** 清理指定名称缓存 */
     handleClearCacheName(row) {
       clearCacheName(row.cacheName).then(response => {
         this.$modal.msgSuccess("清理缓存名称[" + row.cacheName + "]成功")
         this.getCacheKeys()
-      })
+      }).catch(() => {})
     },
     /** 查询缓存键名列表 */
-    getCacheKeys(row) {
-      const cacheName = row !== undefined ? row.cacheName : this.nowCacheName
-      if (cacheName === "") {
+    getCacheKeys(row, showMessage = false) {
+      const cacheName = row?.cacheName ?? this.nowCacheName
+      if (!cacheName) {
         return
       }
+      const requestId = ++this.keysRequestId
+      this.nowCacheName = cacheName
+      this.cacheKeys = []
+      this.cacheForm = {}
+      this.valueRequestId++
       this.subLoading = true
       listCacheKey(cacheName).then(response => {
-        this.cacheKeys = response.data
-        this.subLoading = false
-        this.nowCacheName = cacheName
-      }).catch(() => {
-        this.subLoading = false
+        if (requestId === this.keysRequestId) {
+          this.cacheKeys = response.data || []
+          if (showMessage === true) this.$modal.msgSuccess("刷新键名列表成功")
+        }
+      }).catch(() => {}).finally(() => {
+        if (requestId === this.keysRequestId) this.subLoading = false
       })
     },
     /** 刷新缓存键名列表 */
     refreshCacheKeys() {
-      this.getCacheKeys()
-      this.$modal.msgSuccess("刷新键名列表成功")
+      this.getCacheKeys(undefined, true)
     },
     /** 清理指定键名缓存 */
     handleClearCacheKey(cacheKey) {
       clearCacheKey(cacheKey).then(response => {
         this.$modal.msgSuccess("清理缓存键名[" + cacheKey + "]成功")
         this.getCacheKeys()
-      })
+      }).catch(() => {})
     },
     /** 列表前缀去除 */
     nameFormatter(row) {
@@ -230,15 +237,19 @@ export default {
     },
     /** 查询缓存内容详细 */
     handleCacheValue(cacheKey) {
+      if (!this.nowCacheName || !cacheKey) return
+      const requestId = ++this.valueRequestId
+      this.cacheForm = {}
       getCacheValue(this.nowCacheName, cacheKey).then(response => {
-        this.cacheForm = response.data
-      })
+        // 忽略之前选择的慢响应，切换名称或键名后不显示旧内容。
+        if (requestId === this.valueRequestId) this.cacheForm = response.data || {}
+      }).catch(() => {})
     },
     /** 清理全部缓存 */
     handleClearCacheAll() {
       clearCacheAll().then(response => {
         this.$modal.msgSuccess("清理全部缓存成功")
-      })
+      }).catch(() => {})
     }
   }
 }

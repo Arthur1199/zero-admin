@@ -47,7 +47,7 @@ router.beforeEach(async to => {
     try {
       await initializeRoutes()
       // 初次进入尚未注册的路由，按原URL重新匹配。
-      return { path: to.fullPath, replace: true }
+      return { path: to.path, query: to.query, hash: to.hash, replace: true }
     } catch (error) {
       await store.dispatch('FedLogOut')
       ElMessage.error(error?.message || '获取登录信息或菜单失败，请重新登录')

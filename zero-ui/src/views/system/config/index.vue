@@ -296,6 +296,8 @@ export default {
         this.form = response.data
         this.open = true
         this.title = "修改参数"
+      }).catch(() => {
+        // 读取失败不打开空表单，接口提示由请求拦截器统一处理。
       })
     },
     /** 提交按钮 */
@@ -338,6 +340,8 @@ export default {
     handleRefreshCache() {
       refreshCache().then(() => {
         this.$modal.msgSuccess("刷新成功")
+      }).catch(() => {
+        // 保持失败状态，不显示刷新成功。
       })
     }
   }

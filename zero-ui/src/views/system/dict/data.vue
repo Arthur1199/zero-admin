@@ -279,16 +279,21 @@ export default {
   methods: {
     /** 查询字典类型详细 */
     getType(dictId) {
+      this.loading = true
       getType(dictId).then(response => {
         this.queryParams.dictType = response.data.dictType
         this.defaultDictType = response.data.dictType
         this.getList()
+      }).catch(() => {
+        this.loading = false
       })
     },
     /** 查询字典类型列表 */
     getTypeList() {
       getDictOptionselect().then(response => {
         this.typeOptions = response.data
+      }).catch(() => {
+        this.typeOptions = []
       })
     },
     /** 查询字典数据列表 */
@@ -324,6 +329,10 @@ export default {
     /** 搜索按钮操作 */
     handleQuery() {
       this.queryParams.pageNum = 1
+      if (!this.queryParams.dictType && !this.defaultDictType) {
+        this.getType(this.$route.params.dictId)
+        return
+      }
       this.getList()
     },
     /** 返回按钮操作 */
@@ -358,7 +367,7 @@ export default {
         this.form = response.data
         this.open = true
         this.title = "修改字典数据"
-      })
+      }).catch(() => {})
     },
     /** 提交按钮 */
     submitForm: function() {
@@ -370,14 +379,14 @@ export default {
               this.$modal.msgSuccess("修改成功")
               this.open = false
               this.getList()
-            })
+            }).catch(() => {})
           } else {
             addData(this.form).then(response => {
               this.$store.dispatch('dict/removeDict', this.queryParams.dictType)
               this.$modal.msgSuccess("新增成功")
               this.open = false
               this.getList()
-            })
+            }).catch(() => {})
           }
         }
       })

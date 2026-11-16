@@ -1,6 +1,9 @@
 package com.zero.system.service.impl;
 
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import com.zero.framework.web.service.TokenService;
+import com.zero.common.constant.Constants;
 import com.zero.common.core.domain.model.LoginUser;
 import com.zero.common.utils.StringUtils;
 import com.zero.system.domain.SysUserOnline;
@@ -15,6 +18,10 @@ import com.zero.system.service.ISysUserOnlineService;
 @Service
 public class SysUserOnlineServiceImpl implements ISysUserOnlineService
 {
+    /** 还原现有会话JWT，不修改登录缓存 */
+    @Autowired
+    private TokenService tokenService;
+
     /**
      *
      * 作者: Arthur 亚瑟
@@ -29,7 +36,7 @@ public class SysUserOnlineServiceImpl implements ISysUserOnlineService
     @Override
     public SysUserOnline selectOnlineByIpaddr(String ipaddr, LoginUser user)
     {
-        if (StringUtils.equals(ipaddr, user.getIpaddr()))
+        if (user != null && StringUtils.equals(ipaddr, user.getIpaddr()))
         {
             return loginUserToUserOnline(user);
         }
@@ -50,7 +57,7 @@ public class SysUserOnlineServiceImpl implements ISysUserOnlineService
     @Override
     public SysUserOnline selectOnlineByUserName(String userName, LoginUser user)
     {
-        if (StringUtils.equals(userName, user.getUsername()))
+        if (user != null && user.getUser() != null && StringUtils.equals(userName, user.getUsername()))
         {
             return loginUserToUserOnline(user);
         }
@@ -72,7 +79,7 @@ public class SysUserOnlineServiceImpl implements ISysUserOnlineService
     @Override
     public SysUserOnline selectOnlineByInfo(String ipaddr, String userName, LoginUser user)
     {
-        if (StringUtils.equals(ipaddr, user.getIpaddr()) && StringUtils.equals(userName, user.getUsername()))
+        if (user != null && user.getUser() != null && StringUtils.equals(ipaddr, user.getIpaddr()) && StringUtils.equals(userName, user.getUsername()))
         {
             return loginUserToUserOnline(user);
         }
@@ -83,7 +90,7 @@ public class SysUserOnlineServiceImpl implements ISysUserOnlineService
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
-     * 说明: 设置在线用户信息
+     * 说明: 设置在线用户信息及完整JWT，调用入口须校验monitor:online:list权限；不刷新会话
      * @param user 用户信息
      * @return
      * 返回值: 在线用户
@@ -98,6 +105,8 @@ public class SysUserOnlineServiceImpl implements ISysUserOnlineService
         }
         SysUserOnline sysUserOnline = new SysUserOnline();
         sysUserOnline.setTokenId(user.getToken());
+        String token = tokenService.getExistingToken(user);
+        sysUserOnline.setAuthorizationToken(StringUtils.isEmpty(token) ? "" : Constants.TOKEN_PREFIX + token);
         sysUserOnline.setUserName(user.getUsername());
         sysUserOnline.setIpaddr(user.getIpaddr());
         sysUserOnline.setLoginLocation(user.getLoginLocation());
