@@ -7,8 +7,7 @@ import com.zero.common.constant.ServiceNameConstants;
 import com.zero.common.core.domain.AjaxResult;
 import com.zero.common.core.page.TableDataInfo;
 import jakarta.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -34,6 +33,7 @@ import java.util.Map;
  * 时间: 2026/6/28 02:25
  * 说明: admin 调用 report 的通用服务，支持按当前请求路径或自定义路径转发 GET、POST JSON 请求
  */
+@Slf4j
 @Service
 public class ReportRestService
 {
@@ -46,11 +46,6 @@ public class ReportRestService
      * 报表服务注册中心访问前缀，由 LoadBalanced RestTemplate 解析为真实实例
      */
     private static final String REPORT_SERVICE_URL = "http://" + ServiceNameConstants.ZERO_REPORT;
-
-    /**
-     * 日志记录器，仅记录路径和异常，不输出请求体、令牌等敏感内容
-     */
-    private static final Logger log = LoggerFactory.getLogger(ReportRestService.class);
 
     /**
      * 专用于调用报表服务的负载均衡 RestTemplate
