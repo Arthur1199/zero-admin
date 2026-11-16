@@ -191,6 +191,7 @@
 - `zero-admin` 登录验证码由 `/captchaImage`、`SysLoginService.validateCaptcha`、`ISysConfigService.selectCaptchaEnabled()` 和配置项 `sys.account.captchaEnabled` 控制。
 - `zero-admin` 当前 XSS 配置在 `application.yml` 的 `xss` 节，匹配 `/system/*,/monitor/*,/tool/*`，不要认为所有 JSON 请求都天然安全。
 - 数据权限通过 `@DataScope` 和 SQL 中 `${params.dataScope}` 拼接实现。涉及用户、角色、部门数据时必须先确认数据范围规则。
+- `DataScopeAspect` 对“本部门”“本部门及以下”范围按当前认证用户ID读取最新归属部门，并仅在当前请求内复用；不能回退登录缓存里的旧部门。辅助读取前挂起、读取成功后恢复原PageHelper实例，异常时清理分页上下文。全部、自定义、本人范围及超级管理员沿用既有规则；该机制不刷新角色、菜单权限或跨请求登录缓存。
 - 日志、异常、导出、登录日志中不得输出密码、验证码、Token、数据库密码、密钥等敏感信息。
 
 ## 后端数据库与 MyBatis 规则
