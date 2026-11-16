@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zero.system.mapper.StatisticsMapper">
+    <insert id="insertInbox">
+        INSERT INTO sys_stat_event_inbox(event_id,payload) VALUES(#{eventId},#{payload})
+        ON DUPLICATE KEY UPDATE event_id=event_id
+    </insert>
+
+    <select id="pendingInbox" resultType="com.zero.system.domain.statistics.StatInboxEntry">
+        SELECT event_id AS eventId,payload,created_at AS createdAt FROM sys_stat_event_inbox
+        WHERE processed=0
+        <if test="afterTime != null">
+            AND (created_at&gt;#{afterTime} OR (created_at=#{afterTime} AND event_id&gt;#{afterId}))
+        </if>
+        ORDER BY created_at,event_id LIMIT #{limit}
+    </select>
+
+    <update id="markInbox">
+        UPDATE sys_stat_event_inbox SET processed=1 WHERE event_id=#{eventId} AND processed=0
+    </update>
+
+    <insert id="consume">
+        INSERT IGNORE INTO sys_stat_event_consumed(event_id,consumed_at) VALUES(#{eventId},#{consumedAt})
+    </insert>
+
+    <insert id="endpoint">
+        INSERT INTO sys_stat_endpoint(endpoint_id,request_method,route,endpoint_name,module_name)
+        VALUES(#{endpointId},#{method},#{route},#{name},#{module})
+        ON DUPLICATE KEY UPDATE endpoint_name=VALUES(endpoint_name),module_name=VALUES(module_name)
+    </insert>
+
+    <insert id="apiMinute">
+        INSERT INTO sys_stat_api_minute(bucket_time,endpoint_id,total_count,success_count,business_count,auth_count,system_count,http_count,unknown_count,slow_count,duration_us,max_us)
+        VALUES(#{minute},#{endpointId},1,#{success},#{business},#{auth},#{system},#{http},#{unknown},#{slow},#{durationUs},#{durationUs})
+        ON DUPLICATE KEY UPDATE total_count=total_count+VALUES(total_count),success_count=success_count+VALUES(success_count),business_count=business_count+VALUES(business_count),auth_count=auth_count+VALUES(auth_count),system_count=system_count+VALUES(system_count),http_count=http_count+VALUES(http_count),unknown_count=unknown_count+VALUES(unknown_count),slow_count=slow_count+VALUES(slow_count),duration_us=duration_us+VALUES(duration_us),max_us=GREATEST(max_us,VALUES(max_us))
+    </insert>
+
+    <insert id="apiDay">
+        INSERT INTO sys_stat_api_day(stat_day,endpoint_id,total_count,success_count,business_count,auth_count,system_count,http_count,unknown_count,slow_count,duration_us,max_us)
+        VALUES(#{day},#{endpointId},1,#{success},#{business},#{auth},#{system},#{http},#{unknown},#{slow},#{durationUs},#{durationUs})
+        ON DUPLICATE KEY UPDATE total_count=total_count+VALUES(total_count),success_count=success_count+VALUES(success_count),business_count=business_count+VALUES(business_count),auth_count=auth_count+VALUES(auth_count),system_count=system_count+VALUES(system_count),http_count=http_count+VALUES(http_count),unknown_count=unknown_count+VALUES(unknown_count),slow_count=slow_count+VALUES(slow_count),duration_us=duration_us+VALUES(duration_us),max_us=GREATEST(max_us,VALUES(max_us))
+    </insert>
+
+    <insert id="loginDay">
+        INSERT INTO sys_stat_login_day(stat_day,attempt_count,success_count,system_count) VALUES(#{day},1,#{loginSuccess},#{loginSystem})
+        ON DUPLICATE KEY UPDATE attempt_count=attempt_count+1,success_count=success_count+VALUES(success_count),system_count=system_count+VALUES(system_count)
+    </insert>
+
+    <insert id="userDay">
+        INSERT INTO sys_stat_user_day(stat_day,user_id,login_count,api_count,last_active_time) VALUES(#{day},#{userId},#{loginSuccess},1,#{at})
+        ON DUPLICATE KEY UPDATE login_count=login_count+VALUES(login_count),api_count=api_count+1,last_active_time=GREATEST(last_active_time,VALUES(last_active_time))
+    </insert>
+
+    <insert id="online">
+        INSERT INTO sys_stat_online_minute(bucket_time,sampled_at,online_users,online_sessions,active_users,peak_users)
+        VALUES(#{minute},#{at},#{users},#{sessions},#{active},#{users})
+        ON DUPLICATE KEY UPDATE online_users=IF(VALUES(sampled_at)&gt;=sampled_at,VALUES(online_users),online_users),
+        online_sessions=IF(VALUES(sampled_at)&gt;=sampled_at,VALUES(online_sessions),online_sessions),
+        active_users=IF(VALUES(sampled_at)&gt;=sampled_at,VALUES(active_users),active_users),
+        peak_users=GREATEST(peak_users,VALUES(peak_users)),sampled_at=GREATEST(sampled_at,VALUES(sampled_at))
+    </insert>
+
+    <select id="countRecentActive" resultType="long">
+        SELECT COUNT(DISTINCT user_id) FROM sys_stat_user_day
+        WHERE stat_day&gt;=#{beginDay} AND stat_day&lt;=#{endDay}
+          AND last_active_time&gt;#{beginAt} AND last_active_time&lt;=#{endAt}
+    </select>
+
+    <select id="overview" resultType="map">
+        SELECT COALESCE(SUM(a.total_count),0) total,COALESCE(SUM(a.success_count),0) success,
+        COALESCE(SUM(a.total_count-a.success_count),0) failed,COALESCE(SUM(a.slow_count),0) slow,
+        ROUND(SUM(a.success_count)*100.0/NULLIF(SUM(a.total_count),0),2) successRate,
+        ROUND(SUM(a.duration_us)/NULLIF(SUM(a.total_count),0)/1000,2) avgMs,
+        ROUND(COALESCE(MAX(a.max_us),0)/1000,2) maxMs,
+        (SELECT COALESCE(SUM(attempt_count),0) FROM sys_stat_login_day WHERE stat_day=#{beginDay}) loginAttempts,
+        (SELECT COALESCE(SUM(success_count),0) FROM sys_stat_login_day WHERE stat_day=#{beginDay}) loginSuccess,
+        (SELECT COALESCE(SUM(attempt_count-success_count),0) FROM sys_stat_login_day WHERE stat_day=#{beginDay}) loginFailed,
+        (SELECT COUNT(*) FROM sys_stat_user_day WHERE stat_day=#{beginDay} AND login_count&gt;0) loginUsers,
+        (SELECT COUNT(*) FROM sys_stat_user_day WHERE stat_day=#{beginDay}) activeUsers,
+        (SELECT COALESCE(MAX(c),0) FROM (SELECT SUM(total_count) c FROM sys_stat_api_minute WHERE bucket_time&gt;=#{beginAt} AND bucket_time&lt;#{endAt} GROUP BY bucket_time) peaks) peakMinute
+        FROM sys_stat_api_day a WHERE a.stat_day=#{beginDay}
+    </select>
+
+    <select id="trend" resultType="map">
+        SELECT 'api' kind,
+        <choose><when test="minute">DATE_FORMAT(a.bucket_time,'%Y-%m-%d %H:%i')</when><otherwise>CAST(a.stat_day AS CHAR)</otherwise></choose> bucket,
+        SUM(a.total_count) total,SUM(a.success_count) success,SUM(a.total_count-a.success_count) failed,
+        ROUND(SUM(a.duration_us)/NULLIF(SUM(a.total_count),0)/1000,2) avgMs,NULL onlineUsers,NULL sessions,NULL active,NULL peak,
+        NULL loginSuccess,NULL loginFailed
+        FROM <choose><when test="minute">sys_stat_api_minute</when><otherwise>sys_stat_api_day</otherwise></choose> a
+        WHERE <choose><when test="minute">a.bucket_time&gt;=#{beginAt} AND a.bucket_time&lt;#{endAt}</when><otherwise>a.stat_day&gt;=#{beginDay} AND a.stat_day&lt;#{endDay}</otherwise></choose>
+        GROUP BY bucket
+        UNION ALL
+        SELECT 'online',<choose><when test="minute">DATE_FORMAT(bucket_time,'%Y-%m-%d %H:%i')</when><otherwise>DATE_FORMAT(bucket_time,'%Y-%m-%d')</otherwise></choose> bucket,
+        NULL,NULL,NULL,NULL,ROUND(AVG(online_users),2),ROUND(AVG(online_sessions),2),ROUND(AVG(active_users),2),MAX(peak_users),NULL,NULL
+        FROM sys_stat_online_minute WHERE bucket_time&gt;=#{beginAt} AND bucket_time&lt;#{endAt} GROUP BY bucket
+        UNION ALL
+        SELECT 'login',CAST(stat_day AS CHAR),NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,success_count,attempt_count-success_count
+        FROM sys_stat_login_day WHERE stat_day&gt;=#{beginDay} AND stat_day&lt;#{endDay}
+        ORDER BY bucket,kind
+    </select>
+
+    <select id="distribution" resultType="map">
+        SELECT e.module_name module,SUM(a.total_count) total,SUM(a.business_count) business,SUM(a.auth_count) auth,
+        SUM(a.system_count) system,SUM(a.http_count) http,SUM(a.unknown_count) unknown
+        FROM sys_stat_api_day a JOIN sys_stat_endpoint e ON e.endpoint_id=a.endpoint_id
+        WHERE a.stat_day&gt;=#{beginDay} AND a.stat_day&lt;#{endDay} GROUP BY e.module_name ORDER BY total DESC,e.module_name
+    </select>
+
+    <sql id="whereRange">a.stat_day&gt;=#{beginDay} AND a.stat_day&lt;#{endDay}
+        <if test="keyword != null and keyword != ''">AND (e.route LIKE CONCAT('%',#{keyword},'%') OR e.endpoint_name LIKE CONCAT('%',#{keyword},'%'))</if>
+    </sql>
+    <select id="list" resultType="map">
+        SELECT e.endpoint_id endpointId,e.route,e.request_method method,e.endpoint_name name,e.module_name module,COALESCE(SUM(a.total_count),0) total,COALESCE(SUM(a.success_count),0) success,
+        COALESCE(SUM(a.total_count-a.success_count),0) failed,COALESCE(SUM(a.slow_count),0) slow,
+        ROUND(SUM(a.success_count)*100.0/NULLIF(SUM(a.total_count),0),2) successRate,
+        ROUND(SUM(a.duration_us)/NULLIF(SUM(a.total_count),0)/1000,2) avgMs,
+        ROUND(COALESCE(MAX(a.max_us),0)/1000,2) maxMs
+        FROM sys_stat_api_day a JOIN sys_stat_endpoint e ON e.endpoint_id=a.endpoint_id
+        WHERE <include refid="whereRange"/>
+        GROUP BY e.endpoint_id,e.route,e.request_method,e.endpoint_name,e.module_name
+        <choose><when test="ranking == 'slow'">HAVING SUM(a.total_count)&gt;=#{minCalls}</when><when test="ranking == 'failed'">HAVING SUM(a.total_count-a.success_count)&gt;0</when></choose>
+        ORDER BY <choose><when test="ranking == 'slow'">avgMs DESC</when><when test="ranking == 'failed'">failed DESC</when><otherwise>total DESC</otherwise></choose>,e.endpoint_id
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <select id="countEndpoints" resultType="long">
+        SELECT COUNT(DISTINCT a.endpoint_id) FROM sys_stat_api_day a JOIN sys_stat_endpoint e ON e.endpoint_id=a.endpoint_id WHERE <include refid="whereRange"/>
+    </select>
+
+    <select id="health" resultType="map">
+        SELECT (SELECT DATE_FORMAT(MIN(bucket_time),'%Y-%m-%d %H:%i:%s') FROM sys_stat_api_minute) collectedSince,
+        (SELECT DATE_FORMAT(MAX(consumed_at),'%Y-%m-%d %H:%i:%s') FROM sys_stat_event_consumed) lastConsumedAt,
+        (SELECT COUNT(*) FROM sys_stat_event_inbox WHERE processed=0) inboxPending,
+        (SELECT online_users FROM sys_stat_online_minute ORDER BY bucket_time DESC LIMIT 1) onlineUsers,
+        (SELECT online_sessions FROM sys_stat_online_minute ORDER BY bucket_time DESC LIMIT 1) onlineSessions,
+        (SELECT active_users FROM sys_stat_online_minute ORDER BY bucket_time DESC LIMIT 1) recentActive,
+        (SELECT DATE_FORMAT(sampled_at,'%Y-%m-%d %H:%i:%s') FROM sys_stat_online_minute ORDER BY bucket_time DESC LIMIT 1) sampledAt
+    </select>
+
+</mapper>

@@ -182,12 +182,13 @@ insert into sys_menu values('121',  '管理后台', '2',   '1', 'admin',      ''
 insert into sys_menu values('122',  '服务集群', '2',   '2', 'cluster',    '',                         '', '', 1, 0, 'M', '0', '0', '',                        'server',        'admin', sysdate(), '', null, '服务集群监控目录');
 insert into sys_menu values('2001', '微服务列表', '122', '1', 'microService', 'monitor/microService/index', '', '', 1, 0, 'C', '0', '0', 'monitor:microService:list', 'list', 'admin', sysdate(), '', null, '微服务实例状态列表');
 insert into sys_menu values('2000', '微服务状态监控', '122', '2', 'http://127.0.0.1:9100', null, null, '', 0, 0, 'M', '0', '0', null, 'redis-list', 'admin', sysdate(), '', null, '');
-insert into sys_menu values('109',  '在线用户', '121', '1', 'online',     'monitor/online/index',     '', '', 1, 0, 'C', '0', '0', 'monitor:online:list',     'online',        'admin', sysdate(), '', null, '在线用户菜单');
-insert into sys_menu values('110',  '定时任务', '121', '2', 'job',        'monitor/job/index',        '', '', 1, 0, 'C', '0', '0', 'monitor:job:list',        'job',           'admin', sysdate(), '', null, '定时任务菜单');
-insert into sys_menu values('111',  '数据监控', '121', '3', 'druid',      'monitor/druid/index',      '', '', 1, 0, 'C', '0', '0', 'monitor:druid:list',      'druid',         'admin', sysdate(), '', null, '数据监控菜单');
-insert into sys_menu values('112',  '服务监控', '121', '4', 'server',     'monitor/server/index',     '', '', 1, 0, 'C', '0', '0', 'monitor:server:list',     'server',        'admin', sysdate(), '', null, '服务监控菜单');
-insert into sys_menu values('113',  '缓存监控', '121', '5', 'cache',      'monitor/cache/index',      '', '', 1, 0, 'C', '0', '0', 'monitor:cache:list',      'redis',         'admin', sysdate(), '', null, '缓存监控菜单');
-insert into sys_menu values('114',  '缓存列表', '121', '6', 'cacheList',  'monitor/cache/list',       '', '', 1, 0, 'C', '0', '0', 'monitor:cache:list',      'redis-list',    'admin', sysdate(), '', null, '缓存列表菜单');
+insert into sys_menu values('126',  '运行统计', '121', '1', 'statistics', 'monitor/statistics/index', '', '', 1, 1, 'C', '0', '0', 'monitor:statistics:list', 'chart', 'admin', sysdate(), '', null, '后台运行统计，只读权限');
+insert into sys_menu values('109',  '在线用户', '121', '2', 'online',     'monitor/online/index',     '', '', 1, 0, 'C', '0', '0', 'monitor:online:list',     'online',        'admin', sysdate(), '', null, '在线用户菜单');
+insert into sys_menu values('110',  '定时任务', '121', '3', 'job',        'monitor/job/index',        '', '', 1, 0, 'C', '0', '0', 'monitor:job:list',        'job',           'admin', sysdate(), '', null, '定时任务菜单');
+insert into sys_menu values('111',  '数据监控', '121', '4', 'druid',      'monitor/druid/index',      '', '', 1, 0, 'C', '0', '0', 'monitor:druid:list',      'druid',         'admin', sysdate(), '', null, '数据监控菜单');
+insert into sys_menu values('112',  '服务监控', '121', '5', 'server',     'monitor/server/index',     '', '', 1, 0, 'C', '0', '0', 'monitor:server:list',     'server',        'admin', sysdate(), '', null, '服务监控菜单');
+insert into sys_menu values('113',  '缓存监控', '121', '6', 'cache',      'monitor/cache/index',      '', '', 1, 0, 'C', '0', '0', 'monitor:cache:list',      'redis',         'admin', sysdate(), '', null, '缓存监控菜单');
+insert into sys_menu values('114',  '缓存列表', '121', '7', 'cacheList',  'monitor/cache/list',       '', '', 1, 0, 'C', '0', '0', 'monitor:cache:list',      'redis-list',    'admin', sysdate(), '', null, '缓存列表菜单');
 insert into sys_menu values('125',  '文件管理', '3',   '1', 'fileManagement', 'systemTools/fileManagement/index', '', '', 1, 0, 'C', '0', '0', 'systemTools:fileManagement:list', 'upload', 'admin', sysdate(), '', null, '文件管理菜单');
 insert into sys_menu values('115',  '表单构建', '3',   '2', 'build',      'tool/build/index',         '', '', 1, 0, 'C', '0', '0', 'tool:build:list',         'build',         'admin', sysdate(), '', null, '表单构建菜单');
 insert into sys_menu values('116',  '代码生成', '3',   '3', 'gen',        'tool/gen/index',           '', '', 1, 0, 'C', '0', '0', 'tool:gen:list',           'code',          'admin', sysdate(), '', null, '代码生成菜单');
@@ -594,6 +595,7 @@ INSERT INTO `sys_config` (`config_id`, `config_name`, `config_key`, `config_valu
 INSERT INTO `sys_config` (`config_id`, `config_name`, `config_key`, `config_value`, `config_type`, `create_by`, `create_time`, `update_by`, `update_time`, `remark`) VALUES (10, '账号登录-是否开启登录白名单校验', 'sys.account.chekIpWhite', 'false', 'Y', 'admin', '2026-05-16 00:00:00', '', NULL, '账号登录-是否开启登录白名单校验,true:开启,false:关闭；开启后普通用户必须命中启用白名单，admin账号绕过白名单');
 INSERT INTO `sys_config` (`config_id`, `config_name`, `config_key`, `config_value`, `config_type`, `create_by`, `create_time`, `update_by`, `update_time`, `remark`) VALUES (11, '是否开启外部接口访问', 'sys.api.externalEnable', 'true', 'Y', 'admin', '2026-05-15 22:00:26', '', NULL, '是否开启外部接口访问能力,开启后能对外提供json接口能力,例如查询白名单列表,计算ip区域等.');
 INSERT INTO `sys_config` (`config_id`, `config_name`, `config_key`, `config_value`, `config_type`, `create_by`, `create_time`, `update_by`, `update_time`, `remark`) VALUES (12, '后台文件存储方式', 'sys.file.storage.mode', 'zero-file', 'Y', 'admin', sysdate(), '', NULL, '后台通用上传存储方式：zero-file=使用文件服务远程存储；local=使用profile本地磁盘存储');
+INSERT INTO `sys_config` (`config_id`, `config_name`, `config_key`, `config_value`, `config_type`, `create_by`, `create_time`, `update_by`, `update_time`, `remark`) VALUES (13, '是否开启后台运行统计', 'sys.statistics.enabled', 'true', 'Y', 'admin', sysdate(), '', NULL, '运行统计总开关：true开启，false关闭；缺失或非法值按关闭处理，修改后无需重启');
 
 
 
@@ -818,3 +820,103 @@ CREATE TABLE `undo_log` (
                             `log_modified` datetime(6) NOT NULL COMMENT 'modify datetime',
                             UNIQUE KEY `ux_undo_log` (`xid`,`branch_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='AT transaction mode undo table';
+
+
+-- 运行统计模块初始化
+-- 统计表、后台参数及菜单统一由本初始化脚本维护。
+-- 不默认向普通角色分配统计菜单权限；总开关已在上方sys_config初始化区域设为true。
+-- MySQL 8，InnoDB。北京时间写入DATETIME；连接时区应与Asia/Shanghai保持一致。
+
+DROP TABLE IF EXISTS sys_stat_api_minute;
+CREATE TABLE sys_stat_api_minute (
+  bucket_time datetime NOT NULL COMMENT '北京时间统计桶',
+  endpoint_id char(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL COMMENT '方式及模板SHA-256',
+  total_count bigint NOT NULL DEFAULT 0 COMMENT '总调用次数',
+  success_count bigint NOT NULL DEFAULT 0 COMMENT '成功次数',
+  business_count bigint NOT NULL DEFAULT 0 COMMENT '业务拒绝次数',
+  auth_count bigint NOT NULL DEFAULT 0 COMMENT '认证权限拒绝次数',
+  system_count bigint NOT NULL DEFAULT 0 COMMENT '系统异常次数',
+  http_count bigint NOT NULL DEFAULT 0 COMMENT '其他HTTP失败次数',
+  unknown_count bigint NOT NULL DEFAULT 0 COMMENT '无法识别结果次数',
+  slow_count bigint NOT NULL DEFAULT 0 COMMENT '慢请求次数',
+  duration_us bigint NOT NULL DEFAULT 0 COMMENT '总耗时，微秒',
+  max_us bigint NOT NULL DEFAULT 0 COMMENT '最大耗时，微秒',
+  PRIMARY KEY (bucket_time, endpoint_id),
+  KEY idx_endpoint_time (endpoint_id, bucket_time)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='每分钟接口运行汇总';
+
+DROP TABLE IF EXISTS sys_stat_api_day;
+CREATE TABLE sys_stat_api_day (
+  stat_day date NOT NULL COMMENT '北京时间统计桶',
+  endpoint_id char(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL COMMENT '方式及模板SHA-256',
+  total_count bigint NOT NULL DEFAULT 0 COMMENT '总调用次数',
+  success_count bigint NOT NULL DEFAULT 0 COMMENT '成功次数',
+  business_count bigint NOT NULL DEFAULT 0 COMMENT '业务拒绝次数',
+  auth_count bigint NOT NULL DEFAULT 0 COMMENT '认证权限拒绝次数',
+  system_count bigint NOT NULL DEFAULT 0 COMMENT '系统异常次数',
+  http_count bigint NOT NULL DEFAULT 0 COMMENT '其他HTTP失败次数',
+  unknown_count bigint NOT NULL DEFAULT 0 COMMENT '无法识别结果次数',
+  slow_count bigint NOT NULL DEFAULT 0 COMMENT '慢请求次数',
+  duration_us bigint NOT NULL DEFAULT 0 COMMENT '总耗时，微秒',
+  max_us bigint NOT NULL DEFAULT 0 COMMENT '最大耗时，微秒',
+  PRIMARY KEY (stat_day, endpoint_id),
+  KEY idx_endpoint_time (endpoint_id, stat_day)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='每日接口运行汇总';
+
+DROP TABLE IF EXISTS sys_stat_endpoint;
+CREATE TABLE sys_stat_endpoint (
+  endpoint_id char(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL COMMENT '方式及模板SHA-256',
+  request_method varchar(16) NOT NULL COMMENT 'HTTP请求方式',
+  route varchar(512) NOT NULL COMMENT '归一化接口模板，不含实际参数',
+  endpoint_name varchar(200) NOT NULL COMMENT '接口展示名称',
+  module_name varchar(80) NOT NULL COMMENT '接口所属模块',
+  PRIMARY KEY (endpoint_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='运行统计接口登记';
+
+DROP TABLE IF EXISTS sys_stat_login_day;
+CREATE TABLE sys_stat_login_day (
+  stat_day date NOT NULL COMMENT '北京时间日期',
+  attempt_count bigint NOT NULL DEFAULT 0 COMMENT '登录尝试次数',
+  success_count bigint NOT NULL DEFAULT 0 COMMENT '最终成功登录次数',
+  system_count bigint NOT NULL DEFAULT 0 COMMENT '登录系统异常次数',
+  PRIMARY KEY (stat_day)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='每日登录结果汇总';
+
+DROP TABLE IF EXISTS sys_stat_user_day;
+CREATE TABLE sys_stat_user_day (
+  stat_day date NOT NULL COMMENT '北京时间日期',
+  user_id bigint NOT NULL COMMENT '已认证用户ID，不含匿名请求',
+  login_count bigint NOT NULL DEFAULT 0 COMMENT '成功登录次数',
+  api_count bigint NOT NULL DEFAULT 0 COMMENT '纳入统计的API次数',
+  last_active_time datetime(3) NOT NULL COMMENT '最后活动时间',
+  PRIMARY KEY (stat_day, user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='每日去重用户活动';
+
+DROP TABLE IF EXISTS sys_stat_online_minute;
+CREATE TABLE sys_stat_online_minute (
+  bucket_time datetime NOT NULL COMMENT '北京时间分钟桶',
+  sampled_at datetime(3) NOT NULL COMMENT '实际采样时间',
+  online_users bigint NOT NULL COMMENT '有效会话用户去重数',
+  online_sessions bigint NOT NULL COMMENT '有效会话数',
+  active_users bigint NOT NULL COMMENT '最近五分钟活跃用户数',
+  peak_users bigint NOT NULL COMMENT '本分钟采样在线人数峰值',
+  PRIMARY KEY (bucket_time)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='在线人数分钟采样，缺失不代表零';
+
+DROP TABLE IF EXISTS sys_stat_event_inbox;
+CREATE TABLE sys_stat_event_inbox (
+  event_id char(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL COMMENT '全局唯一事件编号',
+  payload mediumtext NOT NULL COMMENT '精简事件JSON，无请求参数及凭证',
+  processed tinyint NOT NULL DEFAULT 0 COMMENT '0待消费，1已完成',
+  created_at datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '回退入库时间',
+  PRIMARY KEY (event_id),
+  KEY idx_pending (processed, created_at, event_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='Redis失败时的可靠回退事件';
+
+DROP TABLE IF EXISTS sys_stat_event_consumed;
+CREATE TABLE sys_stat_event_consumed (
+  event_id char(36) CHARACTER SET ascii COLLATE ascii_bin NOT NULL COMMENT '事件去重编号，重投保持不变',
+  consumed_at datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '成功消费登记时间',
+  PRIMARY KEY (event_id),
+  KEY idx_consumed_at (consumed_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='消费去重记录，与汇总同事务提交';
