@@ -15,7 +15,7 @@ public interface ISysUserService
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
-     * 说明: 根据条件及数据范围分页查询用户，并批量补充当前结果的未删除角色展示信息
+     * 说明: 根据条件及数据范围分页查询用户，删除标志缺省为0、支持2查询已删除，批量补充角色展示
      * @param user 用户信息
      * @return
      * 返回值: 用户信息集合信息
@@ -287,6 +287,19 @@ public interface ISysUserService
      * 返回值说明：批量删除用户信息
      */
     public int deleteUserByIds(Long[] userIds);
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/16 20:21
+     * 说明: 校验数据范围后恢复已删除账号，不恢复原角色和岗位关联
+     * @param userId 已删除账号ID
+     * @param operator 当前登录操作人账号
+     * @return
+     * 返回值: int
+     * 返回值说明: 成功返回1，越权或并发变化时拒绝
+     */
+    public int restoreUser(Long userId, String operator);
 
     /**
      *

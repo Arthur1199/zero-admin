@@ -44,6 +44,14 @@ export function delUser(userId) {
   })
 }
 
+// 恢复已删除用户，复用用户删除权限
+export function restoreUser(userId) {
+  return request({
+    url: '/system/user/restore/' + userId,
+    method: 'put'
+  })
+}
+
 // 用户密码重置
 export function resetUserPwd(userId, password) {
   const data = {

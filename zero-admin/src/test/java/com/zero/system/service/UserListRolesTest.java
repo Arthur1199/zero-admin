@@ -6,6 +6,7 @@ import com.zero.common.core.domain.entity.SysRole;
 import com.zero.common.core.domain.entity.SysUser;
 import com.zero.system.mapper.SysUserMapper;
 import com.zero.system.service.impl.SysUserServiceImpl;
+import com.zero.common.exception.ServiceException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -88,8 +89,44 @@ class UserListRolesTest
         assertThat(sql.toLowerCase()).doesNotContain("group_concat", "r.status =");
         String userSql = config.getMappedStatement(SysUserMapper.class.getName() + ".selectUserList").getBoundSql(new SysUser()).getSql();
         assertThat(userSql).contains("u.create_by", "u.create_time", "u.update_by", "u.update_time");
+        assertThat(userSql.replaceAll("\\s+", " ")).contains("u.del_flag = '0'");
+        SysUser deletedQuery = new SysUser(); deletedQuery.setDelFlag("2");
+        var deleted = config.getMappedStatement(SysUserMapper.class.getName() + ".selectUserList").getBoundSql(deletedQuery);
+        assertThat(deleted.getSql().replaceAll("\\s+", " ")).contains("u.del_flag = ?");
+        assertThat(deleted.getParameterMappings()).extracting(mapping -> mapping.getProperty()).contains("delFlag");
         var department = config.getMappedStatement(SysUserMapper.class.getName() + ".selectCurrentDeptIdByUserId").getBoundSql(2L);
         assertThat(department.getSql().replaceAll("\\s+", " ").trim()).isEqualTo("select dept_id from sys_user where user_id = ? and del_flag = '0'");
         assertThat(department.getParameterMappings()).hasSize(1);
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/16 19:51
+     * 说明: 缺省查询未删除账号，允许显式查询逻辑删除账号，非法标志在Mapper读取前拒绝
+     * @return
+     * 返回值: void
+     * 返回值说明: 不执行删除、恢复或真实数据库访问
+     */
+    @Test
+    void validatesDeletionFilterWithoutChangingDefault()
+    {
+        SysUserMapper mapper = mock(SysUserMapper.class);
+        SysUserServiceImpl service = new SysUserServiceImpl();
+        ReflectionTestUtils.setField(service, "userMapper", mapper);
+        when(mapper.selectUserList(any())).thenReturn(List.of());
+        SysUser normal = new SysUser();
+        assertThat(service.selectUserList(normal)).isEmpty();
+        assertThat(normal.getDelFlag()).isEqualTo("0");
+        verify(mapper).selectUserList(normal);
+        SysUser deleted = new SysUser(); deleted.setDelFlag("2");
+        assertThat(service.selectUserList(deleted)).isEmpty();
+        assertThat(deleted.getDelFlag()).isEqualTo("2");
+        verify(mapper).selectUserList(deleted);
+        clearInvocations(mapper);
+        SysUser invalid = new SysUser(); invalid.setDelFlag("all");
+        assertThatThrownBy(() -> service.selectUserList(invalid)).isInstanceOf(ServiceException.class);
+        assertThatThrownBy(() -> service.selectUserList(null)).isInstanceOf(ServiceException.class);
+        verifyNoInteractions(mapper);
     }
 }

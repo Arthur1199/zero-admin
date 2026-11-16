@@ -28,6 +28,12 @@
                   <el-option v-for="dict in dict.type.sys_normal_disable" :key="dict.value" :label="dict.label" :value="dict.value" />
                 </el-select>
               </el-form-item>
+              <el-form-item label="删除状态" prop="delFlag">
+                <el-select v-model="queryParams.delFlag" placeholder="删除状态" clearable style="width: 240px">
+                  <el-option label="未删除" value="0" />
+                  <el-option label="已删除" value="2" />
+                </el-select>
+              </el-form-item>
               <el-form-item label="创建时间">
                 <el-date-picker v-model="dateRange" style="width: 240px" value-format="YYYY-MM-DD" type="daterange" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期"></el-date-picker>
               </el-form-item>
@@ -57,7 +63,7 @@
             </el-row>
 
             <el-table v-loading="loading" :data="userList" @selection-change="handleSelectionChange">
-              <el-table-column type="selection" width="50" align="center" />
+              <el-table-column type="selection" width="50" align="center" :selectable="row => !isDeleted(row)" />
               <el-table-column label="用户编号" align="center" key="userId" prop="userId" v-if="columns[0].visible" />
               <el-table-column label="用户名称" align="center" key="userName" prop="userName" v-if="columns[1].visible" :show-overflow-tooltip="true" />
               <el-table-column label="用户昵称" align="center" key="nickName" prop="nickName" v-if="columns[2].visible" min-width="160" class-name="user-long-text" />
@@ -66,32 +72,38 @@
               <el-table-column label="手机号码" align="center" key="phonenumber" prop="phonenumber" v-if="columns[5].visible" width="120" />
               <el-table-column label="状态" align="center" key="status" v-if="columns[6].visible">
                 <template #default="scope">
-                  <el-switch v-model="scope.row.status" active-value="0" inactive-value="1" @change="handleStatusChange(scope.row)"></el-switch>
+                  <el-switch v-model="scope.row.status" active-value="0" inactive-value="1" :disabled="isDeleted(scope.row)" @change="handleStatusChange(scope.row)"></el-switch>
                 </template>
               </el-table-column>
-              <el-table-column label="创建人" align="center" prop="createBy" v-if="columns[7].visible" min-width="120" :show-overflow-tooltip="true">
+              <el-table-column label="删除状态" align="center" prop="delFlag" v-if="columns[7].visible" min-width="100">
+                <template #default="scope">
+                  <el-tag :type="isDeleted(scope.row) ? 'danger' : 'info'">{{ isDeleted(scope.row) ? '已删除' : '未删除' }}</el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column label="创建人" align="center" prop="createBy" v-if="columns[8].visible" min-width="120" :show-overflow-tooltip="true">
                 <template #default="scope">
                   <span>{{ scope.row.createBy || '—' }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="创建时间" align="center" prop="createTime" v-if="columns[8].visible" width="160">
+              <el-table-column label="创建时间" align="center" prop="createTime" v-if="columns[9].visible" width="160">
                 <template #default="scope">
                   <span>{{ parseTime(scope.row.createTime) }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="更新人" align="center" prop="updateBy" v-if="columns[9].visible" min-width="120" :show-overflow-tooltip="true">
+              <el-table-column label="更新人" align="center" prop="updateBy" v-if="columns[10].visible" min-width="120" :show-overflow-tooltip="true">
                 <template #default="scope">
                   <span>{{ scope.row.updateBy || '—' }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="更新时间" align="center" prop="updateTime" v-if="columns[10].visible" width="160">
+              <el-table-column label="更新时间" align="center" prop="updateTime" v-if="columns[11].visible" width="160">
                 <template #default="scope">
                   <span>{{ parseTime(scope.row.updateTime) || '—' }}</span>
                 </template>
               </el-table-column>
               <el-table-column label="操作" align="center" width="160" class-name="small-padding fixed-width">
                 <template #default="scope">
-                  <template v-if="scope.row.userId !== 1">
+                  <el-button v-if="isDeleted(scope.row) && scope.row.userId !== 1" size="small" link type="primary" :icon="resolveIcon('el-icon-refresh')" :loading="restoringUserId === scope.row.userId" :disabled="restoringUserId !== null" @click="handleRestore(scope.row)" v-hasPermi="['system:user:remove']">恢复</el-button>
+                  <template v-if="scope.row.userId !== 1 && !isDeleted(scope.row)">
                   <el-button size="small"  link type="primary" :icon="resolveIcon('el-icon-edit')" @click="handleUpdate(scope.row)" v-hasPermi="['system:user:edit']">修改</el-button>
                   <el-button size="small"  link type="primary" :icon="resolveIcon('el-icon-delete')" @click="handleDelete(scope.row)" v-hasPermi="['system:user:remove']">删除</el-button>
                   <el-dropdown v-if="showMoreMenu(scope.row)" size="small" @command="(command) => handleCommand(command, scope.row)">
@@ -220,7 +232,7 @@
 </template>
 
 <script>
-import { listUser, getUser, delUser, addUser, updateUser, resetUserPwd, unlockUserLogin, changeUserStatus, deptTreeSelect } from "@/api/system/user"
+import { listUser, getUser, delUser, restoreUser, addUser, updateUser, resetUserPwd, unlockUserLogin, changeUserStatus, deptTreeSelect } from "@/api/system/user"
 import { getToken } from "@/utils/auth"
 import { checkPermi } from "@/utils/permission"
 import Treeselect from '@/components/TreeSelect'
@@ -235,6 +247,7 @@ export default {
     return {
       // 遮罩层
       loading: true,
+      restoringUserId: null,
       formLoading: false,
       deptTreeLoaded: false,
       deptTreeRequest: null,
@@ -296,6 +309,7 @@ export default {
         userName: undefined,
         phonenumber: undefined,
         status: undefined,
+        delFlag: undefined,
         deptId: undefined
       },
       // 列信息
@@ -307,10 +321,11 @@ export default {
         { key: 4, label: `用户角色`, visible: true },
         { key: 5, label: `手机号码`, visible: true },
         { key: 6, label: `状态`, visible: true },
-        { key: 7, label: `创建人`, visible: true },
-        { key: 8, label: `创建时间`, visible: true },
-        { key: 9, label: `更新人`, visible: true },
-        { key: 10, label: `更新时间`, visible: true }
+        { key: 7, label: `删除状态`, visible: true },
+        { key: 8, label: `创建人`, visible: true },
+        { key: 9, label: `创建时间`, visible: true },
+        { key: 10, label: `更新人`, visible: true },
+        { key: 11, label: `更新时间`, visible: true }
       ],
       // 表单校验
       rules: {
@@ -362,6 +377,9 @@ export default {
     })
   },
   methods: {
+    isDeleted(row) {
+      return String(row?.delFlag) === '2'
+    },
     /** 角色列表以英文逗号拼接，兼容无角色及旧接口缺省值。 */
     formatUserRoles(row) {
       const roles = Array.isArray(row.roles) ? row.roles : []
@@ -379,7 +397,7 @@ export default {
     /** 查询用户列表 */
     getList() {
       this.loading = true
-      listUser(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+      return listUser(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
           this.userList = response.rows
           this.total = response.total
           this.loading = false
@@ -466,14 +484,16 @@ export default {
       this.dateRange = []
       this.resetForm("queryForm")
       this.queryParams.deptId = undefined
+      this.queryParams.delFlag = undefined
       this.$refs.tree.setCurrentKey(null)
       this.handleQuery()
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.userId)
-      this.single = selection.length != 1
-      this.multiple = !selection.length
+      const selectable = selection.filter(item => !this.isDeleted(item))
+      this.ids = selectable.map(item => item.userId)
+      this.single = selectable.length != 1
+      this.multiple = !selectable.length
     },
     // 更多操作触发
     handleCommand(command, row) {
@@ -596,6 +616,22 @@ export default {
           }
         }
       })
+    },
+    /** 恢复账号，不补回删除时移除的角色和岗位授权 */
+    async handleRestore(row) {
+      if (!this.isDeleted(row) || !row.userId || this.restoringUserId !== null) return
+      this.restoringUserId = row.userId
+      try {
+        await this.$modal.confirm('确认恢复用户“' + row.userName + '”？仅恢复账号，原角色和岗位授权不会自动恢复,需要重新设置')
+        await restoreUser(row.userId)
+        this.$modal.msgSuccess("恢复成功")
+        if (this.userList.length === 1 && this.queryParams.pageNum > 1) this.queryParams.pageNum--
+        await this.getList()
+      } catch (_) {
+        // 取消或接口失败时保留列表，接口错误由请求拦截器提示。
+      } finally {
+        this.restoringUserId = null
+      }
     },
     /** 删除按钮操作 */
     handleDelete(row) {

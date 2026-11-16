@@ -75,8 +75,8 @@ public class SysUserController extends BaseController
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
-     * 说明: 获取用户列表
-     * @param user 用户参数
+     * 说明: 按用户列表权限和数据范围查询账号，允许delFlag=2查看逻辑删除记录；恢复使用独立写入入口
+     * @param user 用户查询参数，delFlag缺省0未删除、2已删除
      * @return
      * 返回值: TableDataInfo
      * 返回值说明：获取用户列表
@@ -376,6 +376,24 @@ public class SysUserController extends BaseController
         roleService.checkRoleDataScope(roleIds);
         userService.insertUserAuth(userId, roleIds);
         return success();
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/16 20:21
+     * 说明: 恢复已删除用户，复用删除按钮权限，服务层校验数据范围及删除状态
+     * @param userId 已删除账号ID
+     * @return
+     * 返回值: AjaxResult
+     * 返回值说明: 恢复成功或业务校验失败信息
+     */
+    @RequiresPermissions("system:user:remove")
+    @Log(title = "用户恢复", businessType = BusinessType.UPDATE)
+    @PutMapping("/restore/{userId}")
+    public AjaxResult restore(@PathVariable("userId") Long userId)
+    {
+        return toAjax(userService.restoreUser(userId, getUsername()));
     }
 
     /**

@@ -8,6 +8,12 @@ package com.zero.common.constant;
  */
 public class UserConstants
 {
+    /** 用户删除标志：未删除，可用于用户列表筛选 */
+    public static final String USER_NOT_DELETED = "0";
+
+    /** 用户删除标志：逻辑删除，仅提供历史列表查询，不表示停用状态 */
+    public static final String USER_DELETED = "2";
+
     /**
      * 平台内系统用户的唯一标志
      */

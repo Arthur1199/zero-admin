@@ -15,7 +15,7 @@ test('用户角色按逗号展示，空值兼容且显隐不影响手机状态�
   const labels = await page.locator('.el-table__header-wrapper th .cell').allTextContents()
   expect(labels.indexOf('用户角色')).toBe(labels.indexOf('部门') + 1)
   expect(labels.indexOf('手机号码')).toBe(labels.indexOf('用户角色') + 1)
-  expect(labels.slice(labels.indexOf('状态') + 1, labels.indexOf('状态') + 5)).toEqual(['创建人', '创建时间', '更新人', '更新时间'])
+  expect(labels.slice(labels.indexOf('状态') + 1, labels.indexOf('状态') + 6)).toEqual(['删除状态', '创建人', '创建时间', '更新人', '更新时间'])
   const records = page.locator('.el-table__body .el-table__row')
   await expect(records.nth(0)).toContainText('普通角色,财务角色')
   await expect(records.nth(0)).toContainText('mock-creator')
