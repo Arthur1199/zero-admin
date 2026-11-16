@@ -62,13 +62,13 @@ create table sys_user (
   update_time       datetime                                   comment '更新时间',
   remark            varchar(500)    default null               comment '备注',
   primary key (user_id)
-) engine=innodb auto_increment=100 comment = '用户信息表';
+) engine=innodb comment = '用户信息表';
 
 -- ----------------------------
 -- 初始化-用户信息表数据
 -- ----------------------------
-insert into sys_user values(1,  103, 'admin', '零号', '00', 'ry@163.com', '15888888888', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', sysdate(), sysdate(), 0, 'admin', sysdate(), '', null, '管理员');
-insert into sys_user values(2,  105, 'ry',    '零号', '00', 'ry@qq.com',  '15666666666', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', sysdate(), sysdate(), 0, 'admin', sysdate(), '', null, '测试员');
+insert into sys_user values(1,  103, 'admin', '零号超管', '00', 'zeroAdmin@163.com', '15888888888', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', sysdate(), sysdate(), 0, 'admin', sysdate(), '', null, '超级管理员');
+insert into sys_user values(2,  105, 'zero',    '不吃胡萝卜', '00', 'zeroAdmin@qq.com',  '15666666666', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', sysdate(), sysdate(), 0, 'admin', sysdate(), '', null, '普通账号');
 
 
 -- ----------------------------
@@ -119,7 +119,7 @@ create table sys_role (
   update_time          datetime                                   comment '更新时间',
   remark               varchar(500)    default null               comment '备注',
   primary key (role_id)
-) engine=innodb auto_increment=100 comment = '角色信息表';
+) engine=innodb comment = '角色信息表';
 
 -- ----------------------------
 -- 初始化-角色信息表数据
@@ -163,7 +163,7 @@ create table sys_menu (
 insert into sys_menu values('1', '系统管理', '0', '1', 'system',           null, '', '', 1, 0, 'M', '0', '0', '', 'system',   'admin', sysdate(), '', null, '系统管理目录');
 insert into sys_menu values('2', '系统监控', '0', '2', 'monitor',          null, '', '', 1, 0, 'M', '0', '0', '', 'monitor',  'admin', sysdate(), '', null, '系统监控目录');
 insert into sys_menu values('3', '系统工具', '0', '3', 'tool',             null, '', '', 1, 0, 'M', '0', '0', '', 'tool',     'admin', sysdate(), '', null, '系统工具目录');
-insert into sys_menu values('4', '零号官网', '0', '4', 'http://zero.vip', null, '', '', 0, 0, 'M', '0', '0', '', 'guide',    'admin', sysdate(), '', null, '零号官网地址');
+insert into sys_menu values('4', '零号官网', '0', '4', 'https://www.badu.com', null, '', '', 0, 0, 'M', '0', '0', '', 'guide',    'admin', sysdate(), '', null, '零号官网地址');
 -- 二级菜单
 insert into sys_menu values('100',  '用户管理', '1',   '1', 'user',       'system/user/index',        '', '', 1, 0, 'C', '0', '0', 'system:user:list',        'user',          'admin', sysdate(), '', null, '用户管理菜单');
 insert into sys_menu values('118',  '谷歌绑定', '1',   '2', 'google',     'system/google/index',      '', '', 1, 0, 'C', '0', '0', 'system:google:list',      'lock',          'admin', sysdate(), '', null, '谷歌绑定菜单');
@@ -214,6 +214,8 @@ insert into sys_menu values('1008', '角色新增', '101', '2',  '', '', '', '',
 insert into sys_menu values('1009', '角色修改', '101', '3',  '', '', '', '', 1, 0, 'F', '0', '0', 'system:role:edit',           '#', 'admin', sysdate(), '', null, '');
 insert into sys_menu values('1010', '角色删除', '101', '4',  '', '', '', '', 1, 0, 'F', '0', '0', 'system:role:remove',         '#', 'admin', sysdate(), '', null, '');
 insert into sys_menu values('1011', '角色导出', '101', '5',  '', '', '', '', 1, 0, 'F', '0', '0', 'system:role:export',         '#', 'admin', sysdate(), '', null, '');
+insert into sys_menu values('1100', '数据权限', '101', '6', '', '', '', '', 1, 0, 'F', '0', '0', 'system:role:dataScope', '#', 'admin', sysdate(), '', null, '独立修改角色数据范围和部门关联');
+insert into sys_menu values('1101', '分配用户', '101', '7', '', '', '', '', 1, 0, 'F', '0', '0', 'system:role:authUser', '#', 'admin', sysdate(), '', null, '独立添加或取消角色用户关联');
 -- 菜单管理按钮
 insert into sys_menu values('1012', '菜单查询', '102', '1',  '', '', '', '', 1, 0, 'F', '0', '0', 'system:menu:query',          '#', 'admin', sysdate(), '', null, '');
 insert into sys_menu values('1013', '菜单新增', '102', '2',  '', '', '', '', 1, 0, 'F', '0', '0', 'system:menu:add',            '#', 'admin', sysdate(), '', null, '');

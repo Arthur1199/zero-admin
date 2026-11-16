@@ -1,5 +1,10 @@
 import request from '@/utils/request'
 
+// 新增角色的建议显示顺序，与列表分页、筛选无关
+export function getNextRoleSort() {
+  return request({ url: '/system/role/nextSort', method: 'get' })
+}
+
 // 查询角色列表
 export function listRole(query) {
   return request({

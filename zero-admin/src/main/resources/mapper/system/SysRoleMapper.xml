@@ -3,6 +3,9 @@
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.zero.system.mapper.SysRoleMapper">
+    <select id="selectMaxRoleSort" resultType="java.lang.Long">
+        select max(role_sort) from sys_role where del_flag = '0'
+    </select>
 
 	<resultMap type="SysRole" id="SysRoleResult">
 		<id     property="roleId"             column="role_id"               />
@@ -23,7 +26,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	
 	<sql id="selectRoleVo">
 	    select distinct r.role_id, r.role_name, r.role_key, r.role_sort, r.data_scope, r.menu_check_strictly, r.dept_check_strictly,
-            r.status, r.del_flag, r.create_time, r.remark 
+            r.status, r.del_flag, r.create_by, r.create_time, r.update_by, r.update_time, r.remark
         from sys_role r
 	        left join sys_user_role ur on ur.role_id = r.role_id
 	        left join sys_user u on u.user_id = ur.user_id
@@ -121,7 +124,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  		)
 	</insert>
 	
-	<update id="updateRole" parameterType="SysRole">
+	<update id="updateRoleDataScope" parameterType="SysRole">
+        update sys_role set data_scope = #{dataScope}, dept_check_strictly = #{deptCheckStrictly},
+            update_by = #{updateBy}, update_time = sysdate()
+        where role_id = #{roleId}
+    </update>
+
+    <update id="updateRole" parameterType="SysRole">
  		update sys_role
  		<set>
  			<if test="roleName != null and roleName != ''">role_name = #{roleName},</if>
@@ -149,4 +158,4 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach> 
  	</delete>
  	
-</mapper> 
+</mapper>

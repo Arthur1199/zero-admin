@@ -13,6 +13,7 @@ async function open(page, options = {}) {
   await page.getByRole('button', { name: '新增', exact: true }).click()
   const dialog = page.getByRole('dialog', { name: '添加角色', exact: true })
   await expect(dialog).toBeVisible()
+  await expect(dialog.locator('.el-select')).toContainText('本部门及以下数据权限')
   await dialog.getByPlaceholder('请输入角色名称', { exact: true }).fill('模拟角色')
   await dialog.getByPlaceholder('请输入角色英文名称', { exact: true }).fill('mock_scope_role')
   return { dialog, requests }
@@ -99,7 +100,7 @@ test('切换范围和重新打开不携带旧部门；部门慢响应不污染�
   await expect(dialog).toBeHidden()
   expect(writes[0]).toMatchObject({ dataScope: '5', deptIds: [] })
   await page.getByRole('button', { name: '新增', exact: true }).click()
-  await expect(dialog.locator('.el-select')).toContainText('全部数据权限')
+  await expect(dialog.locator('.el-select')).toContainText('本部门及以下数据权限')
   await expect(dialog.getByText('研发部', { exact: true })).toHaveCount(0)
 })
 
@@ -138,6 +139,10 @@ for (const scope of ['1', '2', '3', '4', '5']) {
     await expect(dialog.locator('.el-select')).toContainText('自定义数据权限')
     const tree = dialog.getByRole('tree').nth(1)
     await expect(tree.getByRole('treeitem', { name: '研发部', exact: true }).getByRole('checkbox')).toBeChecked()
+    await select(dialog, page, '1')
+    await select(dialog, page, '2')
+    await expect(tree.getByRole('treeitem', { name: '研发部', exact: true }).getByRole('checkbox')).toBeChecked()
+    await expect(tree.getByRole('treeitem', { name: '测试部', exact: true }).getByRole('checkbox')).not.toBeChecked()
     if (scope === '2') await tree.locator('.el-tree-node__content').filter({ hasText: '测试部' }).locator('.el-checkbox').click()
     else await select(dialog, page, scope)
     await dialog.getByRole('button', { name: '确 定', exact: true }).click()
@@ -147,3 +152,28 @@ for (const scope of ['1', '2', '3', '4', '5']) {
     expect([...writes[0].deptIds].sort()).toEqual(scope === '2' ? [200, 201, 202] : [])
   })
 }
+
+
+test('数据权限说明弹窗展示五种范围和示例，关闭后保留角色草稿', async ({ page }, testInfo) => {
+  const { dialog, requests } = await open(page)
+  await dialog.getByRole('button', { name: '查看数据权限说明', exact: true }).click()
+  const help = page.getByRole('dialog', { name: '数据权限说明', exact: true })
+  await expect(help).toBeVisible()
+  await expect(help.locator('dt')).toHaveText(scopes)
+  await expect(help.locator('dd').filter({ hasText: '举例：' })).toHaveCount(5)
+  await expect(help).toContainText('仅对已经接入数据权限过滤的功能生效')
+  for (const theme of ['glassmorphism', 'dark-premium', 'minimalist-future', 'default']) {
+    await page.evaluate(theme => {
+      document.body.className = document.body.className.replace(/\btheme-\S+/g, '').trim()
+      if (theme !== 'default') document.body.classList.add('theme-' + theme)
+    }, theme)
+    await expect(help.getByRole('button', { name: '我知道了', exact: true })).toBeVisible()
+    expect(await help.evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true)
+    if (testInfo.project.name === 'chromium') await help.screenshot({ path: 'output/playwright/role-scope-help-' + theme + '.png' })
+  }
+  await help.getByRole('button', { name: '我知道了', exact: true }).click()
+  await expect(help).toBeHidden()
+  await expect(dialog).toBeVisible()
+  await expect(dialog.getByPlaceholder('请输入角色名称', { exact: true })).toHaveValue('模拟角色')
+  expect(requests.filter(request => request.method !== 'GET')).toEqual([])
+})

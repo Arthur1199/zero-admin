@@ -50,7 +50,7 @@ v-model:limit="queryParams.pageSize"
       />
     </el-row>
     <template #footer><div  class="dialog-footer">
-      <el-button type="primary" @click="handleSelectUser">确 定</el-button>
+      <el-button type="primary" v-hasPermi="['system:role:authUser']" @click="handleSelectUser">确 定</el-button>
       <el-button @click="visible = false">取 消</el-button>
     </div></template>
   </el-dialog>

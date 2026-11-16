@@ -14,6 +14,17 @@ public interface SysRoleMapper
     /**
      *
      * 作者: Arthur 亚瑟
+     * 时间: 2026/11/16 18:10
+     * 说明: 读取全部未删除角色的最大显示顺序，包含停用角色，不受页面分页或筛选影响
+     * @return
+     * 返回值: Long
+     * 返回值说明: 最大顺序，没有角色时为空；仅供新增角色默认值参考
+     */
+    Long selectMaxRoleSort();
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
      * 说明: 根据条件分页查询角色数据
      * @param role 角色信息
@@ -117,6 +128,18 @@ public interface SysRoleMapper
      * 返回值说明：修改角色信息
      */
     public int updateRole(SysRole role);
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/16 17:30
+     * 说明: 仅更新角色数据范围和部门联动，防止独立数据权限修改基础字段或菜单
+     * @param role 已校验角色编号、范围、部门联动和审计信息
+     * @return
+     * 返回值: int
+     * 返回值说明: 更新行数，调用方已校验角色数据范围
+     */
+    int updateRoleDataScope(SysRole role);
 
     /**
      *
