@@ -32,7 +32,7 @@ async function openRole(page, mode) {
 
 for (const [mode, endpoint] of [
   ['新增', '/system/menu/treeselect'],
-  ['修改', '/system/menu/roleMenuTreeselect/2'], ['修改', '/system/role/2'],
+  ['修改', '/system/menu/roleMenuTreeselect/2'], ['修改', '/system/role/2'], ['修改', '/system/role/deptTree/2'],
   ['数据权限', '/system/role/deptTree/2'], ['数据权限', '/system/role/2']
 ]) {
   test('角色' + mode + '依赖失败不打开残缺表单，重试保留选中节点 ' + endpoint, async ({ page }) => {
@@ -50,10 +50,10 @@ for (const [mode, endpoint] of [
     failed = false
     await openRole(page, mode)
     await expect(dialog).toBeVisible()
-    await expect(dialog.getByRole('tree')).toBeVisible()
+    await expect(dialog.getByRole('tree').first()).toBeVisible()
     if (mode !== '新增') {
-      const leaf = dialog.getByRole('treeitem', { name: '已选节点', exact: true })
-      if (!await leaf.isVisible()) await dialog.getByText('展开/折叠', { exact: true }).click()
+      const leaf = dialog.getByRole('tree').first().getByRole('treeitem', { name: '已选节点', exact: true })
+      if (!await leaf.isVisible()) await dialog.getByText('展开/折叠', { exact: true }).first().click()
       await expect(leaf.getByRole('checkbox')).toBeChecked()
     }
     await dialog.getByRole('button', { name: '取 消', exact: true }).click()
@@ -190,7 +190,7 @@ for (const mode of ['新增', '修改', '数据权限']) {
     await page.goto('/system/role')
     await openRole(page, mode)
     const dialog = page.getByRole('dialog', { name: mode === '新增' ? '添加角色' : mode === '修改' ? '修改角色' : '分配数据权限', exact: true })
-    await expect(dialog.getByRole('tree')).toBeVisible()
+    await expect(dialog.getByRole('tree').first()).toBeVisible()
     if (mode !== '数据权限') {
       await dialog.getByPlaceholder('请输入角色名称').fill('保留输入的角色')
       await dialog.getByPlaceholder('请输入角色英文名称').fill('kept_role')

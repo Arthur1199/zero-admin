@@ -8,6 +8,7 @@ import org.apache.velocity.VelocityContext;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.zero.common.constant.GenConstants;
+import com.zero.common.exception.ServiceException;
 import com.zero.common.utils.DateUtils;
 import com.zero.common.utils.StringUtils;
 import com.zero.generator.domain.GenTable;
@@ -170,19 +171,23 @@ public class VelocityUtils
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
-     * 说明: 获取模板信息
+     * 说明: 获取classpath模板列表；未指定前端类型时采用本项目Vue3模板，显式Vue2配置保留
      * @param tplCategory 生成的模板
-     * @param tplWebType 前端类型
+     * @param tplWebType 前端类型element-ui或element-plus，空值默认element-plus
      * @return
      * 返回值: 模板列表
      * 返回值说明：获取模板信息
      */
     public static List<String> getTemplateList(String tplCategory, String tplWebType)
     {
-        String useWebType = "vm/vue";
-        if ("element-plus".equals(tplWebType))
+        String useWebType = "vm/vue/v3";
+        if (GenConstants.TPL_WEB_ELEMENT_UI.equals(tplWebType))
         {
-            useWebType = "vm/vue/v3";
+            useWebType = "vm/vue";
+        }
+        else if (StringUtils.isNotEmpty(tplWebType) && !GenConstants.TPL_WEB_ELEMENT_PLUS.equals(tplWebType))
+        {
+            throw new ServiceException("不支持的前端模板类型");
         }
         List<String> templates = new ArrayList<String>();
         templates.add("vm/java/domain.java.vm");
@@ -213,7 +218,7 @@ public class VelocityUtils
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
-     * 说明: 获取文件名
+     * 说明: 获取生成产物相对路径，Controller沿用项目web/controller/模块目录，其余按生成包配置输出
      * @param template template参数
      * @param genTable 代码生成表参数
      * @return
@@ -259,7 +264,8 @@ public class VelocityUtils
         }
         else if (template.contains("controller.java.vm"))
         {
-            fileName = StringUtils.format("{}/controller/{}Controller.java", javaPath, className);
+            String controllerPath = PROJECT_PATH + "/" + StringUtils.replace(getPackagePrefix(packageName), ".", "/");
+            fileName = StringUtils.format("{}/web/controller/{}/{}Controller.java", controllerPath, moduleName, className);
         }
         else if (template.contains("mapper.xml.vm"))
         {

@@ -20,7 +20,7 @@ public class GenUtils
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
-     * 说明: 初始化表信息
+     * 说明: 初始化表信息，新增导入表未指定前端类型时默认Vue3，不改变显式Vue2配置
      * @param genTable 代码生成表参数
      * @param operName 操作名称参数
      * @return
@@ -36,6 +36,10 @@ public class GenUtils
         genTable.setFunctionName(replaceText(genTable.getTableComment()));
         genTable.setFunctionAuthor(GenConfig.getAuthor());
         genTable.setCreateBy(operName);
+        if (StringUtils.isEmpty(genTable.getTplWebType()))
+        {
+            genTable.setTplWebType(GenConstants.TPL_WEB_ELEMENT_PLUS);
+        }
     }
 
     /**

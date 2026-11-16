@@ -266,9 +266,12 @@ export default {
     'info.subTableName': function(val) {
       this.setSubTableColumns(val)
     },
-    'info.tplWebType': function(val) {
-      if (val === '') {
-        this.info.tplWebType = "element-ui"
+    'info.tplWebType': {
+      immediate: true,
+      handler(val) {
+        if (!val) {
+          this.info.tplWebType = "element-plus"
+        }
       }
     }
   },

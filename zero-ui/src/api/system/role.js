@@ -110,6 +110,14 @@ export function authUserSelectAll(data) {
   })
 }
 
+// 新增角色时查询可选部门树，仅使用角色新增权限
+export function creationDeptTreeSelect() {
+  return request({
+    url: '/system/role/deptTree',
+    method: 'get'
+  })
+}
+
 // 根据角色ID查询部门树结构
 export function deptTreeSelect(roleId) {
   return request({

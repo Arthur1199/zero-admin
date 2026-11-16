@@ -158,7 +158,7 @@ v-model:limit="queryParams.pageSize"
     />
 
     <!-- 添加或修改角色配置对话框 -->
-    <el-dialog :title="title" v-model="open" width="50%" append-to-body :close-on-click-modal="false">
+    <el-dialog :title="title" v-model="open" width="50%" append-to-body :close-on-click-modal="false" :close-on-press-escape="!submitting" :show-close="!submitting">
       <el-form ref="form" :model="form" :rules="rules" label-width="130px">
         <el-form-item label="角色名称" prop="roleName">
           <el-input v-model="form.roleName" placeholder="请输入角色名称" />
@@ -199,13 +199,26 @@ v-model:limit="queryParams.pageSize"
             :props="defaultProps"
           ></el-tree>
         </el-form-item>
+        <el-form-item label="数据权限" prop="dataScope">
+          <el-select v-model="form.dataScope" placeholder="请选择数据权限" @change="handleCreateDataScopeChange">
+            <el-option v-for="item in dataScopeOptions" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item v-if="form.dataScope === '2'" label="部门范围" class="permission-tree-item" v-loading="createDeptLoading">
+          <el-checkbox v-model="createDeptExpand" @change="handleCreateDeptExpand">展开/折叠</el-checkbox>
+          <el-checkbox v-model="createDeptNodeAll" @change="value => $refs.createDept?.setCheckedNodes(value ? createDeptOptions : [])">全选/全不选</el-checkbox>
+          <el-checkbox v-model="form.deptCheckStrictly">父子联动</el-checkbox>
+          <el-tree ref="createDept" class="tree-border" :data="createDeptOptions" show-checkbox default-expand-all
+            node-key="id" :check-strictly="!form.deptCheckStrictly" :props="defaultProps" empty-text="暂无可选部门" />
+          <el-button v-if="!createDeptLoaded && !createDeptLoading" link type="primary" @click="loadCreateDeptTree">重新加载部门</el-button>
+        </el-form-item>
         <el-form-item label="备注">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"></el-input>
         </el-form-item>
       </el-form>
       <template #footer><div  class="dialog-footer">
-        <el-button type="primary" @click="submitForm">确 定</el-button>
-        <el-button @click="cancel">取 消</el-button>
+        <el-button type="primary" :loading="submitting" :disabled="createDeptLoading" @click="submitForm">确 定</el-button>
+        <el-button :disabled="submitting" @click="cancel">取 消</el-button>
       </div></template>
     </el-dialog>
 
@@ -254,7 +267,7 @@ v-model:limit="queryParams.pageSize"
 </template>
 
 <script>
-import { listRole, getRole, delRole, addRole, updateRole, dataScope, changeRoleStatus, deptTreeSelect } from "@/api/system/role"
+import { listRole, getRole, delRole, addRole, updateRole, dataScope, changeRoleStatus, deptTreeSelect, creationDeptTreeSelect } from "@/api/system/role"
 import { treeselect as menuTreeselect, roleMenuTreeselect } from "@/api/system/menu"
 
 export default {
@@ -265,6 +278,13 @@ export default {
       // 遮罩层
       loading: true,
       formLoading: false,
+      submitting: false,
+      createDeptLoading: false,
+      createDeptLoaded: false,
+      createDeptOptions: [],
+      createDeptExpand: true,
+      createDeptNodeAll: false,
+      createDeptRequestId: 0,
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -297,7 +317,7 @@ export default {
         },
         {
           value: "2",
-          label: "自定数据权限"
+          label: "自定义数据权限"
         },
         {
           value: "3",
@@ -332,6 +352,9 @@ export default {
       },
       // 表单校验
       rules: {
+        dataScope: [
+          { required: true, message: "请选择数据权限", trigger: "change" }
+        ],
         roleName: [
           { required: true, message: "角色名称不能为空", trigger: "blur" }
         ],
@@ -403,6 +426,7 @@ export default {
     },
     // 取消按钮
     cancel() {
+      if (this.submitting) return
       this.open = false
       this.reset()
     },
@@ -413,6 +437,12 @@ export default {
     },
     // 表单重置
     reset() {
+      this.createDeptRequestId++
+      this.createDeptLoading = false
+      this.createDeptLoaded = false
+      this.createDeptOptions = []
+      this.createDeptExpand = true
+      this.createDeptNodeAll = false
       if (this.$refs.menu != undefined) {
         this.$refs.menu.setCheckedKeys([])
       }
@@ -428,6 +458,7 @@ export default {
         status: "0",
         menuIds: [],
         deptIds: [],
+        dataScope: "1",
         menuCheckStrictly: true,
         deptCheckStrictly: true,
         remark: undefined
@@ -516,6 +547,46 @@ export default {
         this.formLoading = false
       }
     },
+    /** 切换数据范围时清理旧部门选择。 */
+    handleCreateDataScopeChange(value) {
+      this.createDeptRequestId++
+      this.createDeptLoading = false
+      this.createDeptLoaded = false
+      this.createDeptOptions = []
+      this.createDeptNodeAll = false
+      this.form.deptIds = []
+      if (value === '2') this.loadCreateDeptTree()
+    },
+    /** 部门读取结果仅更新当前角色草稿，失败可重试。 */
+    async loadCreateDeptTree() {
+      if (this.createDeptLoading) return
+      const requestId = ++this.createDeptRequestId
+      this.createDeptLoading = true
+      try {
+        const response = this.form.roleId == undefined ? await creationDeptTreeSelect() : await deptTreeSelect(this.form.roleId)
+        if (requestId !== this.createDeptRequestId || this.form.dataScope !== '2') return
+        const options = this.form.roleId == undefined ? response.data : response.depts
+        if (!Array.isArray(options)) {
+          this.$modal.msgError("部门信息不完整，请重试")
+          return
+        }
+        this.createDeptOptions = options
+        await this.$nextTick()
+        if (requestId !== this.createDeptRequestId) return
+        this.$refs.createDept?.setCheckedKeys(this.form.deptIds || [])
+        this.createDeptLoaded = true
+      } catch {
+        // 接口错误由拦截器提示，当前草稿保留供重试。
+      } finally {
+        if (requestId === this.createDeptRequestId) this.createDeptLoading = false
+      }
+    },
+    handleCreateDeptExpand(value) {
+      for (const node of this.createDeptOptions) {
+        const treeNode = this.$refs.createDept?.getNode(node.id)
+        if (treeNode) treeNode.expanded = value
+      }
+    },
     /** 修改按钮操作 */
     async handleUpdate(row) {
       if (this.formLoading) return
@@ -531,10 +602,19 @@ export default {
           return
         }
         this.menuOptions = roleMenu.menus
-        this.form = response.data
+        this.form = { ...response.data, dataScope: response.data.dataScope || "1" }
         this.title = "修改角色"
+        let deptTree
+        if (this.form.dataScope === '2') {
+          deptTree = await deptTreeSelect(roleId)
+          if (!Array.isArray(deptTree.depts)) throw new Error("部门信息不完整")
+          this.createDeptOptions = deptTree.depts
+          this.form.deptIds = deptTree.checkedKeys || []
+          this.createDeptLoaded = true
+        }
         this.open = true
         await this.$nextTick()
+        if (deptTree) this.$refs.createDept?.setCheckedKeys(this.form.deptIds)
         const checkedKeys = roleMenu.checkedKeys || []
         checkedKeys.forEach(v => {
           this.$refs.menu?.setChecked(v, true, false)
@@ -584,25 +664,34 @@ export default {
     },
     /** 提交按钮 */
     submitForm: function() {
+      if (this.submitting) return
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.roleId != undefined) {
-            this.form.menuIds = this.getMenuAllCheckedKeys()
-            updateRole(this.form).then(response => {
-              this.$modal.msgSuccess("修改成功")
-              this.open = false
-              this.getList()
-            }).catch(() => {})
-          } else {
-            this.form.menuIds = this.getMenuAllCheckedKeys()
-            addRole(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功")
-              this.open = false
-              this.getList()
-            }).catch(() => {})
+          if (this.submitting) return
+          const editing = this.form.roleId != undefined
+          const data = { ...this.form, menuIds: this.getMenuAllCheckedKeys() }
+          data.deptIds = []
+          if (data.dataScope === '2') {
+            if (!this.createDeptLoaded || this.createDeptLoading) {
+              this.$modal.msgError("请先加载部门信息")
+              return
+            }
+            // 仅提交真正勾选的部门，半选父节点不应扩大自定范围。
+            data.deptIds = this.$refs.createDept?.getCheckedKeys() || []
+            if (!data.deptIds.length) {
+              this.$modal.msgError("请至少选择一个部门")
+              return
+            }
           }
+          this.submitting = true
+          const request = editing ? updateRole(data) : addRole(data)
+          request.then(() => {
+            this.$modal.msgSuccess(editing ? "修改成功" : "新增成功")
+            this.open = false
+            this.getList()
+          }).catch(() => {}).finally(() => { this.submitting = false })
         }
-      })
+      }).catch(() => {})
     },
     /** 提交按钮（数据权限） */
     submitDataScope: function() {
