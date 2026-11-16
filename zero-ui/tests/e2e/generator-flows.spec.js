@@ -12,6 +12,17 @@ const previewCode = '<template><div>模拟Vue3预览</div></template>\n'
 const preview = { 'vm/java/domain.java.vm': 'public class MockTable {}', 'vm/vue/v3/index.vue.vm': previewCode }
 const metadata = { code: 200, data: { info, rows: columns, tables: [{ tableName: 'mock_child', tableComment: '模拟子表', columns }] } }
 
+test('历史空前端类型默认Vue3，打开配置不自动写数据库', async ({ page }) => {
+  const requests = await fixtures(page)
+  await page.route('**/dev-api/tool/gen/2', route => route.fulfill({ json: {
+    ...metadata, data: { ...metadata.data, info: { ...info, tplWebType: '' } }
+  } }))
+  await page.goto('/tool/gen-edit/index/2')
+  await page.getByRole('tab', { name: '生成信息', exact: true }).click()
+  await expect(page.locator('.el-form-item').filter({ hasText: '前端类型' }).locator('.el-select')).toContainText('Vue3 Element Plus 模版')
+  expect(requests.filter(request => request.method !== 'GET')).toEqual([])
+})
+
 function watchErrors(page) {
   const errors = []
   page.on('pageerror', error => errors.push(error.message))

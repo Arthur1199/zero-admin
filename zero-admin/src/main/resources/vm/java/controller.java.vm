@@ -1,0 +1,159 @@
+package ${basePackage}.web.controller.${moduleName};
+
+import java.util.List;
+import jakarta.servlet.http.HttpServletResponse;
+import com.zero.common.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import com.zero.common.annotation.Log;
+import com.zero.common.core.controller.BaseController;
+import com.zero.common.core.domain.AjaxResult;
+import com.zero.common.enums.BusinessType;
+import ${packageName}.domain.${ClassName};
+import ${packageName}.service.I${ClassName}Service;
+import com.zero.common.utils.poi.ExcelUtil;
+#if($table.crud || $table.sub)
+import com.zero.common.core.page.TableDataInfo;
+#elseif($table.tree)
+#end
+
+/**
+ *
+ * 作者: ${author}
+ * 时间: ${datetime}
+ * 说明: ${functionName}Controller
+ */
+@RestController
+@RequestMapping("/${moduleName}/${businessName}")
+public class ${ClassName}Controller extends BaseController
+{
+    @Autowired
+    private I${ClassName}Service ${className}Service;
+
+    /**
+     *
+     * 作者: ${author}
+     * 时间: ${datetime}
+     * 说明: 查询${functionName}列表
+     * @param ${className} ${functionName}列表查询条件
+     * @return
+     * 返回值: #if($table.tree)AjaxResult#else TableDataInfo#end
+
+     * 返回值说明: #if($table.tree)data中的树节点列表#else rows中的分页记录及total总数#end
+
+     */
+    @RequiresPermissions("${permissionPrefix}:list")
+    @GetMapping("/list")
+#if($table.crud || $table.sub)
+    public TableDataInfo list(${ClassName} ${className})
+    {
+        startPage();
+        List<${ClassName}> list = ${className}Service.select${ClassName}List(${className});
+        return getDataTable(list);
+    }
+#elseif($table.tree)
+    public AjaxResult list(${ClassName} ${className})
+    {
+        List<${ClassName}> list = ${className}Service.select${ClassName}List(${className});
+        return success(list);
+    }
+#end
+
+    /**
+     *
+     * 作者: ${author}
+     * 时间: ${datetime}
+     * 说明: 导出${functionName}列表
+     * @param response 写入Excel文件流的HTTP响应
+     * @param ${className} ${functionName}导出查询条件
+     * @return
+     * 返回值: void
+     * 返回值说明: 响应输出或对象更新，无返回值
+     */
+    @RequiresPermissions("${permissionPrefix}:export")
+    @Log(title = "${functionName}", businessType = BusinessType.EXPORT)
+    @PostMapping("/export")
+    public void export(HttpServletResponse response, ${ClassName} ${className})
+    {
+        List<${ClassName}> list = ${className}Service.select${ClassName}List(${className});
+        ExcelUtil<${ClassName}> util = new ExcelUtil<${ClassName}>(${ClassName}.class);
+        util.exportExcel(response, list, "${functionName}数据");
+    }
+
+    /**
+     *
+     * 作者: ${author}
+     * 时间: ${datetime}
+     * 说明: 获取${functionName}详细信息
+     * @param ${pkColumn.javaField} ${functionName}主键，用于列表内表单回显
+     * @return
+     * 返回值: AjaxResult
+     * 返回值说明: 当前操作结果
+     */
+    @GetMapping(value = "/{${pkColumn.javaField}}")
+    public AjaxResult getInfo(@PathVariable("${pkColumn.javaField}") ${pkColumn.javaType} ${pkColumn.javaField})
+    {
+        return success(${className}Service.select${ClassName}By${pkColumn.capJavaField}(${pkColumn.javaField}));
+    }
+
+    /**
+     *
+     * 作者: ${author}
+     * 时间: ${datetime}
+     * 说明: 新增${functionName}
+     * @param ${className} 待新增的${functionName}对象
+     * @return
+     * 返回值: AjaxResult
+     * 返回值说明: 当前操作结果
+     */
+    @RequiresPermissions("${permissionPrefix}:add")
+    @Log(title = "${functionName}", businessType = BusinessType.INSERT)
+    @PostMapping
+    public AjaxResult add(@RequestBody ${ClassName} ${className})
+    {
+        return toAjax(${className}Service.insert${ClassName}(${className}));
+    }
+
+    /**
+     *
+     * 作者: ${author}
+     * 时间: ${datetime}
+     * 说明: 修改${functionName}
+     * @param ${className} 待修改的${functionName}对象，必须包含主键
+     * @return
+     * 返回值: AjaxResult
+     * 返回值说明: 当前操作结果
+     */
+    @RequiresPermissions("${permissionPrefix}:edit")
+    @Log(title = "${functionName}", businessType = BusinessType.UPDATE)
+    @PutMapping
+    public AjaxResult edit(@RequestBody ${ClassName} ${className})
+    {
+        return toAjax(${className}Service.update${ClassName}(${className}));
+    }
+
+    /**
+     *
+     * 作者: ${author}
+     * 时间: ${datetime}
+     * 说明: 删除${functionName}
+     * @param ${pkColumn.javaField}s 待删除的${functionName}主键集合
+     * @return
+     * 返回值: AjaxResult
+     * 返回值说明: 当前操作结果
+     */
+    @RequiresPermissions("${permissionPrefix}:remove")
+    @Log(title = "${functionName}", businessType = BusinessType.DELETE)
+	@DeleteMapping("/{${pkColumn.javaField}s}")
+    public AjaxResult remove(@PathVariable ${pkColumn.javaType}[] ${pkColumn.javaField}s)
+    {
+        return toAjax(${className}Service.delete${ClassName}By${pkColumn.capJavaField}s(${pkColumn.javaField}s));
+    }
+}

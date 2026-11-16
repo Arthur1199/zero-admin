@@ -389,4 +389,20 @@ public class SysRoleController extends BaseController
         ajax.put("depts", deptService.selectDeptTreeList(new SysDept()));
         return ajax;
     }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/16 16:37
+     * 说明: 新增角色时读取当前账号可见的部门树，复用新增角色权限，不依赖用户管理或角色查询权限
+     * @return
+     * 返回值: AjaxResult
+     * 返回值说明: data中的部门树，不含已有角色的勾选关系，不写入任何授权
+     */
+    @RequiresPermissions("system:role:add")
+    @GetMapping("/deptTree")
+    public AjaxResult creationDeptTree()
+    {
+        return success(deptService.selectDeptTreeList(new SysDept()));
+    }
 }

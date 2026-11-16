@@ -8,6 +8,12 @@ package com.zero.common.constant;
  */
 public class GenConstants
 {
+    /** Vue2 + Element UI模板标识，仅在显式选择旧前端类型时使用 */
+    public static final String TPL_WEB_ELEMENT_UI = "element-ui";
+
+    /** Vue3 + Element Plus模板标识，当前项目新增及未指定前端类型时的默认值 */
+    public static final String TPL_WEB_ELEMENT_PLUS = "element-plus";
+
     /**
      * 单表（增删改查）
      */

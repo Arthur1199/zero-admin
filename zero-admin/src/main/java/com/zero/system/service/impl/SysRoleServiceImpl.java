@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.zero.common.annotation.DataScope;
 import com.zero.common.constant.UserConstants;
+import com.zero.common.constant.RoleDataScopeConstants;
 import com.zero.common.core.domain.entity.SysRole;
 import com.zero.common.core.domain.entity.SysUser;
 import com.zero.common.exception.ServiceException;
@@ -287,7 +288,7 @@ public class SysRoleServiceImpl implements ISysRoleService
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
-     * 说明: 新增保存角色信息
+     * 说明: 在同一事务内新增角色、菜单及自定部门范围，范围无效时不写入；兼容旧调用默认全部数据
      * @param role 角色信息
      * @return
      * 返回值: 结果
@@ -297,16 +298,68 @@ public class SysRoleServiceImpl implements ISysRoleService
     @Transactional
     public int insertRole(SysRole role)
     {
+        validateRoleDataScope(role);
         // 新增角色信息
         roleMapper.insertRole(role);
-        return insertRoleMenu(role);
+        int rows = insertRoleMenu(role);
+        if (RoleDataScopeConstants.CUSTOM.equals(role.getDataScope()))
+        {
+            insertRoleDept(role);
+        }
+        return rows;
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/16 16:52
+     * 说明: 保存前校验数据范围及部门集合，防止无效范围或隐藏部门关系写入
+     * @param role 待保存角色，调用方确定是否修改数据范围
+     * @return
+     * 返回值: void
+     * 返回值说明: 校验失败抛业务异常，尚未执行数据库写入
+     */
+    private void validateRoleDataScope(SysRole role)
+    {
+        if (role == null)
+        {
+            throw new ServiceException("角色信息不能为空");
+        }
+        String scope = StringUtils.isEmpty(role.getDataScope()) ? RoleDataScopeConstants.ALL : role.getDataScope();
+        if (!RoleDataScopeConstants.VALUES.contains(scope))
+        {
+            throw new ServiceException("数据权限范围无效");
+        }
+        role.setDataScope(scope);
+        if (RoleDataScopeConstants.CUSTOM.equals(scope))
+        {
+            Long[] deptIds = role.getDeptIds();
+            if (deptIds == null || deptIds.length == 0)
+            {
+                throw new ServiceException("自定义数据权限至少需要选择一个部门");
+            }
+            if (Arrays.stream(deptIds).anyMatch(id -> id == null || id <= 0))
+            {
+                throw new ServiceException("部门编号无效");
+            }
+            role.setDeptIds(Arrays.stream(deptIds).distinct().toArray(Long[]::new));
+        }
+        else
+        {
+            // 非自定范围不保存隐藏或过期的部门选择。
+            role.setDeptIds(new Long[0]);
+        }
+        if (role.getMenuIds() == null)
+        {
+            role.setMenuIds(new Long[0]);
+        }
     }
 
     /**
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
-     * 说明: 修改保存角色信息
+     * 说明: 同一事务保存角色、菜单及显式提交的数据范围，旧调用未传范围时保留部门关联
      * @param role 角色信息
      * @return
      * 返回值: 结果
@@ -316,11 +369,28 @@ public class SysRoleServiceImpl implements ISysRoleService
     @Transactional
     public int updateRole(SysRole role)
     {
-        // 修改角色信息
+        if (role == null || role.getRoleId() == null)
+        {
+            throw new ServiceException("角色编号不能为空");
+        }
+        boolean updateScope = StringUtils.isNotEmpty(role.getDataScope());
+        if (updateScope)
+        {
+            validateRoleDataScope(role);
+        }
+        // 角色、菜单和部门关系共同提交，异常由事务回滚。
         roleMapper.updateRole(role);
-        // 删除角色与菜单关联
         roleMenuMapper.deleteRoleMenuByRoleId(role.getRoleId());
-        return insertRoleMenu(role);
+        int rows = insertRoleMenu(role);
+        if (updateScope)
+        {
+            roleDeptMapper.deleteRoleDeptByRoleId(role.getRoleId());
+            if (RoleDataScopeConstants.CUSTOM.equals(role.getDataScope()))
+            {
+                insertRoleDept(role);
+            }
+        }
+        return rows;
     }
 
     /**

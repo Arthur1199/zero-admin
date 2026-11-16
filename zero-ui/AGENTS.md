@@ -34,6 +34,8 @@
 
 ## 验证
 
+- 后端代码生成的空前端类型默认Vue3，显式Vue2选择保留；模板在admin的resources/vm，Vue3产物使用Options API、dicts、TreeSelect及resolveIcon。先运行后端GeneratorTemplatesTest，再运行generated-templates.spec.js和generator-flows.spec.js；浏览器用例读取target实际生成产物，不手写模拟组件代替模板输出。
+
 - 源码与大小写检查：npm run check:migration；单元测试：npm test；浏览器回归：npm run test:e2e。
 - Vite开发监听排除output目录，截图、trace和报告不能反复广播到测试及日常浏览器；保留源码热更新，不用延长业务请求超时掩盖产物监听干扰。
 - 构建仍使用 npm run build:prod / npm run build:stage，真实联调与mock结果分别记录。

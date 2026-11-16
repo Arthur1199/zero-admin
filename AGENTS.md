@@ -32,6 +32,7 @@
 - `zero-admin` 系统业务集中在 `system`：`domain`、`mapper`、`service`、`service.impl`。
 - `zero-admin` Web 入口集中在 `web.controller`：`system`、`monitor`、`common`、`tool`；admin 代理 report 的 Controller 单独放在 `web.reportController`。
 - `zero-admin` 代码生成在 `generator`，定时任务在 `quartz`。Mapper 接口放在 `com.zero.**.mapper`，XML 放在 `zero-admin/src/main/resources/mapper/**`，由 `ApplicationConfig` 的 `@MapperScan` 和 `application.yml` 的 `mapperLocations` 扫描。
+- 代码生成13个classpath模板已恢复在`zero-admin/src/main/resources/vm/`，原件及来源在`前段项目升级方案/若依官方代码生成模板-v3.9.0/`，验证见`04-代码生成模板集成与验证报告.md`。新增导入表和历史空前端类型默认Vue3，显式Vue2保留；Vue3模板沿用Options API及项目公共组件，Controller输出到`web/controller/模块`。修改后先运行`GeneratorTemplatesTest`验证六类渲染、ZIP及生成Java/XML，再运行读取其产物的前端用例，不以项目自身编译代替生成结果验证；不自动执行生成SQL或开启源码覆盖。
 - `zero-report` 结构以当前代码为准：`controller` 放 HTTP 接口，`service` / `service.impl` 放业务规则，`mapper` 放 MyBatis-Plus Mapper，`domain` 放实体，`queryDto` 放查询参数，`dto` 放服务内 DTO/返回结构，`base` 放分页和 Service 父类，`config` 放 MyBatis-Plus、异常、Feign、XML 加载等配置。
 - `zero-report` 的 Mapper 扫描由 `ZeroReportApplication` 上的 `@MapperScan(PackageProperties.MAPPER_SCAN)` 和 `PackageProperties` 统一维护；新增包路径前必须确认 `PackageProperties` 是否需要同步。
 - `zero-file` 使用自身的 `packageconfig`、`base.BaseQuery`、`config`、`controller`、`service`、`mapper`、`domain`、`queryDto`、`dto`；存储实现放 `platform`，记录回调放 `recorder`，存储操作和预处理放 `vo`，扩展链放 `aspect`。不要因包名相同就混用 report 的类。
