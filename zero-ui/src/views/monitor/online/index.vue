@@ -27,25 +27,43 @@
       v-loading="loading"
       :data="list.slice((pageNum-1)*pageSize,pageNum*pageSize)"
       style="width: 100%;"
+      scrollbar-always-on
     >
-      <el-table-column label="序号" type="index" align="center">
+      <el-table-column label="序号" type="index" align="center" width="65">
         <template #default="scope">
           <span>{{(pageNum - 1) * pageSize + scope.$index + 1}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="会话编号" align="center" prop="tokenId" :show-overflow-tooltip="true" />
-      <el-table-column label="登录名称" align="center" prop="userName" :show-overflow-tooltip="true" />
-      <el-table-column label="部门名称" align="center" prop="deptName" />
-      <el-table-column label="主机" align="center" prop="ipaddr" :show-overflow-tooltip="true" />
-      <el-table-column label="登录地点" align="center" prop="loginLocation" :show-overflow-tooltip="true" />
-      <el-table-column label="浏览器" align="center" prop="browser" />
-      <el-table-column label="操作系统" align="center" prop="os" />
+      <el-table-column label="会话编号" align="center" prop="tokenId" min-width="320">
+        <template #default="scope">
+          <span class="online-session-id">{{ scope.row.tokenId }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="授权令牌" header-align="center" min-width="420">
+        <template #default="scope">
+          <div v-if="scope.row.authorizationToken" class="online-authorization">
+            <span class="authorization-token">{{ scope.row.authorizationToken }}</span>
+            <el-button link type="primary" size="small"
+              v-clipboard:copy="scope.row.authorizationToken"
+              v-clipboard:success="handleCopySuccess"
+              v-clipboard:error="handleCopyError"
+            >复制令牌</el-button>
+          </div>
+          <span v-else>暂无令牌</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="登录名称" align="center" prop="userName" min-width="130" :show-overflow-tooltip="true" />
+      <el-table-column label="部门名称" align="center" prop="deptName" min-width="140" />
+      <el-table-column label="主机" align="center" prop="ipaddr" min-width="150" :show-overflow-tooltip="true" />
+      <el-table-column label="登录地点" align="center" prop="loginLocation" min-width="150" :show-overflow-tooltip="true" />
+      <el-table-column label="浏览器" align="center" prop="browser" min-width="130" />
+      <el-table-column label="操作系统" align="center" prop="os" min-width="130" />
       <el-table-column label="登录时间" align="center" prop="loginTime" width="180">
         <template #default="scope">
           <span>{{ parseTime(scope.row.loginTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" min-width="100" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button
 size="small"
@@ -88,6 +106,12 @@ export default {
     this.getList()
   },
   methods: {
+    handleCopySuccess() {
+      this.$modal.msgSuccess("令牌复制成功")
+    },
+    handleCopyError() {
+      this.$modal.msgError("复制失败，请手动选择令牌复制")
+    },
     /** 查询登录日志列表 */
     getList() {
       this.loading = true
@@ -121,3 +145,21 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.online-authorization {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+.authorization-token,
+.online-session-id {
+  display: block;
+  width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-all;
+  user-select: text;
+}
+</style>

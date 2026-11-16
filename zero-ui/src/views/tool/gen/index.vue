@@ -272,7 +272,7 @@ export default {
       if(row.genType === "1") {
         genCode(row.tableName).then(response => {
           this.$modal.msgSuccess("成功生成到自定义路径：" + row.genPath)
-        })
+        }).catch(() => {})
       } else {
         this.$download.zip("/tool/gen/batchGenCode?tables=" + tableNames, "zero.zip")
       }
@@ -307,7 +307,7 @@ export default {
         this.preview.data = response.data
         this.preview.open = true
         this.preview.activeName = "domain.java"
-      })
+      }).catch(() => {})
     },
     /** 高亮显示 */
     highlightedCode(code, key) {

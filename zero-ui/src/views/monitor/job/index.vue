@@ -302,6 +302,7 @@ export default {
     return {
       // 遮罩层
       loading: true,
+      formLoading: false,
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -439,9 +440,13 @@ export default {
     },
     /** 任务详细信息 */
     handleView(row) {
+      if (this.formLoading) return
+      this.formLoading = true
       getJob(row.jobId).then(response => {
         this.form = response.data
         this.openView = true
+      }).catch(() => {}).finally(() => {
+        this.formLoading = false
       })
     },
     /** cron表达式按钮操作 */
@@ -460,18 +465,23 @@ export default {
     },
     /** 新增按钮操作 */
     handleAdd() {
+      if (this.formLoading) return
       this.reset()
       this.open = true
       this.title = "添加任务"
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
+      if (this.formLoading) return
+      this.formLoading = true
       this.reset()
       const jobId = row.jobId || this.ids
       getJob(jobId).then(response => {
         this.form = response.data
         this.open = true
         this.title = "修改任务"
+      }).catch(() => {}).finally(() => {
+        this.formLoading = false
       })
     },
     /** 提交按钮 */
@@ -483,13 +493,13 @@ export default {
               this.$modal.msgSuccess("修改成功")
               this.open = false
               this.getList()
-            })
+            }).catch(() => {})
           } else {
             addJob(this.form).then(response => {
               this.$modal.msgSuccess("新增成功")
               this.open = false
               this.getList()
-            })
+            }).catch(() => {})
           }
         }
       })

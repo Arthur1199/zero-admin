@@ -88,6 +88,8 @@ export default {
         this.user = response.data
         this.roleGroup = response.roleGroup
         this.postGroup = response.postGroup
+      }).catch(() => {
+        // 读取失败保留页面入口，刷新后可重试，不抛出未处理的请求拒绝。
       })
     }
   }

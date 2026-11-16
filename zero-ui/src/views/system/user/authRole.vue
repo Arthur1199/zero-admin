@@ -38,7 +38,7 @@
 
     <el-form label-width="100px">
       <el-form-item style="text-align: center;margin-left:-120px;margin-top:30px;">
-        <el-button type="primary" @click="submitForm()">提交</el-button>
+        <el-button type="primary" :disabled="loading || !form.userId" :loading="submitting" @click="submitForm()">提交</el-button>
         <el-button @click="close()">返回</el-button>
       </el-form-item>
     </el-form>
@@ -54,6 +54,7 @@ export default {
     return {
       // 遮罩层
       loading: true,
+      submitting: false,
       // 分页信息
       total: 0,
       pageNum: 1,
@@ -70,19 +71,27 @@ export default {
     const userId = this.$route.params && this.$route.params.userId
     if (userId) {
       this.loading = true
-      getAuthRole(userId).then((response) => {
-        this.form = response.user
-        this.roles = response.roles
+      getAuthRole(userId).then(async (response) => {
+        this.form = response.user || {}
+        this.roles = Array.isArray(response.roles) ? response.roles : []
         this.total = this.roles.length
-        this.$nextTick(() => {
-          this.roles.forEach((row) => {
-            if (row.flag) {
-              this.$refs.table.toggleRowSelection(row)
-            }
-          })
+        await this.$nextTick()
+        this.roles.forEach((row) => {
+          if (row.flag) {
+            this.$refs.table?.toggleRowSelection(row)
+          }
         })
+      }).catch(() => {
+        // 未取得完整用户数据时保留空表单，禁止发出缺少用户ID的授权请求。
+        this.form = {}
+        this.roles = []
+        this.roleIds = []
+        this.total = 0
+      }).finally(() => {
         this.loading = false
       })
+    } else {
+      this.loading = false
     }
   },
   methods: {
@@ -106,11 +115,17 @@ export default {
     },
     /** 提交按钮 */
     submitForm() {
+      if (this.loading || this.submitting || !this.form.userId) return
       const userId = this.form.userId
       const roleIds = this.roleIds.join(",")
+      this.submitting = true
       updateAuthRole({ userId: userId, roleIds: roleIds }).then((response) => {
         this.$modal.msgSuccess("授权成功")
         this.close()
+      }).catch(() => {
+        // 保存失败保留用户和勾选结果，供原页面重试。
+      }).finally(() => {
+        this.submitting = false
       })
     },
     /** 关闭按钮 */

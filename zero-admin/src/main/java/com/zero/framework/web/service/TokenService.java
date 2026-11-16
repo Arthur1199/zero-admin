@@ -180,6 +180,29 @@ public class TokenService
     /**
      *
      * 作者: Arthur 亚瑟
+     * 时间: 2026/11/16 14:56
+     * 说明: 为已通过在线用户列表权限校验的调用方还原现有会话JWT，不创建会话、不刷新缓存或有效期
+     * @param loginUser 从登录缓存读取的现有会话，用户或会话编号缺失时返回空字符串
+     * @return
+     * 返回值: String
+     * 返回值说明: 不含Bearer前缀的完整JWT，仅允许在授权响应中展示，不得记录日志
+     */
+    public String getExistingToken(LoginUser loginUser)
+    {
+        if (loginUser == null || loginUser.getUser() == null
+                || StringUtils.isEmpty(loginUser.getToken()) || StringUtils.isEmpty(loginUser.getUsername()))
+        {
+            return "";
+        }
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(Constants.LOGIN_USER_KEY, loginUser.getToken());
+        claims.put(Constants.JWT_USERNAME, loginUser.getUsername());
+        return createToken(claims);
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
      * 说明: 验证令牌有效期，相差不足20分钟，自动刷新缓存
      * @param loginUser 登录信息

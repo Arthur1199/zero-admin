@@ -190,6 +190,7 @@ export default {
     return {
       // 遮罩层
       loading: true,
+      jobInfoLoaded: false,
       // 选中数组
       ids: [],
       // 非多个禁用
@@ -217,18 +218,32 @@ export default {
     }
   },
   created() {
-    const jobId = this.$route.params && this.$route.params.jobId
-    if (jobId !== undefined && jobId != 0) {
-      getJob(jobId).then(response => {
-        this.queryParams.jobName = response.data.jobName
-        this.queryParams.jobGroup = response.data.jobGroup
-        this.getList()
-      })
-    } else {
-      this.getList()
-    }
+    this.getJobInfo()
   },
   methods: {
+    /** 先恢复路由指定的任务信息，失败重试不能变成查询全部任务日志。 */
+    getJobInfo() {
+      const jobId = this.$route.params && this.$route.params.jobId
+      if (jobId === undefined || jobId == 0) {
+        this.jobInfoLoaded = true
+        this.getList()
+        return
+      }
+      this.loading = true
+      getJob(jobId).then(response => {
+        if (!response.data) {
+          this.loading = false
+          this.$modal.msgError("任务信息为空，请重试")
+          return
+        }
+        this.queryParams.jobName = response.data.jobName
+        this.queryParams.jobGroup = response.data.jobGroup
+        this.jobInfoLoaded = true
+        this.getList()
+      }).catch(() => {
+        this.loading = false
+      })
+    },
     /** 查询调度日志列表 */
     getList() {
       this.loading = true
@@ -249,7 +264,8 @@ export default {
     /** 搜索按钮操作 */
     handleQuery() {
       this.queryParams.pageNum = 1
-      this.getList()
+      if (this.jobInfoLoaded) this.getList()
+      else this.getJobInfo()
     },
     /** 重置按钮操作 */
     resetQuery() {

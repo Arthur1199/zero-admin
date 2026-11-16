@@ -196,6 +196,7 @@ export default {
       open: false,
       // IP地区解析状态
       regionLoading: false,
+      regionRequestId: 0,
       // 日期范围
       dateRange: [],
       // 状态选项
@@ -246,6 +247,7 @@ export default {
     },
     // 表单重置
     reset() {
+      this.regionRequestId++
       this.form = {
         id: undefined,
         ipAddr: undefined,
@@ -287,6 +289,8 @@ export default {
         this.form = response.data
         this.open = true
         this.title = "修改登录白名单"
+      }).catch(() => {
+        // 读取失败不展示空白编辑框，接口错误由拦截器提示。
       })
     },
     /** IP输入完成后自动解析地区 */
@@ -295,13 +299,19 @@ export default {
       if (!ipAddr || this.form.ipRegion) {
         return
       }
+      const form = this.form
+      const requestId = ++this.regionRequestId
       this.regionLoading = true
       getIpWhiteRegion(ipAddr).then(response => {
-        if (response.data) {
-          this.form.ipRegion = response.data
+        // 只填充当前草稿的当前IP，不能覆盖用户后续手工填写的地区。
+        if (requestId === this.regionRequestId && form === this.form &&
+            (form.ipAddr || '').trim() === ipAddr && !form.ipRegion && response.data) {
+          form.ipRegion = response.data
         }
+      }).catch(() => {
+        // 保留输入供失焦重试，错误提示复用请求拦截器。
       }).finally(() => {
-        this.regionLoading = false
+        if (requestId === this.regionRequestId) this.regionLoading = false
       })
     },
     /** 提交按钮 */
@@ -313,12 +323,16 @@ export default {
               this.$modal.msgSuccess("修改成功")
               this.open = false
               this.getList()
+            }).catch(() => {
+              // 保存失败保留草稿，避免未处理的请求拒绝。
             })
           } else {
             addIpWhite(this.form).then(response => {
               this.$modal.msgSuccess("新增成功")
               this.open = false
               this.getList()
+            }).catch(() => {
+              // 保存失败保留草稿，避免未处理的请求拒绝。
             })
           }
         }

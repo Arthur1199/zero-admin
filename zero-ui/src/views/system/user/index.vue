@@ -219,6 +219,9 @@ export default {
     return {
       // 遮罩层
       loading: true,
+      formLoading: false,
+      deptTreeLoaded: false,
+      deptTreeRequest: null,
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -328,9 +331,14 @@ export default {
   },
   created() {
     this.getList()
-    this.getDeptTree()
+    this.getDeptTree().catch(() => {
+      this.deptOptions = []
+      this.enabledDeptOptions = []
+    })
     this.getConfigKey("sys.user.initPassword").then(response => {
       this.initPassword = response.msg
+    }).catch(() => {
+      // 默认值读取失败时允许在新增表单手工填写，不输出默认密码。
     })
   },
   methods: {
@@ -357,10 +365,15 @@ export default {
     },
     /** 查询部门下拉树结构 */
     getDeptTree() {
-      deptTreeSelect().then(response => {
-        this.deptOptions = response.data
-        this.enabledDeptOptions = this.filterDisabledDept(JSON.parse(JSON.stringify(response.data)))
+      if (this.deptTreeRequest) return this.deptTreeRequest
+      this.deptTreeRequest = deptTreeSelect().then(response => {
+        this.deptOptions = Array.isArray(response.data) ? response.data : []
+        this.enabledDeptOptions = this.filterDisabledDept(JSON.parse(JSON.stringify(this.deptOptions)))
+        this.deptTreeLoaded = true
+      }).finally(() => {
+        this.deptTreeRequest = null
       })
+      return this.deptTreeRequest
     },
     // 过滤禁用的部门
     filterDisabledDept(deptList) {
@@ -461,30 +474,46 @@ export default {
         || (this.isLoginLocked(row) && checkPermi(['system:user:unlockLogin']))
     },
     /** 新增按钮操作 */
-    handleAdd() {
+    async handleAdd() {
+      if (this.formLoading) return
+      this.formLoading = true
       this.reset()
-      getUser().then(response => {
-        this.postOptions = response.posts
-        this.roleOptions = response.roles
+      try {
+        const [response] = await Promise.all([getUser(), this.deptTreeLoaded ? null : this.getDeptTree()])
+        this.postOptions = response.posts || []
+        this.roleOptions = response.roles || []
         this.open = true
         this.title = "添加用户"
         this.form.password = this.initPassword
-      })
+      } catch {
+        this.postOptions = []
+        this.roleOptions = []
+      } finally {
+        this.formLoading = false
+      }
     },
     /** 修改按钮操作 */
-    handleUpdate(row) {
+    async handleUpdate(row) {
+      if (this.formLoading) return
+      this.formLoading = true
       this.reset()
       const userId = row.userId || this.ids
-      getUser(userId).then(response => {
+      try {
+        const [response] = await Promise.all([getUser(userId), this.deptTreeLoaded ? null : this.getDeptTree()])
         this.form = response.data
-        this.postOptions = response.posts
-        this.roleOptions = response.roles
-        this.form["postIds"] = response.postIds
-        this.form["roleIds"] = response.roleIds
+        this.postOptions = response.posts || []
+        this.roleOptions = response.roles || []
+        this.form["postIds"] = response.postIds || []
+        this.form["roleIds"] = response.roleIds || []
         this.open = true
         this.title = "修改用户"
         this.form.password = ""
-      })
+      } catch {
+        this.postOptions = []
+        this.roleOptions = []
+      } finally {
+        this.formLoading = false
+      }
     },
     /** 重置密码按钮操作 */
     handleResetPwd(row) {
@@ -500,8 +529,8 @@ export default {
           }
         },
       }).then(({ value }) => {
-          resetUserPwd(row.userId, value).then(response => {
-            this.$modal.msgSuccess("修改成功，新密码是：" + value)
+          return resetUserPwd(row.userId, value).then(response => {
+            this.$modal.msgSuccess("修改成功")
           })
         }).catch(() => {})
     },
@@ -528,12 +557,16 @@ export default {
               this.$modal.msgSuccess("修改成功")
               this.open = false
               this.getList()
+            }).catch(() => {
+              // 保存失败保留用户草稿，错误提示由请求拦截器负责。
             })
           } else {
             addUser(this.form).then(response => {
               this.$modal.msgSuccess("新增成功")
               this.open = false
               this.getList()
+            }).catch(() => {
+              // 保存失败保留用户草稿，错误提示由请求拦截器负责。
             })
           }
         }

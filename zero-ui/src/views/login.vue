@@ -53,13 +53,15 @@
           <template #prefix><svg-icon  icon-class="validCode" class="el-input__icon input-icon" /></template>
         </el-input>
         <div class="login-code">
-          <img :src="codeUrl" @click="getCode" class="login-code-img"/>
+          <el-button v-if="codeFailed" link type="primary" :disabled="codeLoading" @click="getCode">重新获取验证码</el-button>
+          <img v-else :src="codeUrl" @click="getCode" class="login-code-img"/>
         </div>
       </el-form-item>
       <el-checkbox v-model="loginForm.rememberMe" style="margin:0px 0px 25px 0px;">记住密码</el-checkbox>
       <el-form-item style="width:100%;">
         <el-button
           :loading="loading"
+          :disabled="codeLoading || codeFailed"
 size="default"
           type="primary"
           style="width:100%;"
@@ -121,6 +123,8 @@ export default {
     return {
       title: import.meta.env.VITE_APP_TITLE,
       codeUrl: "",
+      codeLoading: false,
+      codeFailed: false,
       loginForm: {
         username: "admin",
         password: "",
@@ -189,13 +193,22 @@ export default {
       }
     },
     getCode() {
+      if (this.codeLoading) return
+      this.codeLoading = true
       getCodeImg().then(res => {
+        this.codeFailed = false
         this.captchaEnabled = res.captchaEnabled === undefined ? true : res.captchaEnabled
         this.googleAuthEnabled = res.googleAuthEnabled === true || res.googleAuthEnabled === 'true'
-        if (this.captchaEnabled) {
-          this.codeUrl = "data:image/gif;base64," + res.img
-          this.loginForm.uuid = res.uuid
-        }
+        this.codeUrl = this.captchaEnabled ? "data:image/gif;base64," + res.img : ""
+        this.loginForm.uuid = this.captchaEnabled ? res.uuid : ""
+      }).catch(() => {
+        // 刷新失败后不能继续提交旧验证码，错误提示仍由请求拦截器负责。
+        this.codeFailed = true
+        this.codeUrl = ""
+        this.loginForm.uuid = ""
+        this.loginForm.code = ""
+      }).finally(() => {
+        this.codeLoading = false
       })
     },
     getCookie() {
@@ -241,6 +254,7 @@ export default {
       })
     },
     handleLogin() {
+      if (this.codeLoading || this.codeFailed) return
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true

@@ -129,7 +129,9 @@ export default {
         this.$modal.msgSuccess(res.msg)
         this.visible = false
         this.$emit("ok")
-      }) 
+      }).catch(() => {
+        // 保存失败保留勾选及弹窗，错误提示复用请求拦截器。
+      })
     }
   }
 }

@@ -76,6 +76,8 @@ export default {
             this.$modal.msgSuccess("修改成功")
             this.user.phonenumber = this.form.phonenumber
             this.user.email = this.form.email
+          }).catch(() => {
+            // 保存失败保留输入，错误提示由请求拦截器负责。
           })
         }
       })

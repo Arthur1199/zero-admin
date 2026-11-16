@@ -264,6 +264,7 @@ export default {
     return {
       // 遮罩层
       loading: true,
+      formLoading: false,
       // 选中数组
       ids: [],
       // 非单个禁用
@@ -361,9 +362,7 @@ export default {
     },
     /** 查询菜单树结构 */
     getMenuTreeselect() {
-      menuTreeselect().then(response => {
-        this.menuOptions = response.data
-      })
+      return menuTreeselect()
     },
     // 所有菜单节点数据
     getMenuAllCheckedKeys() {
@@ -385,17 +384,11 @@ export default {
     },
     /** 根据角色ID查询菜单树结构 */
     getRoleMenuTreeselect(roleId) {
-      return roleMenuTreeselect(roleId).then(response => {
-        this.menuOptions = response.menus
-        return response
-      })
+      return roleMenuTreeselect(roleId)
     },
     /** 根据角色ID查询部门树结构 */
     getDeptTree(roleId) {
-      return deptTreeSelect(roleId).then(response => {
-        this.deptOptions = response.depts
-        return response
-      })
+      return deptTreeSelect(roleId)
     },
     // 角色状态修改
     handleStatusChange(row) {
@@ -502,32 +495,56 @@ export default {
       }
     },
     /** 新增按钮操作 */
-    handleAdd() {
+    async handleAdd() {
+      if (this.formLoading) return
+      this.formLoading = true
       this.reset()
-      this.getMenuTreeselect()
-      this.open = true
-      this.title = "添加角色"
+      this.menuOptions = []
+      try {
+        const response = await this.getMenuTreeselect()
+        if (!Array.isArray(response.data)) {
+          this.$modal.msgError("菜单信息不完整，请重试")
+          return
+        }
+        this.menuOptions = response.data
+        this.open = true
+        this.title = "添加角色"
+      } catch (error) {
+        // 请求拦截器已经提示错误，树加载失败时不打开空表单。
+        this.menuOptions = []
+      } finally {
+        this.formLoading = false
+      }
     },
     /** 修改按钮操作 */
-    handleUpdate(row) {
+    async handleUpdate(row) {
+      if (this.formLoading) return
+      this.formLoading = true
       this.reset()
       const roleId = row.roleId || this.ids
-      const roleMenu = this.getRoleMenuTreeselect(roleId)
-      getRole(roleId).then(response => {
+      this.menuOptions = []
+      try {
+        // 两个只读请求齐备后再回显，任一失败都不会使用上次的权限树。
+        const [roleMenu, response] = await Promise.all([this.getRoleMenuTreeselect(roleId), getRole(roleId)])
+        if (!response.data || !Array.isArray(roleMenu.menus)) {
+          this.$modal.msgError("角色信息不完整，请重试")
+          return
+        }
+        this.menuOptions = roleMenu.menus
         this.form = response.data
+        this.title = "修改角色"
         this.open = true
-        this.$nextTick(() => {
-          roleMenu.then(res => {
-            let checkedKeys = res.checkedKeys
-            checkedKeys.forEach((v) => {
-                this.$nextTick(()=>{
-                    this.$refs.menu.setChecked(v, true ,false)
-                })
-            })
-          })
+        await this.$nextTick()
+        const checkedKeys = roleMenu.checkedKeys || []
+        checkedKeys.forEach(v => {
+          this.$refs.menu?.setChecked(v, true, false)
         })
-      })
-      this.title = "修改角色"
+      } catch (error) {
+        this.menuOptions = []
+        this.open = false
+      } finally {
+        this.formLoading = false
+      }
     },
     /** 选择角色权限范围触发 */
     dataScopeSelectChange(value) {
@@ -536,19 +553,29 @@ export default {
       }
     },
     /** 分配数据权限操作 */
-    handleDataScope(row) {
+    async handleDataScope(row) {
+      if (this.formLoading) return
+      this.formLoading = true
       this.reset()
-      const deptTreeSelect = this.getDeptTree(row.roleId)
-      getRole(row.roleId).then(response => {
+      this.deptOptions = []
+      try {
+        const [deptTree, response] = await Promise.all([this.getDeptTree(row.roleId), getRole(row.roleId)])
+        if (!response.data || !Array.isArray(deptTree.depts)) {
+          this.$modal.msgError("角色信息不完整，请重试")
+          return
+        }
+        this.deptOptions = deptTree.depts
         this.form = response.data
+        this.title = "分配数据权限"
         this.openDataScope = true
-        this.$nextTick(() => {
-          deptTreeSelect.then(res => {
-            this.$refs.dept.setCheckedKeys(res.checkedKeys)
-          })
-        })
-      })
-      this.title = "分配数据权限"
+        await this.$nextTick()
+        this.$refs.dept?.setCheckedKeys(deptTree.checkedKeys || [])
+      } catch (error) {
+        this.deptOptions = []
+        this.openDataScope = false
+      } finally {
+        this.formLoading = false
+      }
     },
     /** 分配用户操作 */
     handleAuthUser: function(row) {
@@ -565,14 +592,14 @@ export default {
               this.$modal.msgSuccess("修改成功")
               this.open = false
               this.getList()
-            })
+            }).catch(() => {})
           } else {
             this.form.menuIds = this.getMenuAllCheckedKeys()
             addRole(this.form).then(response => {
               this.$modal.msgSuccess("新增成功")
               this.open = false
               this.getList()
-            })
+            }).catch(() => {})
           }
         }
       })
@@ -585,7 +612,7 @@ export default {
           this.$modal.msgSuccess("修改成功")
           this.openDataScope = false
           this.getList()
-        })
+        }).catch(() => {})
       }
     },
     /** 删除按钮操作 */
