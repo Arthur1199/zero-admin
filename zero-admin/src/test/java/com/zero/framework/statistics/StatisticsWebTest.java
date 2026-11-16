@@ -52,8 +52,9 @@ class StatisticsWebTest
         mvc.perform(get("/statistics-test/business")).andExpect(status().isOk()).andExpect(jsonPath("$.code").value(500));
         mvc.perform(get("/statistics-test/system")).andExpect(status().isOk()).andExpect(jsonPath("$.code").value(500));
         mvc.perform(get("/statistics-test/nested")).andExpect(status().isOk());
-        ArgumentCaptor<StatEvent> events=ArgumentCaptor.forClass(StatEvent.class); verify(pipeline,times(4)).publish(events.capture());
-        assertThat(events.getAllValues()).extracting(StatEvent::getOutcome).containsExactly("SUCCESS","BUSINESS","SYSTEM","UNKNOWN");
+        mvc.perform(get("/statistics-test/fractional")).andExpect(status().isOk());
+        ArgumentCaptor<StatEvent> events=ArgumentCaptor.forClass(StatEvent.class); verify(pipeline,times(5)).publish(events.capture());
+        assertThat(events.getAllValues()).extracting(StatEvent::getOutcome).containsExactly("SUCCESS","BUSINESS","SYSTEM","UNKNOWN","UNKNOWN");
         assertThat(events.getAllValues().get(0).getRoute()).isEqualTo("/statistics-test/items/{id}");
     }
     /**
@@ -126,6 +127,17 @@ class StatisticsWebTest
     @RestController
     static class DemoController
     {
+        /**
+         *
+         * 作者: Arthur 亚瑟
+         * 时间: 2026/11/16 22:02
+         * 说明: 非整数状态码不能被截断为成功码。
+         * @return 测试响应
+         * 返回值: Map<String,Object>
+         * 返回值说明: 仅供响应边界测试
+         */
+        @GetMapping("/statistics-test/fractional") public Map<String,Object> fractional() { return Map.of("code",200.5); }
+
     /**
      *
      * 作者: Arthur 亚瑟

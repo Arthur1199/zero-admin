@@ -120,7 +120,7 @@ test('跨北京时间零点自动推进今日，自动刷新不提交正在输�
 
 test('暂停自动刷新后采样仍会过期，使用服务器时间避免客户端时钟误判', async ({ page }) => {
   const serverTime = Date.now()
-  await page.clock.install({ time: new Date(serverTime + 3600000) })
+  await page.clock.install({ time: new Date(serverTime + 86400000) })
   const { calls } = await setup(page)
   await page.route('**/dev-api/monitor/statistics/overview', route => route.fulfill({ json: { code: 200, data: {
     serverTime, databaseAvailable: true, status: { enabled: true, redisAvailable: true, lastSuccessAt: serverTime, lastErrorAt: 0 },
@@ -128,6 +128,8 @@ test('暂停自动刷新后采样仍会过期，使用服务器时间避免客�
   } } }))
   await page.goto('/monitor/admin/statistics')
   await expect(page.locator('.metric-value').first()).toContainText('6')
+  const serverDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(serverTime))
+  await expect.poll(() => calls.filter(call => call.action === 'trend').at(-1)?.params.beginTime).toBe(serverDate)
   await expect(page.getByRole('button', { name: '刷新', exact: true })).toBeEnabled()
   await page.locator('.refresh-controls .el-switch').click()
   const before = calls.length

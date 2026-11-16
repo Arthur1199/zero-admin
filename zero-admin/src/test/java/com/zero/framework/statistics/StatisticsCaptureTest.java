@@ -231,4 +231,23 @@ class StatisticsCaptureTest
         assertThatThrownBy(()->service.parameters(query)).hasMessage("统计日期超出数据库支持范围");
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/16 22:02
+     * 说明: 排除配置或开关读取异常只能停止本次采集，不能中断正常业务响应。
+     * @return
+     * 返回值: void
+     * 返回值说明: 业务仍执行，并有明确缺口报告
+     */
+    @Test void collectionFailureDoesNotBreakBusiness() throws Exception
+    {
+        StatisticsProperties p=new StatisticsProperties(); p.setExcludes(Arrays.asList(null,""));
+        var control=StatisticsTestSwitch.enabled(); when(control.isEnabled()).thenThrow(new IllegalStateException("isolated setting failure"));
+        StatisticsPipeline pipeline=mock(StatisticsPipeline.class); MockHttpServletResponse response=new MockHttpServletResponse();
+        new StatisticsFilter(p,pipeline,control).doFilter(new MockHttpServletRequest("GET","/test"),response,(req,res)->res.getWriter().write("business-response"));
+        assertThat(response.getContentAsString()).isEqualTo("business-response");
+        verify(pipeline).captureFailure(); verify(pipeline,never()).publish(any());
+    }
+
 }

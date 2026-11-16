@@ -69,10 +69,14 @@ public class StatisticsFilter implements Filter
     @Override
     public void doFilter(ServletRequest request,ServletResponse response,FilterChain chain) throws IOException,ServletException
     {
-        if (!(request instanceof HttpServletRequest http) || !(response instanceof HttpServletResponse original) || !included(http))
+        if (!(request instanceof HttpServletRequest http) || !(response instanceof HttpServletResponse original))
         { chain.doFilter(request,response); return; }
         StatisticsContext context=StatisticsContext.get(http);
         if (context!=null) { chain.doFilter(request,response); return; }
+        boolean collect;
+        try { collect = included(http); }
+        catch (RuntimeException error) { pipeline.captureFailure(); collect = false; }
+        if (!collect) { chain.doFilter(request,response); return; }
         context=new StatisticsContext(); http.setAttribute(StatisticsContext.ATTRIBUTE,context);
         StatEvent event=context.event;
         event.setEventId(UUID.randomUUID().toString());
@@ -147,7 +151,7 @@ public class StatisticsFilter implements Filter
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/16 20:46
-     * 说明: 先排除自身查询、OPTIONS及静态路径，再读取后台参数开关，避免无须采集的请求额外访问参数缓存。
+     * 说明: 先排除统计自身、实时日志轮询、OPTIONS及静态路径，再读取后台参数开关，避免无须采集的请求额外访问参数缓存。
      * @param request HTTP请求
      * @return 是否需要采集
      * 返回值: boolean
@@ -157,8 +161,11 @@ public class StatisticsFilter implements Filter
     {
         if ("OPTIONS".equals(request.getMethod())) return false;
         String route=request.getRequestURI().substring(request.getContextPath().length());
+        // 每秒日志轮询不触发统计持久化，避免产生轮询自身日志。
+        if (com.zero.framework.realtimelog.RealtimeLogBuffer.EVENTS_PATH.equals(route)) return false;
         if (route.equals("/monitor/statistics") || route.startsWith("/monitor/statistics/")) return false;
-        if (properties.getExcludes()!=null && properties.getExcludes().stream().anyMatch(pattern -> matcher.match(pattern,route))) return false;
+        if (properties.getExcludes()!=null && properties.getExcludes().stream()
+                .filter(pattern -> pattern != null && !pattern.isBlank()).anyMatch(pattern -> matcher.match(pattern,route))) return false;
         return switchService.isEnabled();
     }
     /**
@@ -187,7 +194,7 @@ public class StatisticsFilter implements Filter
             if (event.isLogin() && !event.isLoginSuccess()) event.setUserId(null);
             pipeline.publish(event);
         }
-        catch (Exception ignored) { /* 统计组件不得覆盖原业务异常或响应，管道自行报告故障。 */ }
+        catch (Exception ignored) { pipeline.captureFailure(); }
     }
     /**
      *

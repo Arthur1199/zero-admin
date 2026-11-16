@@ -148,6 +148,20 @@ public class StatisticsPipeline
     /**
      *
      * 作者: Arthur 亚瑟
+     * 时间: 2026/11/16 22:02
+     * 说明: 采集准备或结果提取失败时报告缺口，不把统计异常抛回业务过滤链。
+     * @return
+     * 返回值: void
+     * 返回值说明: 累加本实例缺口数并限频输出固定错误说明，不记录请求内容
+     */
+    public void captureFailure()
+    {
+        lost.incrementAndGet();
+        problem("统计采集失败，原业务继续执行，存在统计缺口");
+    }
+    /**
+     *
+     * 作者: Arthur 亚瑟
      * 时间: 2026/11/16 20:46
      * 说明: 初始化消费组，保留全部历史消息，不裁剪未消费数据。
      * @return 确保Stream和消费组存在
