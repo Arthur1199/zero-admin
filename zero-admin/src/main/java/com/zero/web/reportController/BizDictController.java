@@ -7,6 +7,7 @@ import com.zero.common.core.domain.AjaxResult;
 import com.zero.common.core.page.TableDataInfo;
 import com.zero.common.enums.BusinessType;
 import com.zero.feign.ReportRestService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,6 +28,7 @@ import java.util.Map;
  * 时间: 2026/6/28 04:38
  * 说明: 业务参数设置代理控制器，管理后台负责权限和操作日志，实际字典组、字典项增删改查通过 ReportRestService 调用 zero-report 完成
  */
+@Slf4j
 @RestController
 @RequestMapping("/reportSystem/bizDict")
 public class BizDictController extends BaseController
@@ -61,6 +63,7 @@ public class BizDictController extends BaseController
     @GetMapping("/group/list")
     public TableDataInfo groupList(@RequestParam Map<String, Object> queryParams)
     {
+        log.info("查询字段分组列表成功:{}",queryParams);
         return reportRestService.exchange(GROUP_PATH + "/list", HttpMethod.GET, null, queryParams,
                 TableDataInfo.class);
     }

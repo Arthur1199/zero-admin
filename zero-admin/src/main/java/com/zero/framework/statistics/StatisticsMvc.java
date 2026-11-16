@@ -102,7 +102,13 @@ public class StatisticsMvc implements HandlerInterceptor, ResponseBodyAdvice<Obj
             {
                 context.responseObserved = body instanceof Map<?,?> || body instanceof com.zero.common.core.page.TableDataInfo;
                 Object code=body instanceof Map<?,?> map?map.get("code"):body instanceof com.zero.common.core.page.TableDataInfo table?table.getCode():null;
-                if (code instanceof Number number) context.code=number.intValue();
+                context.code = null;
+                if (code instanceof Integer number) context.code = number;
+                else if (code instanceof Number number)
+                {
+                    try { context.code = new java.math.BigDecimal(number.toString()).intValueExact(); }
+                    catch (NumberFormatException | ArithmeticException ignored) { /* 非整数状态码保持未知，不能截断为200后误报成功。 */ }
+                }
             }
         }
         return body;

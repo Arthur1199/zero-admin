@@ -39,11 +39,6 @@ public class PackageProperties
     public static final String GENERATOR_PACKAGE_NAME = BASE_PACKAGE + ".system";
 
     /**
-     * 日志级别控制使用的业务包名
-     */
-    public static final String LOG_PACKAGE = BASE_PACKAGE;
-
-    /**
      * 数据源注解切点表达式，随基础包名自动调整注解完整路径
      */
     public static final String DATA_SOURCE_POINTCUT_SIGN = "@annotation(" + BASE_PACKAGE + ".common.annotation.DataSource)"
@@ -65,30 +60,19 @@ public class PackageProperties
     public static final String GENERATOR_PACKAGE_NAME_PROPERTY = "zero.package.generator-package-name";
 
     /**
-     * 默认业务包日志级别，保持与 application.yml 中的开发期日志策略一致
-     */
-    private static final String DEFAULT_LOG_LEVEL = "debug";
-
-    /**
-     * Spring Boot 日志级别属性前缀
-     */
-    private static final String LOGGING_LEVEL_PREFIX = "logging.level.";
-
-    /**
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/6/28 00:24
-     * 说明: 启动 Spring 容器前写入包路径系统属性，让 YAML、logback 等非 Java 注解配置也统一从本类取值
+     * 说明: 启动 Spring 容器前仅写入包路径系统属性；日志级别交由application.yml、logback-spring.xml及外部配置管理，不在Java中设置默认级别
      * @return
      * 返回值: void
-     * 返回值说明: 写入缺省系统属性，不覆盖启动参数或环境变量已传入的同名配置
+     * 返回值说明: 仅为缺失的包路径系统属性写入默认值，不改写任何日志级别属性
      */
     public static void applySystemProperties()
     {
         setPropertyIfAbsent(BASE_PACKAGE_PROPERTY, BASE_PACKAGE);
         setPropertyIfAbsent(TYPE_ALIASES_PACKAGE_PROPERTY, TYPE_ALIASES_PACKAGE);
         setPropertyIfAbsent(GENERATOR_PACKAGE_NAME_PROPERTY, GENERATOR_PACKAGE_NAME);
-        setPropertyIfAbsent(LOGGING_LEVEL_PREFIX + LOG_PACKAGE, DEFAULT_LOG_LEVEL);
     }
 
     /**

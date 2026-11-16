@@ -13,6 +13,22 @@
     <!-- 日志保留天数 -->
     <property name="log.maxHistory" value="60"/>
 
+    <!-- 实时查看内存上限，可由环境变量或启动配置覆盖，不改变原文件日志。 -->
+    <springProperty scope="context" name="realtime.maxEvents" source="zero.realtime-log.max-events" defaultValue="5000"/>
+    <springProperty scope="context" name="realtime.maxBytes" source="zero.realtime-log.max-bytes" defaultValue="10485760"/>
+    <springProperty scope="context" name="realtime.maxEventBytes" source="zero.realtime-log.max-event-bytes" defaultValue="65536"/>
+    <!-- 完整控制台模式只读启动器或IDEA保存的进程输出文件，覆盖JVM原生输出。 -->
+    <springProperty scope="context" name="realtime.consoleFile" source="zero.realtime-log.console-file" defaultValue=""/>
+    <springProperty scope="context" name="realtime.consoleCharset" source="zero.realtime-log.console-charset" defaultValue="UTF-8"/>
+    <appender name="realtime" class="com.zero.framework.realtimelog.RealtimeLogAppender">
+        <pattern>${log.pattern}</pattern>
+        <maxEvents>${realtime.maxEvents}</maxEvents>
+        <maxBytes>${realtime.maxBytes}</maxBytes>
+        <maxEventBytes>${realtime.maxEventBytes}</maxEventBytes>
+        <consoleFile>${realtime.consoleFile}</consoleFile>
+        <consoleCharset>${realtime.consoleCharset}</consoleCharset>
+    </appender>
+
     <!-- 控制台输出，方便本地开发和容器控制台采集 -->
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -81,6 +97,7 @@
 
     <root level="info">
         <appender-ref ref="console"/>
+        <appender-ref ref="realtime"/>
         <appender-ref ref="file_info"/>
         <appender-ref ref="file_error"/>
     </root>

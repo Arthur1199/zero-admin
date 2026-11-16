@@ -5,8 +5,7 @@ import com.zero.common.constant.ServiceNameConstants;
 import com.zero.common.core.domain.AjaxResult;
 import com.zero.common.core.page.TableDataInfo;
 import jakarta.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpEntity;
@@ -36,14 +35,13 @@ import java.util.Map;
 /**
  * zero-file proxy service.
  */
+@Slf4j
 @Service
 public class FileRestService
 {
     private static final String ERROR_MSG = "文件服务请求异常，请联系管理员！";
 
     private static final String FILE_SERVICE_URL = "http://" + ServiceNameConstants.ZERO_FILE;
-
-    private static final Logger log = LoggerFactory.getLogger(FileRestService.class);
 
     private final RestTemplate restTemplate;
 
