@@ -2,6 +2,10 @@ package com.zero.system.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Collections;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import jakarta.validation.Validator;
 import org.slf4j.Logger;
@@ -97,7 +101,7 @@ public class SysUserServiceImpl implements ISysUserService
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
-     * 说明: 根据条件分页查询用户列表
+     * 说明: 保留用户分页和数据范围过滤，额外一次批量查询补充当前结果的角色展示，避免逐用户查询
      * @param user 用户信息
      * @return
      * 返回值: 用户信息集合信息
@@ -107,7 +111,29 @@ public class SysUserServiceImpl implements ISysUserService
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SysUser> selectUserList(SysUser user)
     {
-        return userMapper.selectUserList(user);
+        List<SysUser> users = userMapper.selectUserList(user);
+        if (CollectionUtils.isEmpty(users)) return users;
+        Long[] userIds = users.stream().filter(Objects::nonNull).map(SysUser::getUserId)
+            .filter(Objects::nonNull).distinct().toArray(Long[]::new);
+        if (userIds.length == 0) return users;
+        List<SysUser> userRoles = userMapper.selectUserRolesByUserIds(userIds);
+        Map<Long, List<SysRole>> rolesByUser = new HashMap<>();
+        if (userRoles != null)
+        {
+            for (SysUser item : userRoles)
+            {
+                if (item != null && item.getUserId() != null && item.getRoles() != null)
+                {
+                    rolesByUser.put(item.getUserId(), item.getRoles());
+                }
+            }
+        }
+        for (SysUser item : users)
+        {
+            if (item != null) item.setRoles(rolesByUser.getOrDefault(item.getUserId(), Collections.emptyList()));
+        }
+        // 保留PageHelper原集合，不能重新收集为普通List，否则分页total会丢失。
+        return users;
     }
 
     /**

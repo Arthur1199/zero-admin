@@ -70,9 +70,24 @@ size="small"
           <dict-tag :options="dict.type.sys_normal_disable" :value="scope.row.status"/>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime">
+      <el-table-column label="创建人" align="center" prop="createBy" min-width="120" :show-overflow-tooltip="true">
+        <template #default="scope">
+          <span>{{ scope.row.createBy || '—' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="创建时间" align="center" prop="createTime" min-width="180">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="更新人" align="center" prop="updateBy" min-width="120" :show-overflow-tooltip="true">
+        <template #default="scope">
+          <span>{{ scope.row.updateBy || '—' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="更新时间" align="center" prop="updateTime" min-width="180">
+        <template #default="scope">
+          <span>{{ parseTime(scope.row.updateTime) || '—' }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">

@@ -62,6 +62,26 @@ public class SysRoleServiceImpl implements ISysRoleService
     /**
      *
      * 作者: Arthur 亚瑟
+     * 时间: 2026/11/16 18:10
+     * 说明: 从未删除角色的全量最大顺序生成新增建议值，防止分页取值错误和整数溢出
+     * @return
+     * 返回值: int
+     * 返回值说明: 最小为1的参考顺序；不预占顺序，并行新增仍可手动调整
+     */
+    @Override
+    public int selectNextRoleSort()
+    {
+        Long maxSort = roleMapper.selectMaxRoleSort();
+        if (maxSort != null && maxSort >= Integer.MAX_VALUE)
+        {
+            throw new ServiceException("角色显示顺序已达到上限，请先调整已有角色顺序");
+        }
+        return maxSort == null ? 1 : (int) (Math.max(0L, maxSort) + 1);
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
      * 说明: 根据条件分页查询角色数据
      * @param role 角色信息
@@ -413,7 +433,7 @@ public class SysRoleServiceImpl implements ISysRoleService
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
-     * 说明: 修改数据权限信息
+     * 说明: 事务内仅保存数据范围及部门关系，独立权限不能修改角色名称、标识或菜单
      * @param role 角色信息
      * @return
      * 返回值: 结果
@@ -423,12 +443,16 @@ public class SysRoleServiceImpl implements ISysRoleService
     @Transactional
     public int authDataScope(SysRole role)
     {
-        // 修改角色信息
-        roleMapper.updateRole(role);
-        // 删除角色与部门关联
+        if (role == null || role.getRoleId() == null || StringUtils.isEmpty(role.getDataScope()))
+        {
+            throw new ServiceException("角色编号和数据权限不能为空");
+        }
+        validateRoleDataScope(role);
+        int rows = roleMapper.updateRoleDataScope(role);
+        if (rows <= 0) return rows;
         roleDeptMapper.deleteRoleDeptByRoleId(role.getRoleId());
-        // 新增角色和部门信息（数据权限）
-        return insertRoleDept(role);
+        if (RoleDataScopeConstants.CUSTOM.equals(role.getDataScope())) insertRoleDept(role);
+        return rows;
     }
 
     /**

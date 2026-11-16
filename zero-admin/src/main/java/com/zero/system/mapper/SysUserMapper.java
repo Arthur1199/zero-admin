@@ -15,6 +15,18 @@ public interface SysUserMapper
     /**
      *
      * 作者: Arthur 亚瑟
+     * 时间: 2026/11/16 19:23
+     * 说明: 按登录用户主键读取最新归属部门，供数据权限过滤使用，避免登录快照保留旧部门
+     * @param userId 已认证的当前用户ID，不接受页面传入的部门或身份
+     * @return
+     * 返回值: Long
+     * 返回值说明: 未删除账号的部门ID，账号不存在或未配置部门时为空，调用方拒绝回退旧值
+     */
+    Long selectCurrentDeptIdByUserId(Long userId);
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
      * 说明: 根据条件分页查询用户列表
      * @param sysUser 用户信息
@@ -23,6 +35,18 @@ public interface SysUserMapper
      * 返回值说明：根据条件分页查询用户列表
      */
     public List<SysUser> selectUserList(SysUser sysUser);
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/16 18:00
+     * 说明: 批量读取已通过用户列表数据范围过滤的用户角色，仅返回未删除角色的展示字段
+     * @param userIds 当前列表中的用户ID，非空集合，由Service从查询结果提取
+     * @return
+     * 返回值: List<SysUser>
+     * 返回值说明: 仅含用户ID和角色集合，包含停用角色，按角色顺序及ID稳定排序
+     */
+    List<SysUser> selectUserRolesByUserIds(@Param("userIds") Long[] userIds);
 
     /**
      *

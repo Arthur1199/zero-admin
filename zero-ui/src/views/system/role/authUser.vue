@@ -33,7 +33,7 @@
 :icon="resolveIcon('el-icon-plus')"
 size="small"
           @click="openSelectUser"
-          v-hasPermi="['system:role:add']"
+          v-hasPermi="['system:role:authUser']"
         >添加用户</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -44,7 +44,7 @@ size="small"
 size="small"
           :disabled="multiple"
           @click="cancelAuthUserAll"
-          v-hasPermi="['system:role:remove']"
+          v-hasPermi="['system:role:authUser']"
         >批量取消授权</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -82,7 +82,7 @@ size="small"
              link type="primary"
 :icon="resolveIcon('el-icon-circle-close')"
             @click="cancelAuthUser(scope.row)"
-            v-hasPermi="['system:role:remove']"
+            v-hasPermi="['system:role:authUser']"
           >取消授权</el-button>
         </template>
       </el-table-column>

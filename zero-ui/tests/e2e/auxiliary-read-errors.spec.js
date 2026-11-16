@@ -30,6 +30,24 @@ async function openRole(page, mode) {
   }
 }
 
+test('独立数据权限弹窗切回自定义后恢复已保存部门', async ({ page }) => {
+  const requests = await roleFixtures(page)
+  await page.goto('/system/role')
+  await openRole(page, '数据权限')
+  const dialog = page.getByRole('dialog', { name: '分配数据权限', exact: true })
+  const checkbox = dialog.getByRole('treeitem', { name: '已选节点', exact: true }).getByRole('checkbox')
+  await expect(checkbox).toBeChecked()
+  for (let index = 0; index < 2; index++) {
+    await dialog.locator('.el-select').click()
+    await page.getByRole('option', { name: '全部数据权限', exact: true }).click()
+    await dialog.locator('.el-select').click()
+    await page.getByRole('option', { name: '自定义数据权限', exact: true }).click()
+    await expect(checkbox).toBeChecked()
+  }
+  await dialog.getByRole('button', { name: '取 消', exact: true }).click()
+  expect(requests.filter(request => request.method !== 'GET')).toEqual([])
+})
+
 for (const [mode, endpoint] of [
   ['新增', '/system/menu/treeselect'],
   ['修改', '/system/menu/roleMenuTreeselect/2'], ['修改', '/system/role/2'], ['修改', '/system/role/deptTree/2'],
@@ -194,6 +212,10 @@ for (const mode of ['新增', '修改', '数据权限']) {
     if (mode !== '数据权限') {
       await dialog.getByPlaceholder('请输入角色名称').fill('保留输入的角色')
       await dialog.getByPlaceholder('请输入角色英文名称').fill('kept_role')
+    }
+    if (mode === '新增') {
+      await dialog.locator('.el-select').click()
+      await page.getByRole('option', { name: '全部数据权限', exact: true }).click()
     }
     await Promise.all([page.getByText('角色保存被拒绝', { exact: true }).waitFor({ state: 'visible' }), dialog.getByRole('button', { name: '确 定', exact: true }).click()])
     await expect(dialog).toBeVisible()

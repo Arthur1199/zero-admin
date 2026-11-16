@@ -103,6 +103,16 @@ size="small"
       <el-table-column label="角色名称" prop="roleName" :show-overflow-tooltip="true" width="150" />
       <el-table-column label="角色英文名称" prop="roleKey" :show-overflow-tooltip="true" width="150" />
       <el-table-column label="显示顺序" prop="roleSort" width="100" />
+      <el-table-column label="数据权限" prop="dataScope" min-width="190" :formatter="formatDataScope">
+        <template #header>
+          <span class="data-scope-label">
+            数据权限
+            <button type="button" class="data-scope-help" aria-label="查看数据权限说明" title="查看数据权限说明" @click.stop="openScopeHelp = true">
+              <AppIcon icon-class="el-icon-question" />
+            </button>
+          </span>
+        </template>
+      </el-table-column>
       <el-table-column label="状态" align="center" width="100">
         <template #default="scope">
           <el-switch
@@ -113,9 +123,24 @@ size="small"
           ></el-switch>
         </template>
       </el-table-column>
+      <el-table-column label="创建人" align="center" prop="createBy" min-width="120" :show-overflow-tooltip="true">
+        <template #default="scope">
+          <span>{{ scope.row.createBy || '—' }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="更新人" align="center" prop="updateBy" min-width="120" :show-overflow-tooltip="true">
+        <template #default="scope">
+          <span>{{ scope.row.updateBy || '—' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="更新时间" align="center" prop="updateTime" width="180">
+        <template #default="scope">
+          <span>{{ parseTime(scope.row.updateTime) || '—' }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -135,13 +160,13 @@ size="small"
             @click="handleDelete(scope.row)"
             v-hasPermi="['system:role:remove']"
           >删除</el-button>
-          <el-dropdown size="small" @command="(command) => handleCommand(command, scope.row)" v-hasPermi="['system:role:edit']">
+          <el-dropdown size="small" @command="(command) => handleCommand(command, scope.row)" v-if="$auth.hasPermiOr(['system:role:dataScope', 'system:role:authUser'])">
             <el-button size="small"  link type="primary" :icon="resolveIcon('el-icon-d-arrow-right')">更多</el-button>
             <template #dropdown><el-dropdown-menu >
               <el-dropdown-item command="handleDataScope" :icon="resolveIcon('el-icon-circle-check')"
-                v-if="$auth.hasPermi('system:role:edit')">数据权限</el-dropdown-item>
+                v-if="$auth.hasPermi('system:role:dataScope')">数据权限</el-dropdown-item>
               <el-dropdown-item command="handleAuthUser" :icon="resolveIcon('el-icon-user')"
-                v-if="$auth.hasPermi('system:role:edit')">分配用户</el-dropdown-item>
+                v-if="$auth.hasPermi('system:role:authUser')">分配用户</el-dropdown-item>
             </el-dropdown-menu></template>
           </el-dropdown>
           </template>
@@ -199,12 +224,20 @@ v-model:limit="queryParams.pageSize"
             :props="defaultProps"
           ></el-tree>
         </el-form-item>
-        <el-form-item label="数据权限" prop="dataScope">
+        <el-form-item v-if="form.roleId == undefined || $auth.hasPermi('system:role:dataScope')" label="数据权限" prop="dataScope">
+          <template #label>
+            <span class="data-scope-label">
+              <button type="button" class="data-scope-help" aria-label="查看数据权限说明" title="查看数据权限说明" @click="openScopeHelp = true">
+                <AppIcon icon-class="el-icon-question" />
+              </button>
+              数据权限
+            </span>
+          </template>
           <el-select v-model="form.dataScope" placeholder="请选择数据权限" @change="handleCreateDataScopeChange">
             <el-option v-for="item in dataScopeOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item v-if="form.dataScope === '2'" label="部门范围" class="permission-tree-item" v-loading="createDeptLoading">
+        <el-form-item v-if="form.dataScope === '2' && (form.roleId == undefined || $auth.hasPermi('system:role:dataScope'))" label="部门范围" class="permission-tree-item" v-loading="createDeptLoading">
           <el-checkbox v-model="createDeptExpand" @change="handleCreateDeptExpand">展开/折叠</el-checkbox>
           <el-checkbox v-model="createDeptNodeAll" @change="value => $refs.createDept?.setCheckedNodes(value ? createDeptOptions : [])">全选/全不选</el-checkbox>
           <el-checkbox v-model="form.deptCheckStrictly">父子联动</el-checkbox>
@@ -232,6 +265,14 @@ v-model:limit="queryParams.pageSize"
           <el-input v-model="form.roleKey" :disabled="true" />
         </el-form-item>
         <el-form-item label="权限范围">
+          <template #label>
+            <span class="data-scope-label">
+              <button type="button" class="data-scope-help" aria-label="查看数据权限说明" title="查看数据权限说明" @click="openScopeHelp = true">
+                <AppIcon icon-class="el-icon-question" />
+              </button>
+              权限范围
+            </span>
+          </template>
           <el-select v-model="form.dataScope" @change="dataScopeSelectChange">
             <el-option
               v-for="item in dataScopeOptions"
@@ -263,11 +304,36 @@ v-model:limit="queryParams.pageSize"
         <el-button @click="cancelDataScope">取 消</el-button>
       </div></template>
     </el-dialog>
+
+    <el-dialog title="数据权限说明" v-model="openScopeHelp" width="min(860px, 94vw)" append-to-body :close-on-click-modal="false">
+      <div class="data-scope-guide">
+        <p>菜单权限决定“能进入哪些页面、使用哪些操作”；数据权限决定“这些页面中能看到哪些数据”。两者需要同时满足。</p>
+        <p><strong>统一示例：</strong>张三属于“研发部”，研发部下有“研发一组”；“测试部”与研发部平级。以下以已接入数据权限的用户列表为例。</p>
+        <dl>
+          <div v-for="item in dataScopeHelp" :key="item.name">
+            <dt>{{ item.name }}</dt>
+            <dd>{{ item.description }}</dd>
+            <dd><strong>举例：</strong>{{ item.example }}</dd>
+          </div>
+        </dl>
+        <p><strong>选择时注意：</strong></p>
+        <ul>
+          <li>“本部门”取实际登录人的所属部门。同一角色分配给不同部门的人，看到的部门数据会不同。</li>
+          <li>自定义范围按最终勾选的部门生效，不会仅因勾选父部门就自动包含所有下级；开启父子联动时，会同步勾选当前树中的下级部门。</li>
+          <li>多个正常角色中，参与当前功能权限判断的数据范围取并集；其中有“全部数据权限”时，该功能不再按部门或本人缩小范围。超级管理员不受此范围过滤。</li>
+          <li>仅对已经接入数据权限过滤的功能生效，不代表系统所有页面都会自动过滤。页面本身的查询条件和其他业务限制仍然有效。</li>
+          <li>“仅本人”按登录用户编号识别，不等于“我创建的所有记录”；没有接入本人识别的功能可能不显示数据。</li>
+        </ul>
+      </div>
+      <template #footer>
+        <el-button type="primary" @click="openScopeHelp = false">我知道了</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { listRole, getRole, delRole, addRole, updateRole, dataScope, changeRoleStatus, deptTreeSelect, creationDeptTreeSelect } from "@/api/system/role"
+import { listRole, getRole, delRole, addRole, updateRole, dataScope, changeRoleStatus, deptTreeSelect, creationDeptTreeSelect, getNextRoleSort } from "@/api/system/role"
 import { treeselect as menuTreeselect, roleMenuTreeselect } from "@/api/system/menu"
 
 export default {
@@ -279,8 +345,17 @@ export default {
       loading: true,
       formLoading: false,
       submitting: false,
+      openScopeHelp: false,
+      dataScopeHelp: [
+        { name: "全部数据权限", description: "不按部门或本人限制数据范围，仍需具备对应菜单和操作权限。", example: "张三可查看研发部、研发一组、测试部等全部部门的用户。" },
+        { name: "自定义数据权限", description: "由管理员为该角色勾选可查看的部门，范围固定为所选部门。", example: "只勾选研发一组和测试部，张三可查看这两个部门的用户，不能查看未勾选的研发部用户。" },
+        { name: "本部门数据权限", description: "只允许查看登录人所属部门的数据，不包含下级部门。", example: "张三可查看研发部用户，不能查看研发一组或测试部用户。" },
+        { name: "本部门及以下数据权限", description: "允许查看登录人所属部门及所有下级部门的数据。", example: "张三可查看研发部、研发一组及其下级部门用户，不能查看平级测试部用户。" },
+        { name: "仅本人数据权限", description: "只允许查看与当前登录用户编号对应的本人数据。", example: "在用户列表中，张三只能查看自己的用户记录，看不到同部门其他人的记录。" }
+      ],
       createDeptLoading: false,
       createDeptLoaded: false,
+      savedDeptKeys: [],
       createDeptOptions: [],
       createDeptExpand: true,
       createDeptNodeAll: false,
@@ -371,6 +446,11 @@ export default {
     this.getList()
   },
   methods: {
+    /** 复用表单的范围名称，兼容数字和字符串编码，缺失值不推断为全部权限。 */
+    formatDataScope(row, column, value) {
+      if (value == null || value === '') return '未配置'
+      return this.dataScopeOptions.find(item => item.value === String(value))?.label || '未知数据权限'
+    },
     /** 查询角色列表 */
     getList() {
       this.loading = true
@@ -443,6 +523,7 @@ export default {
       this.createDeptOptions = []
       this.createDeptExpand = true
       this.createDeptNodeAll = false
+      this.savedDeptKeys = []
       if (this.$refs.menu != undefined) {
         this.$refs.menu.setCheckedKeys([])
       }
@@ -530,18 +611,24 @@ export default {
       if (this.formLoading) return
       this.formLoading = true
       this.reset()
+      this.form.dataScope = "4"
       this.menuOptions = []
       try {
-        const response = await this.getMenuTreeselect()
+        const [response, sortResponse] = await Promise.all([this.getMenuTreeselect(), getNextRoleSort()])
         if (!Array.isArray(response.data)) {
           this.$modal.msgError("菜单信息不完整，请重试")
           return
         }
         this.menuOptions = response.data
+        if (!Number.isInteger(sortResponse.data) || sortResponse.data < 1) {
+          this.$modal.msgError("角色顺序信息不完整，请重试")
+          return
+        }
+        this.form.roleSort = sortResponse.data
         this.open = true
         this.title = "添加角色"
       } catch (error) {
-        // 请求拦截器已经提示错误，树加载失败时不打开空表单。
+        // 请求拦截器已经提示错误，初始化读取失败时不打开残缺表单。
         this.menuOptions = []
       } finally {
         this.formLoading = false
@@ -571,6 +658,8 @@ export default {
           return
         }
         this.createDeptOptions = options
+        // 修改时重新读取已保存的勾选，避免范围切换清空后无法回显。
+        if (this.form.roleId != undefined) this.form.deptIds = response.checkedKeys || []
         await this.$nextTick()
         if (requestId !== this.createDeptRequestId) return
         this.$refs.createDept?.setCheckedKeys(this.form.deptIds || [])
@@ -605,7 +694,7 @@ export default {
         this.form = { ...response.data, dataScope: response.data.dataScope || "1" }
         this.title = "修改角色"
         let deptTree
-        if (this.form.dataScope === '2') {
+        if (this.form.dataScope === '2' && this.$auth.hasPermi('system:role:dataScope')) {
           deptTree = await deptTreeSelect(roleId)
           if (!Array.isArray(deptTree.depts)) throw new Error("部门信息不完整")
           this.createDeptOptions = deptTree.depts
@@ -628,9 +717,7 @@ export default {
     },
     /** 选择角色权限范围触发 */
     dataScopeSelectChange(value) {
-      if(value !== '2') {
-        this.$refs.dept.setCheckedKeys([])
-      }
+      this.$refs.dept?.setCheckedKeys(value === '2' ? this.savedDeptKeys : [])
     },
     /** 分配数据权限操作 */
     async handleDataScope(row) {
@@ -645,6 +732,7 @@ export default {
           return
         }
         this.deptOptions = deptTree.depts
+        this.savedDeptKeys = [...(deptTree.checkedKeys || [])]
         this.form = response.data
         this.title = "分配数据权限"
         this.openDataScope = true
@@ -671,7 +759,7 @@ export default {
           const editing = this.form.roleId != undefined
           const data = { ...this.form, menuIds: this.getMenuAllCheckedKeys() }
           data.deptIds = []
-          if (data.dataScope === '2') {
+          if (data.dataScope === '2' && (!editing || this.$auth.hasPermi('system:role:dataScope'))) {
             if (!this.createDeptLoaded || this.createDeptLoading) {
               this.$modal.msgError("请先加载部门信息")
               return
@@ -682,6 +770,11 @@ export default {
               this.$modal.msgError("请至少选择一个部门")
               return
             }
+          }
+          if (editing && !this.$auth.hasPermi('system:role:dataScope')) {
+            delete data.dataScope
+            delete data.deptIds
+            delete data.deptCheckStrictly
           }
           this.submitting = true
           const request = editing ? updateRole(data) : addRole(data)
@@ -725,6 +818,39 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.data-scope-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.data-scope-help {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.data-scope-guide {
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 8px;
+
+  p { margin: 0 0 12px; }
+  dl { margin: 0; }
+  dl > div { margin-bottom: 14px; }
+  dt { font-weight: 600; }
+  dd { margin-left: 0; }
+  ul { padding-left: 20px; margin: 0; }
+  li + li { margin-top: 6px; }
+}
+
 .permission-tree-item {
   :deep(.el-form-item__content) {
     display: block;
