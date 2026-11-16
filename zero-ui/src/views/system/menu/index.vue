@@ -63,8 +63,8 @@ size="small"
         </template>
       </el-table-column>
       <el-table-column prop="orderNum" label="排序" width="60"></el-table-column>
-      <el-table-column prop="perms" label="权限标识" :show-overflow-tooltip="true"></el-table-column>
-      <el-table-column prop="component" label="组件路径" :show-overflow-tooltip="true"></el-table-column>
+      <el-table-column prop="perms" label="权限标识" min-width="180" class-name="menu-long-text"></el-table-column>
+      <el-table-column prop="component" label="组件路径" min-width="220" class-name="menu-long-text"></el-table-column>
       <el-table-column prop="status" label="状态" width="80">
         <template #default="scope">
           <dict-tag :options="dict.type.sys_normal_disable" :value="scope.row.status"/>
@@ -501,3 +501,12 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+:deep(td.menu-long-text .cell) {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  text-overflow: clip;
+}
+</style>

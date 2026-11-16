@@ -64,7 +64,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectUserList" parameterType="SysUser" resultMap="SysUserResult">
 		select u.user_id, u.dept_id, u.nick_name, u.user_name, u.email, u.avatar, u.phonenumber, u.sex, u.status, u.del_flag, u.login_ip, u.login_date, u.login_lock, u.create_by, u.create_time, u.update_by, u.update_time, u.remark, d.dept_name, d.leader from sys_user u
 		left join sys_dept d on u.dept_id = d.dept_id
-		where u.del_flag = '0'
+		where u.del_flag =
+        <choose>
+            <when test="delFlag != null and delFlag != ''">#{delFlag}</when>
+            <otherwise>'0'</otherwise>
+        </choose>
 		<if test="userId != null and userId != 0">
 			AND u.user_id = #{userId}
 		</if>
@@ -248,4 +252,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach> 
  	</delete>
 	
-</mapper> 
+    <!-- 校验时的状态和部门必须仍一致，防止重复恢复或并发变化绕过校验。 -->
+    <update id="restoreUser" parameterType="SysUser">
+        update sys_user set del_flag = '0', update_by = #{updateBy}, update_time = sysdate()
+        where user_id = #{userId} and del_flag = '2'
+          and dept_id &lt;=&gt; #{deptId}
+    </update>
+</mapper>

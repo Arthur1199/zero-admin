@@ -183,6 +183,18 @@ public interface SysUserMapper
     /**
      *
      * 作者: Arthur 亚瑟
+     * 时间: 2026/11/16 20:21
+     * 说明: 条件恢复用户，仅更新删除标志和审计字段
+     * @param user 校验时的已删除账号ID、部门及更新人
+     * @return
+     * 返回值: int
+     * 返回值说明: 成功更新条数，状态或部门变化时返回0
+     */
+    public int restoreUser(SysUser user);
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
      * 说明: 校验用户名称是否唯一
      * @param userName 用户名称

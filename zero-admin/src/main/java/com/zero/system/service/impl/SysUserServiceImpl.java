@@ -101,7 +101,7 @@ public class SysUserServiceImpl implements ISysUserService
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
-     * 说明: 保留用户分页和数据范围过滤，额外一次批量查询补充当前结果的角色展示，避免逐用户查询
+     * 说明: 按删除标志查询用户，缺省仅查未删除；保留分页、数据范围及批量角色展示，恢复由独立入口校验
      * @param user 用户信息
      * @return
      * 返回值: 用户信息集合信息
@@ -111,6 +111,12 @@ public class SysUserServiceImpl implements ISysUserService
     @DataScope(deptAlias = "d", userAlias = "u")
     public List<SysUser> selectUserList(SysUser user)
     {
+        if (user == null) throw new ServiceException("用户查询条件不能为空");
+        if (StringUtils.isEmpty(user.getDelFlag())) user.setDelFlag(UserConstants.USER_NOT_DELETED);
+        if (!UserConstants.USER_NOT_DELETED.equals(user.getDelFlag()) && !UserConstants.USER_DELETED.equals(user.getDelFlag()))
+        {
+            throw new ServiceException("删除状态无效");
+        }
         List<SysUser> users = userMapper.selectUserList(user);
         if (CollectionUtils.isEmpty(users)) return users;
         Long[] userIds = users.stream().filter(Objects::nonNull).map(SysUser::getUserId)
@@ -638,6 +644,54 @@ public class SysUserServiceImpl implements ISysUserService
         // 删除用户与岗位关联
         userPostMapper.deleteUserPost(userIds);
         return userMapper.deleteUserByIds(userIds);
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/16 20:21
+     * 说明: 校验已删除账号的数据范围后恢复，不补回授权或修改登录缓存
+     * @param userId 已删除账号ID，不允许超级管理员
+     * @param operator 当前登录操作人账号，不接收前端指定
+     * @return
+     * 返回值: int
+     * 返回值说明: 成功返回1，越权或并发变化时抛出业务异常
+     */
+    @Override
+    @Transactional
+    public int restoreUser(Long userId, String operator)
+    {
+        if (userId == null || userId <= 0 || StringUtils.isBlank(operator))
+        {
+            throw new ServiceException("恢复账号参数无效");
+        }
+        SysUser user = userMapper.selectUserById(userId);
+        if (user == null)
+        {
+            throw new ServiceException("账号不存在");
+        }
+        checkUserAllowed(user);
+        if (!UserConstants.USER_DELETED.equals(user.getDelFlag()))
+        {
+            throw new ServiceException("账号未删除或已恢复，请刷新后重试");
+        }
+        if (!SysUser.isAdmin(SecurityUtils.getUserId()))
+        {
+            // 原校验默认仅查询未删除记录，恢复需显式查询已删除账号并经过AOP数据过滤。
+            SysUser query = new SysUser();
+            query.setUserId(userId);
+            query.setDelFlag(UserConstants.USER_DELETED);
+            if (StringUtils.isEmpty(SpringUtils.getAopProxy(this).selectUserList(query)))
+            {
+                throw new ServiceException("没有权限访问用户数据！");
+            }
+        }
+        user.setUpdateBy(operator);
+        if (userMapper.restoreUser(user) != 1)
+        {
+            throw new ServiceException("账号状态或信息已变化，请刷新后重试");
+        }
+        return 1;
     }
 
     /**
