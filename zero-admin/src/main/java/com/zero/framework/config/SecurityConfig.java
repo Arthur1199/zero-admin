@@ -20,6 +20,7 @@ import com.zero.framework.config.properties.PermitAllUrlProperties;
 import com.zero.framework.security.filter.JwtAuthenticationTokenFilter;
 import com.zero.framework.security.handle.AuthenticationEntryPointImpl;
 import com.zero.framework.security.handle.LogoutSuccessHandlerImpl;
+import com.zero.common.constant.AdminWebSocketConstants;
 
 /**
  *
@@ -114,6 +115,8 @@ public class SecurityConfig
                 permitAllUrl.getUrls().forEach(url -> requests.requestMatchers(url).permitAll());
                 // 登录、验证码和首次谷歌绑定接口允许匿名访问；真正的绑定校验在业务层完成。
                 requests.requestMatchers("/login", "/captchaImage", "/google/generateGaImage", "/google/bind").permitAll()
+                    // 仅允许WebSocket握手，连接必须在首条消息完成JWT认证后才能接收业务事件。
+                    .requestMatchers(HttpMethod.GET, AdminWebSocketConstants.PATH).permitAll()
                     // 静态资源，可匿名访问
                     .requestMatchers(HttpMethod.GET, "/","/*.html", "/**.html", "/**.css", "/**.js", "/profile/**").permitAll()
                     // Swagger UI独立读取配置和分组文档，仅放行文档子路径的GET请求。

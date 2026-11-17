@@ -2,7 +2,9 @@ package com.zero.web.controller.system;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,10 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.zero.common.constant.Constants;
 import com.zero.common.core.domain.AjaxResult;
 import com.zero.common.core.domain.entity.SysMenu;
+import com.zero.common.core.domain.entity.SysRole;
 import com.zero.common.core.domain.entity.SysUser;
 import com.zero.common.core.domain.model.LoginBody;
 import com.zero.common.core.domain.model.LoginUser;
 import com.zero.common.core.text.Convert;
+import com.zero.common.exception.ServiceException;
 import com.zero.common.utils.DateUtils;
 import com.zero.common.utils.SecurityUtils;
 import com.zero.common.utils.StringUtils;
@@ -22,6 +26,7 @@ import com.zero.framework.web.service.SysLoginService;
 import com.zero.framework.web.service.SysPermissionService;
 import com.zero.framework.web.service.TokenService;
 import com.zero.system.service.ISysConfigService;
+import com.zero.system.service.ISysUserService;
 import com.zero.system.service.ISysMenuService;
 
 /**
@@ -63,6 +68,10 @@ public class SysLoginController
     @Autowired
     private ISysConfigService configService;
 
+    /** 刷新页面时读取最新用户部门和角色，避免沿用旧登录快照。 */
+    @Autowired
+    private ISysUserService userService;
+
     /**
      *
      * 作者: Arthur 亚瑟
@@ -88,21 +97,34 @@ public class SysLoginController
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
-     * 说明: 获取用户信息
+     * 说明: 读取最新用户部门与角色并返回权限，变化时通过当前HTTP请求更新登录缓存
      * @return
-     * 返回值: 用户信息
+     * 返回值: AjaxResult
      * 返回值说明：获取用户信息
      */
     @GetMapping("getInfo")
     public AjaxResult getInfo()
     {
         LoginUser loginUser = SecurityUtils.getLoginUser();
-        SysUser user = loginUser.getUser();
+        SysUser previous = loginUser.getUser();
+        SysUser user = userService.selectUserById(loginUser.getUserId());
+        if (user == null)
+        {
+            throw new ServiceException("用户不存在，请重新登录");
+        }
+        Set<Long> previousRoles = previous == null || previous.getRoles() == null ? Set.of() : previous.getRoles().stream()
+                .map(SysRole::getRoleId).collect(Collectors.toSet());
+        Set<Long> latestRoles = user.getRoles() == null ? Set.of() : user.getRoles().stream()
+                .map(SysRole::getRoleId).collect(Collectors.toSet());
+        boolean userChanged = !Objects.equals(loginUser.getDeptId(), user.getDeptId())
+                || !previousRoles.equals(latestRoles);
+        loginUser.setUser(user);
+        loginUser.setDeptId(user.getDeptId());
         // 角色集合
         Set<String> roles = permissionService.getRolePermission(user);
         // 权限集合
         Set<String> permissions = permissionService.getMenuPermission(user);
-        if (!loginUser.getPermissions().equals(permissions))
+        if (userChanged || !Objects.equals(loginUser.getPermissions(), permissions))
         {
             loginUser.setPermissions(permissions);
             tokenService.refreshToken(loginUser);

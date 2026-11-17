@@ -81,13 +81,6 @@ pagehelper:
   supportMethodsArguments: true
   params: count=countSql
 ---
-## Swagger配置
-#swagger:
-#  # 是否开启swagger
-#  enabled: true
-#  # 请求前缀
-#  pathMapping: /dev-api
-
 # ======== SpringDocs文档配置 ========
 springdoc:
   api-docs:
@@ -115,3 +108,4 @@ management:
   endpoint:
     health:
       show-details: always
+

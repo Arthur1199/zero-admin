@@ -138,6 +138,60 @@ public class TokenService
     /**
      *
      * 作者: Arthur 亚瑟
+     * 时间: 2026/11/16
+     * 说明: 验证WebSocket首帧JWT并读取现有登录会话，不续期、不记录凭证或解析异常原文
+     * @param token 浏览器首帧发送的原始JWT，不含Bearer前缀
+     * @return
+     * 返回值: LoginUser
+     * 返回值说明: 有效登录会话；凭证无效返回null，Redis异常交由通信层关闭连接
+     */
+    public LoginUser authenticateWebSocketToken(String token)
+    {
+        if (!StringUtils.hasText(token))
+        {
+            return null;
+        }
+        String sessionId;
+        try
+        {
+            sessionId = parseToken(token).get(Constants.LOGIN_USER_KEY, String.class);
+        }
+        catch (io.jsonwebtoken.JwtException | IllegalArgumentException e)
+        {
+            return null;
+        }
+        return getWebSocketLoginUser(sessionId);
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/16
+     * 说明: 按已验证的登录会话编号核对缓存及到期时间，不修改登录状态
+     * @param sessionId 从有效JWT解析的登录会话编号，不能使用客户端指定用户ID代替
+     * @return
+     * 返回值: LoginUser
+     * 返回值说明: 有效会话；缓存缺失、数据不完整或过期返回null，基础设施异常向上传递
+     */
+    public LoginUser getWebSocketLoginUser(String sessionId)
+    {
+        if (!StringUtils.hasText(sessionId))
+        {
+            return null;
+        }
+        LoginUser user = redisCache.getCacheObject(getTokenKey(sessionId));
+        if (user == null || user.getUser() == null || user.getUserId() == null
+                || !sessionId.equals(user.getToken()) || user.getExpireTime() == null
+                || user.getExpireTime() <= System.currentTimeMillis())
+        {
+            return null;
+        }
+        return user;
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
      * 说明: 删除用户身份信息
      * @param token 令牌参数

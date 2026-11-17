@@ -3,17 +3,20 @@ package com.zero.system.service.impl;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.zero.common.constant.ApiAuthConstants;
 import com.zero.common.exception.ServiceException;
 import com.zero.common.utils.StringUtils;
 import com.zero.system.domain.SysApiAuth;
 import com.zero.system.mapper.SysApiAuthMapper;
+import com.zero.system.service.AdminUserRefreshService;
 import com.zero.system.service.ISysApiAuthService;
 
 /**
+ *
  * 作者: Arthur 亚瑟
  * 时间: 2026/6/27 03:49
- * 说明: API谷歌验证配置服务层实现，负责配置规范化、请求方式和路径唯一性校验、状态取值校验和软删除处理
+ * 说明: API谷歌验证配置服务层实现，负责配置校验、软删除及修改提交后的在线客户端刷新
  *
  */
 @Service
@@ -24,6 +27,10 @@ public class SysApiAuthServiceImpl implements ISysApiAuthService
      */
     @Autowired
     private SysApiAuthMapper apiAuthMapper;
+
+    /** 配置修改提交后广播刷新，复用现有多节点在线通信。 */
+    @Autowired
+    private AdminUserRefreshService clientRefreshService;
 
     /**
      * 作者: Arthur 亚瑟
@@ -87,18 +94,20 @@ public class SysApiAuthServiceImpl implements ISysApiAuthService
     }
 
     /**
+     *
      * 作者: Arthur 亚瑟
      * 时间: 2026/6/27 03:49
-     * 说明: 修改API谷歌验证配置，允许删除态记录通过编辑恢复为正常或禁用状态
+     * 说明: 修改API谷歌验证配置，允许编辑恢复状态；提交成功后广播刷新，使在线客户端重新加载规则
      * @param apiAuth API谷歌验证配置信息
      * @return
      * 返回值: int
-     * 返回值说明: 影响行数
+     * 返回值说明: 影响行数；成功提交后广播刷新，不改变原配置校验和返回规则
      */
     @Override
+    @Transactional
     public int updateApiAuth(SysApiAuth apiAuth)
     {
-        if (StringUtils.isNull(apiAuth.getId()))
+        if (apiAuth == null || StringUtils.isNull(apiAuth.getId()))
         {
             throw new ServiceException("API谷歌验证配置ID不能为空");
         }
@@ -109,7 +118,12 @@ public class SysApiAuthServiceImpl implements ISysApiAuthService
         }
         prepareApiAuth(apiAuth, true);
         checkApiMethodUrlUnique(apiAuth);
-        return apiAuthMapper.updateApiAuth(apiAuth);
+        int rows = apiAuthMapper.updateApiAuth(apiAuth);
+        if (rows > 0)
+        {
+            clientRefreshService.afterApiAuthChanged();
+        }
+        return rows;
     }
 
     /**

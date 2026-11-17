@@ -84,4 +84,16 @@ public interface SysUserRoleMapper
      * 返回值说明：批量取消授权用户角色
      */
     public int deleteUserRoleInfos(@Param("roleId") Long roleId, @Param("userIds") Long[] userIds);
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/17
+     * 说明: 在批量取消角色事务内锁定指定用户已存在的角色关系，限定刷新通知的实际目标，不改变操作人权限校验
+     * @param roleId 本次取消的角色ID
+     * @param userIds 本次操作的用户ID，空集合不返回记录
+     * @return
+     * 返回值: List<Long>
+     * 返回值说明: 已拥有此角色的目标用户ID，无匹配时返回空列表；仅供事务内关系变更使用
+     */
+    List<Long> selectUserIdsByRoleId(@Param("roleId") Long roleId, @Param("userIds") Long[] userIds);
 }

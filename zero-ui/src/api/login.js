@@ -29,10 +29,12 @@ export function getInfo() {
 }
 
 // 退出方法
-export function logout() {
+export function logout(token) {
   return request({
     url: '/logout',
-    method: 'post'
+    method: 'post',
+    // 固定本次退出的身份，异步请求期间其它标签页重新登录时不能退出新会话。
+    headers: token ? { Authorization: 'Bearer ' + token, isToken: false, repeatSubmit: false } : undefined
   })
 }
 

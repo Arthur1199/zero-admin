@@ -41,4 +41,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  	        #{userId}
             </foreach> 
 	</delete>
+    <!-- 与后续增删操作在同一事务中读取当前关系并锁定，避免通知未实际变更的用户。 -->
+    <select id="selectUserIdsByRoleId" resultType="Long">
+        select user_id from sys_user_role where role_id = #{roleId}
+        <choose>
+            <when test="userIds != null and userIds.length > 0">
+                and user_id in
+                <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+                    #{userId}
+                </foreach>
+            </when>
+            <otherwise>and 1 = 0</otherwise>
+        </choose>
+        order by user_id
+        for update
+    </select>
 </mapper> 

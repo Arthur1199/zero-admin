@@ -4,6 +4,7 @@ import { login, logout, getInfo } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { isHttp, isEmpty } from "@/utils/validate"
 import defAva from '@/assets/images/profile.jpg'
+import { adminWebSocket } from '@/utils/websocket'
 
 const user = {
   state: {
@@ -101,8 +102,18 @@ const user = {
 
     // 退出系统
     LogOut({ commit, state, dispatch }) {
+      const token = state.token
+      // 退出失败仍停留当前页面，暂停期间保留订阅；成功后再彻底清理。
+      adminWebSocket.pause()
       return new Promise((resolve, reject) => {
-        logout(state.token).then(() => {
+        logout(token).then(() => {
+          // 旧请求返回期间可能已重新登录，只释放暂停，不清除新身份。
+          if (state.token !== token || (getToken() && getToken() !== token)) {
+            adminWebSocket.resume()
+            resolve()
+            return
+          }
+          adminWebSocket.stop()
           commit('SET_TOKEN', '')
           commit('SET_ROLES', [])
           commit('SET_PERMISSIONS', [])
@@ -114,13 +125,22 @@ const user = {
           localStorage.removeItem('google_auth_apis')
           resolve()
         }).catch(error => {
+          adminWebSocket.resume()
           reject(error)
         })
       })
     },
 
+    // 被动退出：连接工具已停止重连；退出接口失败也清理本地，旧身份不能清除新登录态。
+    async ForceLogOut({ state, dispatch }, token) {
+      if (!token || state.token !== token || (getToken() && getToken() !== token)) return
+      try { await logout(token) } catch { /* 服务端会话可能已撤销或网络不可达，仍需本地退出 */ }
+      if (state.token === token && (!getToken() || getToken() === token)) await dispatch('FedLogOut')
+    },
+
     // 前端 登出
     FedLogOut({ commit, dispatch }) {
+      adminWebSocket.stop()
       return new Promise(resolve => {
         commit('SET_TOKEN', '')
         commit('SET_ROLES', [])

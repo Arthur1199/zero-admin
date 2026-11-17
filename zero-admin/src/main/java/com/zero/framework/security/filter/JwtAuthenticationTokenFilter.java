@@ -4,6 +4,7 @@ import com.zero.common.core.domain.model.LoginUser;
 import com.zero.common.utils.SecurityUtils;
 import com.zero.common.utils.StringUtils;
 import com.zero.framework.web.service.TokenService;
+import com.zero.common.constant.AdminWebSocketConstants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,7 +36,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
-     * 说明: do过滤器Internal
+     * 说明: HTTP请求验证并按原规则续期；WebSocket精确握手路径改由首帧认证，不触发续期
      * @param request 请求参数
      * @param response 响应参数
      * @param chain chain参数
@@ -48,6 +49,13 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException
     {
+        // WebSocket使用首帧认证，握手即使携带HTTP凭证也不续期登录会话。
+        if ("GET".equals(request.getMethod()) && AdminWebSocketConstants.PATH
+                .equals(request.getServletPath()))
+        {
+            chain.doFilter(request, response);
+            return;
+        }
         LoginUser loginUser = tokenService.getLoginUser(request);
         if (StringUtils.isNotNull(loginUser) && StringUtils.isNull(SecurityUtils.getAuthentication()))
         {

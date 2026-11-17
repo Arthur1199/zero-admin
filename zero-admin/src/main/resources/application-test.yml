@@ -6,6 +6,7 @@ spring:
       - optional:nacos:zero-admin-mysql.yml?group=${spring.profiles.active}&refreshEnabled=true
       - optional:nacos:zero-admin-redis.yml?group=${spring.profiles.active}&refreshEnabled=true
       - optional:nacos:zero-admin-common.yml?group=${spring.profiles.active}&refreshEnabled=true
+      - optional:nacos:zero-admin-websocket.yml?group=${spring.profiles.active}&refreshEnabled=true
     # 服务模块
   devtools:
     restart:

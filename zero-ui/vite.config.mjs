@@ -31,7 +31,14 @@ export default defineConfig(({ mode }) => {
   const prefix = env.VITE_APP_BASE_API || '/dev-api'
   const target = env.VITE_DEV_PROXY_TARGET || 'http://localhost:9099'
   const proxy = {
-    [prefix]: { target, changeOrigin: true, rewrite: path => path.startsWith(prefix) ? path.slice(prefix.length) : path },
+    [prefix]: {
+      target, changeOrigin: true, ws: true,
+      // WebSocket保留浏览器访问的Host，避免代理改Host后被后端同源校验误拒绝。
+      configure: proxy => proxy.on('proxyReqWs', (proxyReq, request) => {
+        if (request.headers.host) proxyReq.setHeader('host', request.headers.host)
+      }),
+      rewrite: path => path.startsWith(prefix) ? path.slice(prefix.length) : path
+    },
     '/v3/api-docs': { target, changeOrigin: true }
   }
   return {

@@ -2,6 +2,7 @@ package com.zero.system.service.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -25,6 +26,7 @@ import com.zero.system.mapper.SysRoleMapper;
 import com.zero.system.mapper.SysRoleMenuMapper;
 import com.zero.system.mapper.SysUserRoleMapper;
 import com.zero.system.service.ISysRoleService;
+import com.zero.system.service.AdminUserRefreshService;
 
 /**
  *
@@ -40,6 +42,10 @@ public class SysRoleServiceImpl implements ISysRoleService
      */
     @Autowired
     private SysRoleMapper roleMapper;
+
+    /** 用户角色关系提交后的在线刷新通知。 */
+    @Autowired
+    private AdminUserRefreshService userRefreshService;
     /**
      * 角色菜单数据访问字段
      */
@@ -569,47 +575,61 @@ public class SysRoleServiceImpl implements ISysRoleService
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
-     * 说明: 取消授权用户角色
+     * 说明: 取消授权用户角色，成功提交后通知对应用户刷新
      * @param userRole 用户和角色关联信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：取消授权用户角色
      */
     @Override
+    @Transactional
     public int deleteAuthUser(SysUserRole userRole)
     {
-        return userRoleMapper.deleteUserRoleInfo(userRole);
+        int rows = userRoleMapper.deleteUserRoleInfo(userRole);
+        if (rows > 0)
+        {
+            userRefreshService.afterChanged(Collections.singletonList(userRole.getUserId()));
+        }
+        return rows;
     }
 
     /**
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
-     * 说明: 批量取消授权用户角色
+     * 说明: 批量取消授权用户角色，成功提交后仅通知实际关系发生变化的用户刷新
      * @param roleId 角色ID
      * @param userIds 需要取消授权的用户数据ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：批量取消授权用户角色
      */
     @Override
+    @Transactional
     public int deleteAuthUsers(Long roleId, Long[] userIds)
     {
-        return userRoleMapper.deleteUserRoleInfos(roleId, userIds);
+        List<Long> affected = userRoleMapper.selectUserIdsByRoleId(roleId, userIds);
+        int rows = userRoleMapper.deleteUserRoleInfos(roleId, userIds);
+        if (rows > 0)
+        {
+            userRefreshService.afterChanged(affected);
+        }
+        return rows;
     }
 
     /**
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
-     * 说明: 批量选择授权用户角色
+     * 说明: 批量选择授权用户角色，成功提交后通知选中用户刷新
      * @param roleId 角色ID
      * @param userIds 需要授权的用户数据ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：批量选择授权用户角色
      */
     @Override
+    @Transactional
     public int insertAuthUsers(Long roleId, Long[] userIds)
     {
         // 新增用户与角色管理
@@ -621,6 +641,11 @@ public class SysRoleServiceImpl implements ISysRoleService
             ur.setRoleId(roleId);
             list.add(ur);
         }
-        return userRoleMapper.batchUserRole(list);
+        int rows = userRoleMapper.batchUserRole(list);
+        if (rows > 0)
+        {
+            userRefreshService.afterChanged(Arrays.asList(userIds));
+        }
+        return rows;
     }
 }
