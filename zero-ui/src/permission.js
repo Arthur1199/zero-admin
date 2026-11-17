@@ -7,11 +7,22 @@ import { getToken } from '@/utils/auth'
 import { isPathMatch } from '@/utils/validate'
 import { isRelogin } from '@/utils/request'
 import { getGoogleAuthApis } from '@/api/system/apiAuth'
+import { adminWebSocket } from '@/utils/websocket'
 
 NProgress.configure({ showSpinner: false })
 const whiteList = ['/login']
 const googleAuthApisKey = 'google_auth_apis'
 let initialization
+function startWebSocket() {
+  adminWebSocket.start({
+    onAuthFailure: async token => {
+      await store.dispatch('ForceLogOut', token)
+      if (!getToken() && router.currentRoute.value.path !== '/login') await router.replace('/login')
+    },
+    onRefresh: () => window.location.reload(),
+    onError: message => console.warn(message)
+  })
+}
 async function refreshGoogleAuthApis() {
   try {
     const { data = {} } = await getGoogleAuthApis()
@@ -28,6 +39,7 @@ async function initializeRoutes() {
       await refreshGoogleAuthApis()
       resetRouter()
       addDynamicRoutes(await store.dispatch('GenerateRoutes'))
+      startWebSocket()
     } finally { isRelogin.show = false }
   })().finally(() => { initialization = undefined })
   return initialization
@@ -36,6 +48,7 @@ router.beforeEach(async to => {
   NProgress.start()
   const publicPath = whiteList.some(pattern => isPathMatch(pattern, to.path))
   if (!getToken()) {
+    adminWebSocket.stop()
     localStorage.removeItem(googleAuthApisKey)
     if (publicPath) return true
     return '/login?redirect=' + encodeURIComponent(to.fullPath)
@@ -54,6 +67,7 @@ router.beforeEach(async to => {
       return '/login'
     }
   }
+  startWebSocket()
   return true
 })
 router.afterEach(() => NProgress.done())

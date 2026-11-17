@@ -1,7 +1,12 @@
 package com.zero.common.utils.ip;
 
+import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import com.zero.common.utils.ServletUtils;
 import com.zero.common.utils.StringUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -468,5 +473,94 @@ public class IpUtils
             }
         }
         return false;
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/17
+     * 说明: 延迟缓存当前节点地址，避免每条WebSocket消息都扫描网卡，不访问外部服务
+     * @return
+     * 返回值: String
+     * 返回值说明: 优先内网IPv4，其次其它有效IPv4；无可用网卡或读取失败返回回环地址
+     */
+    public static String getLocalIpAddress()
+    {
+        return AddressHolder.ADDRESS;
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/17
+     * 说明: 只扫描启用的非回环网卡，容器网卡也保留，失败不能中断业务消息发送
+     * @return
+     * 返回值: String
+     * 返回值说明: 当前节点地址或回环兜底，未查询NAT后的公网出口IP
+     */
+    private static String resolveAddress()
+    {
+        List<InetAddress> addresses = new ArrayList<>();
+        try
+        {
+            var interfaces = NetworkInterface.getNetworkInterfaces();
+            for (NetworkInterface network : Collections.list(interfaces)) {
+                if (network.isUp() && !network.isLoopback()) {
+                    addresses.addAll(Collections.list(network.getInetAddresses()));
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            // 获取诊断信息失败时使用兜底，不记录网络环境或影响推送。
+        }
+        return selectAddress(addresses);
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/17
+     * 说明: 从网卡地址中优先选择内网IPv4，排除回环、链路本地、组播及未指定地址
+     * @param addresses 本机网卡地址，可空
+     * @return
+     * 返回值: String
+     * 返回值说明: 内网IPv4优先，无内网时选择其它有效IPv4，无候选返回回环地址
+     */
+    static String selectAddress(List<InetAddress> addresses)
+    {
+        String candidate = null;
+        if (addresses != null)
+        {
+            for (InetAddress address : addresses)
+            {
+                if (!(address instanceof Inet4Address) || address.isLoopbackAddress()
+                        || address.isAnyLocalAddress() || address.isLinkLocalAddress() || address.isMulticastAddress())
+                {
+                    continue;
+                }
+                if (address.isSiteLocalAddress())
+                {
+                    return address.getHostAddress();
+                }
+                if (candidate == null)
+                {
+                    candidate = address.getHostAddress();
+                }
+            }
+        }
+        return candidate == null ? InetAddress.getLoopbackAddress().getHostAddress() : candidate;
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/17
+     * 说明: JVM类初始化保证缓存只计算一次且对并发发送线程可见
+     */
+    private static final class AddressHolder
+    {
+        /** 当前服务节点地址，网卡变化后随应用重启重新获取。 */
+        private static final String ADDRESS = resolveAddress();
     }
 }

@@ -1,11 +1,13 @@
 package com.zero.system.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Collections;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import jakarta.validation.Validator;
 import org.slf4j.Logger;
@@ -34,6 +36,8 @@ import com.zero.system.mapper.SysUserRoleMapper;
 import com.zero.system.service.ISysConfigService;
 import com.zero.system.service.ISysDeptService;
 import com.zero.system.service.ISysUserService;
+import com.zero.system.service.AdminUserRefreshService;
+import com.zero.system.service.AdminUserLogoutService;
 
 /**
  *
@@ -54,6 +58,14 @@ public class SysUserServiceImpl implements ISysUserService
 
     @Autowired
     private SysUserMapper userMapper;
+
+    /** 用户部门、角色变更后的在线刷新通知。 */
+    @Autowired
+    private AdminUserRefreshService userRefreshService;
+
+    /** 用户禁用或删除提交后的全会话撤销和退出通知。 */
+    @Autowired
+    private AdminUserLogoutService userLogoutService;
     /**
      * 角色数据访问字段
      */
@@ -387,10 +399,10 @@ public class SysUserServiceImpl implements ISysUserService
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
-     * 说明: 修改保存用户信息
+     * 说明: 修改保存用户信息，部门角色变化通知刷新，禁用状态提交后优先通知退出
      * @param user 用户信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改保存用户信息
      */
     @Override
@@ -398,6 +410,9 @@ public class SysUserServiceImpl implements ISysUserService
     public int updateUser(SysUser user)
     {
         Long userId = user.getUserId();
+        SysUser previous = userMapper.selectUserById(userId);
+        boolean changed = previous != null && ((user.getDeptId() != null && user.getDeptId() != 0
+                && !Objects.equals(previous.getDeptId(), user.getDeptId())) || rolesChanged(previous, user.getRoleIds()));
         // 删除用户与角色关联
         userRoleMapper.deleteUserRoleByUserId(userId);
         // 新增用户与角色管理
@@ -406,14 +421,23 @@ public class SysUserServiceImpl implements ISysUserService
         userPostMapper.deleteUserPostByUserId(userId);
         // 新增用户与岗位管理
         insertUserPost(user);
-        return userMapper.updateUser(user);
+        int rows = userMapper.updateUser(user);
+        if (rows > 0 && UserConstants.USER_DISABLE.equals(user.getStatus()))
+        {
+            userLogoutService.afterUsersUnavailable(List.of(userId));
+        }
+        else if (rows > 0 && changed)
+        {
+            userRefreshService.afterChanged(List.of(userId));
+        }
+        return rows;
     }
 
     /**
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
-     * 说明: 用户授权角色
+     * 说明: 用户授权角色，角色集合变化时提交后通知该用户刷新
      * @param userId 用户ID
      * @param roleIds 角色组
      * @return
@@ -424,24 +448,36 @@ public class SysUserServiceImpl implements ISysUserService
     @Transactional
     public void insertUserAuth(Long userId, Long[] roleIds)
     {
+        SysUser previous = userMapper.selectUserById(userId);
+        boolean changed = previous != null && rolesChanged(previous, roleIds);
         userRoleMapper.deleteUserRoleByUserId(userId);
         insertUserRole(userId, roleIds);
+        if (changed)
+        {
+            userRefreshService.afterChanged(List.of(userId));
+        }
     }
 
     /**
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
-     * 说明: 修改用户状态
+     * 说明: 修改用户状态，禁用成功提交后撤销其全部会话并通知浏览器退出
      * @param user 用户信息
      * @return
      * 返回值: 结果
      * 返回值说明：修改用户状态
      */
     @Override
+    @Transactional
     public int updateUserStatus(SysUser user)
     {
-        return userMapper.updateUser(user);
+        int rows = userMapper.updateUser(user);
+        if (rows > 0 && UserConstants.USER_DISABLE.equals(user.getStatus()))
+        {
+            userLogoutService.afterUsersUnavailable(List.of(user.getUserId()));
+        }
+        return rows;
     }
 
     /**
@@ -603,7 +639,7 @@ public class SysUserServiceImpl implements ISysUserService
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
-     * 说明: 通过用户ID删除用户
+     * 说明: 通过用户ID删除用户，提交后撤销其全部会话并通知浏览器退出
      * @param userId 用户ID
      * @return
      * 返回值: 结果
@@ -617,14 +653,16 @@ public class SysUserServiceImpl implements ISysUserService
         userRoleMapper.deleteUserRoleByUserId(userId);
         // 删除用户与岗位表
         userPostMapper.deleteUserPostByUserId(userId);
-        return userMapper.deleteUserById(userId);
+        int rows = userMapper.deleteUserById(userId);
+        if (rows > 0) userLogoutService.afterUsersUnavailable(List.of(userId));
+        return rows;
     }
 
     /**
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
-     * 说明: 批量删除用户信息
+     * 说明: 批量删除用户信息，提交后撤销目标账号全部会话并通知浏览器退出
      * @param userIds 需要删除的用户ID
      * @return
      * 返回值: 结果
@@ -643,7 +681,9 @@ public class SysUserServiceImpl implements ISysUserService
         userRoleMapper.deleteUserRole(userIds);
         // 删除用户与岗位关联
         userPostMapper.deleteUserPost(userIds);
-        return userMapper.deleteUserByIds(userIds);
+        int rows = userMapper.deleteUserByIds(userIds);
+        if (rows > 0) userLogoutService.afterUsersUnavailable(Arrays.asList(userIds));
+        return rows;
     }
 
     /**
@@ -770,5 +810,24 @@ public class SysUserServiceImpl implements ISysUserService
             successMsg.insert(0, "恭喜您，数据已全部导入成功！共 " + successNum + " 条，数据如下：");
         }
         return successMsg.toString();
+    }
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/17
+     * 说明: 按角色ID集合比较实际授权变化，忽略顺序和重复项，空数组表示移除全部角色
+     * @param previous 数据库中的原用户及角色
+     * @param roleIds 本次保存的角色ID，可空
+     * @return
+     * 返回值: boolean
+     * 返回值说明: 角色集合不同时返回true
+     */
+    private boolean rolesChanged(SysUser previous, Long[] roleIds)
+    {
+        Set<Long> before = previous.getRoles() == null ? Set.of() : previous.getRoles().stream()
+                .map(SysRole::getRoleId).filter(Objects::nonNull).collect(Collectors.toSet());
+        Set<Long> after = roleIds == null ? Set.of() : Arrays.stream(roleIds)
+                .filter(Objects::nonNull).collect(Collectors.toSet());
+        return !before.equals(after);
     }
 }

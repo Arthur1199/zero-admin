@@ -23,6 +23,7 @@ import com.zero.common.enums.BusinessType;
 import com.zero.common.utils.StringUtils;
 import com.zero.system.domain.SysUserOnline;
 import com.zero.system.service.ISysUserOnlineService;
+import com.zero.system.service.AdminUserLogoutService;
 
 /**
  *
@@ -45,6 +46,10 @@ public class SysUserOnlineController extends BaseController
 
     @Autowired
     private RedisCache redisCache;
+
+    /** 精确撤销所选会话，并跨节点通知其全部标签页退出。 */
+    @Autowired
+    private AdminUserLogoutService userLogoutService;
     /**
      *
      * 作者: Arthur 亚瑟
@@ -100,7 +105,7 @@ public class SysUserOnlineController extends BaseController
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
-     * 说明: 强退用户
+     * 说明: 强退选中的登录会话并通知其客户端退出，不影响同账号其它登录会话
      * @param tokenId 令牌ID参数
      * @return
      * 返回值: AjaxResult
@@ -111,7 +116,7 @@ public class SysUserOnlineController extends BaseController
     @DeleteMapping("/{tokenId}")
     public AjaxResult forceLogout(@PathVariable String tokenId)
     {
-        redisCache.deleteObject(CacheConstants.LOGIN_TOKEN_KEY + tokenId);
+        userLogoutService.forceLogout(tokenId);
         return success();
     }
 }

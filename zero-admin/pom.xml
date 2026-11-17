@@ -293,6 +293,12 @@
             </exclusions>
         </dependency>
 
+        <!-- 管理后台原生WebSocket，与父工程Spring Boot版本保持一致。 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+
         <!-- 文档接口与现有安全链的隔离回归，不启动数据库、Redis或Nacos。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
