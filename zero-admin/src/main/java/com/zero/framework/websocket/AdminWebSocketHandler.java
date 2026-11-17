@@ -1,6 +1,8 @@
 package com.zero.framework.websocket;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -214,7 +216,7 @@ public class AdminWebSocketHandler extends TextWebSocketHandler
             if (info == WebSocketMessageType.PING_PONG)
             {
                 connection.lastActivity = System.currentTimeMillis();
-                queue(connection, () -> send(connection, WebSocketMessageVo.create(WebSocketMessageType.PING_PONG, Map.of())));
+                queue(connection, 0, () -> send(connection, WebSocketMessageVo.create(WebSocketMessageType.PING_PONG, Map.of())));
             }
             else
             {
@@ -318,6 +320,8 @@ public class AdminWebSocketHandler extends TextWebSocketHandler
                     connection.authenticated = true;
                 }
             }
+            leases.markOnline(connection.sessionId, connection.leaseId);
+            if (connection.closed) leases.release(connection.sessionId, connection.leaseId);
         }
     }
 
@@ -335,10 +339,11 @@ public class AdminWebSocketHandler extends TextWebSocketHandler
      */
     public void dispatch(boolean broadcast, Set<Long> userIds, String body)
     {
+        int bytes = body.getBytes(StandardCharsets.UTF_8).length;
         users.forEach((userId, sessions) -> {
             if (broadcast || userIds.contains(userId))
             {
-                sessions.values().forEach(items -> items.values().forEach(connection -> queue(connection, () -> {
+                sessions.values().forEach(items -> items.values().forEach(connection -> queue(connection, bytes, () -> {
                     if (valid(connection))
                     {
                         connection.socket.sendMessage(new TextMessage(body));
@@ -363,13 +368,14 @@ public class AdminWebSocketHandler extends TextWebSocketHandler
      */
     public void dispatchLogout(boolean broadcast, Set<Long> userIds, String sessionId, String body)
     {
+        int bytes = body.getBytes(StandardCharsets.UTF_8).length;
         users.forEach((userId, sessions) -> {
             if (broadcast || userIds.contains(userId))
             {
                 sessions.forEach((id, items) -> {
                     if (sessionId == null || sessionId.equals(id))
                     {
-                        items.values().forEach(connection -> queue(connection, () -> {
+                        items.values().forEach(connection -> queue(connection, bytes, () -> {
                             if (connection.authenticated && !connection.closed && connection.socket.isOpen())
                             {
                                 connection.socket.sendMessage(new TextMessage(body));
@@ -485,37 +491,84 @@ public class AdminWebSocketHandler extends TextWebSocketHandler
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/17
-     * 说明: 逐连接串行执行并等待认证响应完成；队列满时关闭对应连接，不回到Redis订阅线程发送
+     * 说明: 按本节点入队顺序排队，每连接仅提交一个消费任务；条数或字节超限时关闭慢连接
      * @param connection 发送目标
+     * @param messageBytes 业务信封UTF-8字节数，心跳为0但仍受待发送条数限制
      * @param action 不包含日志输出的发送动作
      * @return
      * 返回值: void
      * 返回值说明: 异步发送或关闭连接，失败不泄露消息正文
      */
-    private void queue(Connection connection, SendAction action)
+    private void queue(Connection connection, int messageBytes, SendAction action)
     {
-        try
+        boolean submit = false;
+        boolean overflow;
+        // 队列锁与连接写锁分离，慢连接不能阻塞Redis订阅线程入队。
+        synchronized (connection.sendLock)
         {
-            sender.execute(() -> {
-                try
+            if (connection.closed) return;
+            overflow = connection.pending.size() >= properties.sendQueueCapacity()
+                    || messageBytes > properties.sendBufferBytes() - connection.pendingBytes;
+            if (!overflow)
+            {
+                connection.pending.addLast(new PendingSend(messageBytes, action));
+                connection.pendingBytes += messageBytes;
+                if (!connection.draining)
                 {
-                    synchronized (connection)
-                    {
-                        if (!connection.closed)
-                        {
-                            action.run();
-                        }
-                    }
+                    connection.draining = true;
+                    submit = true;
                 }
-                catch (Exception e)
-                {
-                    close(connection, RETRY);
-                }
-            });
+            }
         }
-        catch (RuntimeException e)
+        if (overflow)
         {
             close(connection, RETRY);
+            return;
+        }
+        if (submit)
+        {
+            try { sender.execute(() -> drain(connection)); }
+            catch (RuntimeException e) { close(connection, RETRY); }
+        }
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/17
+     * 说明: 唯一消费任务按FIFO发送，避免多个线程竞争写锁造成消息乱序；认证完成后才执行
+     * @param connection 本节点连接，关闭后不再投递排队消息
+     * @return
+     * 返回值: void
+     * 返回值说明: 队列为空时释放消费标记，异常关闭当前连接
+     */
+    private void drain(Connection connection)
+    {
+        while (true)
+        {
+            PendingSend next;
+            synchronized (connection.sendLock)
+            {
+                if (connection.closed || connection.pending.isEmpty())
+                {
+                    connection.draining = false;
+                    return;
+                }
+                next = connection.pending.removeFirst();
+                connection.pendingBytes -= next.bytes();
+            }
+            try
+            {
+                synchronized (connection)
+                {
+                    if (!connection.closed) next.action().run();
+                }
+            }
+            catch (Exception e)
+            {
+                close(connection, RETRY);
+                return;
+            }
         }
     }
 
@@ -577,6 +630,11 @@ public class AdminWebSocketHandler extends TextWebSocketHandler
                     }
                 }
             }
+        }
+        synchronized (connection.sendLock)
+        {
+            connection.pending.clear();
+            connection.pendingBytes = 0;
         }
         try
         {
@@ -705,6 +763,14 @@ public class AdminWebSocketHandler extends TextWebSocketHandler
      */
     private static final class Connection
     {
+        /** 待发队列独立加锁，写连接时不占用该锁。 */
+        private final Object sendLock = new Object();
+        /** 当前连接已入队的发送动作，按FIFO消费。 */
+        private final ArrayDeque<PendingSend> pending = new ArrayDeque<>();
+        /** 等待发送的业务载荷字节数，由sendLock保护。 */
+        private int pendingBytes;
+        /** 是否已有消费任务，由sendLock保护。 */
+        private boolean draining;
         private final ConcurrentWebSocketSessionDecorator socket;
         private final long created = System.currentTimeMillis();
         private final String leaseId = UUID.randomUUID().toString();
@@ -727,6 +793,16 @@ public class AdminWebSocketHandler extends TextWebSocketHandler
             this.socket = socket;
         }
     }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/17
+     * 说明: 本地待发送动作及体积，不持有JWT，不进入Redis
+     * @param bytes 信封UTF-8字节数，心跳为0
+     * @param action 已完成范围筛选的发送动作
+     */
+    private record PendingSend(int bytes, SendAction action) {}
 
     /**
      *

@@ -32,10 +32,12 @@ public class WebSocketMessageVo
     private Long fromAdminId;
     /** 接收用户ID，对应sys_user.user_id；sendMsg中null表示广播，非空必须大于0。 */
     private Long toAdminId;
-    /** 事件编号、中文说明、展示形式和消息级别，统一由服务端枚举维护。 */
+    /** 事件编号、中文说明和默认展示配置由服务端枚举维护；系统通知展示默认值为null，必须提供单条displayOptions。 */
     private WebSocketMessageType msgType;
     /** 业务数据，支持文本、对象、列表或null，禁止包含Token等凭证；首帧认证使用独立的token字段。 */
     private Object msgData;
+    /** 系统通知必填的单条展示配置，其它事件必须为null，不允许覆盖枚举。 */
+    private WebSocketDisplayOptions displayOptions;
     /** 可选站内跳转路由，空字符串表示无跳转，不自动导航。 */
     @Builder.Default
     private String forwardUrl = "";

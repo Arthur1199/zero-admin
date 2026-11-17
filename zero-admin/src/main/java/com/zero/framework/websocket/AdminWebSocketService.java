@@ -197,6 +197,16 @@ public class AdminWebSocketService implements MessageListener
         {
             throw new IllegalArgumentException("发送用户必须是有效用户ID");
         }
+        // 系统通知没有枚举展示默认值，缺少单条配置必须在发布前明确拒绝，不能静默丢失。
+        if (source.getMsgType() == WebSocketMessageType.SYSTEM_NOTICE && source.getDisplayOptions() == null)
+        {
+            throw new IllegalArgumentException("系统通知必须配置展示参数");
+        }
+        if (source.getDisplayOptions() != null) {
+            if (source.getMsgType() != WebSocketMessageType.SYSTEM_NOTICE)
+                throw new IllegalArgumentException("仅系统通知允许配置展示形式");
+            source.getDisplayOptions().validate();
+        }
         WebSocketMessageType info = source.getMsgType();
         String forwardUrl = source.getForwardUrl() == null ? "" : source.getForwardUrl().trim();
         if (!forwardUrl.isEmpty() && (!forwardUrl.startsWith("/") || forwardUrl.startsWith("//")
@@ -208,7 +218,7 @@ public class AdminWebSocketService implements MessageListener
         {
             WebSocketMessageVo message = WebSocketMessageVo.builder()
                     .id(java.util.UUID.randomUUID().toString()).sendTime(System.currentTimeMillis())
-                    .msgType(info).msgData(mapper.valueToTree(source.getMsgData()))
+                    .msgType(info).msgData(mapper.valueToTree(source.getMsgData())).displayOptions(source.getDisplayOptions())
                     .senderIp(IpUtils.getLocalIpAddress())
                     .fromAdminId(source.getFromAdminId())
                     .toAdminId(!broadcast && userIds.size() == 1 ? userIds.iterator().next() : null)
@@ -263,6 +273,12 @@ public class AdminWebSocketService implements MessageListener
                     || dispatch.userIds().stream().anyMatch(id -> id == null || id <= 0))
             {
                 return;
+            }
+            if (dispatch.message().getMsgType() == WebSocketMessageType.SYSTEM_NOTICE
+                    && dispatch.message().getDisplayOptions() == null) return;
+            if (dispatch.message().getDisplayOptions() != null) {
+                if (dispatch.message().getMsgType() != WebSocketMessageType.SYSTEM_NOTICE) return;
+                dispatch.message().getDisplayOptions().validate();
             }
             String body = mapper.writeValueAsString(dispatch.message());
             if (dispatch.sessionId() != null && (dispatch.sessionId().isBlank() || dispatch.broadcast()

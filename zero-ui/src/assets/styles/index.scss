@@ -493,20 +493,20 @@ body.theme-vibrant-tech .el-select-dropdown {
 
 // 极简未来风
 body.theme-minimalist-future .el-select-dropdown {
-  background-color: #1a1a1a !important;
-  border: 1px solid #333333 !important;
+  background-color: #ffffff !important;
+  border: 1px solid rgba(0, 188, 212, 0.26) !important;
   
   .el-select-dropdown__item {
-    color: #f0f0f0 !important;
+    color: #172033 !important;
     
     &.hover, &:hover {
-      background-color: rgba(255, 255, 255, 0.05) !important;
-      color: #ffffff !important;
+      background-color: rgba(0, 188, 212, 0.10) !important;
+      color: #006c9a !important;
     }
     
     &.selected {
-      color: #ffffff !important;
-      background-color: rgba(255, 255, 255, 0.08) !important;
+      color: #006c9a !important;
+      background-color: rgba(0, 188, 212, 0.14) !important;
     }
   }
 }
@@ -2053,5 +2053,45 @@ body.theme-minimalist-future {
   .el-date-picker__header-label,
   .el-date-table th {
     color: #365065 !important;
+  }
+}
+
+// Element Plus新版弹层与内层下拉分离，不能继续依赖.el-select-dropdown.el-popper的旧结构。
+// 仅极简未来风统一可读的状态颜色，禁用项保留区别，不覆盖其他主题。
+body.theme-minimalist-future {
+  .el-select__popper, .el-tree-select__popper, .el-cascader__dropdown {
+    --el-text-color-primary: #172033;
+    --el-text-color-regular: #365065;
+    --el-text-color-placeholder: #7c91a6;
+    --el-disabled-text-color: #7c91a6;
+    --el-color-primary: #006c9a;
+    --el-tree-text-color: #172033;
+    --el-tree-expand-icon-color: #64748b;
+    --el-tree-node-hover-bg-color: rgba(0, 188, 212, 0.10);
+  }
+
+  .el-select__popper .el-select-dropdown__item,
+  .el-tree-select__popper .el-tree-node__label,
+  .el-cascader__dropdown .el-cascader-node__label {
+    color: #172033 !important;
+    opacity: 1 !important;
+  }
+
+  .el-select__popper .el-select-dropdown__item:not(.is-disabled):hover,
+  .el-select__popper .el-select-dropdown__item:not(.is-disabled).hover,
+  .el-select__popper .el-select-dropdown__item:not(.is-disabled).is-hovering,
+  .el-select__popper .el-select-dropdown__item:not(.is-disabled).selected,
+  .el-select__popper .el-select-dropdown__item:not(.is-disabled).is-selected,
+  .el-cascader__dropdown .el-cascader-node:not(.is-disabled):hover > .el-cascader-node__label,
+  .el-cascader__dropdown .el-cascader-node:not(.is-disabled).is-active > .el-cascader-node__label,
+  .el-cascader__dropdown .el-cascader-node:not(.is-disabled).in-active-path > .el-cascader-node__label {
+    color: #006c9a !important;
+  }
+
+  .el-select__popper.el-popper .el-select-dropdown__item.is-disabled,
+  .el-tree-select__popper .el-tree-node.is-disabled > .el-tree-node__content .el-tree-node__label,
+  .el-cascader__dropdown .el-cascader-node.is-disabled > .el-cascader-node__label {
+    color: #7c91a6 !important;
+    cursor: not-allowed;
   }
 }

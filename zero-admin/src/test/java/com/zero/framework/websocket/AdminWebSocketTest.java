@@ -58,6 +58,42 @@ class AdminWebSocketTest
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/17
+     * 说明: 只有系统通知允许单条展示参数，合法配置在Redis中保留且不改变枚举
+     * @return
+     * 返回值: void
+     * 返回值说明: 其它事件覆盖或非法时长在发布前拒绝
+     */
+    @Test
+    void dynamicDisplayIsRestrictedToSystemNotice() throws Exception
+    {
+        var service = new AdminWebSocketService(mock(org.springframework.data.redis.connection.RedisConnectionFactory.class), mapper, handler, properties());
+        var redis = mock(org.springframework.data.redis.core.StringRedisTemplate.class);
+        ReflectionTestUtils.setField(service, "redis", redis);
+        var options = new WebSocketDisplayOptions(WebSocketDisplayType.MESSAGE_BOX, WebSocketMessageLevel.WARNING, 0);
+        var notice = WebSocketMessageVo.builder().msgType(WebSocketMessageType.SYSTEM_NOTICE).msgData("isolated-notice").displayOptions(options).build();
+        service.sendToUser(2L, notice);
+        var body = org.mockito.ArgumentCaptor.forClass(Object.class);
+        verify(redis).convertAndSend(eq(properties().channel()), body.capture());
+        var dispatched = mapper.readValue((String) body.getValue(), AdminWebSocketService.Dispatch.class);
+        assertThat(dispatched.message().getDisplayOptions()).isEqualTo(options);
+        assertThat(WebSocketMessageType.SYSTEM_NOTICE.getDisplayType()).isNull();
+        assertThat(WebSocketMessageType.SYSTEM_NOTICE.getMessageLevel()).isNull();
+        notice.setDisplayOptions(null);
+        assertThatThrownBy(() -> service.sendToUser(2L, notice)).isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("系统通知必须配置展示参数");
+        notice.setDisplayOptions(options);
+        notice.setMsgType(WebSocketMessageType.REFRESH_BROWSER);
+        assertThatThrownBy(() -> service.sendToUser(2L, notice)).isInstanceOf(IllegalArgumentException.class);
+        notice.setMsgType(WebSocketMessageType.SYSTEM_NOTICE);
+        notice.setDisplayOptions(new WebSocketDisplayOptions(WebSocketDisplayType.MESSAGE, WebSocketMessageLevel.NORMAL, 1));
+        assertThatThrownBy(() -> service.sendToUser(2L, notice)).isInstanceOf(IllegalArgumentException.class);
+        verifyNoMoreInteractions(redis);
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/17
      * 说明: 已撤销会话仍能收到退出事件，单会话强退不能影响同用户其它会话或其它用户
      * @return
      * 返回值: void
@@ -834,7 +870,8 @@ class AdminWebSocketTest
                 new AdminWebSocketService.Dispatch(false, Set.of(), message),
                 new AdminWebSocketService.Dispatch(false, Set.of(2L), mismatched),
                 new AdminWebSocketService.Dispatch(false, Set.of(2L), message, "not-a-logout-event"),
-                new AdminWebSocketService.Dispatch(true, Set.of(), WebSocketMessageVo.create(WebSocketMessageType.LOGIN_OUT, null), "session")))
+                new AdminWebSocketService.Dispatch(true, Set.of(), WebSocketMessageVo.create(WebSocketMessageType.LOGIN_OUT, null), "session"),
+                new AdminWebSocketService.Dispatch(false, Set.of(2L), WebSocketMessageVo.create(WebSocketMessageType.SYSTEM_NOTICE, "missing-options"))))
         {
             var incoming = mock(org.springframework.data.redis.connection.Message.class);
             when(incoming.getBody()).thenReturn(mapper.writeValueAsBytes(dispatch));
@@ -851,6 +888,75 @@ class AdminWebSocketTest
                         WebSocketMessageVo.create(WebSocketMessageType.LOGIN_OUT, null), "selected")));
         service.onMessage(incoming, null);
         verify(targetHandler).dispatchLogout(eq(false), eq(Set.of(2L)), eq("selected"), anyString());
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/17
+     * 说明: 同一连接只提交一个FIFO消费任务，不依赖线程池抢锁顺序
+     * @return
+     * 返回值: void
+     * 返回值说明: 按接收顺序发送，队列排空后新任务仍可发送
+     */
+    @Test
+    void serialQueuePreservesEnqueueOrder() throws Exception
+    {
+        List<Runnable> tasks = new ArrayList<>();
+        var serial = new AdminWebSocketHandler(properties(), tokens, leases, mapper, tasks::add);
+        when(tokens.authenticateWebSocketToken(anyString())).thenReturn(user(2L, "serial-session"));
+        when(tokens.getWebSocketLoginUser("serial-session")).thenReturn(user(2L, "serial-session"));
+        when(leases.acquire(anyString(), anyString())).thenReturn(true);
+        when(leases.renew(anyString(), anyString())).thenReturn(true);
+        List<String> messages = new ArrayList<>();
+        var socket = socket("serial", messages);
+        try
+        {
+            serial.afterConnectionEstablished(socket);
+            serial.handleTextMessage(socket, new TextMessage("{\"token\":\"test\"}"));
+            serial.dispatch(true, Set.of(), "first");
+            serial.dispatch(true, Set.of(), "second");
+            assertThat(tasks).hasSize(1);
+            tasks.remove(0).run();
+            assertThat(messages.subList(1, messages.size())).containsExactly("first", "second");
+            serial.dispatch(true, Set.of(), "third");
+            assertThat(tasks).hasSize(1);
+            tasks.remove(0).run();
+            assertThat(messages.subList(1, messages.size())).containsExactly("first", "second", "third");
+        }
+        finally { serial.stop(); }
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/17
+     * 说明: 阻塞消费期间业务载荷超过连接缓冲预算时及时关闭，并丢弃旧队列
+     * @return
+     * 返回值: void
+     * 返回值说明: 不绕到订阅线程发送，也不在关闭后恢复投递
+     */
+    @Test
+    void pendingBufferOverflowClosesAndDiscardsQueue() throws Exception
+    {
+        List<Runnable> tasks = new ArrayList<>();
+        var serial = new AdminWebSocketHandler(properties(), tokens, leases, mapper, tasks::add);
+        when(tokens.authenticateWebSocketToken(anyString())).thenReturn(user(2L, "buffer-session"));
+        when(tokens.getWebSocketLoginUser("buffer-session")).thenReturn(user(2L, "buffer-session"));
+        when(leases.acquire(anyString(), anyString())).thenReturn(true);
+        List<String> messages = new ArrayList<>();
+        var socket = socket("buffer", messages);
+        try
+        {
+            serial.afterConnectionEstablished(socket);
+            serial.handleTextMessage(socket, new TextMessage("{\"token\":\"test\"}"));
+            for (int i = 0; i < 5; i++) serial.dispatch(true, Set.of(), "x".repeat(60000));
+            verify(socket).close(argThat(status -> status.getCode() == 1013));
+            assertThat(tasks).hasSize(1);
+            tasks.get(0).run();
+            assertThat(messages).hasSize(1);
+        }
+        finally { serial.stop(); }
     }
 
     /**

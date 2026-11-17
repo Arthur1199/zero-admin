@@ -190,6 +190,8 @@ insert into sys_menu values('112',  '服务监控', '121', '5', 'server',     'm
 insert into sys_menu values('113',  '缓存监控', '121', '6', 'cache',      'monitor/cache/index',      '', '', 1, 0, 'C', '0', '0', 'monitor:cache:list',      'redis',         'admin', sysdate(), '', null, '缓存监控菜单');
 insert into sys_menu values('114',  '缓存列表', '121', '7', 'cacheList',  'monitor/cache/list',       '', '', 1, 0, 'C', '0', '0', 'monitor:cache:list',      'redis-list',    'admin', sysdate(), '', null, '缓存列表菜单');
 insert into sys_menu values('127',  '实时日志', '121', '8', 'realtimeLog', 'monitor/realtimeLog/index', '', '', 1, 0, 'C', '0', '0', 'monitor:realtimeLog:list', 'log', 'admin', sysdate(), '', null, '当前管理后台进程实时日志，只读权限，包含业务日志');
+-- 系统工具首项：系统通知；页面权限不包含发送权限。
+insert into sys_menu values('128', '系统通知', '3', '0', 'systemNotice', 'systemTools/systemNotice/index', '', '', 1, 0, 'C', '0', '0', 'systemTools:systemNotice:list', 'message', 'admin', sysdate(), '', null, '仅查看系统通知页面和在线候选账号，发送需独立授权');
 insert into sys_menu values('125',  '文件管理', '3',   '1', 'fileManagement', 'systemTools/fileManagement/index', '', '', 1, 0, 'C', '0', '0', 'systemTools:fileManagement:list', 'upload', 'admin', sysdate(), '', null, '文件管理菜单');
 insert into sys_menu values('115',  '表单构建', '3',   '2', 'build',      'tool/build/index',         '', '', 1, 0, 'C', '0', '0', 'tool:build:list',         'build',         'admin', sysdate(), '', null, '表单构建菜单');
 insert into sys_menu values('116',  '代码生成', '3',   '3', 'gen',        'tool/gen/index',           '', '', 1, 0, 'C', '0', '0', 'tool:gen:list',           'code',          'admin', sysdate(), '', null, '代码生成菜单');
@@ -250,6 +252,8 @@ insert into sys_menu values('1034', '参数导出', '106', '5', '#', '', '', '',
 insert into sys_menu values('1072', '业务参数新增', '124', '1', '#', '', '', '', 1, 0, 'F', '0', '0', 'reportSystem:bizDict:add',    '#', 'admin', sysdate(), '', null, '');
 insert into sys_menu values('1073', '业务参数修改', '124', '2', '#', '', '', '', 1, 0, 'F', '0', '0', 'reportSystem:bizDict:edit',   '#', 'admin', sysdate(), '', null, '');
 insert into sys_menu values('1074', '业务参数删除', '124', '3', '#', '', '', '', 1, 0, 'F', '0', '0', 'reportSystem:bizDict:remove', '#', 'admin', sysdate(), '', null, '');
+-- 系统通知独立按钮：不自动为普通角色授权。
+insert into sys_menu values('1280', '发送通知', '128', '1', '', '', '', '', 1, 0, 'F', '0', '0', 'systemTools:systemNotice:send', '#', 'admin', sysdate(), '', null, '独立发送权限，包含向全部在线账号发送通知的能力');
 -- 文件管理按钮
 insert into sys_menu values('1076', '文件上传', '125', '1', '#', '', '', '', 1, 0, 'F', '0', '0', 'systemTools:fileManagement:add',    '#', 'admin', sysdate(), '', null, '');
 insert into sys_menu values('1078', '文件删除', '125', '2', '#', '', '', '', 1, 0, 'F', '0', '0', 'systemTools:fileManagement:remove', '#', 'admin', sysdate(), '', null, '');

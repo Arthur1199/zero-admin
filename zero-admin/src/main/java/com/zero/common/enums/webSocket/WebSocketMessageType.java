@@ -26,14 +26,18 @@ public enum WebSocketMessageType
     LOGIN_OUT(3, "退出登录", WebSocketDisplayType.NONE, WebSocketMessageLevel.NORMAL),
 
 
+
+    /** 系统通知管理菜单,通过管理后台选中用户后发送系统通知到指定在线用户,支持全部在线账号,按在线账号筛选(可选多个),按部门(部门下的在线账号)筛选,按角色筛选(拥有该角色的所有在线用户账号)筛选 */
+    SYSTEM_NOTICE(10, "系统通知", null, null),
+
     ;
     /** 稳定的事件编号，前端按该值订阅，不使用枚举序号。 */
     private final int messageType;
     /** 业务中文说明，由服务端枚举确定，不信任客户端传入的说明。 */
     private final String desc;
-    /** 展示形式：NONE不展示、NOTIFICATION右侧卡片、MESSAGE顶部提示、MESSAGE_BOX居中弹窗。 */
+    /** 展示形式：NONE不展示；系统通知为null，必须通过单条消息displayOptions配置。 */
     private final WebSocketDisplayType displayType;
-    /** 消息级别：NORMAL普通、WARNING警告、ERROR错误。 */
+    /** 消息级别：NORMAL普通、WARNING警告、ERROR错误；系统通知为null，取单条消息配置。 */
     private final WebSocketMessageLevel messageLevel;
 
     /**
@@ -43,8 +47,8 @@ public enum WebSocketMessageType
      * 说明: 定义事件编号及只读元信息，不允许运行时修改共享枚举
      * @param messageType 唯一事件编号
      * @param desc 中文说明
-     * @param displayType 前端展示形式，通信控制消息必须为NONE
-     * @param messageLevel 消息级别，普通、警告或错误
+     * @param displayType 前端展示形式，通信控制消息必须为NONE，系统通知为null并使用单条配置
+     * @param messageLevel 消息级别，普通、警告或错误，系统通知为null并使用单条配置
      */
     WebSocketMessageType(int messageType, String desc, WebSocketDisplayType displayType, WebSocketMessageLevel messageLevel)
     {
