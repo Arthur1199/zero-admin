@@ -51,7 +51,8 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
+        # 向Boot Admin开放全部可用监控端点，部署时须限制访问来源
+        include: "*"
   endpoint:
     health:
       show-details: always

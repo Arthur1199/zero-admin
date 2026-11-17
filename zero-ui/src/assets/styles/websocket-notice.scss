@@ -1,0 +1,208 @@
+@use 'sass:list';
+@use './themes/theme-variables' as notice-theme;
+
+// 仅系统通知摘要使用，颜色与背景继续由Element Plus及当前主题控制。
+.el-message.admin-ws-notice-message {
+  width: min(600px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+  align-items: flex-start;
+
+  .el-message__content {
+    flex: 1;
+    min-width: 0;
+    padding-right: 12px;
+    // 正文沿用主题文本色，级别颜色仅保留在图标，浅色主题也能正常阅读。
+    color: inherit;
+  }
+
+  .el-message__icon { margin-top: 3px; }
+  .el-message__closeBtn { top: 18px; transform: none; }
+
+}
+
+.el-notification.admin-ws-notice-card {
+  max-width: calc(100vw - 32px);
+
+  .el-notification__group { flex: 1; min-width: 0; }
+  .el-notification__content { text-align: left; }
+  .el-notification__title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-right: 22px;
+  }
+}
+
+.admin-ws-notice-summary {
+  min-width: 0;
+
+  .admin-ws-notice-summary__title {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.6;
+    margin-bottom: 4px;
+  }
+
+  .admin-ws-notice-summary__text {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+    line-height: 1.6;
+    max-height: 3.2em;
+  }
+}
+
+// 图文详情只作用于通知正文，不改变公告编辑器或全局弹窗。
+.system-notice-editor { color: var(--el-text-color-primary); }
+
+$notice-editor-themes: (
+  luxury-business: (notice-theme.$theme-luxury-business-text-primary, notice-theme.$theme-luxury-business-bg-card, notice-theme.$theme-luxury-business-border),
+  glassmorphism: (notice-theme.$theme-glassmorphism-text-primary, notice-theme.$theme-glassmorphism-bg-card, notice-theme.$theme-glassmorphism-border),
+  vibrant-tech: (notice-theme.$theme-vibrant-tech-text-primary, notice-theme.$theme-vibrant-tech-bg-card, notice-theme.$theme-vibrant-tech-border),
+  minimalist-future: (notice-theme.$theme-minimalist-future-text-primary, notice-theme.$theme-minimalist-future-bg-card, notice-theme.$theme-minimalist-future-border),
+  warm-nature: (notice-theme.$theme-warm-nature-text-primary, notice-theme.$theme-warm-nature-bg-card, notice-theme.$theme-warm-nature-border),
+  material-design: (notice-theme.$theme-material-design-text-primary, notice-theme.$theme-material-design-bg-card, notice-theme.$theme-material-design-border),
+  dark-premium: (notice-theme.$theme-dark-premium-text-primary, notice-theme.$theme-dark-premium-bg-card, notice-theme.$theme-dark-premium-border)
+);
+
+@each $name, $colors in $notice-editor-themes {
+  body.theme-#{$name} .admin-ws-rich-content {
+    color: list.nth($colors, 1);
+  }
+  body.theme-#{$name} .system-notice-editor {
+    --notice-editor-text: #{list.nth($colors, 1)};
+    --notice-editor-bg: #{list.nth($colors, 2)};
+    color: list.nth($colors, 1);
+    .ql-picker-options, .ql-tooltip {
+      color: list.nth($colors, 1);
+      background: list.nth($colors, 2);
+    }
+  }
+}
+
+.system-notice-editor .ql-toolbar.ql-snow {
+  color: var(--notice-editor-text, var(--el-text-color-primary));
+  // 原生button默认黑字，SVG的currentColor必须从按钮继续继承主题文字色。
+  button { color: inherit; }
+  .ql-picker { color: inherit; }
+  .ql-stroke { stroke: currentColor; }
+  .ql-fill { fill: currentColor; }
+  .ql-picker-options {
+    color: var(--notice-editor-text, var(--el-text-color-primary));
+    background: var(--notice-editor-bg, var(--el-bg-color-overlay));
+  }
+}
+
+.system-notice-editor .ql-editor {
+  color: var(--notice-editor-text, var(--el-text-color-primary));
+  &.ql-blank::before {
+    color: var(--notice-editor-text, var(--el-text-color-secondary));
+    opacity: 0.65;
+  }
+}
+
+.admin-ws-rich-content {
+  color: var(--el-text-color-primary);
+  white-space: normal;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  img { max-width: 100%; height: auto; vertical-align: middle; }
+  p, blockquote, pre, ul, ol { margin: 0 0 0.8em; }
+  ul, ol { padding-left: 1.8em; }
+  li[data-list='bullet'] { list-style-type: disc; }
+  li[data-list='ordered'] { list-style-type: decimal; }
+  pre { white-space: pre-wrap; padding: 8px; background: rgba(128, 128, 128, 0.12); }
+  blockquote { margin-left: 0; padding-left: 12px; border-left: 3px solid rgba(128, 128, 128, 0.4); }
+  a { text-decoration: underline; }
+  .ql-align-center { text-align: center; }
+  .ql-align-right { text-align: right; }
+  .ql-align-justify { text-align: justify; }
+  .ql-size-small { font-size: 0.75em; }
+  .ql-size-large { font-size: 1.5em; }
+  .ql-size-huge { font-size: 2em; }
+  .ql-font-serif { font-family: Georgia, serif; }
+  .ql-font-monospace { font-family: monospace; }
+  @for $indent from 1 through 8 { .ql-indent-#{$indent} { padding-left: $indent * 2em; } }
+}
+
+// 所有主题仅统一本模块顶部和右侧卡片，普通HTTP提示、公告编辑器保持原样。
+@mixin notice-surface($text, $background, $border) {
+  background: $background !important;
+  border: 1px solid $border !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+  padding: 14px 20px;
+  color: $text !important;
+  .el-message__content, .el-notification__content, .el-notification__title,
+  .admin-ws-notice-summary, .el-message__closeBtn, .el-notification__closeBtn {
+    color: $text !important;
+    text-shadow: none !important;
+  }
+  .admin-ws-notice-summary { font-size: 14px; }
+  .admin-ws-notice-summary__title, .el-notification__title {
+    font-size: 16px !important;
+    font-weight: 600;
+    line-height: 1.6;
+    margin: 0 0 4px;
+  }
+  .el-message__icon, .el-notification__icon { font-size: 24px; }
+  .admin-ws-notice-summary .el-button.is-link {
+    color: $text !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    text-decoration: underline;
+    &:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+  }
+}
+
+body .el-message.admin-ws-notice-message,
+body .el-notification.admin-ws-notice-card {
+  @include notice-surface(var(--el-text-color-primary), var(--el-bg-color-overlay), var(--el-border-color-light));
+}
+@each $name, $colors in $notice-editor-themes {
+  // 玻璃弹层采用带透明度的深底，避免页面渐变或白色表单透过后降低白字对比度。
+  $surface: list.nth($colors, 2);
+  @if $name == glassmorphism { $surface: rgba(24, 31, 66, 0.96); }
+  body.theme-#{$name} .el-message.admin-ws-notice-message,
+  body.theme-#{$name} .el-notification.admin-ws-notice-card {
+    @include notice-surface(list.nth($colors, 1), $surface, list.nth($colors, 3));
+  }
+}
+
+// 深色主题主色可能接近黑色，编辑器的交互态继续使用可读文字色并用底纹区分。
+.system-notice-editor .ql-toolbar.ql-snow {
+  button:hover, button.ql-active, .ql-picker-label:hover, .ql-picker-label.ql-active,
+  .ql-picker-item:hover, .ql-picker-item.ql-selected {
+    color: var(--notice-editor-text, var(--el-text-color-primary)) !important;
+    .ql-stroke { stroke: currentColor; }
+    .ql-fill { fill: currentColor; }
+  }
+  button:hover, button.ql-active, .ql-picker-label:hover, .ql-picker-label.ql-active {
+    background: rgba(128, 128, 128, 0.18);
+  }
+  button:focus-visible, .ql-picker-label:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 1px;
+  }
+}
+body.theme-glassmorphism .system-notice-editor {
+  --notice-editor-bg: rgba(24, 31, 66, 0.96);
+  .ql-toolbar.ql-snow, .ql-container.ql-snow { background: rgba(24, 31, 66, 0.88); }
+  .ql-picker-options, .ql-tooltip { background: var(--notice-editor-bg); }
+}
+
+// 固定本模块内的层级关系，后到的通知不能利用递增z-index盖住已打开的详情。
+.el-message.admin-ws-notice-message,
+.el-notification.admin-ws-notice-card {
+  z-index: var(--el-index-popper, 2000) !important;
+}
+.el-overlay.admin-ws-notice-dialog-overlay {
+  z-index: calc(var(--el-index-popper, 2000) + 1) !important;
+}

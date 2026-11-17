@@ -1307,8 +1307,9 @@ body.theme-warm-nature {
 
     .el-select-dropdown__item {
       color: #6d5c47 !important;
-      padding: 10px 15px;
-      transition: all 0.3s;
+      // 选项使用组件自身行高，上下padding会把文字挤到背景底部。
+      padding: 0 15px;
+      transition: background-color 0.3s, color 0.3s;
 
       &.hover,
       &:hover {
@@ -2069,5 +2070,21 @@ body.theme-warm-nature .el-menu--popup li.el-menu-item.is-active {
         background-color: rgba(232, 156, 92, 0.08);
       }
     }
+  }
+}
+
+// TreeSelect复用普通下拉选项：节点固定行高内不能再叠加主题的上下padding。
+// 只修复挂在body下的树形下拉，保留组件行高、节点缩进和普通下拉框样式。
+body.theme-warm-nature .el-tree-select__popper {
+  .el-tree-node__content {
+    padding-top: 0;
+    padding-bottom: 0;
+    transition-property: background-color, color;
+  }
+
+  .el-tree-node__content .el-select-dropdown__item {
+    padding: 0;
+    min-width: 0;
+    transition-property: background-color, color;
   }
 }

@@ -128,6 +128,31 @@ class AdminWebSocketIntegrationTest
                 assertThat(first.next().path("msgType").path("messageType").asInt()).isEqualTo(0);
                 assertThat(second.next().path("msgType").path("messageType").asInt()).isEqualTo(0);
                 assertThat(third.next().path("msgType").path("messageType").asInt()).isEqualTo(0);
+                // 新在线索引只登记认证完成连接，允许ACK到达后Redis登记的极短窗口。
+                long deadline=System.currentTimeMillis()+5000;
+                while (a.getBean(AdminWebSocketLease.class).onlineSessions().size()<2 && System.currentTimeMillis()<deadline) Thread.sleep(20);
+                assertThat(b.getBean(AdminWebSocketLease.class).onlineSessions()).contains(user.getToken(),other.getToken());
+                var noticeMapper=mock(com.zero.system.mapper.SystemNoticeMapper.class);
+                when(noticeMapper.selectTargets(org.mockito.ArgumentMatchers.anyCollection(),org.mockito.ArgumentMatchers.any(),org.mockito.ArgumentMatchers.isNull()))
+                    .thenAnswer(invocation -> ((java.util.Collection<Long>)invocation.getArgument(0)).stream().map(target -> {
+                        var account=new com.zero.system.domain.SystemNoticeUser();account.setUserId(target);return account;
+                    }).toList());
+                var noticeService=new com.zero.system.service.SystemNoticeService(a.getBean(AdminWebSocketLease.class),a.getBean(TokenService.class),
+                    noticeMapper,a.getBean(AdminWebSocketService.class));
+                var systemNoticeRequest=new com.zero.system.domain.SystemNoticeRequest();systemNoticeRequest.setTargetType(com.zero.system.domain.SystemNoticeRequest.TargetType.ALL);
+                systemNoticeRequest.setTitle("隔离通知");systemNoticeRequest.setContent("<p><strong>隔离图文通知</strong></p><img src='/profile/isolated.png' onerror='alert(1)'>");systemNoticeRequest.setDuration(0);
+                systemNoticeRequest.setContentFormat(com.zero.system.domain.SystemNoticeRequest.ContentFormat.HTML);
+                systemNoticeRequest.setMessageLevel(com.zero.common.enums.webSocket.WebSocketMessageLevel.WARNING);
+                assertThat(noticeService.send(systemNoticeRequest,22L)).containsEntry("submittedCount",2);
+                for (Client client:List.of(first,second,third)) {
+                    JsonNode message=client.next();
+                    assertThat(message.path("msgType").path("messageType").asInt()).isEqualTo(10);
+                    assertThat(message.path("displayOptions").path("messageLevel").asText()).isEqualTo("WARNING");
+                    assertThat(message.path("displayOptions").path("duration").asLong()).isZero();
+                    assertThat(message.path("msgData").path("contentFormat").asText()).isEqualTo("HTML");
+                    assertThat(message.path("msgData").path("content").asText()).contains("<strong>","/profile/isolated.png").doesNotContain("onerror");
+                    assertThat(message.has("sessionId")).isFalse();
+                }
                 String id = a.getBean(AdminWebSocketService.class).sendMsg(WebSocketMessageVo.builder().msgType(WebSocketMessageType.REFRESH_BROWSER)
                         .toAdminId(21L).fromAdminId(22L).senderIp("isolated-node-a")
                         .msgData(Map.of("value", 1)).forwardUrl("/orders/detail").build());
@@ -233,7 +258,7 @@ class AdminWebSocketIntegrationTest
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/17
-     * 说明: 验证真实握手来源校验、无首帧认证超时以及伪造凭证拒绝
+     * 说明: 验证真实握手来源校验、默认5秒首帧认证超时以及伪造凭证拒绝，预留维护调度时间
      * @return
      * 返回值: void
      * 返回值说明: 非可信来源无法升级，未认证连接不能接收业务广播
@@ -252,7 +277,7 @@ class AdminWebSocketIntegrationTest
             {
                 node.getBean(AdminWebSocketService.class).broadcast(WebSocketMessageVo.create(WebSocketMessageType.REFRESH_BROWSER, Map.of()));
                 assertThat(pending.messages.poll(200, TimeUnit.MILLISECONDS)).isNull();
-                assertThat(pending.closes.poll(5, TimeUnit.SECONDS)).isEqualTo(1013);
+                assertThat(pending.closes.poll(8, TimeUnit.SECONDS)).isEqualTo(1013);
             }
             try (Client forged = connect(node, "invalid-isolated-test-token"))
             {
@@ -338,7 +363,7 @@ class AdminWebSocketIntegrationTest
     {
         var context = new AnnotationConfigServletWebServerApplicationContext();
         context.getEnvironment().getPropertySources().addFirst(new MapPropertySource("isolated-websocket-test", Map.of(
-                "zero.websocket.channel", channel, "zero.websocket.auth-timeout", "1000",
+                "zero.websocket.channel", channel, "zero.websocket.auth-timeout", "5000",
                 "zero.websocket.max-connections-per-session", "2", "token.header", "Authorization",
                 "token.secret", "isolated-websocket-integration-secret", "token.expireTime", "30")));
         context.getBeanFactory().registerSingleton("userDetailsService", mock(UserDetailsService.class));

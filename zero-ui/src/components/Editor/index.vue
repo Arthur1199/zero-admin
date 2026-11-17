@@ -30,8 +30,14 @@ import { isExternal } from "@/utils/validate"
 
 export default {
   name: "Editor",
-  emits: ['update:modelValue', 'on-change', 'on-text-change', 'on-selection-change', 'on-editor-change'],
+  emits: ['update:modelValue', 'on-change', 'on-text-change', 'on-selection-change', 'on-editor-change', 'uploading-change'],
   props: {
+    /* 可选工具栏，仅通知等特定场景定制，默认公告工具栏保持原样。 */
+    toolbar: { type: Array, default: null },
+    /* 可选上传适配器，返回现有上传响应；未提供时保留原上传流程。 */
+    uploadRequest: { type: Function, default: null },
+    /* 可选图片类型限制，不改变已有调用方支持的格式。 */
+    imageTypes: { type: Array, default: null },
     /* 编辑器的内容 */
     modelValue: {
       type: String,
@@ -71,13 +77,14 @@ export default {
       },
       Quill: null,
       currentValue: "",
+      uploadsPending: 0,
       options: {
         theme: "snow",
         bounds: document.body,
         debug: "warn",
         modules: {
           // 工具栏配置
-          toolbar: [
+          toolbar: this.toolbar || [
             ["bold", "italic", "underline", "strike"],       // 加粗 斜体 下划线 删除线
             ["blockquote", "code-block"],                    // 引用  代码块
             [{ list: "ordered" }, { list: "bullet" }],       // 有序、无序列表
@@ -108,6 +115,7 @@ export default {
     }
   },
   watch: {
+    readOnly(value) { this.Quill?.enable(!value) },
     modelValue: {
       handler(val) {
         if (val !== this.currentValue) {
@@ -172,7 +180,7 @@ export default {
     },
     // 上传前校检格式和大小
     handleBeforeUpload(file) {
-      const type = ["image/jpeg", "image/jpg", "image/png", "image/svg"]
+      const type = this.imageTypes || ["image/jpeg", "image/jpg", "image/png", "image/svg"]
       const isJPG = type.includes(file.type)
       // 检验文件格式
       if (!isJPG) {
@@ -228,6 +236,15 @@ export default {
     },
     insertImage(file) {
       if (!file) return
+      if (this.uploadRequest) {
+        this.uploadsPending++
+        this.$emit('uploading-change', this.uploadsPending)
+        Promise.resolve().then(() => this.uploadRequest(file))
+          .then(response => { if (this.Quill) this.handleUploadSuccess(response) })
+          .catch(() => { if (this.Quill) this.handleUploadError() })
+          .finally(() => { this.uploadsPending--; this.$emit('uploading-change', this.uploadsPending) })
+        return
+      }
       const formData = new FormData()
       formData.append("file", file)
       axios.post(this.uploadUrl, formData, { headers: { "Content-Type": "multipart/form-data", Authorization: this.headers.Authorization } }).then(res => {

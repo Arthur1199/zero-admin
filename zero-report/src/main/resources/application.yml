@@ -65,8 +65,8 @@ management:
   endpoints:
     web:
       exposure:
-        # 微服务监控页需要读取 /actuator/metrics/** 采集CPU、内存、线程和GC指标
-        include: health,info,metrics
+        # 向Boot Admin开放全部可用监控端点，部署时须限制访问来源
+        include: "*"
   endpoint:
     health:
       show-details: always

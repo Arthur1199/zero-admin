@@ -4,7 +4,7 @@ export const WebSocketMessageType = Object.freeze({
   PING_PONG: 1,
   REFRESH_BROWSER: 2,
   LOGIN_OUT: 3,
-  SYSTEM_NOTICE: 100,
+  SYSTEM_NOTICE: 10,
   ORDER_CHANGED: 101,
   TASK_COMPLETED: 102
 })

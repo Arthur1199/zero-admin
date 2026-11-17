@@ -29,6 +29,15 @@ public class AdminWebSocketLease
             + "if not score or tonumber(score)<=now then return 0 end; "
             + "redis.call('zadd',KEYS[1],now+tonumber(ARGV[1]),ARGV[2]); "
             + "redis.call('pexpire',KEYS[1],ARGV[1]); return 1", Long.class);
+    /** 已认证索引使用Redis统一时间，独立于配额，宕机后自然到期。 */
+    private static final DefaultRedisScript<Long> ONLINE = new DefaultRedisScript<>(
+        "local t=redis.call('TIME'); local n=tonumber(t[1])*1000+math.floor(tonumber(t[2])/1000); "
+        + "redis.call('zremrangebyscore',KEYS[1],'-inf',n); redis.call('zadd',KEYS[1],n+tonumber(ARGV[1]),ARGV[2]); "
+        + "redis.call('pexpire',KEYS[1],ARGV[1]); return 1", Long.class);
+    /** 只统计有效在线成员，不延长登录缓存。 */
+    private static final DefaultRedisScript<Long> ONLINE_COUNT = new DefaultRedisScript<>(
+        "local t=redis.call('TIME'); local n=tonumber(t[1])*1000+math.floor(tonumber(t[2])/1000); "
+        + "return redis.call('zcount',KEYS[1],'('..n,'+inf')", Long.class);
     private final StringRedisTemplate redis;
     private final AdminWebSocketProperties properties;
 
@@ -78,7 +87,9 @@ public class AdminWebSocketLease
     public boolean renew(String sessionId, String connectionId)
     {
         long ttl = leaseTtl();
-        return Long.valueOf(1).equals(redis.execute(RENEW, List.of(key(sessionId)), Long.toString(ttl), connectionId));
+        boolean valid = Long.valueOf(1).equals(redis.execute(RENEW, List.of(key(sessionId)), Long.toString(ttl), connectionId));
+        if (valid) markOnline(sessionId, connectionId);
+        return valid;
     }
 
     /**
@@ -95,6 +106,7 @@ public class AdminWebSocketLease
     public void release(String sessionId, String connectionId)
     {
         redis.opsForZSet().remove(key(sessionId), connectionId);
+        redis.opsForZSet().remove(onlinePrefix() + sessionId, connectionId);
     }
 
     /**
@@ -125,4 +137,53 @@ public class AdminWebSocketLease
     {
         return properties.channel() + ":connections:" + sessionId;
     }
+
+/**
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/17
+ * 说明: 登记认证完成连接；Redis失败由调用方关闭连接
+ * @param sessionId 已验签会话编号
+ * @param connectionId 全局连接编号
+ * @return
+ * 返回值: void
+ * 返回值说明: 完成操作或拒绝非法参数
+ */
+
+    public void markOnline(String sessionId, String connectionId) {
+        redis.execute(ONLINE, List.of(onlinePrefix() + sessionId), Long.toString(leaseTtl()), connectionId);
+    }
+/**
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/17
+ * 说明: 跨节点分批读取有效在线会话，调用方仍须核对登录缓存
+ * @return
+ * 返回值: java.util.Set<String>
+ * 返回值说明: 仅服务端使用的会话编号集合
+ */
+
+    public java.util.Set<String> onlineSessions() {
+        java.util.Set<String> sessions = new java.util.HashSet<>();
+        String prefix = onlinePrefix();
+        try (var cursor = redis.scan(org.springframework.data.redis.core.ScanOptions.scanOptions().match(prefix + "*").count(200).build())) {
+            while (cursor.hasNext()) {
+                String key = cursor.next();
+                Long count = redis.execute(ONLINE_COUNT, List.of(key));
+                if (count != null && count > 0) sessions.add(key.substring(prefix.length()));
+            }
+        }
+        return sessions;
+    }
+/**
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/17
+ * 说明: 环境隔离的已认证在线索引前缀
+ * @return
+ * 返回值: String
+ * 返回值说明: 不含JWT的Redis键前缀
+ */
+
+    private String onlinePrefix() { return properties.channel() + ":online:"; }
 }
