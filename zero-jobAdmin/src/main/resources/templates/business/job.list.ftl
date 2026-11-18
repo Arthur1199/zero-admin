@@ -9,10 +9,11 @@
 	<link rel="stylesheet" href="${request.contextPath}/static/adminlte/bower_components/select2/select2.min.css">
 	<@netCommon.commonStyle />
 	<link rel="stylesheet" href="${request.contextPath}/static/plugins/bootstrap-table/bootstrap-table.min.css">
+	<link rel="stylesheet" href="${request.contextPath}/static/framework/job-list.css?v=${I18n.admin_version}&amp;layout=3">
 	<!-- 1-style end -->
 
 </head>
-<body class="hold-transition" style="background-color: #ecf0f5;">
+<body class="hold-transition zero-job-tab-page">
 <div class="wrapper">
 	<section class="content">
 
@@ -28,7 +29,7 @@
 							<span class="input-group-addon">${I18n.jobinfo_field_jobgroup}</span>
 							<select class="form-control" id="jobGroup" >
 								<#list JobGroupList as group>
-									<option value="${group.id}" <#if jobGroup==group.id>selected</#if> >${group.name}</option>
+								<option value="${group.id?c}" <#if jobGroup==group.id>selected</#if> >${group.name?html}</option>
 								</#list>
 							</select>
 						</div>
@@ -114,7 +115,7 @@
 								<div class="col-sm-4">
 									<select class="form-control" name="jobGroup" >
 										<#list JobGroupList as group>
-											<option value="${group.id}" <#if jobGroup==group.id>selected</#if> >${group.name}</option>
+										<option value="${group.id?c}" <#if jobGroup==group.id>selected</#if> >${group.name?html}</option>
 										</#list>
 									</select>
 								</div>
@@ -374,7 +375,7 @@ exit 0
 								<div class="col-sm-4">
 									<select class="form-control" name="jobGroup" >
 										<#list JobGroupList as group>
-											<option value="${group.id}" >${group.name}</option>
+										<option value="${group.id?c}" >${group.name?html}</option>
 										</#list>
 									</select>
 								</div>
@@ -501,35 +502,57 @@ exit 0
 		</div>
 
 		<#-- trigger -->
-		<div class="modal fade" id="jobTriggerModal" tabindex="-1" role="dialog"  aria-hidden="true">
+		<div class="modal fade" id="jobTriggerModal" tabindex="-1" role="dialog" aria-labelledby="jobTriggerTitle">
 			<div class="modal-dialog ">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h4 class="modal-title" >${I18n.jobinfo_opt_run}</h4>
+						<h4 class="modal-title" id="jobTriggerTitle">${I18n.jobinfo_opt_run}</h4>
 					</div>
 					<div class="modal-body">
 						<form class="form-horizontal form" role="form" >
 							<div class="form-group">
-								<label for="firstname" class="col-sm-2 control-label">${I18n.jobinfo_field_executorparam}<font color="black">*</font></label>
+								<label for="jobTriggerParam" class="col-sm-2 control-label">${I18n.jobinfo_field_executorparam}</label>
 								<div class="col-sm-9">
-									<textarea class="textarea form-control" name="executorParam" placeholder="${I18n.system_please_input}${I18n.jobinfo_field_executorparam}" maxlength="2048" style="height: 70px; line-height: 1.2;"></textarea>
+									<textarea id="jobTriggerParam" class="textarea form-control" name="executorParam" placeholder="${I18n.system_please_input}${I18n.jobinfo_field_executorparam}" maxlength="2048" style="height: 70px; line-height: 1.2;"></textarea>
 								</div>
 							</div>
 							<div class="form-group">
-								<label for="firstname" class="col-sm-2 control-label">${I18n.jobgroup_field_registryList}<font color="black">*</font></label>
+								<label for="jobTriggerAddresses" class="col-sm-2 control-label">${I18n.jobgroup_field_registryList}</label>
 								<div class="col-sm-9">
-									<textarea class="textarea form-control" name="addressList" placeholder="${I18n.jobinfo_opt_run_tips}" maxlength="512" style="height: 63px; line-height: 1.2;"></textarea>
+									<textarea id="jobTriggerAddresses" class="textarea form-control" name="addressList" placeholder="${I18n.jobinfo_opt_run_tips}" maxlength="512" style="height: 63px; line-height: 1.2;"></textarea>
 								</div>
 							</div>
+							<p id="jobTriggerStatus" class="text-muted" role="status"></p>
 							<hr>
 							<div class="form-group">
 								<div class="col-sm-offset-4 col-sm-4">
-									<button type="button" class="btn btn-primary ok" >${I18n.system_save}</button>
+									<button type="button" class="btn btn-primary ok">${I18n.jobinfo_opt_run}</button>
 									<button type="button" class="btn btn-default" data-dismiss="modal">${I18n.system_cancel}</button>
 									<input type="hidden" name="id" >
 								</div>
 							</div>
 						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="jobPreviewModal" tabindex="-1" role="dialog" aria-labelledby="jobPreviewTitle">
+			<div class="modal-dialog modal-sm" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="${I18n.system_close}"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="jobPreviewTitle">${I18n.jobinfo_opt_next_time}</h4>
+					</div>
+					<div class="modal-body">
+						<p id="jobPreviewTask" class="job-preview-task"></p>
+						<div id="jobPreviewResult" aria-live="polite">
+							<p id="jobPreviewStatus" class="text-muted" role="status"></p>
+							<ol id="jobPreviewTimes" class="job-preview-times" tabindex="0" hidden></ol>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">${I18n.system_close}</button>
 					</div>
 				</div>
 			</div>
@@ -572,13 +595,17 @@ exit 0
 		});
 
 		// reset filter
-		var jobGroup = '${jobGroup}';
+		var jobGroup = '${jobGroup?c}';
 		function resetFilter(){
 			if (jobGroup > 0) {
-				$("#jobGroup").val( jobGroup );
+				$("#jobGroup").val(jobGroup).trigger('change.select2');
 			}
 		}
 		resetFilter();
+
+		function renderCellText(value) {
+			return $('<span>').text(value == null ? '' : value).prop('outerHTML');
+		}
 
 		// ---------------------- table ----------------------
 
@@ -629,12 +656,8 @@ exit 0
 					width: '30',
 					widthUnit: '%',
 					align: 'left',
-					formatter: function(value, row, index) {
-						if (value.length > 20) {
-							return '<span title="' + value + '">' + value.substr(0, 20) + '...</span>';
-						} else {
-							return value;
-						}
+					formatter: function(value) {
+						return $('<span class="job-name-cell">').attr('title', value || '').text(value || '').prop('outerHTML');
 					}
 				},{
 					title: I18n.schedule_type,
@@ -643,9 +666,9 @@ exit 0
 					widthUnit: '%',
 					formatter: function(value, row, index) {
 						if (row.scheduleConf) {
-							return row.scheduleType + '：'+ row.scheduleConf;
+							return renderCellText(row.scheduleType + '：' + row.scheduleConf);
 						} else {
-							return row.scheduleType;
+							return renderCellText(row.scheduleType);
 						}
 					}
 				},{
@@ -664,9 +687,9 @@ exit 0
 
 						// append handler
 						if (row.executorHandler) {
-							return glueTypeTitle +"：" + row.executorHandler;
+							return renderCellText(glueTypeTitle + "：" + row.executorHandler);
 						} else {
-							return glueTypeTitle;
+							return renderCellText(glueTypeTitle);
 						}
 					}
 				},{
@@ -687,7 +710,8 @@ exit 0
 					title: I18n.jobinfo_field_author,
 					field: 'author',
 					width: '10',
-					widthUnit: '%'
+					widthUnit: '%',
+					formatter: renderCellText
 				}
 			]
 		});
@@ -747,111 +771,74 @@ exit 0
 			});
 		});
 
-		// ---------------------- start  ----------------------
+		// ---------------------- start and stop ----------------------
 
-		/**
-		 * start
-		 */
-		$("#data_operation").on('click', '.job_resume',function() {
-			// get select rows
-			var rows = $.adminTable.table.bootstrapTable('getSelections');
+		var jobActionTimeoutMs = 30000;
+		var jobStateActionPending = false;
 
-			// find select ids
-			const selectIds = (rows && rows.length > 0) ? rows.map(row => row.id) : [];
-			if (selectIds.length !== 1) {
+		$("#data_operation").on('click', '.job_resume', function () {
+			changeJobState('/jobinfo/start', I18n.jobinfo_opt_start);
+		}).on('click', '.job_pause', function () {
+			changeJobState('/jobinfo/stop', I18n.jobinfo_opt_stop);
+		});
+
+		function changeJobState(url, action) {
+			if (jobStateActionPending) {
+				return;
+			}
+			var ids = $.adminTable.selectIds();
+			if (ids.length !== 1) {
 				layer.msg(I18n.system_please_choose + I18n.system_one + I18n.system_data);
 				return;
 			}
 
-			// invoke
-			layer.confirm( I18n.system_ok + I18n.jobinfo_opt_start + '?', {
+			var submitted = false;
+			jobStateActionPending = true;
+			layer.confirm(I18n.system_ok + action + '?', {
 				icon: 3,
-				title: I18n.system_tips ,
-				btn: [ I18n.system_ok, I18n.system_cancel ]
-			}, function(index){
+				title: I18n.system_tips,
+				btn: [I18n.system_ok, I18n.system_cancel],
+				end: function () {
+					if (!submitted) {
+						jobStateActionPending = false;
+					}
+				}
+			}, function (index) {
+				if (submitted) {
+					return;
+				}
+				submitted = true;
 				layer.close(index);
 
 				$.ajax({
-					type : 'POST',
-					url : base_url + "/jobinfo/start",
-					data : {
-						"ids" : selectIds
+					type: 'POST',
+					url: base_url + url,
+					data: { ids: ids },
+					dataType: 'json',
+					timeout: jobActionTimeoutMs,
+					success: function (data) {
+						var confirmed = data && Number(data.code) === 200;
+						var message = confirmed ? action + I18n.system_success
+							: (data && data.msg) || action + I18n.system_fail;
+						layer.msg($('<span>').text(message).html());
 					},
-					dataType : "json",
-					success : function(data){
-						if (data.code === 200) {
-							layer.msg( I18n.jobinfo_opt_start + I18n.system_success );
-							// refresh table
-							$('#data_filter .searchBtn').click();
-						} else {
-							layer.msg( data.msg || I18n.jobinfo_opt_start + I18n.system_fail );
-						}
+					error: function () {
+						layer.msg(I18n.jobinfo_state_unconfirmed);
 					},
-					error: function(xhr, status, error) {
-						// Handle error
-						console.log("Error: " + error);
-						layer.open({
-							icon: '2',
-							content: (I18n.jobinfo_opt_start + I18n.system_fail)
-						});
+					complete: function () {
+						jobStateActionPending = false;
+						$('#data_filter .searchBtn').click();
 					}
 				});
 			});
-		});
-
-		// ---------------------- stop ----------------------
-
-		/**
-		 * stop
-		 */
-		$("#data_operation").on('click', '.job_pause',function() {
-			// get select rows
-			var rows = $.adminTable.table.bootstrapTable('getSelections');
-
-			// find select ids
-			const selectIds = (rows && rows.length > 0) ? rows.map(row => row.id) : [];
-			if (selectIds.length !== 1) {
-				layer.msg(I18n.system_please_choose + I18n.system_one + I18n.system_data);
-				return;
-			}
-
-			// invoke
-			layer.confirm( I18n.system_ok + I18n.jobinfo_opt_stop + '?', {
-				icon: 3,
-				title: I18n.system_tips ,
-				btn: [ I18n.system_ok, I18n.system_cancel ]
-			}, function(index){
-				layer.close(index);
-
-				$.ajax({
-					type : 'POST',
-					url : base_url + "/jobinfo/stop",
-					data : {
-						"ids" : selectIds
-					},
-					dataType : "json",
-					success : function(data){
-						if (data.code === 200) {
-							layer.msg( I18n.jobinfo_opt_stop + I18n.system_success );
-							// refresh table
-							$('#data_filter .searchBtn').click();
-						} else {
-							layer.msg( data.msg || I18n.jobinfo_opt_stop + I18n.system_fail );
-						}
-					},
-					error: function(xhr, status, error) {
-						// Handle error
-						console.log("Error: " + error);
-						layer.open({
-							icon: '2',
-							content: (I18n.jobinfo_opt_stop + I18n.system_fail)
-						});
-					}
-				});
-			});
-		});
+		}
 
 		// ---------------------- trigger ----------------------
+
+		var triggerModal = $('#jobTriggerModal');
+		var triggerForm = triggerModal.find('.form');
+		var triggerStatus = $('#jobTriggerStatus');
+		var triggerSubmitting = false;
 
 		/**
 		 * job trigger
@@ -871,76 +858,48 @@ exit 0
 			$("#jobTriggerModal .form input[name='id']").val( row.id );
 			$("#jobTriggerModal .form textarea[name='executorParam']").val( row.executorParam );
 
-			$('#jobTriggerModal').modal({backdrop: false, keyboard: false}).modal('show');
+			triggerModal.modal({backdrop: window.self === window.top, show: true});
 		});
 		$("#jobTriggerModal .ok").on('click',function() {
+			if (triggerSubmitting) {
+				return;
+			}
+			triggerSubmitting = true;
+			var accepted = false;
+			var parameters = triggerForm.serialize();
+			triggerForm.find('button, textarea').prop('disabled', true);
+			triggerStatus.text(I18n.jobinfo_trigger_submitting);
 			$.ajax({
 				type : 'POST',
 				url : base_url + "/jobinfo/trigger",
-				data : {
-					"id" : $("#jobTriggerModal .form input[name='id']").val(),
-					"executorParam" : $("#jobTriggerModal .textarea[name='executorParam']").val(),
-					"addressList" : $("#jobTriggerModal .textarea[name='addressList']").val()
-				},
+				data : parameters,
 				dataType : "json",
+				timeout: jobActionTimeoutMs,
 				success : function(data){
-					if (data.code == 200) {
-						$('#jobTriggerModal').modal('hide');
-
-						layer.msg( I18n.jobinfo_opt_run + I18n.system_success );
-					} else {
-						layer.msg( data.msg || I18n.jobinfo_opt_run + I18n.system_fail );
+					accepted = !!data && Number(data.code) === 200;
+					if (!accepted) {
+						triggerStatus.text((data && data.msg) || I18n.system_opt_fail);
+					}
+				},
+				error: function () {
+					triggerStatus.text(I18n.jobinfo_trigger_unconfirmed);
+				},
+				complete: function () {
+					triggerSubmitting = false;
+					triggerForm.find('button, textarea').prop('disabled', false);
+					if (accepted) {
+						triggerModal.modal('hide');
+						layer.msg(I18n.jobinfo_trigger_queued);
 					}
 				}
 			});
 		});
-		$("#jobTriggerModal").on('hide.bs.modal', function () {
-			$("#jobTriggerModal .form")[0].reset();
-		});
-
-		// ---------------------- registryinfo ----------------------
-
-		/**
-		 * job registryinfo
-		 */
-		$("#data_operation").on('click', '.job_registryinfo',function() {
-			// get select rows
-			var rows = $.adminTable.table.bootstrapTable('getSelections');
-
-			// find select row
-			if (rows.length !== 1) {
-				layer.msg(I18n.system_please_choose + I18n.system_one + I18n.system_data);
-				return;
+		triggerModal.on('hide.bs.modal', function () {
+			if (triggerSubmitting) {
+				return false;
 			}
-			var row = rows[0];
-
-			// invoke
-			$.ajax({
-				type : 'POST',
-				url : base_url + "/jobgroup/loadById",
-				data : {
-					"id" : row.jobGroup
-				},
-				dataType : "json",
-				success : function(data){
-
-					var html = '<div>';
-					if (data.code == 200 && data.data.registryList) {
-						for (var index in data.data.registryList) {
-							html += (parseInt(index)+1) + '. <span class="badge bg-green" >' + data.data.registryList[index] + '</span><br>';
-						}
-					}
-					html += '</div>';
-
-					layer.open({
-						title: I18n.jobinfo_opt_registryinfo ,
-						btn: [ I18n.system_ok ],
-						content: html
-					});
-
-				}
-			});
-
+			triggerForm[0].reset();
+			triggerStatus.empty();
 		});
 
 		// ---------------------- job_log ----------------------
@@ -994,64 +953,111 @@ exit 0
 
 		// ---------------------- job_next_time ----------------------
 
-		/**
-		 * job registryinfo
-		 */
-		$("#data_operation").on('click', '.job_next_time',function() {
-			// get select rows
+		var previewModal = $('#jobPreviewModal');
+		var previewStatus = $('#jobPreviewStatus');
+		var previewTimes = $('#jobPreviewTimes');
+		var previewVersion = 0;
+		var previewRequest;
+		var previewTrigger;
+
+		function cancelJobPreview() {
+			previewVersion++;
+			if (previewRequest) {
+				previewRequest.abort();
+				previewRequest = null;
+			}
+		}
+
+		previewModal.on('hide.bs.modal', cancelJobPreview).on('hidden.bs.modal', function () {
+			if (previewTrigger && document.contains(previewTrigger)) {
+				previewTrigger.focus();
+			}
+			previewTrigger = null;
+		});
+
+		$("#data_operation").on('click', '.job_next_time', function () {
+			openJobPreview(this, {
+				title: I18n.jobinfo_opt_next_time,
+				loading: I18n.jobinfo_next_time_loading,
+				empty: I18n.jobinfo_next_time_empty,
+				url: '/jobinfo/nextTriggerTime',
+				params: function (row) { return { id: row.id }; },
+				items: function (data) { return data; }
+			});
+		});
+
+		$("#data_operation").on('click', '.job_registryinfo', function () {
+			openJobPreview(this, {
+				title: I18n.jobinfo_opt_registryinfo,
+				loading: I18n.jobinfo_registry_loading,
+				empty: I18n.jobinfo_registry_empty,
+				url: '/jobgroup/loadById',
+				wide: true,
+				params: function (row) { return { id: row.jobGroup }; },
+				items: function (data) { return data && data.registryList; }
+			});
+		});
+
+		function openJobPreview(trigger, options) {
 			var rows = $.adminTable.table.bootstrapTable('getSelections');
 
-			// find select row
 			if (rows.length !== 1) {
 				layer.msg(I18n.system_please_choose + I18n.system_one + I18n.system_data);
 				return;
 			}
 			var row = rows[0];
+			cancelJobPreview();
+			var version = previewVersion;
+			previewTrigger = trigger;
+			previewModal.toggleClass('job-preview-wide', !!options.wide);
+			$('#jobPreviewTitle').text(options.title);
+			$('#jobPreviewTask').text('#' + row.id + (row.name ? ' ' + row.name : ''));
+			previewTimes.empty().prop('hidden', true);
+			previewStatus.text(options.loading).prop('hidden', false);
+			previewModal.modal({backdrop: window.self === window.top, show: true});
 
-			// invoke
-			$.ajax({
+			previewRequest = $.ajax({
 				type : 'POST',
-				url : base_url + "/jobinfo/nextTriggerTime",
-				data : {
-					"scheduleType" : row.scheduleType,
-					"scheduleConf" : row.scheduleConf
-				},
+				url : base_url + options.url,
+				data : options.params(row),
 				dataType : "json",
 				success : function(data){
-
-					if (data.code != 200) {
-						layer.open({
-							title: I18n.jobinfo_opt_next_time ,
-							btn: [ I18n.system_ok ],
-							content: data.msg
-						});
-					} else {
-						var html = '<center>';
-						if (data.code == 200 && data.data) {
-							for (var index in data.data) {
-								html += '<span>' + data.data[index] + '</span><br>';
-							}
-						}
-						html += '</center>';
-
-						layer.open({
-							title: I18n.jobinfo_opt_next_time ,
-							btn: [ I18n.system_ok ],
-							content: html
-						});
+					if (version !== previewVersion) {
+						return;
 					}
-
+					var items = data && data.code === 200 && options.items(data.data);
+					if (!Array.isArray(items)) {
+						previewStatus.text((data && data.msg) || I18n.system_opt_fail);
+					} else if (!items.length) {
+						previewStatus.text(options.empty);
+					} else {
+						previewStatus.prop('hidden', true);
+						items.forEach(function (item) {
+							previewTimes.append($('<li>').text(item));
+						});
+						previewTimes.prop('hidden', false);
+					}
+				},
+				error: function (_, status) {
+					if (version === previewVersion && status !== 'abort') {
+						previewStatus.text(I18n.system_opt_fail);
+					}
+				},
+				complete: function () {
+					if (version === previewVersion) {
+						previewRequest = null;
+					}
 				}
 			});
 
-		});
+		}
 
 		// ---------------------- add ----------------------
 
 		/**
 		 * add
 		 */
-		$.adminTable.initAdd( {
+		var openNewJob = $.adminTable.initAdd( {
 			url: base_url + "/jobinfo/insert",
 			rules : {
 				name : {
@@ -1268,11 +1274,12 @@ exit 0
 				layer.msg(I18n.system_please_choose + I18n.system_one + I18n.system_data);
 				return;
 			}
-			var row = rows[0];
+			openNewJob(function () {
+				fillCopiedJob(rows[0]);
+			});
+		});
 
-			// open addModel
-			$("#data_operation .add").click();
-
+		function fillCopiedJob(row) {
 			// fill base
 			$('#addModal .form select[name=jobGroup] option[value='+ row.jobGroup +']').prop('selected', true);
 			$("#addModal .form input[name='name']").val( row.name );
@@ -1312,7 +1319,7 @@ exit 0
 			$('#addModal .form select[name=executorBlockStrategy] option[value='+ row.executorBlockStrategy +']').prop('selected', true);
 			$("#addModal .form input[name='executorTimeout']").val( row.executorTimeout );
 			$("#addModal .form input[name='executorFailRetryCount']").val( row.executorFailRetryCount );
-		});
+		}
 
 	});
 

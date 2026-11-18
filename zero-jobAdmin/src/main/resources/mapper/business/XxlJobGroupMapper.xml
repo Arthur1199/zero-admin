@@ -41,14 +41,23 @@
 		values ( #{appname}, #{name}, #{addressType}, #{addressList}, #{accessToken}, #{updateTime} );
 	</insert>
 
-	<update id="update" parameterType="com.zero.jobadmin.business.model.XxlJobGroup" >
+	<update id="update">
 		UPDATE xxl_job_group
-		SET `name` = #{name},
-			`address_type` = #{addressType},
-			`address_list` = #{addressList},
-			`access_token` = #{accessToken},
-			`update_time` = #{updateTime}
-		WHERE id = #{id}
+		SET `name` = #{group.name},
+			`address_type` = #{group.addressType},
+			`access_token` = #{group.accessToken},
+			`update_time` = #{group.updateTime}
+			<if test="group.addressType != 0 or previousAddressType != 0">
+				, `address_list` = #{group.addressList}
+			</if>
+		WHERE id = #{group.id} AND address_type = #{previousAddressType}
+	</update>
+
+	<update id="refreshAutoRegisteredAddresses">
+		UPDATE xxl_job_group
+		SET address_list = #{addressList}, update_time = #{nowTime}
+		WHERE id = #{id} AND address_type = 0
+			AND NOT (address_list &lt;=&gt; #{addressList})
 	</update>
 
 	<delete id="remove" parameterType="java.lang.Integer" >

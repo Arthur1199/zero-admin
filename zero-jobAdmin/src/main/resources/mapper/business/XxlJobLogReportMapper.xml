@@ -46,6 +46,7 @@
         WHERE `trigger_day` = #{triggerDay}
     </update>-->
 
+	<!-- 先比较同一旧时间更新各类计数，最后更新快照时间。 -->
 	<insert id="saveOrUpdate" parameterType="com.zero.jobadmin.business.model.XxlJobLogReport" useGeneratedKeys="true" keyProperty="id" >
 		INSERT INTO xxl_job_log_report (
 			`trigger_day`,
@@ -61,10 +62,10 @@
 			 #{updateTime}
 		 )
 		ON DUPLICATE KEY UPDATE
-			`running_count` = #{runningCount},
-			`suc_count` = #{sucCount},
-			`fail_count` = #{failCount},
-			`update_time` = #{updateTime}
+			`running_count` = IF(`update_time` IS NULL OR `update_time` &lt; #{updateTime}, #{runningCount}, `running_count`),
+			`suc_count` = IF(`update_time` IS NULL OR `update_time` &lt; #{updateTime}, #{sucCount}, `suc_count`),
+			`fail_count` = IF(`update_time` IS NULL OR `update_time` &lt; #{updateTime}, #{failCount}, `fail_count`),
+			`update_time` = IF(`update_time` IS NULL OR `update_time` &lt; #{updateTime}, #{updateTime}, `update_time`)
 	</insert>
 
 	<select id="queryLogReport" resultMap="XxlJobLogReport">

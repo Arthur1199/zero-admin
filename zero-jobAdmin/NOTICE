@@ -1,3 +1,18 @@
+ZERO-JOB 1.0.0
+Maintainer: Arthur
+Copyright (c) 2026, Arthur. Modifications to the upstream project.
+Modified version first maintained as ZERO-JOB on 2026-11-18.
+
+ZERO-JOB is derived from XXL-JOB 3.5.0 and is not an unmodified upstream release.
+Upstream project: https://github.com/xuxueli/xxl-job
+Original work: Copyright (c) 2015-present, xuxueli.
+The original copyright notice and third-party notices are retained below.
+This modified project is distributed under the GNU General Public License v3.0;
+see LICENSE. Arthur's copyright applies to Arthur's modifications, not to the
+original work or third-party dependencies. Dependency licenses remain applicable.
+
+Upstream notice:
+================================================================
 Copyright (c) 2015-present, xuxueli.
 
 Dependencies:

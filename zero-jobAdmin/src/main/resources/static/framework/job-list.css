@@ -1,0 +1,27 @@
+.job-name-cell {
+    display: inline-block;
+    max-width: min(360px, 45vw);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.job-preview-task {
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.job-preview-wide > .modal-dialog {
+    width: 560px;
+}
+
+.job-preview-times {
+    max-height: min(45vh, 320px);
+    margin-bottom: 0;
+    padding-left: 24px;
+    overflow: auto;
+    overflow-wrap: anywhere;
+    line-height: 1.8;
+    font-variant-numeric: tabular-nums;
+}

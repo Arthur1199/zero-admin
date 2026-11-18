@@ -8,60 +8,81 @@ import com.xxl.tool.core.StringTool;
 import com.xxl.tool.response.Response;
 import jakarta.servlet.http.HttpServletRequest;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * jobGroup permission util
  *
- * @author xuxueli 2025-08-24
+ * 作者: xuxueli
+ * 时间: 2025/8/24
+ * 说明: 统一判断当前登录人可操作和查看的执行器组
  */
 public class JobGroupPermissionUtil {
 
     /**
-     * check if has jobgroup permission
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 19:43
+     * 说明: 管理员可访问所有执行器组，普通用户只能访问已授权组
+     * @param loginInfo 登录信息，可为空
+     * @param jobGroup 执行器组 ID
+     * @return
+     * 返回值: boolean
+     * 返回值说明: 具备执行器组权限时为 true
      */
     public static boolean hasJobGroupPermission(LoginInfo loginInfo, int jobGroup){
-        if (XxlSsoHelper.hasRole(loginInfo, Consts.ADMIN_ROLE).isSuccess()) {
-            return true;
-        } else {
-            List<String> jobGroups = (loginInfo.getExtraInfo()!=null && loginInfo.getExtraInfo().containsKey("jobGroups"))
-                    ? StringTool.split(loginInfo.getExtraInfo().get("jobGroups"), ",") :new ArrayList<>();
-            return jobGroups.contains(String.valueOf(jobGroup));
-        }
+        return loginInfo != null && (XxlSsoHelper.hasRole(loginInfo, Consts.ADMIN_ROLE).isSuccess()
+                || allowedJobGroups(loginInfo).contains(String.valueOf(jobGroup)));
     }
 
     /**
-     * valid jobGroup permission
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 19:43
+     * 说明: 拒绝未登录或没有指定执行器组权限的请求
+     * @param request 当前 HTTP 请求
+     * @param jobGroup 执行器组 ID
+     * @return
+     * 返回值: LoginInfo
+     * 返回值说明: 通过权限校验的登录信息
      */
     public static LoginInfo validJobGroupPermission(HttpServletRequest request, int jobGroup) {
         Response<LoginInfo> loginInfoResponse = XxlSsoHelper.loginCheckWithAttr(request);
-        if (!(loginInfoResponse.isSuccess() && hasJobGroupPermission(loginInfoResponse.getData(), jobGroup))) {
-            throw new RuntimeException(I18nUtil.getString("system_permission_limit") + "[username="+ loginInfoResponse.getData().getUserName() +"]");
+        if (!loginInfoResponse.isSuccess() || !hasJobGroupPermission(loginInfoResponse.getData(), jobGroup)) {
+            throw new IllegalArgumentException(I18nUtil.getString("system_permission_limit"));
         }
         return loginInfoResponse.getData();
     }
 
     /**
-     * filter jobGroupList by permission
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 19:43
+     * 说明: 过滤当前登录人可见的执行器组，缺少登录信息时返回空列表
+     * @param request 当前 HTTP 请求
+     * @param jobGroupListTotal 待过滤的执行器组，可为空
+     * @return
+     * 返回值: List<XxlJobGroup>
+     * 返回值说明: 当前登录人可见的执行器组
      */
     public static List<XxlJobGroup> filterJobGroupByPermission(HttpServletRequest request, List<XxlJobGroup> jobGroupListTotal){
-        Response<LoginInfo>  loginInfoResponse = XxlSsoHelper.loginCheckWithAttr(request);
-
-        if (XxlSsoHelper.hasRole(loginInfoResponse.getData(), Consts.ADMIN_ROLE).isSuccess()) {
-            return jobGroupListTotal;
-        } else {
-            List<String> jobGroups = (loginInfoResponse.getData().getExtraInfo()!=null
-                    && loginInfoResponse.getData().getExtraInfo().get("jobGroups")!=null
-            )
-                    ? StringTool.split(loginInfoResponse.getData().getExtraInfo().get("jobGroups"), ",")
-                    :new ArrayList<>();
-
-            return jobGroupListTotal
-                    .stream()
-                    .filter(jobGroup -> jobGroups.contains(String.valueOf(jobGroup.getId())))
-                    .toList();
+        Response<LoginInfo> loginInfoResponse = XxlSsoHelper.loginCheckWithAttr(request);
+        LoginInfo loginInfo = loginInfoResponse.getData();
+        if (!loginInfoResponse.isSuccess() || loginInfo == null || jobGroupListTotal == null) {
+            return List.of();
         }
+        if (XxlSsoHelper.hasRole(loginInfo, Consts.ADMIN_ROLE).isSuccess()) {
+            return jobGroupListTotal;
+        }
+        List<String> jobGroups = allowedJobGroups(loginInfo);
+        return jobGroupListTotal.stream().filter(jobGroup -> jobGroups.contains(String.valueOf(jobGroup.getId()))).toList();
+    }
+
+    /**
+     * 从登录信息中解析普通用户已授权的执行器组，空配置视为无权限。
+     */
+    private static List<String> allowedJobGroups(LoginInfo loginInfo) {
+        String groupIds = loginInfo.getExtraInfo() == null ? null : loginInfo.getExtraInfo().get("jobGroups");
+        return StringTool.isBlank(groupIds) ? List.of() : StringTool.split(groupIds, ",");
     }
 
 }

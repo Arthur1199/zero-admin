@@ -6,57 +6,48 @@
 
 	<!-- 1-style start -->
 	<@netCommon.commonStyle />
-	<!-- iCheck -->
-	<link rel="stylesheet" href="${request.contextPath}/static/adminlte/plugins/iCheck/square/blue.css">
+	<link rel="stylesheet" href="${request.contextPath}/static/framework/login.css?v=${I18n.admin_version}&amp;layout=4">
 	<!-- 1-style end -->
 
 </head>
-<body class="hold-transition login-page">
+<body class="hold-transition login-page zero-job-login">
+
+	<@netCommon.jobBackground />
 
 	<!-- 2-biz start -->
-	<div class="login-box">
-		<div class="login-logo">
-			<a><b>XXL-JOB</b></a>
-		</div>
-		<form id="loginForm" method="post" >
-			<div class="login-box-body">
-				<p class="login-box-msg">${I18n.admin_name}</p>
-				<div class="form-group has-feedback">
-	            	<input type="text" name="userName" class="form-control" placeholder="${I18n.login_username_placeholder}"  maxlength="20" >
-	            	<span class="glyphicon glyphicon-envelope form-control-feedback"></span>
-				</div>
-	          	<div class="form-group has-feedback">
-	            	<input type="password" name="password" class="form-control" placeholder="${I18n.login_password_placeholder}"  maxlength="20" >
-	            	<span class="glyphicon glyphicon-lock form-control-feedback"></span>
-	          	</div>
-				<div class="row">
-					<div class="col-xs-8">
-		              	<div class="checkbox icheck">
-		                	<label>
-		                  		<input type="checkbox" name="ifRemember" > &nbsp; ${I18n.login_remember_me}
-		                	</label>
-						</div>
-		            </div><!-- /.col -->
-		            <div class="col-xs-4">
-						<button type="submit" class="btn btn-primary btn-block btn-flat">${I18n.login_btn}</button>
-					</div>
-				</div>
+	<form id="loginForm" class="login-box" method="post">
+		<div class="login-box-body">
+			<h3 class="login-box-msg">ZERO-JOB</h3>
+			<div class="form-group has-feedback">
+				<input type="text" name="userName" class="form-control" placeholder="${I18n.login_username_placeholder}" aria-label="${I18n.login_username_placeholder}" autocomplete="username" maxlength="20">
+				<span class="glyphicon glyphicon-user form-control-feedback" aria-hidden="true"></span>
 			</div>
-		</form>
-	</div>
+			<div class="form-group has-feedback login-password-field">
+				<input id="loginPassword" type="password" name="password" class="form-control" placeholder="${I18n.login_password_placeholder}" aria-label="${I18n.login_password_placeholder}" autocomplete="current-password" maxlength="20">
+				<span class="glyphicon glyphicon-lock form-control-feedback" aria-hidden="true"></span>
+				<button type="button" class="login-password-toggle" aria-controls="loginPassword" aria-label="${I18n.login_password_show!I18n.login_password_placeholder}" aria-pressed="false">
+					<i class="fa fa-eye-slash" aria-hidden="true"></i>
+				</button>
+			</div>
+			<label class="login-remember">
+				<input type="checkbox" name="ifRemember"> ${I18n.login_remember_me}
+			</label>
+			<button type="submit" class="btn btn-primary btn-block">${I18n.login_btn}</button>
+		</div>
+	</form>
 	<!-- 2-biz end -->
 
 <!-- 3-script start -->
 <@netCommon.commonScript />
-<script src="${request.contextPath}/static/adminlte/plugins/iCheck/icheck.min.js"></script>
 <script>
 $(function () {
 
-	// input iCheck
-	$('input').iCheck({
-		checkboxClass: 'icheckbox_square-blue',
-		radioClass: 'iradio_square-blue',
-		increaseArea: '20%' // optional
+	$('.login-password-toggle').on('click', function () {
+		var password = document.getElementById('loginPassword');
+		var showPassword = password.type === 'password';
+		password.type = showPassword ? 'text' : 'password';
+		$(this).attr('aria-pressed', String(showPassword))
+			.find('i').toggleClass('fa-eye', showPassword).toggleClass('fa-eye-slash', !showPassword);
 	});
 
 	// login Form Valid

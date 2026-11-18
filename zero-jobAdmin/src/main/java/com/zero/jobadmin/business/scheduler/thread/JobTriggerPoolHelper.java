@@ -5,17 +5,23 @@ import com.zero.jobadmin.business.scheduler.trigger.TriggerTypeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 /**
- * job trigger thread pool helper
  *
- * @author xuxueli 2018-07-03 21:08:07
+ * 作者: xuxueli
+ * 时间: 2018/7/3 21:08:07
+ * 说明: 管理快慢派发线程池，记录提交被拒绝或停机前未能开始的调度。
  */
 public class JobTriggerPoolHelper {
     private static final Logger logger = LoggerFactory.getLogger(JobTriggerPoolHelper.class);
 
+    /** 两组派发线程池共用的停机排空等待时间，单位秒。 */
+    private static final long SHUTDOWN_GRACE_SECONDS = 10;
 
     // ---------------------- trigger pool ----------------------
 
@@ -24,7 +30,13 @@ public class JobTriggerPoolHelper {
     private ThreadPoolExecutor slowTriggerPool = null;
 
     /**
-     * start
+     *
+     * 作者: xuxueli
+     * 时间: 2018/7/3 21:08:07
+     * 说明: 初始化快慢派发线程池，队列满或线程池关闭时向提交方报告拒绝。
+     * @return
+     * 返回值: void
+     * 返回值说明: 创建两组有界派发线程池
      */
     public void start(){
         fastTriggerPool = new ThreadPoolExecutor(
@@ -39,12 +51,7 @@ public class JobTriggerPoolHelper {
                         return new Thread(r, "xxl-job, admin JobTriggerPoolHelper-fastTriggerPool-" + r.hashCode());
                     }
                 },
-                new RejectedExecutionHandler() {
-                    @Override
-                    public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-                        logger.error(">>>>>>>>>>> xxl-job, admin JobTriggerPoolHelper-fastTriggerPool execute too fast, Runnable="+r.toString() );
-                    }
-                });
+                new ThreadPoolExecutor.AbortPolicy());
 
         slowTriggerPool = new ThreadPoolExecutor(
                 10,
@@ -58,22 +65,46 @@ public class JobTriggerPoolHelper {
                         return new Thread(r, "xxl-job, admin JobTriggerPoolHelper-slowTriggerPool-" + r.hashCode());
                     }
                 },
-                new RejectedExecutionHandler() {
-                    @Override
-                    public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-                        logger.error(">>>>>>>>>>> xxl-job, admin JobTriggerPoolHelper-slowTriggerPool execute too fast, Runnable="+r.toString() );
-                    }
-                });
+                new ThreadPoolExecutor.AbortPolicy());
     }
 
     /**
-     * stop
+     *
+     * 作者: xuxueli
+     * 时间: 2018/7/3 21:08:07
+     * 说明: 停止接收新派发，先等待已接收任务，再记录强制关闭时尚未开始的任务。
+     * @return
+     * 返回值: void
+     * 返回值说明: 关闭快慢派发线程池，保留调用线程的中断状态
      */
     public void stop() {
-        //triggerPool.shutdown();
-        fastTriggerPool.shutdownNow();
-        slowTriggerPool.shutdownNow();
-        logger.info(">>>>>>>>> xxl-job trigger thread pool shutdown success.");
+        List<ThreadPoolExecutor> pools = Stream.of(fastTriggerPool, slowTriggerPool).filter(Objects::nonNull).toList();
+        pools.forEach(ThreadPoolExecutor::shutdown);
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(SHUTDOWN_GRACE_SECONDS);
+        boolean interrupted = false;
+        try {
+            for (ThreadPoolExecutor pool : pools) {
+                pool.awaitTermination(Math.max(0, deadline - System.nanoTime()), TimeUnit.NANOSECONDS);
+            }
+        } catch (InterruptedException e) {
+            interrupted = true;
+        } finally {
+            // 先停止两个池的取队动作，再写日志，避免慢库拖住另一个池的关闭。
+            List<Runnable> abandoned = pools.stream().filter(pool -> !pool.isTerminated())
+                    .flatMap(pool -> pool.shutdownNow().stream()).toList();
+            try {
+                for (Runnable task : abandoned) {
+                    if (task instanceof DispatchTask dispatch) {
+                        dispatch.onShutdown().run();
+                    }
+                }
+            } finally {
+                if (interrupted) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            logger.info("Job trigger pools closed, queued tasks abandoned={}", abandoned.size());
+        }
     }
 
 
@@ -85,17 +116,19 @@ public class JobTriggerPoolHelper {
     // ---------------------- tool ----------------------
 
     /**
-     * trigger job
      *
-     * @param jobId
-     * @param triggerType
-     * @param failRetryCount
-     * 			>=0: use this param
-     * 			<0: use param from job info config
-     * @param executorShardingParam
-     * @param executorParam
-     *          null: use job param
-     *          not null: cover job param
+     * 作者: xuxueli
+     * 时间: 2018/7/3 21:08:07
+     * 说明: 提交异步派发，被线程池拒绝时记失败日志并通知调用方。
+     * @param jobId 任务 ID
+     * @param triggerType 触发类型
+     * @param failRetryCount 剩余重试次数，小于 0 时使用任务配置
+     * @param executorShardingParam 可选分片编号，格式为索引/总数
+     * @param executorParam 临时任务参数，为空时使用任务配置
+     * @param addressList 临时执行器地址列表，为空时使用组内配置
+     * @return
+     * 返回值: void
+     * 返回值说明: 任务已交给线程池，拒绝时抛出 RejectedExecutionException
      */
     public void trigger(final int jobId,
                         final TriggerTypeEnum triggerType,
@@ -111,8 +144,7 @@ public class JobTriggerPoolHelper {
             triggerPool_ = slowTriggerPool;
         }
 
-        // trigger
-        triggerPool_.execute(new Runnable() {
+        Runnable work = new Runnable() {
             @Override
             public void run() {
 
@@ -148,7 +180,78 @@ public class JobTriggerPoolHelper {
             public String toString() {
                 return "Job Runnable, jobId:"+jobId;
             }
-        });
+        };
+        DispatchTask dispatch = new DispatchTask(work, () -> reportDispatchFailure(
+                jobId, triggerType, failRetryCount, executorShardingParam, executorParam, true));
+        try {
+            if (triggerPool_ == null) {
+                throw new RejectedExecutionException("Job trigger pool is unavailable");
+            }
+            triggerPool_.execute(dispatch);
+        } catch (RejectedExecutionException e) {
+            reportDispatchFailure(jobId, triggerType, failRetryCount, executorShardingParam, executorParam, false);
+            throw e;
+        }
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 20:54
+     * 说明: 记录未开始的派发，日志错误交由服务日志跟踪，继续处理其他任务。
+     * @param jobId 任务 ID
+     * @param triggerType 触发类型
+     * @param retryCount 剩余重试次数，小于 0 时使用任务配置
+     * @param sharding 分片编号，可为空
+     * @param executorParam 临时执行参数，可为空
+     * @param cancelledAfterAccept 已入队但因停机取消时为 true
+     * @return
+     * 返回值: void
+     * 返回值说明: 尝试写入调度失败日志
+     */
+    private void reportDispatchFailure(int jobId, TriggerTypeEnum triggerType, int retryCount, String sharding,
+                                       String executorParam, boolean cancelledAfterAccept) {
+        try {
+            XxlJobAdminBootstrap.getInstance().getJobTrigger().recordUndispatchedTrigger(
+                    jobId, triggerType, retryCount, sharding, executorParam, cancelledAfterAccept);
+        } catch (RuntimeException e) {
+            logger.error("Failed to record undispatched job, jobId={}, triggerType={}", jobId, triggerType, e);
+        }
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 20:54
+     * 说明: 封装派发操作与停机取消操作，两者由线程池队列状态决定。
+     */
+    private record DispatchTask(Runnable work, Runnable onShutdown) implements Runnable {
+        /**
+         *
+         * 作者: Arthur 亚瑟
+         * 时间: 2026/11/18 20:54
+         * 说明: 执行从队列取出的派发操作。
+         * @return
+         * 返回值: void
+         * 返回值说明: 调用执行器派发流程
+         */
+        @Override
+        public void run() {
+            work.run();
+        }
+
+        /**
+         *
+         * 作者: Arthur 亚瑟
+         * 时间: 2026/11/18 20:54
+         * 说明: 让线程池拒绝异常带上任务编号。
+         * @return
+         * 返回值: String
+         * 返回值说明: 派发操作的日志描述
+         */
+        @Override
+        public String toString() {
+            return work.toString();
+        }
+    }
 }

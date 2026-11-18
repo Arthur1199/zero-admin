@@ -8,10 +8,25 @@
 	<@netCommon.commonStyle />
 	<link rel="stylesheet" href="${request.contextPath}/static/plugins/bootstrap-table/bootstrap-table.min.css">
 	<link rel="stylesheet" href="${request.contextPath}/static/adminlte/plugins/iCheck/square/blue.css">
+	<style>
+		#showRegistryListModal > .modal-dialog {
+			width: 760px;
+		}
+		#registryAddresses {
+			min-height: 120px;
+			height: 30vh;
+			max-height: 280px;
+			resize: vertical;
+			font: 13px/1.65 Consolas, "Liberation Mono", monospace;
+		}
+		#registryStatus {
+			margin: 8px 0 0;
+		}
+	</style>
 	<!-- 1-style end -->
 
 </head>
-<body class="hold-transition" style="background-color: #ecf0f5;">
+<body class="hold-transition zero-job-tab-page">
 <div class="wrapper">
 	<section class="content">
 
@@ -66,19 +81,20 @@
 		</div>
 
 		<!-- 注册列表查看.模态框 -->
-		<div class="modal fade" id="showRegistryListModal" tabindex="-1" role="dialog"  aria-hidden="true">
+		<div class="modal fade" id="showRegistryListModal" tabindex="-1" role="dialog" aria-labelledby="registryListTitle">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h4 class="modal-title" >${I18n.jobinfo_opt_registryinfo}</h4>
+						<h4 class="modal-title" id="registryListTitle">${I18n.jobinfo_opt_registryinfo}</h4>
 					</div>
 					<div class="modal-body">
-						<div class="data" style="word-wrap: break-word;"></div>
+						<textarea id="registryAddresses" class="form-control" aria-labelledby="registryListTitle"
+								  style="display: none" readonly spellcheck="false"></textarea>
+						<p id="registryStatus" class="text-muted" role="status"></p>
 					</div>
 					<div class="modal-footer">
-						<div class="text-center" >
-							<button type="button" class="btn btn-info ok" data-dismiss="modal" >${I18n.system_ok}</button>
-						</div>
+						<button type="button" class="btn btn-primary" id="copyRegistryAddresses" disabled>${I18n.system_opt_copy}</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">${I18n.system_close}</button>
 					</div>
 				</div>
 			</div>
@@ -221,17 +237,20 @@
 				},{
 					title: 'AppName',
 					field: 'appname',
+					escape: true,
 					width: '25',
 					widthUnit: '%',
 					align: 'left'
 				},{
 					title: I18n.jobgroup_field_title,
 					field: 'name',
+					escape: true,
 					width: '25',
 					widthUnit: '%'
 				},{
 					title: 'AccessToken',
 					field: 'accessToken',
+					escape: true,
 					width: '20',
 					widthUnit: '%',
 					align: 'left'
@@ -252,33 +271,90 @@
 					field: 'registryList',
 					width: '15',
 					widthUnit: '%',
-					formatter: function(value, row, index) {
-						tableData['key' + row.id] = row;
-						return row.registryList
-								?'<a class="show_registryList" href="javascript:;" _id="'+ row.id +'" >' + I18n.system_show +' ( ' + row.registryList.length+ ' ）</a>'
-								:I18n.system_empty;
+					formatter: function(value, row) {
+						if (!Array.isArray(value) || !value.length) {
+							return I18n.system_empty;
+						}
+						return $('<button>', {
+							type: 'button',
+							class: 'btn btn-link btn-xs show_registryList',
+							'data-group-id': row.id,
+							'aria-haspopup': 'dialog'
+						}).text(I18n.system_show + ' (' + value.length + ')').prop('outerHTML');
 					}
 				}
 			]
 		});
 
-		// job registryinfo
-		var tableData = {};
-		$("#data_list").on('click', '.show_registryList',function() {
-			var id = $(this).attr("_id");
-			var row = tableData['key'+id];
-
-			var html = '<table class="table table-bordered"><tbody>';
-			if (row.registryList) {
-				for (var index in row.registryList) {
-					html += '<tr><th class="col-md-3" >' + (parseInt(index)+1) + '</th>';
-					html += '<th class="col-md-9" ><span class="badge bg-green" >' + row.registryList[index] + '</span></th><tr>';
+		var registryModal = $('#showRegistryListModal');
+		var registryAddresses = $('#registryAddresses');
+		var registryStatus = $('#registryStatus');
+		var copyRegistry = $('#copyRegistryAddresses');
+		var registryRequest;
+		var registryTrigger;
+		var registryVersion = 0;
+		$("#data_list").on('click', '.show_registryList', function () {
+			var version = ++registryVersion;
+			if (registryRequest) {
+				registryRequest.abort();
+			}
+			registryTrigger = this;
+			registryAddresses.val('').hide();
+			copyRegistry.prop('disabled', true);
+			registryStatus.text(I18n.jobgroup_registry_loading);
+			registryModal.modal({backdrop: false, show: true});
+			registryRequest = $.ajax({
+				url: base_url + '/jobgroup/loadById',
+				type: 'POST',
+				data: {id: this.dataset.groupId},
+				dataType: 'json'
+			}).done(function (result) {
+				if (version !== registryVersion) {
+					return;
+				}
+				var addresses = result && result.code === 200 && result.data && result.data.registryList;
+				if (!Array.isArray(addresses)) {
+					registryStatus.text(I18n.system_opt_fail);
+				} else if (!addresses.length) {
+					registryStatus.text(I18n.system_empty);
+				} else {
+					registryAddresses.val(addresses.join('\n')).show();
+					copyRegistry.prop('disabled', false);
+					registryStatus.empty();
+				}
+			}).fail(function () {
+				if (version === registryVersion) {
+					registryStatus.text(I18n.system_opt_fail);
+				}
+			});
+		});
+		registryModal.on('hide.bs.modal', function () {
+			registryVersion++;
+			if (registryRequest) {
+				registryRequest.abort();
+				registryRequest = null;
+			}
+		}).on('hidden.bs.modal', function () {
+			if (registryTrigger && document.contains(registryTrigger)) {
+				registryTrigger.focus();
+			}
+			registryTrigger = null;
+		});
+		copyRegistry.on('click', async function () {
+			var version = registryVersion;
+			try {
+				await navigator.clipboard.writeText(registryAddresses.val());
+				if (version === registryVersion) {
+					registryStatus.text(I18n.system_opt_copy + ' ' + I18n.system_success);
+				}
+			} catch (_) {
+				if (version === registryVersion) {
+					var addressField = registryAddresses.get(0);
+					addressField.focus();
+					addressField.select();
+					registryStatus.text(I18n.jobgroup_registry_copy_manual);
 				}
 			}
-			html += '</tbody></table>';
-
-			$('#showRegistryListModal .data').html(html);
-			$('#showRegistryListModal').modal({backdrop: false, keyboard: false}).modal('show');
 		});
 
 		/**
@@ -293,7 +369,6 @@
 		 */
 		// add validator method
 		jQuery.validator.addMethod("appnameValid", function(value, element) {
-			var length = value.length;
 			var valid = /^[a-z][a-z0-9-]*$/;
 			return this.optional(element) || valid.test(value);
 		}, I18n.jobgroup_field_appname_limit );
@@ -327,7 +402,7 @@
 				},
 				name : {
 					required : I18n.system_please_input + I18n.jobgroup_field_title ,
-					rangelength: I18n.system_length_limit + ' [4~12]' ,
+					rangelength: I18n.system_length_limit + ' [4~64]' ,
 				},
 				accessToken : {
 					required : I18n.system_please_input,
@@ -335,7 +410,7 @@
 				}
 			},
 			writeFormData: function() {
-				$("#addModal .form input[name='role'][value='0']").change();
+				$("#addModal .form input[name='addressType']:checked").trigger('change');
 			},
 			readFormData: function() {
 				// request
@@ -344,16 +419,12 @@
 		});
 
 		// addressType change
-		$("#addModal input[name=addressType], #updateModal input[name=addressType]").click(function(){
-			var addressType = $(this).val();
-			var $addressList = $(this).parents("form").find("textarea[name=addressList]");
-			if (addressType == 0) {
-				$addressList.css("background-color", "#eee");	// 自动注册
-				$addressList.attr("readonly","readonly");
-				$addressList.val("");
-			} else {
-				$addressList.css("background-color", "white");
-				$addressList.removeAttr("readonly");
+		$("#addModal input[name=addressType], #updateModal input[name=addressType]").on('change', function () {
+			var automatic = this.value === '0';
+			var addresses = $(this).closest('form').find('textarea[name=addressList]');
+			addresses.prop('readOnly', automatic).css('background-color', automatic ? '#eee' : '');
+			if (automatic) {
+				addresses.val('');
 			}
 		});
 
@@ -369,8 +440,8 @@
 				$("#updateModal .form input[name='name']").val( row.name );
 
 				// 注册方式
-				$("#updateModal .form input[name='addressType']").removeAttr('checked');
-				$("#updateModal .form input[name='addressType'][value='"+ row.addressType +"']").click();
+				$("#updateModal .form input[name='addressType'][value='"+ (Number(row.addressType) === 0 ? '0' : '1') +"']")
+					.prop('checked', true).trigger('change');
 				// 机器地址
 				$("#updateModal .form textarea[name='addressList']").val( row.addressList );
 				// accessToken
@@ -391,11 +462,11 @@
 			messages : {
 				name : {
 					required : I18n.system_please_input + I18n.jobgroup_field_title ,
-					rangelength: I18n.system_length_limit + ' [4~12]'
+					rangelength: I18n.system_length_limit + ' [4~64]'
 				},
 				accessToken : {
 					required : I18n.system_please_input,
-					rangelength: I18n.system_lengh_limit + " [4-50]"
+					rangelength: I18n.system_length_limit + " [4-50]"
 				}
 			},
 			readFormData: function() {

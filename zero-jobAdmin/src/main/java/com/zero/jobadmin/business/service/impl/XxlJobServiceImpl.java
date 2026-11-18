@@ -6,13 +6,13 @@ import com.zero.jobadmin.business.model.XxlJobGroup;
 import com.zero.jobadmin.business.model.XxlJobInfo;
 import com.zero.jobadmin.business.model.XxlJobLogReport;
 import com.zero.jobadmin.business.scheduler.config.XxlJobAdminBootstrap;
-import com.zero.jobadmin.business.scheduler.cron.CronExpression;
 import com.zero.jobadmin.business.scheduler.misfire.MisfireStrategyEnum;
 import com.zero.jobadmin.business.scheduler.route.ExecutorRouteStrategyEnum;
 import com.zero.jobadmin.business.scheduler.thread.JobScheduleHelper;
 import com.zero.jobadmin.business.scheduler.trigger.TriggerTypeEnum;
 import com.zero.jobadmin.business.scheduler.type.ScheduleTypeEnum;
 import com.zero.jobadmin.business.service.XxlJobService;
+import com.zero.jobadmin.business.util.ExecutorAddressUtil;
 import com.zero.jobadmin.framework.util.I18nUtil;
 import com.zero.jobadmin.framework.util.JobGroupPermissionUtil;
 import com.xxl.job.core.constant.ExecutorBlockStrategyEnum;
@@ -28,16 +28,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
- * core job action for xxl-job
- * @author xuxueli 2016-5-28 15:30:33
+ *
+ * 作者: xuxueli
+ * 时间: 2016/5/28 15:30:33
+ * 说明: 负责任务配置维护、启停和触发，并校验执行器组权限
  */
 @Service
 public class XxlJobServiceImpl implements XxlJobService {
 	private static Logger logger = LoggerFactory.getLogger(XxlJobServiceImpl.class);
+
+	/** xxl_job_info 中 name、alarm_email、executor_handler 和 child_jobid 的字符上限。 */
+	private static final int JOB_TEXT_LIMIT = 255;
+	/** xxl_job_info.author 的字符上限。 */
+	private static final int JOB_AUTHOR_LIMIT = 64;
+	/** xxl_job_info.executor_param 为 TEXT，按 UTF-8 字节计算容量。 */
+	private static final int JOB_EXECUTOR_PARAM_BYTE_LIMIT = 65535;
 
 	@Resource
 	private XxlJobGroupMapper xxlJobGroupMapper;
@@ -65,8 +76,22 @@ public class XxlJobServiceImpl implements XxlJobService {
 		return Response.ofSuccess(pageModel);
 	}
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/18 19:45
+	 * 说明: 校验执行器组与任务配置，保存新任务
+	 * @param jobInfo 待新增任务配置
+	 * @param loginInfo 当前登录人
+	 * @return
+	 * 返回值: Response<String>
+	 * 返回值说明: 成功时返回任务 ID
+	 */
 	@Override
 	public Response<String> add(XxlJobInfo jobInfo, LoginInfo loginInfo) {
+		if (!JobGroupPermissionUtil.hasJobGroupPermission(loginInfo, jobInfo.getJobGroup())) {
+			return Response.ofFail(I18nUtil.getString("system_permission_limit"));
+		}
 
 		// valid base
 		if (StringTool.isBlank(jobInfo.getName())) {
@@ -74,6 +99,10 @@ public class XxlJobServiceImpl implements XxlJobService {
 		}
 		if (StringTool.isBlank(jobInfo.getAuthor())) {
 			return Response.ofFail ( (I18nUtil.getString("system_please_input")+I18nUtil.getString("jobinfo_field_author")) );
+		}
+		Response<String> fieldValidation = validateJobFieldSizes(jobInfo);
+		if (!fieldValidation.isSuccess()) {
+			return fieldValidation;
 		}
 
 		// valid group
@@ -84,25 +113,9 @@ public class XxlJobServiceImpl implements XxlJobService {
 
 		// valid trigger
 		ScheduleTypeEnum scheduleTypeEnum = ScheduleTypeEnum.match(jobInfo.getScheduleType(), null);
-		if (scheduleTypeEnum == null) {
-			return Response.ofFail ( (I18nUtil.getString("schedule_type")+I18nUtil.getString("system_invalid")) );
-		}
-		if (scheduleTypeEnum == ScheduleTypeEnum.CRON) {
-			if (jobInfo.getScheduleConf()==null || !CronExpression.isValidExpression(jobInfo.getScheduleConf())) {
-				return Response.ofFail ( "Cron"+I18nUtil.getString("system_invalid"));
-			}
-		} else if (scheduleTypeEnum == ScheduleTypeEnum.FIX_RATE/* || scheduleTypeEnum == ScheduleTypeEnum.FIX_DELAY*/) {
-			if (jobInfo.getScheduleConf() == null) {
-				return Response.ofFail ( (I18nUtil.getString("schedule_type")) );
-			}
-			try {
-				int fixSecond = Integer.parseInt(jobInfo.getScheduleConf());
-				if (fixSecond < 1) {
-					return Response.ofFail ( (I18nUtil.getString("schedule_type")+I18nUtil.getString("system_invalid")) );
-				}
-			} catch (Exception e) {
-				return Response.ofFail ( (I18nUtil.getString("schedule_type")+I18nUtil.getString("system_invalid")) );
-			}
+		Response<String> scheduleValidation = ScheduleTypeEnum.validateConfiguration(scheduleTypeEnum, jobInfo.getScheduleConf());
+		if (!scheduleValidation.isSuccess()) {
+			return scheduleValidation;
 		}
 
 		// valid job
@@ -128,35 +141,9 @@ public class XxlJobServiceImpl implements XxlJobService {
 			return Response.ofFail ( (I18nUtil.getString("jobinfo_field_executorBlockStrategy")+I18nUtil.getString("system_invalid")) );
 		}
 
-		// 》ChildJobId valid
-		if (StringTool.isNotBlank(jobInfo.getChildJobId())) {
-			String[] childJobIds = jobInfo.getChildJobId().split(",");
-			for (String childJobIdItem: childJobIds) {
-				if (StringTool.isNotBlank(childJobIdItem) && StringTool.isNumeric(childJobIdItem)) {
-					XxlJobInfo childJobInfo = xxlJobInfoMapper.loadById(Integer.parseInt(childJobIdItem));
-					if (childJobInfo==null) {
-						return Response.ofFail (
-								MessageFormat.format((I18nUtil.getString("jobinfo_field_childJobId")+"({0})"+I18nUtil.getString("system_not_found")), childJobIdItem));
-					}
-					// valid jobGroup permission
-					if (!JobGroupPermissionUtil.hasJobGroupPermission(loginInfo, childJobInfo.getJobGroup())) {
-						return Response.ofFail (
-								MessageFormat.format((I18nUtil.getString("jobinfo_field_childJobId")+"({0})"+I18nUtil.getString("system_permission_limit")), childJobIdItem));
-					}
-				} else {
-					return Response.ofFail (
-							MessageFormat.format((I18nUtil.getString("jobinfo_field_childJobId")+"({0})"+I18nUtil.getString("system_invalid")), childJobIdItem));
-				}
-			}
-
-			// join , avoid "xxx,,"
-			String temp = "";
-			for (String item:childJobIds) {
-				temp += item + ",";
-			}
-			temp = temp.substring(0, temp.length()-1);
-
-			jobInfo.setChildJobId(temp);
+		Response<String> childValidation = validateChildJobs(jobInfo, loginInfo);
+		if (!childValidation.isSuccess()) {
+			return childValidation;
 		}
 
 		// add in db
@@ -164,7 +151,7 @@ public class XxlJobServiceImpl implements XxlJobService {
 		jobInfo.setUpdateTime(new Date());
 		jobInfo.setGlueUpdatetime(new Date());
 		// remove the whitespace
-		jobInfo.setExecutorHandler(jobInfo.getExecutorHandler().trim());
+		jobInfo.setExecutorHandler(Objects.toString(jobInfo.getExecutorHandler(), "").trim());
 
 		xxlJobInfoMapper.save(jobInfo);
 		if (jobInfo.getId() < 1) {
@@ -172,14 +159,38 @@ public class XxlJobServiceImpl implements XxlJobService {
 		}
 
 		// write operation log
-		logger.info(">>>>>>>>>>> xxl-job operation log: operator = {}, type = {}, content = {}",
-				loginInfo.getUserName(), "jobinfo-save", GsonTool.toJson(jobInfo));
+		logger.info(">>>>>>>>>>> xxl-job operation log: operator = {}, type = {}, jobId = {}, jobGroup = {}",
+				loginInfo.getUserName(), "jobinfo-save", jobInfo.getId(), jobInfo.getJobGroup());
 
 		return Response.ofSuccess(String.valueOf(jobInfo.getId()));
 	}
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/18 19:45
+	 * 说明: 更新任务配置，移组时同时校验原执行器组和目标组
+	 * @param jobInfo 待更新的配置，执行器组为 0 时保留原组
+	 * @param loginInfo 当前登录人
+	 * @return
+	 * 返回值: Response<String>
+	 * 返回值说明: 无权修改或任务已变更时返回失败
+	 */
 	@Override
 	public Response<String> update(XxlJobInfo jobInfo, LoginInfo loginInfo) {
+		XxlJobInfo exists_jobInfo = xxlJobInfoMapper.loadById(jobInfo.getId());
+		if (exists_jobInfo == null) {
+			return Response.ofFail(I18nUtil.getString("jobinfo_field_id") + I18nUtil.getString("system_not_found"));
+		}
+		int originalGroup = exists_jobInfo.getJobGroup();
+		int targetGroup = jobInfo.getJobGroup() == 0 ? originalGroup : jobInfo.getJobGroup();
+		if (!JobGroupPermissionUtil.hasJobGroupPermission(loginInfo, originalGroup)
+				|| !JobGroupPermissionUtil.hasJobGroupPermission(loginInfo, targetGroup)) {
+			return Response.ofFail(I18nUtil.getString("system_permission_limit"));
+		}
+		if (targetGroup <= 0) {
+			return Response.ofFail(I18nUtil.getString("jobinfo_field_jobgroup") + I18nUtil.getString("system_invalid"));
+		}
 
 		// valid base
 		if (StringTool.isBlank(jobInfo.getName())) {
@@ -187,6 +198,14 @@ public class XxlJobServiceImpl implements XxlJobService {
 		}
 		if (StringTool.isBlank(jobInfo.getAuthor())) {
 			return Response.ofFail ( (I18nUtil.getString("system_please_input")+I18nUtil.getString("jobinfo_field_author")) );
+		}
+		Response<String> fieldValidation = validateJobFieldSizes(jobInfo);
+		if (!fieldValidation.isSuccess()) {
+			return fieldValidation;
+		}
+		if (GlueTypeEnum.BEAN == GlueTypeEnum.match(exists_jobInfo.getGlueType())
+				&& StringTool.isBlank(jobInfo.getExecutorHandler())) {
+			return Response.ofFail(I18nUtil.getString("system_please_input") + "JobHandler");
 		}
 
 		// valid group
@@ -199,25 +218,9 @@ public class XxlJobServiceImpl implements XxlJobService {
 
 		// valid trigger
 		ScheduleTypeEnum scheduleTypeEnum = ScheduleTypeEnum.match(jobInfo.getScheduleType(), null);
-		if (scheduleTypeEnum == null) {
-			return Response.ofFail ( (I18nUtil.getString("schedule_type")+I18nUtil.getString("system_invalid")) );
-		}
-		if (scheduleTypeEnum == ScheduleTypeEnum.CRON) {
-			if (jobInfo.getScheduleConf()==null || !CronExpression.isValidExpression(jobInfo.getScheduleConf())) {
-				return Response.ofFail ( "Cron"+I18nUtil.getString("system_invalid") );
-			}
-		} else if (scheduleTypeEnum == ScheduleTypeEnum.FIX_RATE /*|| scheduleTypeEnum == ScheduleTypeEnum.FIX_DELAY*/) {
-			if (jobInfo.getScheduleConf() == null) {
-				return Response.ofFail ( (I18nUtil.getString("schedule_type")+I18nUtil.getString("system_invalid")) );
-			}
-			try {
-				int fixSecond = Integer.parseInt(jobInfo.getScheduleConf());
-				if (fixSecond < 1) {
-					return Response.ofFail ( (I18nUtil.getString("schedule_type")+I18nUtil.getString("system_invalid")) );
-				}
-			} catch (Exception e) {
-				return Response.ofFail ( (I18nUtil.getString("schedule_type")+I18nUtil.getString("system_invalid")) );
-			}
+		Response<String> scheduleValidation = ScheduleTypeEnum.validateConfiguration(scheduleTypeEnum, jobInfo.getScheduleConf());
+		if (!scheduleValidation.isSuccess()) {
+			return scheduleValidation;
 		}
 
 		// valid advanced
@@ -231,55 +234,18 @@ public class XxlJobServiceImpl implements XxlJobService {
 			return Response.ofFail ( (I18nUtil.getString("jobinfo_field_executorBlockStrategy")+I18nUtil.getString("system_invalid")) );
 		}
 
-		// 》ChildJobId valid
-		if (StringTool.isNotBlank(jobInfo.getChildJobId())) {
-			String[] childJobIds = jobInfo.getChildJobId().split(",");
-			for (String childJobIdItem: childJobIds) {
-				if (StringTool.isNotBlank(childJobIdItem) && StringTool.isNumeric(childJobIdItem)) {
-					// parse child
-					int childJobId = Integer.parseInt(childJobIdItem);
-					if (childJobId == jobInfo.getId()) {
-						return Response.ofFail ( (I18nUtil.getString("jobinfo_field_childJobId")+"("+childJobId+")"+I18nUtil.getString("system_invalid")) );
-					}
-
-					// valid child
-					XxlJobInfo childJobInfo = xxlJobInfoMapper.loadById(childJobId);
-					if (childJobInfo==null) {
-						return Response.ofFail (
-								MessageFormat.format((I18nUtil.getString("jobinfo_field_childJobId")+"({0})"+I18nUtil.getString("system_not_found")), childJobIdItem));
-					}
-					// valid jobGroup permission
-					if (!JobGroupPermissionUtil.hasJobGroupPermission(loginInfo, childJobInfo.getJobGroup())) {
-						return Response.ofFail (
-								MessageFormat.format((I18nUtil.getString("jobinfo_field_childJobId")+"({0})"+I18nUtil.getString("system_permission_limit")), childJobIdItem));
-					}
-				} else {
-					return Response.ofFail (
-							MessageFormat.format((I18nUtil.getString("jobinfo_field_childJobId")+"({0})"+I18nUtil.getString("system_invalid")), childJobIdItem));
-				}
-			}
-
-			// join , avoid "xxx,,"
-			String temp = "";
-			for (String item:childJobIds) {
-				temp += item + ",";
-			}
-			temp = temp.substring(0, temp.length()-1);
-
-			jobInfo.setChildJobId(temp);
-		}
-
-		// stage job info
-		XxlJobInfo exists_jobInfo = xxlJobInfoMapper.loadById(jobInfo.getId());
-		if (exists_jobInfo == null) {
-			return Response.ofFail ( (I18nUtil.getString("jobinfo_field_id")+I18nUtil.getString("system_not_found")) );
+		Response<String> childValidation = validateChildJobs(jobInfo, loginInfo);
+		if (!childValidation.isSuccess()) {
+			return childValidation;
 		}
 
 		// next trigger time (5s后生效，避开预读周期)
 		long nextTriggerTime = exists_jobInfo.getTriggerNextTime();
 		boolean scheduleDataNotChanged = jobInfo.getScheduleType().equals(exists_jobInfo.getScheduleType())
-				&& jobInfo.getScheduleConf().equals(exists_jobInfo.getScheduleConf());		// 触发配置如果不变，避免重复计算；
-		if (exists_jobInfo.getTriggerStatus() == TriggerStatus.RUNNING.getValue() && !scheduleDataNotChanged) {
+				&& Objects.equals(jobInfo.getScheduleConf(), exists_jobInfo.getScheduleConf());
+		boolean refreshNextTime = exists_jobInfo.getTriggerStatus() == TriggerStatus.RUNNING.getValue()
+				&& !scheduleDataNotChanged;
+		if (refreshNextTime) {
 			try {
 				// generate next trigger time
 				Date nextValidTime = scheduleTypeEnum.getScheduleType().generateNextTriggerTime(jobInfo, new Date(System.currentTimeMillis() + JobScheduleHelper.PRE_READ_MS));
@@ -303,7 +269,7 @@ public class XxlJobServiceImpl implements XxlJobService {
 		exists_jobInfo.setScheduleConf(jobInfo.getScheduleConf());
 		exists_jobInfo.setMisfireStrategy(jobInfo.getMisfireStrategy());
 		exists_jobInfo.setExecutorRouteStrategy(jobInfo.getExecutorRouteStrategy());
-		exists_jobInfo.setExecutorHandler(jobInfo.getExecutorHandler().trim());				// remove the whitespace
+		exists_jobInfo.setExecutorHandler(Objects.toString(jobInfo.getExecutorHandler(), "").trim());
 		exists_jobInfo.setExecutorParam(jobInfo.getExecutorParam());
 		exists_jobInfo.setExecutorBlockStrategy(jobInfo.getExecutorBlockStrategy());
 		exists_jobInfo.setExecutorTimeout(jobInfo.getExecutorTimeout());
@@ -312,12 +278,123 @@ public class XxlJobServiceImpl implements XxlJobService {
 		exists_jobInfo.setTriggerNextTime(nextTriggerTime);
 
 		exists_jobInfo.setUpdateTime(new Date());
-        xxlJobInfoMapper.update(exists_jobInfo);
+		if (xxlJobInfoMapper.updateInGroup(exists_jobInfo, originalGroup, refreshNextTime) != 1) {
+			return Response.ofFail(I18nUtil.getString("system_opt_fail"));
+		}
 
 		// write operation log
-		logger.info(">>>>>>>>>>> xxl-job operation log: operator = {}, type = {}, content = {}",
-				loginInfo.getUserName(), "jobinfo-update", GsonTool.toJson(exists_jobInfo));
+		logger.info(">>>>>>>>>>> xxl-job operation log: operator = {}, type = {}, jobId = {}, jobGroup = {}",
+				loginInfo.getUserName(), "jobinfo-update", exists_jobInfo.getId(), exists_jobInfo.getJobGroup());
 
+		return Response.ofSuccess();
+	}
+
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/18 21:40
+	 * 说明: 在执行 SQL 前检查任务配置字段容量，供新增和编辑共用。
+	 * @param job 待保存的任务配置
+	 * @return
+	 * 返回值: Response<String>
+	 * 返回值说明: 可持久化时返回成功，否则返回对应字段错误
+	 */
+	private Response<String> validateJobFieldSizes(XxlJobInfo job) {
+		if (exceedsCharacters(job.getName(), JOB_TEXT_LIMIT)) {
+			return tooLong("jobinfo_field_jobdesc", JOB_TEXT_LIMIT);
+		}
+		if (exceedsCharacters(job.getAuthor(), JOB_AUTHOR_LIMIT)) {
+			return tooLong("jobinfo_field_author", JOB_AUTHOR_LIMIT);
+		}
+		if (exceedsCharacters(job.getAlarmEmail(), JOB_TEXT_LIMIT)) {
+			return tooLong("jobinfo_field_alarmemail", JOB_TEXT_LIMIT);
+		}
+		if (exceedsCharacters(Objects.toString(job.getExecutorHandler(), "").trim(), JOB_TEXT_LIMIT)) {
+			return tooLong("jobinfo_field_executorHandler", JOB_TEXT_LIMIT);
+		}
+		String executorParam = job.getExecutorParam();
+		if (executorParam != null && executorParam.getBytes(StandardCharsets.UTF_8).length > JOB_EXECUTOR_PARAM_BYTE_LIMIT) {
+			return Response.ofFail(MessageFormat.format(I18nUtil.getString("jobinfo_param_too_long"),
+					JOB_EXECUTOR_PARAM_BYTE_LIMIT));
+		}
+		return Response.ofSuccess();
+	}
+
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/18 21:40
+	 * 说明: 按 Unicode 字符计算 VARCHAR 容量。
+	 * @param value 可选字段值
+	 * @param limit 字符上限
+	 * @return
+	 * 返回值: boolean
+	 * 返回值说明: 超过字符上限时为 true
+	 */
+	private boolean exceedsCharacters(String value, int limit) {
+		return value != null && value.codePointCount(0, value.length()) > limit;
+	}
+
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/18 21:40
+	 * 说明: 生成超出字段容量时的提示。
+	 * @param fieldKey 字段名称的国际化键
+	 * @param limit 字段最大字符数
+	 * @return
+	 * 返回值: Response<String>
+	 * 返回值说明: 带字段名称及上限的失败响应
+	 */
+	private Response<String> tooLong(String fieldKey, int limit) {
+		return Response.ofFail(MessageFormat.format(I18nUtil.getString("jobinfo_field_too_long"),
+				I18nUtil.getString(fieldKey), limit));
+	}
+
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/18 19:45
+	 * 说明: 校验子任务编号、数量和执行器组权限，并整理任务编号列表
+	 * @param jobInfo 待保存的任务配置
+	 * @param loginInfo 当前登录人
+	 * @return
+	 * 返回值: Response<String>
+	 * 返回值说明: 校验成功时规范化任务编号，失败时说明对应子任务的问题
+	 */
+	private Response<String> validateChildJobs(XxlJobInfo jobInfo, LoginInfo loginInfo) {
+		if (StringTool.isBlank(jobInfo.getChildJobId())) {
+			return exceedsCharacters(jobInfo.getChildJobId(), JOB_TEXT_LIMIT)
+					? tooLong("jobinfo_field_childJobId", JOB_TEXT_LIMIT) : Response.ofSuccess();
+		}
+		String[] childIds = jobInfo.getChildJobId().split(",");
+		String label = I18nUtil.getString("jobinfo_field_childJobId");
+		if (childIds.length == 0) {
+			return Response.ofFail(label + I18nUtil.getString("system_invalid"));
+		}
+		String childJobIds = String.join(",", childIds);
+		if (exceedsCharacters(childJobIds, JOB_TEXT_LIMIT)) {
+			return tooLong("jobinfo_field_childJobId", JOB_TEXT_LIMIT);
+		}
+		for (String childId : childIds) {
+			int childJobId;
+			try {
+				childJobId = Integer.parseInt(childId);
+			} catch (NumberFormatException e) {
+				return Response.ofFail(label + "(" + childId + ")" + I18nUtil.getString("system_invalid"));
+			}
+			if (childJobId <= 0 || childId.charAt(0) == '+' || childJobId == jobInfo.getId()) {
+				return Response.ofFail(label + "(" + childId + ")" + I18nUtil.getString("system_invalid"));
+			}
+			XxlJobInfo childJobInfo = xxlJobInfoMapper.loadById(childJobId);
+			if (childJobInfo == null) {
+				return Response.ofFail(label + "(" + childId + ")" + I18nUtil.getString("system_not_found"));
+			}
+			if (!JobGroupPermissionUtil.hasJobGroupPermission(loginInfo, childJobInfo.getJobGroup())) {
+				return Response.ofFail(label + "(" + childId + ")" + I18nUtil.getString("system_permission_limit"));
+			}
+		}
+		jobInfo.setChildJobId(childJobIds);
 		return Response.ofSuccess();
 	}
 
@@ -345,6 +422,17 @@ public class XxlJobServiceImpl implements XxlJobService {
 		return Response.ofSuccess();
 	}
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/18 19:49
+	 * 说明: 在任务配置未变时启用调度，重复启用不会重置已生效的下次触发时间
+	 * @param id 任务 ID
+	 * @param loginInfo 当前登录人
+	 * @return
+	 * 返回值: Response<String>
+	 * 返回值说明: 已运行或启用成功时返回成功
+	 */
 	@Override
 	public Response<String> start(int id, LoginInfo loginInfo) {
 		// load and valid
@@ -363,6 +451,9 @@ public class XxlJobServiceImpl implements XxlJobService {
 		if (ScheduleTypeEnum.NONE == scheduleTypeEnum) {
 			return Response.ofFail(I18nUtil.getString("schedule_type_none_limit_start"));
 		}
+		if (xxlJobInfo.getTriggerStatus() == TriggerStatus.RUNNING.getValue()) {
+			return Response.ofSuccess();
+		}
 
 		// next trigger time (5s后生效，避开预读周期)
 		long nextTriggerTime = 0;
@@ -379,12 +470,10 @@ public class XxlJobServiceImpl implements XxlJobService {
 			return Response.ofFail ( (I18nUtil.getString("schedule_type")+I18nUtil.getString("system_invalid")) );
 		}
 
-		xxlJobInfo.setTriggerStatus(TriggerStatus.RUNNING.getValue());
-		xxlJobInfo.setTriggerLastTime(0);
-		xxlJobInfo.setTriggerNextTime(nextTriggerTime);
-
 		xxlJobInfo.setUpdateTime(new Date());
-		xxlJobInfoMapper.update(xxlJobInfo);
+		if (xxlJobInfoMapper.updateTriggerState(xxlJobInfo, TriggerStatus.RUNNING.getValue(), nextTriggerTime) != 1) {
+			return Response.ofFail(I18nUtil.getString("system_opt_fail"));
+		}
 
 		// write operation log
 		logger.info(">>>>>>>>>>> xxl-job operation log: operator = {}, type = {}, content = {}",
@@ -393,6 +482,17 @@ public class XxlJobServiceImpl implements XxlJobService {
 		return Response.ofSuccess();
 	}
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/18 19:49
+	 * 说明: 停止任务后续调度并清空触发时间，保留任务配置和脚本
+	 * @param id 任务 ID
+	 * @param loginInfo 当前登录人
+	 * @return
+	 * 返回值: Response<String>
+	 * 返回值说明: 已停止或停止成功时返回成功
+	 */
 	@Override
 	public Response<String> stop(int id, LoginInfo loginInfo) {
 		// load and valid
@@ -406,13 +506,13 @@ public class XxlJobServiceImpl implements XxlJobService {
 			return Response.ofFail(I18nUtil.getString("system_permission_limit"));
 		}
 
-		// stop
-		xxlJobInfo.setTriggerStatus(TriggerStatus.STOPPED.getValue());
-		xxlJobInfo.setTriggerLastTime(0);
-		xxlJobInfo.setTriggerNextTime(0);
-
+		if (xxlJobInfo.getTriggerStatus() == TriggerStatus.STOPPED.getValue()) {
+			return Response.ofSuccess();
+		}
 		xxlJobInfo.setUpdateTime(new Date());
-		xxlJobInfoMapper.update(xxlJobInfo);
+		if (xxlJobInfoMapper.updateTriggerState(xxlJobInfo, TriggerStatus.STOPPED.getValue(), 0) != 1) {
+			return Response.ofFail(I18nUtil.getString("system_opt_fail"));
+		}
 
 		// write operation log
 		logger.info(">>>>>>>>>>> xxl-job operation log: operator = {}, type = {}, content = {}",
@@ -421,6 +521,19 @@ public class XxlJobServiceImpl implements XxlJobService {
 		return Response.ofSuccess();
 	}
 
+	/**
+	 *
+	 * 作者: xuxueli
+	 * 时间: 2016/5/28 15:30:33
+	 * 说明: 校验执行器组权限和临时地址后手动派发，线程池拒绝时返回明确失败。
+	 * @param loginInfo 当前登录用户
+	 * @param jobId 任务 ID
+	 * @param executorParam 手动指定的任务参数，缺省时传空字符串
+	 * @param addressList 英文逗号分隔的临时执行器地址，可为空
+	 * @return
+	 * 返回值: Response<String>
+	 * 返回值说明: 进入派发队列返回成功，任务不存在、无权限、地址非法或提交被拒绝时返回失败
+	 */
 	@Override
 	public Response<String> trigger(LoginInfo loginInfo, int jobId, String executorParam, String addressList) {
 		// valid job
@@ -434,12 +547,24 @@ public class XxlJobServiceImpl implements XxlJobService {
 			return Response.ofFail(I18nUtil.getString("system_permission_limit"));
 		}
 
+		String addressOverride;
+		try {
+			addressOverride = ExecutorAddressUtil.normalize(addressList);
+		} catch (IllegalArgumentException e) {
+			return Response.ofFail(I18nUtil.getString("jobgroup_field_registryList_invalid"));
+		}
+
 		// force cover job param
 		if (executorParam == null) {
 			executorParam = "";
 		}
 
-		XxlJobAdminBootstrap.getInstance().getJobTriggerPoolHelper().trigger(jobId, TriggerTypeEnum.MANUAL, -1, null, executorParam, addressList);
+		try {
+			XxlJobAdminBootstrap.getInstance().getJobTriggerPoolHelper()
+					.trigger(jobId, TriggerTypeEnum.MANUAL, -1, null, executorParam, addressOverride);
+		} catch (RejectedExecutionException e) {
+			return Response.ofFail(I18nUtil.getString("jobconf_trigger_pool_rejected"));
+		}
 
 		// write operation log
 		logger.info(">>>>>>>>>>> xxl-job operation log: operator = {}, type = {}, content = {}",

@@ -41,7 +41,7 @@
                 this.options = options;
 
                 // init filter
-                initSearch(this.table, options);
+                initSearch(this.table, options, true);
                 initReset(options);
 
                 // init table
@@ -62,7 +62,7 @@
                 initDeleteFun(this.table, options);
             },
             initAdd: function(options) {
-                initAddFun(options);
+                return initAddFun(options);
             },
             initUpdate: function(options) {
                 initUpdateFun(this.table, options);
@@ -73,7 +73,7 @@
     /**
      * init search
      */
-    function initSearch(table, options){
+    function initSearch(table, options, paginated){
         // search
         $('#data_filter .searchBtn').on('click', function(){
 
@@ -85,7 +85,11 @@
             }
 
             // do search
-            $(table).bootstrapTable('refresh');
+            if (paginated) {
+                $(table).bootstrapTable('refresh', { pageNumber: 1 });
+            } else {
+                $(table).bootstrapTable('refresh');
+            }
 
         });
     }
@@ -137,6 +141,8 @@
         let url = options.url;
         let queryParams = options.queryParams;
         let columns = options.columns;
+        const loadError = $('<div>', { class: 'alert alert-warning', role: 'status' })
+            .hide().insertBefore(table);
 
         // init table
         $(table).bootstrapTable({
@@ -147,14 +153,15 @@
             queryParams: queryParams,       // bootstrapTable -> queryParams
             sidePagination: "server",		// server side page
             responseHandler: function (result) {
+                loadError.hide().empty();
                 // custome
                 if (options.responseHandler) {
                     return options.responseHandler(result);
                 }
 
                 // valid
-                if (result.code !== 200) {
-                    layer.msg(result.msg || (I18n.system_opt+I18n.system_fail));
+                if (!result || result.code !== 200 || !result.data || !Array.isArray(result.data.data)) {
+                    loadError.text(result && result.code !== 200 && result.msg || I18n.system_table_load_failed).show();
                     return {
                         total: 0,
                         rows: []
@@ -166,6 +173,9 @@
                     "total": result.data.total,
                     "rows": result.data.data
                 };
+            },
+            onLoadError: function () {
+                loadError.text(I18n.system_table_load_failed).show();
             },
             columns: columns,
             clickToSelect: true, 			// 是否启用点击选中行
@@ -341,109 +351,64 @@
     }
 
     /**
-     * init add
+     * 初始化新增表单，并提供给任务复制入口复用。
      */
     function initAddFun(options) {
-
-        // parse param
-        let url = options.url;
-        let rules = options.rules;
-        let messages = options.messages;
-        let writeFormData = options.writeFormData;
-        let readFormData = options.readFormData;
-
-        // add
-        $("#data_operation .add").click(function(){
-            // reset
-            addModalValidate.resetForm();
-            $("#addModal .form")[0].reset();
-            $("#addModal .form .form-group").removeClass("has-error");
-
-            // write FormData
-            if (typeof writeFormData === 'function') {
-                writeFormData();
-            }
-
-            // show
-            $('#addModal').modal({backdrop: false, keyboard: false}).modal('show');
+        const open = initSaveModal('#addModal', options, I18n.system_opt_add);
+        function openAdd(fillCopy) {
+            open(function () {
+                if (typeof options.writeFormData === 'function') {
+                    options.writeFormData();
+                }
+                if (typeof fillCopy === 'function') {
+                    fillCopy();
+                }
+            });
+        }
+        $("#data_operation .add").click(function () {
+            openAdd();
         });
-        var addModalValidate = $("#addModal .form").validate({
-            errorElement : 'span',
-            errorClass : 'help-block',
-            focusInvalid : true,
-            rules : rules,                      // jquery.validate -> rules
-            messages : messages,                // jquery.validate -> messages
-            highlight : function(element) {
-                $(element).closest('.form-group').addClass('has-error');
-            },
-            success : function(label) {
-                label.closest('.form-group').removeClass('has-error');
-                label.remove();
-            },
-            errorPlacement : function(error, element) {
-                element.parent('div').append(error);
-            },
-            submitHandler : function(form) {
-                // post
-                $.post(url, readFormData(), function(data, status) {
-                    if (data.code === 200) {
-                        $('#addModal').modal('hide');
-                        layer.msg( I18n.system_opt_add + I18n.system_success );
-
-                        // refresh table
-                        $('#data_filter .searchBtn').click();
-                    } else {
-                        layer.open({
-                            title: I18n.system_tips ,
-                            btn: [ I18n.system_ok ],
-                            content: (data.msg || I18n.system_opt_add + I18n.system_fail ),
-                            icon: '2'
-                        });
-                    }
-                });
-            }
-        });
+        return openAdd;
     }
 
     /**
-     * init update
+     * 编辑使用打开弹窗时选中的记录。
      */
     function initUpdateFun(table, options) {
-
-        // parse param
-        let url = options.url;
-        let rules = options.rules;
-        let messages = options.messages;
-        let writeFormData = options.writeFormData;
-        let readFormData = options.readFormData;
-
-        // update
-        $("#data_operation .update").click(function(){
-            // get select rows
+        const open = initSaveModal('#updateModal', options, I18n.system_opt_edit);
+        $("#data_operation .update").click(function () {
             var rows = $(table).bootstrapTable('getSelections');
-
-            // find select row
             if (rows.length !== 1) {
                 layer.msg(I18n.system_please_choose + I18n.system_one + I18n.system_data);
                 return;
             }
-            var row = rows[0];
-
-            // reset
-            $("#updateModal .form")[0].reset();
-            $("#updateModal .form .form-group").removeClass("has-error");
-            updateModalValidate.resetForm();
-
-            // write FormData
-            writeFormData(row);
-
-            // show
-            $('#updateModal').modal({backdrop: false, keyboard: false}).modal('show');
+            open(function () {
+                options.writeFormData(rows[0]);
+            });
         });
-        var updateModalValidate = $("#updateModal .form").validate({
+    }
+
+    /**
+     * 保存期间保留表单快照，失败后恢复操作，成功后关闭并刷新列表。
+     */
+    function initSaveModal(selector, options, action) {
+        const modal = $(selector);
+        const form = modal.find('.form');
+        const saveTimeoutMs = 30000;
+        let saving = false;
+
+        modal.on('hide.bs.modal', function () {
+            if (saving) {
+                return false;
+            }
+        });
+
+        const validator = form.validate({
             errorElement : 'span',
             errorClass : 'help-block',
             focusInvalid : true,
+            rules : options.rules,
+            messages : options.messages,
             highlight : function(element) {
                 $(element).closest('.form-group').addClass('has-error');
             },
@@ -454,31 +419,53 @@
             errorPlacement : function(error, element) {
                 element.parent('div').append(error);
             },
-            rules : rules,                      // jquery.validate -> rules
-            messages : messages,                // jquery.validate -> messages
-            submitHandler : function(form) {
-
-                // request
-                var paramData = readFormData();
-
-                $.post(url, paramData, function(data, status) {
-                    if (data.code === 200) {
-                        $('#updateModal').modal('hide');
-                        layer.msg( I18n.system_opt_edit + I18n.system_success );
-
-                        // refresh table
-                        $('#data_filter .searchBtn').click();
-                    } else {
-                        layer.open({
-                            title: I18n.system_tips ,
-                            btn: [ I18n.system_ok ],
-                            content: (data.msg || I18n.system_opt_edit + I18n.system_fail ),
-                            icon: '2'
-                        });
+            submitHandler : function() {
+                if (saving) {
+                    return;
+                }
+                const data = options.readFormData();
+                const controls = modal.find(':input:enabled');
+                let saved = false;
+                saving = true;
+                controls.prop('disabled', true);
+                $.ajax({
+                    url: options.url,
+                    type: 'POST',
+                    data: data,
+                    dataType: 'json',
+                    timeout: saveTimeoutMs,
+                    success: function (response) {
+                        saved = !!response && response.code === 200;
+                        if (!saved) {
+                            layer.msg($('<span>').text((response && response.msg) || action + I18n.system_fail).html());
+                        }
+                    },
+                    error: function () {
+                        layer.msg(I18n.system_save_unconfirmed);
+                    },
+                    complete: function () {
+                        saving = false;
+                        controls.prop('disabled', false);
+                        if (saved) {
+                            modal.modal('hide');
+                            layer.msg(action + I18n.system_success);
+                            $('#data_filter .searchBtn').click();
+                        }
                     }
                 });
             }
         });
+
+        return function (fillForm) {
+            if (saving || modal.hasClass('in')) {
+                return;
+            }
+            form[0].reset();
+            form.find('.form-group').removeClass('has-error');
+            validator.resetForm();
+            fillForm();
+            modal.modal({backdrop: false, keyboard: false}).modal('show');
+        };
     }
 
 })(jQuery);

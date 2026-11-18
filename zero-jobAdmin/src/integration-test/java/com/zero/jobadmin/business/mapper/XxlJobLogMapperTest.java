@@ -45,7 +45,7 @@ public class XxlJobLogMapperTest {
         dto = xxlJobLogMapper.load(log.getId());
 
 
-        List<Long> ret4 = xxlJobLogMapper.findClearLogIds(1, 1, new Date(), 100, 100);
+        List<Long> ret4 = xxlJobLogMapper.findClearLogIds(1, 1, new Date(), 100, 100, 0, Long.MAX_VALUE);
 
         int ret2 = xxlJobLogMapper.delete(log.getJobId());
 

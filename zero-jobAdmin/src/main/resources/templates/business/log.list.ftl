@@ -11,10 +11,11 @@
 	<link rel="stylesheet" href="${request.contextPath}/static/plugins/bootstrap-table/bootstrap-table.min.css">
 	<!-- daterangepicker -->
 	<link rel="stylesheet" href="${request.contextPath}/static/adminlte/bower_components/bootstrap-daterangepicker/daterangepicker.css">
+	<link rel="stylesheet" href="${request.contextPath}/static/framework/log-remark.css?v=${I18n.admin_version}&amp;layout=2">
 	<!-- 1-style end -->
 
 </head>
-<body class="hold-transition" style="background-color: #ecf0f5;">
+<body class="hold-transition zero-job-tab-page">
 <div class="wrapper">
 	<section class="content">
 
@@ -40,6 +41,9 @@
 							<span class="input-group-addon">${I18n.jobinfo_job}</span>
 							<select class="form-control" id="jobId" >
 								<option value="0" >${I18n.system_all}</option>
+								<#if reportHistoricalJob>
+									<option value="${jobId?c}">#${jobId?c}</option>
+								</#if>
 								<#if jobInfoList?size gt 0>
 									<#list jobInfoList as jobItem>
 										<option value="${jobItem.id}" >${jobItem.name}</option>
@@ -64,7 +68,9 @@
                 		<span class="input-group-addon">
 	                  		${I18n.joblog_field_triggerTime}
 	                	</span>
-							<input type="text" class="form-control" id="filterTime" readonly >
+							<input type="text" class="form-control" id="filterTime" readonly
+								data-today="${reportToday}"
+								data-report-start="${reportStart!''}" data-report-end="${reportEnd!''}">
 						</div>
 					</div>
 
@@ -159,6 +165,27 @@
 	</section>
 </div>
 
+<div class="modal fade" id="logRemarkModal" tabindex="-1" role="dialog" aria-labelledby="logRemarkTitle">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="${I18n.system_close}"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="logRemarkTitle"></h4>
+			</div>
+			<div class="modal-body">
+				<textarea class="log-remark-text" id="logRemarkText" aria-labelledby="logRemarkTitle" readonly spellcheck="false"></textarea>
+			</div>
+			<div class="modal-footer">
+				<span class="log-remark-status" id="logRemarkStatus" role="status"></span>
+				<button type="button" class="btn btn-primary" id="copyLogRemark">
+					<i class="fa fa-copy" aria-hidden="true"></i> ${I18n.joblog_copy_all!(I18n.system_opt_copy + (I18n.admin_i18n == 'en')?then(' ', '') + I18n.system_all)}
+				</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">${I18n.system_close}</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <!-- 3-script start -->
 <@netCommon.commonScript />
 <script src="${request.contextPath}/static/plugins/bootstrap-table/bootstrap-table.min.js"></script>
@@ -192,12 +219,13 @@
 		 * filter Time
 		 */
 		var rangesConf = {};
-		rangesConf[I18n.daterangepicker_ranges_today] = [moment().startOf('day'), moment().endOf('day')];
-		rangesConf[I18n.daterangepicker_ranges_yesterday] = [moment().subtract(1, 'days').startOf('day'), moment().subtract(1, 'days').endOf('day')];
-		rangesConf[I18n.daterangepicker_ranges_this_month] = [moment().startOf('month'), moment().endOf('month')];
-		rangesConf[I18n.daterangepicker_ranges_last_month] = [moment().subtract(1, 'months').startOf('month'), moment().subtract(1, 'months').endOf('month')];
-		rangesConf[I18n.daterangepicker_ranges_recent_week] = [moment().subtract(1, 'weeks').startOf('day'), moment().endOf('day')];
-		rangesConf[I18n.daterangepicker_ranges_recent_month] = [moment().subtract(1, 'months').startOf('day'), moment().endOf('day')];
+		var today = moment($('#filterTime').attr('data-today'), 'YYYY-MM-DD', true);
+		rangesConf[I18n.daterangepicker_ranges_today] = [today.clone().startOf('day'), today.clone().endOf('day')];
+		rangesConf[I18n.daterangepicker_ranges_yesterday] = [today.clone().subtract(1, 'days').startOf('day'), today.clone().subtract(1, 'days').endOf('day')];
+		rangesConf[I18n.daterangepicker_ranges_this_month] = [today.clone().startOf('month'), today.clone().endOf('month')];
+		rangesConf[I18n.daterangepicker_ranges_last_month] = [today.clone().subtract(1, 'months').startOf('month'), today.clone().subtract(1, 'months').endOf('month')];
+		rangesConf[I18n.daterangepicker_ranges_recent_week] = [today.clone().subtract(1, 'weeks').startOf('day'), today.clone().endOf('day')];
+		rangesConf[I18n.daterangepicker_ranges_recent_month] = [today.clone().subtract(1, 'months').startOf('day'), today.clone().endOf('day')];
 
 		$('#filterTime').daterangepicker({
 			autoApply:false,
@@ -227,13 +255,21 @@
 		// init filter
 		var jobGroup = '${jobGroup}';
 		var jobId = '${jobId}';
+		var filterTime = $('#filterTime');
+		var reportStart = filterTime.attr('data-report-start');
+		var reportEnd = filterTime.attr('data-report-end');
+		var fromReport = !!(reportStart && reportEnd);
 		function resetFilter(){
-			$('#filterTime').data("daterangepicker").setStartDate( rangesConf[I18n.daterangepicker_ranges_recent_week][0] );
-			$('#filterTime').data("daterangepicker").setEndDate( rangesConf[I18n.daterangepicker_ranges_recent_week][1] );
+			var picker = filterTime.data('daterangepicker');
+			var range = fromReport
+					? [moment(reportStart, 'YYYY-MM-DD').startOf('day'), moment(reportEnd, 'YYYY-MM-DD').endOf('day')]
+					: rangesConf[I18n.daterangepicker_ranges_recent_week];
+			picker.setStartDate(range[0]);
+			picker.setEndDate(range[1]);
 
 			$("#jobGroup").val( jobGroup );
 			$("#jobId").val( jobId ).trigger("change");		// select2: change 	; $("#jobId").val( jobId );
-			$('#logStatus').prop('selectedIndex', 0);
+			$('#logStatus').val(fromReport ? '2' : '-1');
 		}
 		resetFilter();
 
@@ -292,15 +328,15 @@
                             jobShow = jobShow.substr(0, 15) + '...';
                         }
 						// show
-						return jobShow;
+						return $('<span>').text(jobShow).html();
 					}
 				},{
 					title: I18n.joblog_field_triggerTime,
 					field: 'triggerTime',
 					width: '20',
 					widthUnit: '%',
-					formatter: function(value, row, index) {
-						return value?moment(value).format("YYYY-MM-DD HH:mm:ss"):"";
+					formatter: function(value) {
+						return value || '';
 					}
 				},{
 					title: I18n.joblog_field_triggerCode,
@@ -323,16 +359,15 @@
 					field: 'triggerMsg',
 					width: '5',
 					widthUnit: '%',
-					formatter: function(value, row, index) {
-						return value?'<a class="logTips" href="javascript:;" >'+ I18n.system_show +'<span style="display:none;">'+ value +'</span></a>':I18n.system_empty;
-					}
+					formatter: formatRemarkAction,
+					events: { 'click .logTips': function(event, value) { showRemark(I18n.joblog_field_triggerMsg, value, event.currentTarget); } }
 				},{
 					title: I18n.joblog_field_handleTime,
 					field: 'handleTime',
 					width: '20',
 					widthUnit: '%',
-					formatter: function(value, row, index) {
-						return value?moment(value).format("YYYY-MM-DD HH:mm:ss"):"";
+					formatter: function(value) {
+						return value || '';
 					}
 				},{
 					title: I18n.joblog_field_handleCode,
@@ -357,9 +392,8 @@
 					field: 'handleMsg',
 					width: '5',
 					widthUnit: '%',
-					formatter: function(value, row, index) {
-						return value?'<a class="logTips" href="javascript:;" >'+ I18n.system_show +'<span style="display:none;">'+ value +'</span></a>':I18n.system_empty;
-					}
+					formatter: formatRemarkAction,
+					events: { 'click .logTips': function(event, value) { showRemark(I18n.joblog_field_handleMsg, value, event.currentTarget); } }
 				}
 			]
 		});
@@ -384,7 +418,11 @@
 		/**
 		 * log Kill
 		 */
+		var killInProgress = false;
 		$('#data_operation').on('click', '.logKill', function(){
+			if (killInProgress) {
+				return;
+			}
 			// get select rows
 			var rows = $.adminTable.table.bootstrapTable('getSelections');
 
@@ -394,13 +432,24 @@
 				return;
 			}
 			var row = rows[0];
+			var submitted = false;
+			killInProgress = true;
 
 			// do kill
 			layer.confirm( (I18n.system_ok + I18n.joblog_kill_log + '?'), {
 				icon: 3,
 				title: I18n.system_tips ,
-				btn: [ I18n.system_ok, I18n.system_cancel ]
+				btn: [ I18n.system_ok, I18n.system_cancel ],
+				end: function () {
+					if (!submitted) {
+						killInProgress = false;
+					}
+				}
 			}, function(index){
+				if (submitted) {
+					return;
+				}
+				submitted = true;
 				layer.close(index);
 
 				$.ajax({
@@ -410,31 +459,32 @@
 						"id": row.id
 					},
 					dataType : "json",
-					success : function(data){
-						if (data.code == 200) {
-							layer.open({
-								title: I18n.system_tips,
-								btn: [ I18n.system_ok ],
-								content: I18n.system_opt_suc ,
-								icon: '1',
-								end: function(layero, index){
-									// refresh table
-									$('#data_filter .searchBtn').click();
-								}
-							});
-						} else {
-							layer.open({
-								title: I18n.system_tips,
-								btn: [ I18n.system_ok ],
-								content: (data.msg || I18n.system_opt_fail ),
-								icon: '2'
-							});
-						}
+					success: function(data) {
+						var success = !!data && Number(data.code) === 200;
+						showLogActionResult(success, success ? I18n.system_opt_suc : (data && data.msg) || I18n.system_opt_fail);
+					},
+					error: function () {
+						showLogActionResult(false, I18n.joblog_kill_unconfirmed);
+					},
+					complete: function () {
+						killInProgress = false;
 					},
 				});
 			});
 
 		});
+
+		function showLogActionResult(success, message) {
+			layer.open({
+				title: I18n.system_tips,
+				btn: [ I18n.system_ok ],
+				content: $('<div>').text(message).prop('outerHTML'),
+				icon: success ? 1 : 2,
+				end: function () {
+					$('#data_filter .searchBtn').click();
+				}
+			});
+		}
 
 		/**
 		 * clear Log
@@ -457,82 +507,91 @@
 
 		});
 		$("#clearLogModal .ok").on('click', function(){
-			$.post(base_url + "/joblog/clearLog",  $("#clearLogModal .form").serialize(), function(data, status) {
-				if (data.code == "200") {
+			var button = $(this);
+			button.prop('disabled', true);
+			$.post(base_url + "/joblog/clearLog", $("#clearLogModal .form").serialize())
+				.done(function (data) {
+					var success = !!data && Number(data.code) === 200;
 					$('#clearLogModal').modal('hide');
-					layer.open({
-						title: I18n.system_tips ,
-						btn: [ I18n.system_ok ],
-						content: (I18n.joblog_clean_log + I18n.system_success) ,
-						icon: '1',
-						end: function(layero, index){
-							// refresh table
-							$('#data_filter .searchBtn').click();
-						}
-					});
-				} else {
-					layer.open({
-						title: I18n.system_tips ,
-						btn: [ I18n.system_ok ],
-						content: (data.msg || (I18n.joblog_clean_log + I18n.system_fail) ),
-						icon: '2'
-					});
-				}
-			});
+					showLogActionResult(success, success
+						? I18n.joblog_clean_log + I18n.system_success
+						: (data && data.msg) || I18n.joblog_clean_incomplete);
+				})
+				.fail(function () {
+					$('#clearLogModal').modal('hide');
+					showLogActionResult(false, I18n.joblog_clean_incomplete);
+				})
+				.always(function () {
+					button.prop('disabled', false);
+				});
 		});
 		$("#clearLogModal").on('hide.bs.modal', function () {
 			$("#clearLogModal .form")[0].reset();
 		});
 
-		// ---------------------- ComAlertTec ----------------------
+		var remarkModal = $('#logRemarkModal');
+		var remarkText = document.getElementById('logRemarkText');
+		var remarkStatus = $('#logRemarkStatus');
+		var remarkVersion = 0;
+		var remarkTrigger;
 
-		/**
-		 * logTips alert
-		 */
-		$('body').on('click', '.logTips', function(){
-			var msg = $(this).find('span').html();
-			ComAlertTec.show(msg);
+		function formatRemarkAction(value) {
+			return value
+				? '<button type="button" class="btn btn-link btn-xs logTips" aria-haspopup="dialog">' + I18n.system_show + '</button>'
+				: I18n.system_empty;
+		}
+
+		function showRemark(title, value, trigger) {
+			// 将历史日志里的格式标签转成纯文本，备注内容直接放入只读文本框。
+			var text = value.replace(/<br\s*\/?>/gi, '\n').replace(/<\/?(?:span|b)(?:\s[^<>]*)?>/gi, '');
+			var decoder = document.createElement('textarea');
+			decoder.innerHTML = text.replace(/</g, '&lt;');
+			remarkVersion++;
+			remarkTrigger = trigger;
+			$('#logRemarkTitle').text(title);
+			remarkText.value = decoder.value;
+			remarkStatus.empty();
+			// 页签容器由 admin.dialog.js 提供遮罩，独立页面使用 Bootstrap 自带遮罩。
+			remarkModal.modal({backdrop: window.self === window.top, show: true});
+		}
+
+		remarkModal.on('shown.bs.modal', function () {
+			remarkText.scrollTop = 0;
+		}).on('hidden.bs.modal', function () {
+			remarkVersion++;
+			remarkText.value = '';
+			remarkStatus.empty();
+			if (remarkTrigger && document.contains(remarkTrigger)) {
+				remarkTrigger.focus();
+			}
+			remarkTrigger = null;
 		});
 
-		// Com Alert by Tec theme
-		var ComAlertTec = {
-			html:function(){
-				var html =
-						'<div class="modal fade" id="ComAlertTec" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">' +
-						'	<div class="modal-dialog modal-lg-">' +
-						'		<div class="modal-content-tec">' +
-						'			<div class="modal-body">' +
-						'				<div class="alert" style="color:#fff;word-wrap: break-word;">' +
-						'				</div>' +
-						'			</div>' +
-						'				<div class="modal-footer">' +
-						'				<div class="text-center" >' +
-						'					<button type="button" class="btn btn-info ok" data-dismiss="modal" >'+ I18n.system_ok +'</button>' +
-						'				</div>' +
-						'			</div>' +
-						'		</div>' +
-						'	</div>' +
-						'</div>';
-				return html;
-			},
-			show:function(msg, callback){
-				// dom init
-				if ($('#ComAlertTec').length == 0){
-					$('body').append(ComAlertTec.html());
+		$('#copyLogRemark').on('click', async function () {
+			var version = remarkVersion;
+			var copyButton = this;
+			try {
+				await navigator.clipboard.writeText(remarkText.value);
+			} catch (_) {
+				if (version !== remarkVersion) {
+					return;
 				}
-
-				// init com alert
-				$('#ComAlertTec .alert').html(msg);
-				$('#ComAlertTec').modal('show');
-
-				$('#ComAlertTec .ok').click(function(){
-					$('#ComAlertTec').modal('hide');
-					if(typeof callback == 'function') {
-						callback();
+				remarkText.focus();
+				remarkText.select();
+				try {
+					if (!document.execCommand('copy')) {
+						throw new Error('Clipboard unavailable');
 					}
-				});
+					copyButton.focus();
+				} catch (_) {
+					remarkStatus.text(I18n.joblog_copy_manual || I18n.system_opt_fail);
+					return;
+				}
 			}
-		};
+			if (version === remarkVersion) {
+				remarkStatus.text(I18n.joblog_copy_success || (I18n.system_opt_copy + ' ' + I18n.system_success));
+			}
+		});
 
 	});
 </script>

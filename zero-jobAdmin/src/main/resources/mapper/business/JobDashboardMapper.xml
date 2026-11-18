@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zero.jobadmin.business.mapper.JobDashboardMapper">
+
+    <sql id="reportScope">
+        t.trigger_time &gt;= #{from} AND t.trigger_time &lt; #{until}
+        <choose>
+            <when test="groups != null and !groups.isEmpty()">
+                AND t.job_group IN
+                <foreach collection="groups" item="group" open="(" separator="," close=")">
+                    #{group}
+                </foreach>
+            </when>
+            <otherwise>AND 1 = 0</otherwise>
+        </choose>
+    </sql>
+    <sql id="failed">
+        (t.trigger_code NOT IN (0, 200) OR t.handle_code NOT IN (0, 200))
+    </sql>
+    <sql id="pending">
+        t.trigger_code = 200 AND t.handle_code = 0
+    </sql>
+
+    <select id="trend" resultType="com.zero.jobadmin.business.model.dto.JobDashboardReport$DayResult">
+        SELECT DATE(t.trigger_time) AS day,
+               SUM(CASE WHEN t.trigger_code IN (0, 200) AND t.handle_code = 200 THEN 1 ELSE 0 END) AS succeeded,
+               SUM(CASE WHEN t.trigger_code NOT IN (0, 200) THEN 1 ELSE 0 END) AS dispatchFailed,
+               SUM(CASE WHEN t.trigger_code IN (0, 200) AND t.handle_code NOT IN (0, 200) THEN 1 ELSE 0 END) AS executionFailed,
+               SUM(CASE WHEN <include refid="pending"/> THEN 1 ELSE 0 END) AS pending
+        FROM xxl_job_log t
+        WHERE <include refid="reportScope"/>
+        GROUP BY DATE(t.trigger_time)
+        ORDER BY day
+    </select>
+
+    <select id="topFailures" resultType="com.zero.jobadmin.business.model.dto.JobDashboardReport$FailedJob">
+        SELECT ranked.job_group AS jobGroup, ranked.job_id AS jobId, i.name AS jobName,
+               ranked.failed, ranked.attempts, ranked.lastFailure
+        FROM (
+            SELECT t.job_group, t.job_id,
+                   SUM(CASE WHEN <include refid="failed"/> THEN 1 ELSE 0 END) AS failed,
+                   SUM(CASE WHEN t.trigger_code != 0 OR t.handle_code != 0 THEN 1 ELSE 0 END) AS attempts,
+                   MAX(CASE WHEN <include refid="failed"/> THEN t.trigger_time END) AS lastFailure
+            FROM xxl_job_log t
+            WHERE <include refid="reportScope"/>
+            GROUP BY t.job_group, t.job_id
+            HAVING failed &gt; 0
+            ORDER BY failed DESC, lastFailure DESC, t.job_group, t.job_id
+            LIMIT 10
+        ) ranked
+        LEFT JOIN xxl_job_info i ON i.id = ranked.job_id AND i.job_group = ranked.job_group
+        ORDER BY ranked.failed DESC, ranked.lastFailure DESC, ranked.job_group, ranked.job_id
+    </select>
+
+    <select id="pending" resultType="com.zero.jobadmin.business.model.dto.JobDashboardReport$PendingJob">
+        SELECT CAST(t.id AS CHAR) AS logId, t.job_group AS jobGroup, t.job_id AS jobId,
+               i.name AS jobName, t.executor_address AS executorAddress, t.trigger_time AS triggerTime
+        FROM xxl_job_log t
+        LEFT JOIN xxl_job_info i ON i.id = t.job_id AND i.job_group = t.job_group
+        WHERE <include refid="reportScope"/> AND <include refid="pending"/>
+        ORDER BY t.trigger_time ASC, t.id ASC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+</mapper>

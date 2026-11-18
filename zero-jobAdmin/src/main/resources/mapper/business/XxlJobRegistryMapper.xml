@@ -19,31 +19,37 @@
 		t.update_time
 	</sql>
 
-	<select id="findDead" parameterType="java.util.HashMap" resultType="java.lang.Integer" >
+	<select id="findDead" resultType="java.lang.Long">
 		SELECT t.id
 		FROM xxl_job_registry AS t
 		WHERE t.update_time <![CDATA[ < ]]> DATE_ADD(#{nowTime},INTERVAL -#{timeout} SECOND)
 	</select>
 	
-	<delete id="removeDead" parameterType="java.lang.Integer" >
+	<delete id="removeDead">
 		DELETE FROM xxl_job_registry
-		WHERE id in
-		<foreach collection="ids" item="item" open="(" close=")" separator="," >
-			#{item}
-		</foreach>
+		WHERE update_time <![CDATA[ < ]]> DATE_ADD(#{nowTime},INTERVAL -#{timeout} SECOND)
+		<choose>
+			<when test="ids != null and ids.size() > 0">
+				AND id IN
+				<foreach collection="ids" item="item" open="(" close=")" separator=",">
+					#{item}
+				</foreach>
+			</when>
+			<otherwise>AND 1 = 0</otherwise>
+		</choose>
 	</delete>
 
 	<select id="findAll" parameterType="java.util.HashMap" resultMap="XxlJobRegistry">
 		SELECT <include refid="Base_Column_List" />
 		FROM xxl_job_registry AS t
-		WHERE t.update_time <![CDATA[ > ]]> DATE_ADD(#{nowTime},INTERVAL -#{timeout} SECOND)
+		WHERE t.update_time <![CDATA[ >= ]]> DATE_ADD(#{nowTime},INTERVAL -#{timeout} SECOND)
 	</select>
 
 	<insert id="registrySaveOrUpdate" >
 		INSERT INTO xxl_job_registry( `registry_group` , `registry_key` , `registry_value`, `update_time`)
 		VALUES( #{registryGroup}  , #{registryKey} , #{registryValue}, #{updateTime})
 		ON DUPLICATE KEY UPDATE
-			`update_time` = #{updateTime}
+			`update_time` = CASE WHEN `update_time` &gt; #{updateTime} THEN `update_time` ELSE #{updateTime} END
 	</insert>
 
 	<!--

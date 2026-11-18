@@ -34,11 +34,12 @@ public class XxlJobGroupMapperTest {
         XxlJobGroup group2 = xxlJobGroupMapper.load(group.getId());
         group2.setAppname("setAppName2");
         group2.setName("setTitle2");
-        group2.setAddressType(2);
+        int previousAddressType = group2.getAddressType();
+        group2.setAddressType(1);
         group2.setAddressList("setAddressList2");
         group2.setUpdateTime(new Date());
 
-        int ret2 = xxlJobGroupMapper.update(group2);
+        int ret2 = xxlJobGroupMapper.update(group2, previousAddressType);
 
         int ret3 = xxlJobGroupMapper.remove(group.getId());
     }

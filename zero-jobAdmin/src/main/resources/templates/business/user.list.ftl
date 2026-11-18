@@ -11,7 +11,7 @@
 	<!-- 1-style end -->
 
 </head>
-<body class="hold-transition" style="background-color: #ecf0f5;">
+<body class="hold-transition zero-job-tab-page">
 <div class="wrapper">
 	<section class="content">
 
@@ -84,7 +84,7 @@
 							</div>
 							<div class="form-group">
 								<label for="lastname" class="col-sm-2 control-label">${I18n.user_password}<font color="red">*</font></label>
-								<div class="col-sm-8"><input type="text" class="form-control" name="password" placeholder="${I18n.system_please_input}${I18n.user_password}" maxlength="20" ></div>
+								<div class="col-sm-8"><input type="password" class="form-control" name="password" placeholder="${I18n.system_please_input}${I18n.user_password}" maxlength="20" autocomplete="new-password"></div>
 							</div>
 							<div class="form-group">
 								<label for="lastname" class="col-sm-2 control-label">${I18n.user_role}<font color="red">*</font></label>
@@ -99,7 +99,7 @@
 								<div class="col-sm-8">
 									<#if groupList?exists && groupList?size gt 0>
 										<#list groupList as item>
-											<input type="checkbox" name="permission" value="${item.id}" />&nbsp;&nbsp;${item.name}：${item.appname}
+											<input type="checkbox" name="permission" value="${item.id?c}" />&nbsp;&nbsp;${(item.name!'')?html}：${(item.appname!'')?html}
 											<br>
 										</#list>
 									</#if>
@@ -134,8 +134,8 @@
 								<div class="col-sm-8"><input type="text" class="form-control" name="username" placeholder="${I18n.system_please_input}${I18n.user_username}" maxlength="20" readonly ></div>
 							</div>
 							<div class="form-group">
-								<label for="lastname" class="col-sm-2 control-label">${I18n.user_password}<font color="red">*</font></label>
-								<div class="col-sm-8"><input type="text" class="form-control" name="password" placeholder="${I18n.user_password_update_placeholder}" maxlength="20" ></div>
+								<label for="editUserPassword" class="col-sm-2 control-label">${I18n.user_password}</label>
+								<div class="col-sm-8"><input type="password" id="editUserPassword" class="form-control" name="password" placeholder="${I18n.user_password_update_placeholder}" maxlength="20" autocomplete="new-password"></div>
 							</div>
 							<div class="form-group">
 								<label for="lastname" class="col-sm-2 control-label">${I18n.user_role}<font color="red">*</font></label>
@@ -150,7 +150,7 @@
 								<div class="col-sm-8">
 									<#if groupList?exists && groupList?size gt 0>
 										<#list groupList as item>
-											<input type="checkbox" name="permission" value="${item.id}" />${item.name}(${item.appname})<br>
+											<input type="checkbox" name="permission" value="${item.id?c}" />${(item.name!'')?html}(${(item.appname!'')?html})<br>
 										</#list>
 									</#if>
 								</div>
@@ -211,6 +211,7 @@
 				},{
 					title: I18n.user_username,
 					field: 'username',
+					escape: true,
 					width: '20',
 					widthUnit: '%',
 					align: 'left'
@@ -310,10 +311,11 @@
 				$("#updateModal .form input[name='id']").val( row.id );
 				$("#updateModal .form input[name='username']").val( row.username );
 				$("#updateModal .form input[name='password']").val( '' );
-				$("#updateModal .form input[name='role'][value='"+ row.role +"']").click();
+				$("#updateModal .form input[name='role'][value='"+ (Number(row.role) === 1 ? '1' : '0') +"']")
+					.prop('checked', true).trigger('change');
 				var permissionArr = [];
 				if (row.permission) {
-					permissionArr = row.permission.split(",");
+					permissionArr = row.permission.split(",").map(function (id) { return id.trim(); });
 				}
 				$("#updateModal .form input[name='permission']").each(function () {
 					if($.inArray($(this).val(), permissionArr) > -1) {

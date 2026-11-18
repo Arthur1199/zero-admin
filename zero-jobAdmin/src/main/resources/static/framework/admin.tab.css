@@ -202,6 +202,25 @@ nav.page-tabs .page-tabs-content {
     border-top: solid 2px #d2d6de;
     padding: 8px 20px 12px 20px;
 }
+
+.wrapper {
+    --zero-job-console-footer-height: 37px;
+}
+
+body .zero-job-console-content {
+    position: relative;
+    height: calc(100% - var(--zero-job-console-footer-height));
+}
+
+/* 同一层渐变延伸到页脚下方，避免底部留出灰缝。 */
+.zero-job-console-content > .zero-job-background {
+    bottom: calc(-1 * var(--zero-job-console-footer-height));
+}
+
+.main-footer.zero-job-console-footer {
+    position: relative;
+    height: var(--zero-job-console-footer-height);
+}
 /* admin tab end */
 
 /* nprogress start */

@@ -6,7 +6,7 @@
 
     <!-- 1-style start -->
     <@netCommon.commonStyle />
-    <link rel="stylesheet" href="${request.contextPath}/static/framework/admin.tab.css?v=${I18n.admin_version}">
+    <link rel="stylesheet" href="${request.contextPath}/static/framework/admin.tab.css?v=${I18n.admin_version}&amp;layout=3">
     <!-- 1-style end -->
 
 </head>
@@ -109,7 +109,8 @@
     <!-- 3-left end -->
 
     <!-- 4-right start -->
-    <div class="content-wrapper">
+    <div class="content-wrapper zero-job-console-content">
+        <@netCommon.jobBackground />
 
         <!-- Tabs -->
         <div class="content-tabs">
@@ -150,13 +151,10 @@
     <!-- 4-right end -->
 
     <!-- 5-footer start -->
-    <footer class="main-footer">
-        Powered by <b>XXL-JOB</b> ${I18n.admin_version}
+    <footer class="main-footer zero-job-console-footer">
+        Powered by <b>ZERO-JOB</b> ${I18n.admin_version}
         <div class="pull-right hidden-xs">
-            <strong>Copyright &copy; 2015-${.now?string('yyyy')} &nbsp;
-                <a href="https://www.xuxueli.com/" target="_blank" >xuxueli</a>
-                &nbsp;
-                <a href="https://github.com/xuxueli/xxl-job" target="_blank" >github</a>
+            <strong>Copyright &copy; 2026<#if .now?string("yyyy") != "2026">-${.now?string("yyyy")}</#if> ZERO-JOB
             </strong><!-- All rights reserved. -->
         </div>
     </footer>
@@ -166,7 +164,7 @@
 
 <!-- 6-script start -->
 <@netCommon.commonScript />
-<script src="${request.contextPath}/static/framework/admin.tab.js?v=${I18n.admin_version}"></script>
+<script src="${request.contextPath}/static/framework/admin.tab.js?v=${I18n.admin_version}&amp;layout=2"></script>
 <script src="${request.contextPath}/static/framework/admin.setting.js?v=${I18n.admin_version}"></script>
 <script>
     $(function () {

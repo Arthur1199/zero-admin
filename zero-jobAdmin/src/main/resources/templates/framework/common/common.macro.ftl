@@ -5,7 +5,7 @@
 <#global I18n = I18nUtil.getMultString()?eval />
 <#-- title、favicon、meta -->
 <title>${I18n.admin_name_full}</title>
-<link rel="icon" href="${request.contextPath}/static/favicon.ico" />
+<link rel="icon" type="image/png" href="${request.contextPath}/static/zero-job-favicon.png" />
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
@@ -20,7 +20,8 @@
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 <link rel="stylesheet" href="${request.contextPath}/static/plugins/nprogress/nprogress.css">
-<link rel="stylesheet" href="${request.contextPath}/static/framework/admin.dialog.css">
+<link rel="stylesheet" href="${request.contextPath}/static/framework/admin.dialog.css?v=${I18n.admin_version}&amp;layout=2">
+<link rel="stylesheet" href="${request.contextPath}/static/framework/job-background.css?v=${I18n.admin_version}&amp;layout=3">
 
 </#macro>
 
@@ -37,10 +38,17 @@
 <script src="${request.contextPath}/static/plugins/nprogress/nprogress.js"></script>
 <script src="${request.contextPath}/static/plugins/fullscreen/jquery.fullscreen.js"></script>
 <script src="${request.contextPath}/static/framework/admin.dialog.js"></script>
+<script src="${request.contextPath}/static/framework/job-background.js?v=${I18n.admin_version}"></script>
 <script>
 	// init page param
 	var base_url = '${request.contextPath}';
 	var I18n = ${I18nUtil.getMultString()};
 </script>
 
+</#macro>
+
+<#macro jobBackground>
+<div class="zero-job-background" aria-hidden="true">
+    <div class="zero-job-gradient"></div>
+</div>
 </#macro>
