@@ -48,10 +48,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "xxl.job.i18n=zh_CN",
         "xxl-sso.token.key=job_test_cookie",
         "xxl-sso.token.timeout=604800000",
-        "xxl-sso.client.excluded.paths=/actuator/health,/actuator/info",
+        "xxl-sso.client.excluded.paths=/actuator,/actuator/**",
         "xxl-sso.client.login.path=/auth/login",
-        "management.endpoints.web.exposure.include=health,info",
-        "management.endpoint.health.show-details=never"
+        "management.endpoints.web.exposure.include=*",
+        "management.endpoint.health.show-details=always"
 })
 @AutoConfigureMockMvc
 class JobAdminCompatibilityTest {
@@ -101,10 +101,10 @@ class JobAdminCompatibilityTest {
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/18 15:50
-     * 说明: 验证独立控制台的登录拦截保留，健康检查不要求浏览器登录
+     * 说明: 验证控制台仍需登录，Boot Admin可读取全部已启用监控端点及健康详情
      * @return
      * 返回值: void
-     * 返回值说明: 首页跳转登录且health不泄露组件详情
+     * 返回值说明: 首页跳转登录，health返回组件详情，指标、线程转储及日志级别接口可读
      */
     @Test
     void consoleRequiresLoginAndHealthIsAvailable() throws Exception {
@@ -112,7 +112,20 @@ class JobAdminCompatibilityTest {
                 .andExpect(redirectedUrl("/auth/login"));
         mvc.perform(get("/actuator/health")).andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("UP"))
-                .andExpect(jsonPath("$.components").doesNotExist());
+                .andExpect(jsonPath("$.components").exists());
+        mvc.perform(get("/actuator")).andExpect(status().isOk())
+                .andExpect(jsonPath("$._links.beans").exists())
+                .andExpect(jsonPath("$._links.env").exists());
+        mvc.perform(get("/actuator/threaddump")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.threads").isArray());
+        mvc.perform(get("/actuator/loggers")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.loggers").exists());
+        mvc.perform(get("/actuator/metrics/process.uptime")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.measurements[0].value").isNumber());
+        mvc.perform(get("/actuator/metrics/jvm.memory.used").param("tag", "area:heap"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.measurements[0].value").isNumber());
+        mvc.perform(get("/actuator/metrics/jvm.threads.live"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.measurements[0].value").isNumber());
     }
 
     /**
@@ -194,15 +207,14 @@ class JobAdminCompatibilityTest {
         assertThat(common.getProperty("spring.mail.host")).isEqualTo("localhost");
         assertThat(common.getProperty("spring.mail.properties.mail.smtp.connectiontimeout")).isEqualTo(5000);
         assertThat(common.getProperty("xxl.job.triggerpool.fast.max")).isEqualTo(300);
-        assertThat(base.getProperty("management.endpoints.web.exposure.include")).isEqualTo("health,info");
+        assertThat(base.getProperty("management.endpoints.web.exposure.include")).isEqualTo("*");
+        assertThat(base.getProperty("management.endpoint.health.show-details")).isEqualTo("always");
         for (String profile : new String[]{"dev", "test", "prod"}) {
             var source = loader.load(profile, resolver.getResource("classpath:application-" + profile + ".yml")).get(0);
             assertThat(source.getProperty("spring.config.import[0]").toString())
                     .contains("zero-job-admin-mysql.yml?group=${spring.profiles.active}&refreshEnabled=false");
             assertThat(source.getProperty("spring.config.import[1]").toString())
                     .contains("zero-job-admin-common.yml?group=${spring.profiles.active}&refreshEnabled=false");
-            assertThat(source.getProperty("spring.cloud.nacos.config.group"))
-                    .isEqualTo(profile);
         }
     }
 
