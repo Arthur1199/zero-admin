@@ -14,6 +14,7 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -87,7 +88,19 @@ public class LoginController {
 		return Response.of(result.getCode(), result.getMsg());
 	}
 
-	@RequestMapping("/updatePwd")
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/18 22:13
+	 * 说明: 登录用户校验当前密码后仅更新自己的密码，校验后发生重置时拒绝覆盖。
+	 * @param request 当前登录请求
+	 * @param oldPassword 当前密码，不记录日志
+	 * @param password 新密码，去除首尾空白后长度为 4 至 20
+	 * @return
+	 * 返回值: Response<String>
+	 * 返回值说明: 修改结果，旧密码失效或账号不存在时返回相同提示
+	 */
+	@PostMapping("/updatePwd")
 	@ResponseBody
 	@XxlSso
 	public Response<String> updatePwd(HttpServletRequest request, String oldPassword, String password){
@@ -104,20 +117,23 @@ public class LoginController {
 			return Response.ofFail(I18nUtil.getString("system_length_limit")+"[4-20]" );
 		}
 
-		// md5 password
 		String oldPasswordHash = Sha256Tool.sha256(oldPassword);
 		String passwordHash = Sha256Tool.sha256(password);
 
-		// valid old pwd
 		Response<LoginInfo> loginInfoResponse = XxlSsoHelper.loginCheckWithAttr(request);
-		XxlJobUser existUser = xxlJobUserMapper.loadByUserName(loginInfoResponse.getData().getUserName());
-		if (!oldPasswordHash.equals(existUser.getPassword())) {
+		LoginInfo login = loginInfoResponse.getData();
+		if (!loginInfoResponse.isSuccess() || login == null) {
+			return Response.ofFail(I18nUtil.getString("system_permission_limit"));
+		}
+		int userId = Integer.parseInt(login.getUserId());
+		XxlJobUser existing = xxlJobUserMapper.loadById(userId);
+		if (existing == null || !oldPasswordHash.equals(existing.getPassword())) {
 			return Response.ofFail(I18nUtil.getString("change_pwd_field_oldpwd") + I18nUtil.getString("system_invalid"));
 		}
-
-		// write new
-		existUser.setPassword(passwordHash);
-		xxlJobUserMapper.update(existUser);
+		if (!oldPasswordHash.equals(passwordHash)
+				&& xxlJobUserMapper.changePassword(userId, oldPasswordHash, passwordHash) != 1) {
+			return Response.ofFail(I18nUtil.getString("change_pwd_field_oldpwd") + I18nUtil.getString("system_invalid"));
+		}
 
 		return Response.ofSuccess();
 	}

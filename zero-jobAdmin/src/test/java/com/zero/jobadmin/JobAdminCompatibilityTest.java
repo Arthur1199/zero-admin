@@ -1693,6 +1693,18 @@ class JobAdminCompatibilityTest {
                 && update.getPassword() == null && "2".equals(update.getPermission())));
         mvc.perform(post("/user/update").cookie(login).param("id", "99").param("role", "0"))
                 .andExpect(jsonPath("$.code").value(500));
+
+        mvc.perform(get("/auth/updatePwd").cookie(login)).andExpect(status().isMethodNotAllowed());
+        String oldHash = admin.getPassword();
+        String newHash = com.xxl.tool.crypto.Sha256Tool.sha256("new-fixture-password");
+        when(userMapper.changePassword(42, oldHash, newHash)).thenReturn(0, 1);
+        for (int expected : List.of(500, 200)) {
+            mvc.perform(post("/auth/updatePwd").cookie(login)
+                            .param("oldPassword", "test-fixture-password").param("password", "new-fixture-password"))
+                    .andExpect(jsonPath("$.code").value(expected));
+        }
+        verify(userMapper, times(2)).changePassword(42, oldHash, newHash);
+        verify(userMapper, never()).update(argThat(update -> update.getId() == 42));
     }
 
     /**

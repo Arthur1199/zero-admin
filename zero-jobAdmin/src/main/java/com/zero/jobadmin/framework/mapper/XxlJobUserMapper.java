@@ -41,6 +41,21 @@ public interface XxlJobUserMapper {
 	public int save(XxlJobUser xxlJobUser);
 
 	public int update(XxlJobUser xxlJobUser);
+
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/18 22:13
+	 * 说明: 仅在当前密码仍匹配时修改密码，避免覆盖并发重置和角色权限修改。
+	 * @param id 当前已登录用户 ID
+	 * @param previousHash 已校验的旧密码摘要
+	 * @param newHash 新密码摘要
+	 * @return
+	 * 返回值: int
+	 * 返回值说明: 成功修改返回 1，旧密码已变化或账号不存在返回 0
+	 */
+	int changePassword(@Param("id") int id, @Param("previousHash") String previousHash,
+					   @Param("newHash") String newHash);
 	
 	public int delete(@Param("id") int id);
 
