@@ -1,51 +1,34 @@
 package com.zero.jobadmin.business.scheduler.route.strategy;
 
 import com.zero.jobadmin.business.model.XxlJobGroup;
-import com.zero.jobadmin.business.scheduler.config.XxlJobAdminBootstrap;
 import com.zero.jobadmin.business.scheduler.route.ExecutorRouter;
 import com.zero.jobadmin.framework.util.I18nUtil;
 import com.xxl.job.core.openapi.executor.ExecutorBiz;
 import com.xxl.job.core.openapi.executor.dto.TriggerRequest;
 import com.xxl.tool.response.Response;
 
-import java.util.List;
-
 /**
- * Created by xuxueli on 17/3/10.
+ *
+ * 作者: xuxueli
+ * 时间: 2017/3/10
+ * 说明: 按组内配置顺序选择第一个心跳正常的节点。
  */
 public class ExecutorRouteFailover extends ExecutorRouter {
 
+    /**
+     *
+     * 作者: xuxueli
+     * 时间: 2017/3/10
+     * 说明: 按组内配置顺序选择第一个心跳正常的节点。
+     * @param triggerParam 调度请求，心跳检测与具体任务无关
+     * @param jobGroup 执行器组，提供节点列表和通信配置
+     * @return
+     * 返回值: Response<String>
+     * 返回值说明: 成功时包含选中地址和探测记录，全部探测失败时返回失败记录
+     */
     @Override
     public Response<String> route(TriggerRequest triggerParam, XxlJobGroup jobGroup) {
-
-        List<String> addressList = jobGroup.getRegistryList();
-
-        StringBuffer beatResultSB = new StringBuffer();
-        for (String address : addressList) {
-            // beat
-            Response<String> beatResult = null;
-            try {
-                ExecutorBiz executorBiz = XxlJobAdminBootstrap.getExecutorBiz(address, jobGroup);
-                beatResult = executorBiz.beat();
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-                beatResult = Response.ofFail(e.getMessage() );
-            }
-            beatResultSB.append( (beatResultSB.length()>0)?"<br><br>":"")
-                    .append(I18nUtil.getString("jobconf_beat") + "：")
-                    .append("<br>address：").append(address)
-                    .append("<br>code：").append(beatResult.getCode())
-                    .append("<br>msg：").append(beatResult.getMsg());
-
-            // beat success
-            if (beatResult.isSuccess()) {
-
-                beatResult.setMsg(beatResultSB.toString());
-                beatResult.setData(address);
-                return beatResult;
-            }
-        }
-        return Response.ofFail( beatResultSB.toString());
-
+        return ExecutorRouteProbe.select(jobGroup, I18nUtil.getString("jobconf_beat"),
+                ExecutorBiz::beat);
     }
 }

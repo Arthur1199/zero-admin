@@ -196,6 +196,50 @@ test('待回调翻页保留报表和当前页，失败可直接重试', () => {
     assert.equal(page.requests.length, 3);
 });
 
+test('刷新报表保留待回调页码，失败时继续显示上次结果', () => {
+    const page = dashboard();
+    page.respond(0, 'initial', { pendingTotal: 21 });
+    page.events['#nextPending:click']();
+    page.respond(1, 'second page', { page: 2, pendingTotal: 21 });
+    const refresh = page.events['#refreshReport:click'];
+    refresh();
+    assert.equal(page.requests[2].options.data.page, 2);
+    assert.equal(page.properties['#reportContent'].hidden, false);
+    page.fail(2);
+    assert.equal(page.textValues['#pendingPage'], '2 / 3 · 21');
+    assert.equal(page.textValues['#reportStatus'], 'job_report_refresh_failed');
+    refresh();
+    page.respond(3, 'fewer records', { page: 1, pendingTotal: 3 });
+    assert.equal(page.textValues['#pendingPage'], '1 / 1 · 3');
+    assert.equal(page.textValues['#reportStatus'], '');
+});
+
+test('刷新收到不完整数据时保留当前报表，后续可继续查询', () => {
+    const page = dashboard();
+    page.respond(0, 'initial', { pendingTotal: 21 });
+    const refresh = page.events['#refreshReport:click'];
+    refresh();
+    page.respond(1, 'invalid', { pendingJobs: null });
+    assert.equal(page.properties['#reportContent'].hidden, false);
+    assert.equal(page.textValues['#pendingPage'], '1 / 3 · 21');
+    assert.equal(page.textValues['#reportStatus'], 'job_report_refresh_failed');
+    page.events['#nextPending:click']();
+    assert.equal(page.requests[2].options.data.page, 2);
+});
+
+test('返回页面后恢复因离开而中断的报表请求', () => {
+    const page = dashboard();
+    page.events['pagehide.dashboardCharts']();
+    assert.equal(page.requests[0].aborted, true);
+    page.events['pageshow.dashboardCharts']();
+    page.events['pageshow.dashboardCharts']();
+    assert.equal(page.requests.length, 2);
+    assert.equal(page.requests[1].options.data.page, 1);
+    page.respond(1, 'restored');
+    assert.equal(page.properties['#reportContent'].hidden, false);
+    assert.equal(page.textValues['#reportStatus'], '');
+});
+
 test('切换执行器组取消正在加载的待回调页并回到第一页', () => {
     const page = dashboard();
     page.respond(0, 'initial', { pendingTotal: 21 });

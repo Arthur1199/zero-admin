@@ -79,9 +79,14 @@
                 /**
                  * 全屏显示
                  */
-                $('#fullScreen').on('click', function (event) {
-                    event.preventDefault();
-                    $(document).toggleFullScreen();
+                const $document = $(document);
+                const $fullscreen = $('#fullScreen');
+                $fullscreen.on('click', function () {
+                    $document.toggleFullScreen();
+                });
+                // 始终跟随浏览器状态，包括用户通过 Esc 退出全屏。
+                $document.on('fullscreenchange.adminTab', function () {
+                    $fullscreen.attr('aria-pressed', String(!!$document.fullScreen()));
                 });
 
                 /**

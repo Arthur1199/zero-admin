@@ -44,9 +44,23 @@
 		t.alarm_status
 	</sql>
 	
-	<select id="pageList" resultMap="XxlJobLog">
-		SELECT <include refid="Base_Column_List" />
-		FROM xxl_job_log AS t
+	<!-- 已收到的执行回调优先于派发响应，两种失败互斥。 -->
+	<sql id="Dispatch_Failed">
+		(t.handle_code = 0 AND t.trigger_code NOT IN (0, 200))
+	</sql>
+	<sql id="Execution_Failed">
+		t.handle_code NOT IN (0, 200)
+	</sql>
+	<!-- 运行报表下钻与调度日志列表使用同一失败和待回调条件。 -->
+	<sql id="Failed_Outcome">
+		(<include refid="com.zero.jobadmin.business.mapper.XxlJobLogMapper.Dispatch_Failed"/>
+			OR <include refid="com.zero.jobadmin.business.mapper.XxlJobLogMapper.Execution_Failed"/>)
+	</sql>
+	<sql id="Pending_Callback">
+		t.trigger_code = 200 AND t.handle_code = 0
+	</sql>
+
+	<sql id="Log_Page_Filter">
 		<trim prefix="WHERE" prefixOverrides="AND | OR" >
 			<if test="jobGroup gt 0">
 				AND t.job_group = #{jobGroup}
@@ -64,16 +78,18 @@
 				AND t.handle_code = 200
 			</if>
 			<if test="logStatus == 2" >
-				AND (
-					t.trigger_code NOT IN (0, 200) OR
-					t.handle_code NOT IN (0, 200)
-				)
+				AND <include refid="Failed_Outcome" />
 			</if>
 			<if test="logStatus == 3" >
-				AND t.trigger_code = 200
-				AND t.handle_code = 0
+				AND <include refid="Pending_Callback" />
 			</if>
 		</trim>
+	</sql>
+
+	<select id="pageList" resultMap="XxlJobLog">
+		SELECT <include refid="Base_Column_List" />
+		FROM xxl_job_log AS t
+		<include refid="Log_Page_Filter" />
 		ORDER BY t.id DESC
 		LIMIT #{offset}, #{pagesize}
 	</select>
@@ -81,33 +97,7 @@
 	<select id="pageListCount" resultType="int">
 		SELECT count(1)
 		FROM xxl_job_log AS t
-		<trim prefix="WHERE" prefixOverrides="AND | OR" >
-			<if test="jobGroup gt 0">
-				AND t.job_group = #{jobGroup}
-			</if>
-			<if test="jobId gt 0">
-				AND t.job_id = #{jobId}
-			</if>
-			<if test="triggerTimeStart != null">
-				AND t.trigger_time <![CDATA[ >= ]]> #{triggerTimeStart}
-			</if>
-			<if test="triggerTimeEndExclusive != null">
-				AND t.trigger_time <![CDATA[ < ]]> #{triggerTimeEndExclusive}
-			</if>
-			<if test="logStatus == 1" >
-				AND t.handle_code = 200
-			</if>
-			<if test="logStatus == 2" >
-				AND (
-					t.trigger_code NOT IN (0, 200) OR
-					t.handle_code NOT IN (0, 200)
-				)
-			</if>
-			<if test="logStatus == 3" >
-				AND t.trigger_code = 200
-				AND t.handle_code = 0
-			</if>
-		</trim>
+		<include refid="Log_Page_Filter" />
 	</select>
 	
 	<select id="load" parameterType="java.lang.Long" resultMap="XxlJobLog">
@@ -150,8 +140,10 @@
 		UPDATE xxl_job_log
 		SET
 			`trigger_time`= #{triggerTime},
+			<!-- MySQL 按 SET 顺序赋值，先判断旧调度状态以保留提前回调产生的重试备注。 -->
+			`trigger_msg`= CASE WHEN `trigger_code` = 0 AND `trigger_msg` IS NOT NULL
+				THEN CONCAT(COALESCE(#{triggerMsg}, ''), `trigger_msg`) ELSE #{triggerMsg} END,
 			`trigger_code`= #{triggerCode},
-			`trigger_msg`= #{triggerMsg},
 			`executor_address`= #{executorAddress},
 			`executor_handler`=#{executorHandler},
 			`executor_param`= #{executorParam},
@@ -185,6 +177,8 @@
 		UPDATE xxl_job_log
 		SET trigger_msg = CONCAT(COALESCE(trigger_msg, ''), #{suffix})
 		WHERE id = #{id} AND alarm_status = -1
+			<!-- 历史备注可能已占满 TEXT，保留原备注并继续处理告警。 -->
+			AND OCTET_LENGTH(COALESCE(trigger_msg, '')) + OCTET_LENGTH(#{suffix}) <![CDATA[ <= ]]> 65535
 	</update>
 
 	<update id="updateHandleMessage">
@@ -272,11 +266,15 @@
 		</foreach>
 	</delete>
 
+	<sql id="Retryable_Failure">
+		`handle_code` != 200
+		AND (`handle_code` != 0 OR `trigger_code` NOT IN (0, 200))
+	</sql>
+
 	<select id="findFailJobLogIds" resultType="long" >
 		SELECT id FROM `xxl_job_log`
 		WHERE `alarm_status` = 0
-			AND `handle_code` != 200
-			AND (`handle_code` != 0 OR `trigger_code` NOT IN (0, 200))
+			AND <include refid="Retryable_Failure" />
 		ORDER BY id ASC
 		LIMIT #{pagesize}
 	</select>
@@ -286,6 +284,9 @@
 		SET
 			`alarm_status` = #{newAlarmStatus}
 		WHERE `id`= #{logId} AND `alarm_status` = #{oldAlarmStatus}
+		<if test="oldAlarmStatus == 0">
+			AND <include refid="Retryable_Failure" />
+		</if>
 	</update>
 
 	<sql id="Lost_Job_Condition">

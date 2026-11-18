@@ -15,19 +15,15 @@
             <otherwise>AND 1 = 0</otherwise>
         </choose>
     </sql>
-    <sql id="failed">
-        (t.trigger_code NOT IN (0, 200) OR t.handle_code NOT IN (0, 200))
-    </sql>
-    <sql id="pending">
-        t.trigger_code = 200 AND t.handle_code = 0
-    </sql>
-
     <select id="trend" resultType="com.zero.jobadmin.business.model.dto.JobDashboardReport$DayResult">
         SELECT DATE(t.trigger_time) AS day,
-               SUM(CASE WHEN t.trigger_code IN (0, 200) AND t.handle_code = 200 THEN 1 ELSE 0 END) AS succeeded,
-               SUM(CASE WHEN t.trigger_code NOT IN (0, 200) THEN 1 ELSE 0 END) AS dispatchFailed,
-               SUM(CASE WHEN t.trigger_code IN (0, 200) AND t.handle_code NOT IN (0, 200) THEN 1 ELSE 0 END) AS executionFailed,
-               SUM(CASE WHEN <include refid="pending"/> THEN 1 ELSE 0 END) AS pending
+               SUM(CASE WHEN t.handle_code = 200 THEN 1 ELSE 0 END) AS succeeded,
+               SUM(CASE WHEN <include refid="com.zero.jobadmin.business.mapper.XxlJobLogMapper.Dispatch_Failed"/>
+                   THEN 1 ELSE 0 END) AS dispatchFailed,
+               SUM(CASE WHEN <include refid="com.zero.jobadmin.business.mapper.XxlJobLogMapper.Execution_Failed"/>
+                   THEN 1 ELSE 0 END) AS executionFailed,
+               SUM(CASE WHEN <include refid="com.zero.jobadmin.business.mapper.XxlJobLogMapper.Pending_Callback"/>
+                   THEN 1 ELSE 0 END) AS pending
         FROM xxl_job_log t
         WHERE <include refid="reportScope"/>
         GROUP BY DATE(t.trigger_time)
@@ -39,9 +35,11 @@
                ranked.failed, ranked.attempts, ranked.lastFailure
         FROM (
             SELECT t.job_group, t.job_id,
-                   SUM(CASE WHEN <include refid="failed"/> THEN 1 ELSE 0 END) AS failed,
+                   SUM(CASE WHEN <include refid="com.zero.jobadmin.business.mapper.XxlJobLogMapper.Failed_Outcome"/>
+                       THEN 1 ELSE 0 END) AS failed,
                    SUM(CASE WHEN t.trigger_code != 0 OR t.handle_code != 0 THEN 1 ELSE 0 END) AS attempts,
-                   MAX(CASE WHEN <include refid="failed"/> THEN t.trigger_time END) AS lastFailure
+                   MAX(CASE WHEN <include refid="com.zero.jobadmin.business.mapper.XxlJobLogMapper.Failed_Outcome"/>
+                       THEN t.trigger_time END) AS lastFailure
             FROM xxl_job_log t
             WHERE <include refid="reportScope"/>
             GROUP BY t.job_group, t.job_id
@@ -58,7 +56,8 @@
                i.name AS jobName, t.executor_address AS executorAddress, t.trigger_time AS triggerTime
         FROM xxl_job_log t
         LEFT JOIN xxl_job_info i ON i.id = t.job_id AND i.job_group = t.job_group
-        WHERE <include refid="reportScope"/> AND <include refid="pending"/>
+        WHERE <include refid="reportScope"/>
+            AND <include refid="com.zero.jobadmin.business.mapper.XxlJobLogMapper.Pending_Callback"/>
         ORDER BY t.trigger_time ASC, t.id ASC
         LIMIT #{limit} OFFSET #{offset}
     </select>

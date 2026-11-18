@@ -5,6 +5,7 @@ import com.zero.jobadmin.business.model.XxlJobGroup;
 import com.zero.jobadmin.business.model.XxlJobRegistry;
 import com.zero.jobadmin.business.util.ExecutorAddressUtil;
 import com.zero.jobadmin.framework.util.I18nUtil;
+import com.zero.jobadmin.framework.util.PageQueryUtil;
 import com.zero.jobadmin.business.mapper.XxlJobGroupMapper;
 import com.zero.jobadmin.business.mapper.XxlJobInfoMapper;
 import com.zero.jobadmin.business.mapper.XxlJobRegistryMapper;
@@ -21,6 +22,8 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -55,14 +58,31 @@ public class JobGroupController {
 		return "business/group.list";
 	}
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/18 22:19
+	 * 说明: 管理员在同一数据库快照中查询执行器组列表和总数。
+	 * @param offset 分页偏移，默认 0
+	 * @param pagesize 每页条数，默认 10，最大 500
+	 * @param appname 可选的执行器应用名筛选
+	 * @param name 可选的执行器名称筛选
+	 * @return
+	 * 返回值: Response<PageModel<XxlJobGroup>>
+	 * 返回值说明: 执行器组列表及匹配总数，分页参数越界时返回失败
+	 */
 	@RequestMapping("/pageList")
 	@ResponseBody
 	@XxlSso(role = Consts.ADMIN_ROLE)
+	@Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
 	public Response<PageModel<XxlJobGroup>> pageList(@RequestParam(required = false, defaultValue = "0") int offset,
 													 @RequestParam(required = false, defaultValue = "10") int pagesize,
 													 String appname,
 													 String name) {
 
+		if (PageQueryUtil.isInvalid(offset, pagesize)) {
+			return Response.ofFail(I18nUtil.getString("system_page_invalid"));
+		}
 		// page query
 		List<XxlJobGroup> list = xxlJobGroupMapper.pageList(offset, pagesize, appname, name);
 		int list_count = xxlJobGroupMapper.pageListCount(offset, pagesize, appname, name);
@@ -176,19 +196,21 @@ public class JobGroupController {
 	 *
 	 * 作者: Arthur 亚瑟
 	 * 时间: 2026/11/18 20:00
-	 * 说明: 切换为自动注册时，读取该应用仍有效的心跳地址。
+	 * 说明: 切换为自动注册时，只读取该应用仍有效的心跳地址，保留应用名精确匹配。
 	 * @param appname 数据库中的执行器 AppName
 	 * @return
 	 * 返回值: String
 	 * 返回值说明: 排序去重后的地址列表，无在线节点时为空
 	 */
 	private String findRegistryByAppName(String appname) {
-		List<XxlJobRegistry> list = xxlJobRegistryMapper.findAll(Const.DEAD_TIMEOUT, new Date());
+		String registryGroup = RegistTypeEnum.EXECUTOR.name();
+		List<XxlJobRegistry> list = xxlJobRegistryMapper.findActiveByGroupAndKey(
+				registryGroup, appname, Const.DEAD_TIMEOUT, new Date());
 		if (CollectionTool.isEmpty(list)) {
 			return null;
 		}
 		List<String> addresses = list.stream()
-				.filter(node -> RegistTypeEnum.EXECUTOR.name().equals(node.getRegistryGroup())
+				.filter(node -> registryGroup.equals(node.getRegistryGroup())
 						&& Objects.equals(appname, node.getRegistryKey()))
 				.map(XxlJobRegistry::getRegistryValue)
 				.filter(StringTool::isNotBlank)

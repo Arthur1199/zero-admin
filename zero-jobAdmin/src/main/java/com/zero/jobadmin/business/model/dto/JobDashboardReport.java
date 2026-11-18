@@ -18,7 +18,7 @@ public record JobDashboardReport(
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/18 19:08
-     * 说明: 按调度日期统计各阶段结果，忽略尚未记录派发或回调结果的瞬时记录
+     * 说明: 按调度日期统计互斥结果，已有回调优先采用执行结果，忽略尚未确认派发的瞬时记录。
      */
     public record DayResult(LocalDate day, long succeeded, long dispatchFailed, long executionFailed, long pending) {
     }

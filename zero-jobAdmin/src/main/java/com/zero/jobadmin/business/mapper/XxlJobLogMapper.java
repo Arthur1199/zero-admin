@@ -67,13 +67,23 @@ public interface XxlJobLogMapper {
 
 	public long save(XxlJobLog xxlJobLog);
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/18 22:58
+	 * 说明: 按日志 ID 保存派发结果，并保留派发返回前写入的重试备注。
+	 * @param xxlJobLog 调度日志，包含执行器地址、调度状态及备注
+	 * @return
+	 * 返回值: int
+	 * 返回值说明: 受影响的日志行数
+	 */
 	public int updateTriggerInfo(XxlJobLog xxlJobLog);
 
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
 	 * 时间: 2026/11/18 20:13
-	 * 说明: 为已认领的失败日志补充重试说明，保留其他调度字段。
+	 * 说明: 为已认领的失败日志补充重试说明，历史备注空间不足时保留原内容。
 	 * @param id 调度日志 ID
 	 * @param suffix 要追加的重试备注
 	 * @return
@@ -174,6 +184,18 @@ public interface XxlJobLogMapper {
 
 	public List<Long> findFailJobLogIds(@Param("pagesize") int pagesize);
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/18 22:34
+	 * 说明: 按预期状态变更告警处理进度，认领时再次确认日志仍符合失败处理条件。
+	 * @param logId 失败监控扫描到的日志 ID
+	 * @param oldAlarmStatus 状态更新前的预期值，0 表示待处理
+	 * @param newAlarmStatus 目标状态，-1 表示已认领
+	 * @return
+	 * 返回值: int
+	 * 返回值说明: 更新成功返回 1，日志状态已变化或已删除时返回 0
+	 */
 	public int updateAlarmStatus(@Param("logId") long logId,
 								 @Param("oldAlarmStatus") int oldAlarmStatus,
 								 @Param("newAlarmStatus") int newAlarmStatus);

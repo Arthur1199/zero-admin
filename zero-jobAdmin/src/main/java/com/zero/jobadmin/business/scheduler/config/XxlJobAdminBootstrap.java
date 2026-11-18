@@ -20,9 +20,12 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * xxl-job config
@@ -36,28 +39,50 @@ public class XxlJobAdminBootstrap implements InitializingBean, DisposableBean {
 
     // ---------------------- instance ----------------------
 
-    private static XxlJobAdminBootstrap adminConfig = null;
+    private static final AtomicReference<XxlJobAdminBootstrap> adminConfig = new AtomicReference<>();
     public static XxlJobAdminBootstrap getInstance() {
-        return adminConfig;
+        return adminConfig.get();
     }
 
 
     // ---------------------- start / stop ----------------------
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 22:42
+     * 说明: 发布调度中心并启动组件，启动失败时回收本次已开始初始化的资源。
+     * @return
+     * 返回值: void
+     * 返回值说明: 成功后启动后台线程，失败时向 Spring 保留原始异常
+     */
     @Override
-    public void afterPropertiesSet() throws Exception {
-        // init instance
-        adminConfig = this;
-
-        // start
-        doStart();
+    public void afterPropertiesSet() {
+        adminConfig.set(this);
+        try {
+            doStart();
+        } catch (RuntimeException | Error e) {
+            doStop(e);
+            throw e;
+        }
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 22:42
+     * 说明: 按依赖的反向顺序关闭调度组件。
+     * @return
+     * 返回值: void
+     * 返回值说明: 所有已登记组件均尝试关闭，清理失败记录到日志
+     */
     @Override
-    public void destroy() throws Exception {
-        // stop
-        doStop();
+    public void destroy() {
+        doStop(null);
     }
+
+    /** 先于组件启动登记关闭动作，覆盖启动过程只完成一半的情况。 */
+    private final Deque<Runnable> stopActions = new ArrayDeque<>();
 
     // job module
     private JobTriggerPoolHelper jobTriggerPoolHelper;
@@ -78,57 +103,82 @@ public class XxlJobAdminBootstrap implements InitializingBean, DisposableBean {
     }
 
     /**
-     * do start
+     *
+     * 作者: xuxueli
+     * 时间: 2017/4/28
+     * 说明: 按依赖顺序启动组件，先登记关闭动作，再启动工作线程。
+     * @return
+     * 返回值: void
+     * 返回值说明: 后台组件就绪后才能正常提供调度
      */
-    private void doStart() throws Exception {
+    private void doStart() {
         // trigger-pool start
         jobTriggerPoolHelper = new JobTriggerPoolHelper();
+        stopActions.addFirst(jobTriggerPoolHelper::stop);
         jobTriggerPoolHelper.start();
 
         // registry monitor start
         jobRegistryHelper = new JobRegistryHelper();
+        stopActions.addFirst(jobRegistryHelper::stop);
         jobRegistryHelper.start();
 
         // fail-alarm monitor start
         jobFailAlarmMonitorHelper = new JobFailAlarmMonitorHelper();
+        stopActions.addFirst(jobFailAlarmMonitorHelper::stop);
         jobFailAlarmMonitorHelper.start();
 
         // job complate start  ( depend on JobTriggerPoolHelper ) for callback and result-lost
         jobCompleteHelper = new JobCompleteHelper();
+        stopActions.addFirst(jobCompleteHelper::stop);
         jobCompleteHelper.start();
 
         // log-report start
         jobLogReportHelper = new JobLogReportHelper();
+        stopActions.addFirst(jobLogReportHelper::stop);
         jobLogReportHelper.start();
 
         // job-schedule start  ( depend on JobTriggerPoolHelper )
         jobScheduleHelper = new JobScheduleHelper();
+        stopActions.addFirst(jobScheduleHelper::stop);
         jobScheduleHelper.start();
 
         logger.info(">>>>>>>>> xxl-job admin start success.");
     }
 
     /**
-     * do stop
+     *
+     * 作者: xuxueli
+     * 时间: 2017/4/28
+     * 说明: 在正常关停或启动回滚时关闭组件，某个组件失败仍继续清理其依赖。
+     * 关闭期间暂存调用线程的中断标志，避免后续组件在等待工作线程退出时提前返回。
+     * @param startupFailure 启动失败的原始异常，正常关停时为空
+     * @return
+     * 返回值: void
+     * 返回值说明: 清理异常附加到启动异常或记入日志，清理结束后恢复中断标志
      */
-    private void doStop(){
-        // job-schedule stop
-        jobScheduleHelper.stop();
-
-        // log-report stop
-        jobLogReportHelper.stop();
-
-        // job complate stop
-        jobCompleteHelper.stop();
-
-        // fail-alarm monitor stop
-        jobFailAlarmMonitorHelper.stop();
-
-        // registry monitor stop
-        jobRegistryHelper.stop();
-
-        // trigger-pool stop
-        jobTriggerPoolHelper.stop();
+    private void doStop(Throwable startupFailure) {
+        boolean interrupted = Thread.interrupted();
+        try {
+            Runnable stop;
+            while ((stop = stopActions.pollFirst()) != null) {
+                try {
+                    stop.run();
+                } catch (RuntimeException | Error failure) {
+                    if (startupFailure != null && startupFailure != failure) {
+                        startupFailure.addSuppressed(failure);
+                    } else {
+                        logger.error("Failed to stop a job admin component", failure);
+                    }
+                } finally {
+                    interrupted |= Thread.interrupted();
+                }
+            }
+        } finally {
+            adminConfig.compareAndSet(this, null);
+            if (interrupted) {
+                Thread.currentThread().interrupt();
+            }
+        }
 
         logger.info(">>>>>>>>> xxl-job admin stopped.");
     }

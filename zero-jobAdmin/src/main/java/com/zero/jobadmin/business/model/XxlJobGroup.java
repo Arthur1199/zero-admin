@@ -25,14 +25,17 @@ public class XxlJobGroup {
     private String accessToken;
     private Date updateTime;
 
-    // registry list
-    private List<String> registryList;  // 执行器地址列表(系统注册)
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 22:23
+     * 说明: 从当前地址配置解析节点，地址被清空后立即反映无可用节点。
+     * @return
+     * 返回值: List<String>
+     * 返回值说明: 保持地址顺序的列表，无地址时为空
+     */
     public List<String> getRegistryList() {
-
-        if (StringTool.isNotBlank(addressList)) {
-            registryList = StringTool.split(addressList, ",");
-        }
-        return registryList;
+        return StringTool.isNotBlank(addressList) ? StringTool.split(addressList, ",") : null;
     }
 
     public int getId() {

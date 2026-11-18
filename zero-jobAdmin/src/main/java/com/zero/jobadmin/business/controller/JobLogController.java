@@ -14,6 +14,7 @@ import com.zero.jobadmin.business.service.JobLogCleanup;
 import com.zero.jobadmin.business.service.XxlJobService;
 import com.zero.jobadmin.framework.util.I18nUtil;
 import com.zero.jobadmin.framework.util.JobGroupPermissionUtil;
+import com.zero.jobadmin.framework.util.PageQueryUtil;
 import com.xxl.job.core.context.XxlJobContext;
 import com.xxl.job.core.openapi.executor.ExecutorBiz;
 import com.xxl.job.core.openapi.executor.dto.KillRequest;
@@ -31,6 +32,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,9 +60,6 @@ import java.util.List;
 @RequestMapping("/joblog")
 public class JobLogController {
 	private static final Logger logger = LoggerFactory.getLogger(JobLogController.class);
-
-	/** 调度日志的列表查询最多返回的记录数，兼容现有后台分页。 */
-	private static final int MAX_LOG_PAGE_SIZE = 500;
 
 	/** 与日志列表日期选择器一致，严格校验日期及时间。 */
 	private static final DateTimeFormatter LOG_DATE_TIME =
@@ -160,7 +160,7 @@ public class JobLogController {
 	 *
 	 * 作者: Arthur 亚瑟
 	 * 时间: 2026/11/18 19:26
-	 * 说明: 按已授权的执行器组分页查询调度日志，非法筛选条件直接返回错误
+	 * 说明: 按已授权的执行器组查询调度日志，在同一数据库快照中读取记录和总数。
 	 * @param request 当前登录请求
 	 * @param offset 起始偏移，从 0 开始
 	 * @param pagesize 每页条数，最大 500
@@ -174,6 +174,7 @@ public class JobLogController {
 	 */
 	@RequestMapping("/pageList")
 	@ResponseBody
+	@Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
 	public Response<PageModel<XxlJobLogDTO>> pageList(HttpServletRequest request,
 													  @RequestParam(required = false, defaultValue = "0") int offset,
 													  @RequestParam(required = false, defaultValue = "10") int pagesize,
@@ -182,8 +183,10 @@ public class JobLogController {
 													  @RequestParam int logStatus,
 													  @RequestParam String filterTime) {
 
-		if (jobGroup <= 0 || jobId < 0 || offset < 0 || pagesize < 1 || pagesize > MAX_LOG_PAGE_SIZE
-				|| logStatus < -1 || logStatus > 3) {
+		if (PageQueryUtil.isInvalid(offset, pagesize)) {
+			return Response.ofFail(I18nUtil.getString("system_page_invalid"));
+		}
+		if (jobGroup <= 0 || jobId < 0 || logStatus < -1 || logStatus > 3) {
 			return Response.ofFail(I18nUtil.getString("system_invalid"));
 		}
 		JobGroupPermissionUtil.validJobGroupPermission(request, jobGroup);

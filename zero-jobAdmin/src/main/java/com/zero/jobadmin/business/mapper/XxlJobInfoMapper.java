@@ -15,6 +15,22 @@ import java.util.List;
 @Mapper
 public interface XxlJobInfoMapper {
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/18 22:17
+	 * 说明: 分页查询任务管理所需的配置，GLUE 源码由编辑器单独读取。
+	 * @param offset 分页偏移
+	 * @param pagesize 每页条数
+	 * @param jobGroup 由调用方校验的执行器组 ID
+	 * @param triggerStatus 调度状态，负数表示不筛选
+	 * @param name 可选的任务名称筛选
+	 * @param executorHandler 可选的 JobHandler 筛选
+	 * @param author 可选的负责人筛选
+	 * @return
+	 * 返回值: List<XxlJobInfo>
+	 * 返回值说明: 按 ID 降序返回的任务记录，GLUE 源码为空
+	 */
 	public List<XxlJobInfo> pageList(@Param("offset") int offset,
 									 @Param("pagesize") int pagesize,
 									 @Param("jobGroup") int jobGroup,
@@ -92,6 +108,16 @@ public interface XxlJobInfoMapper {
 	
 	public int delete(@Param("id") long id);
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/18 22:17
+	 * 说明: 查询调度日志的任务下拉选项。
+	 * @param jobGroup 经过调用方权限校验的执行器组 ID
+	 * @return
+	 * 返回值: List<XxlJobInfo>
+	 * 返回值说明: 按任务 ID 升序返回，仅填充任务 ID 和名称
+	 */
 	public List<XxlJobInfo> getJobsByGroup(@Param("jobGroup") int jobGroup);
 
 	public int findAllCount();

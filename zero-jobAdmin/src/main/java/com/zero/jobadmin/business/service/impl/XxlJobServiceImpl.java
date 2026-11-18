@@ -27,6 +27,8 @@ import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
@@ -61,7 +63,24 @@ public class XxlJobServiceImpl implements XxlJobService {
 	@Resource
 	private XxlJobLogReportMapper xxlJobLogReportMapper;
 	
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/18 22:21
+	 * 说明: 在同一数据库快照中查询任务列表和总数。
+	 * @param offset 经过入口校验的分页偏移
+	 * @param pagesize 每页条数，入口限制为 1 至 500
+	 * @param jobGroup 当前账号有权查询的执行器组
+	 * @param triggerStatus 调度状态，负数表示不筛选
+	 * @param name 可选的任务名称筛选
+	 * @param executorHandler 可选的 JobHandler 筛选
+	 * @param author 可选的负责人筛选
+	 * @return
+	 * 返回值: Response<PageModel<XxlJobInfo>>
+	 * 返回值说明: 同一快照中的任务记录和匹配总数
+	 */
 	@Override
+	@Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
 	public Response<PageModel<XxlJobInfo>> pageList(int offset, int pagesize, int jobGroup, int triggerStatus, String name, String executorHandler, String author) {
 
 		// page list
@@ -312,7 +331,20 @@ public class XxlJobServiceImpl implements XxlJobService {
 		if (exceedsCharacters(Objects.toString(job.getExecutorHandler(), "").trim(), JOB_TEXT_LIMIT)) {
 			return tooLong("jobinfo_field_executorHandler", JOB_TEXT_LIMIT);
 		}
-		String executorParam = job.getExecutorParam();
+		return validateExecutorParam(job.getExecutorParam());
+	}
+
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/18 23:05
+	 * 说明: 新增、编辑及立即触发共用 TEXT 参数容量检查。
+	 * @param executorParam 待保存到任务配置或调度日志的参数，可为空
+	 * @return
+	 * 返回值: Response<String>
+	 * 返回值说明: 超出 UTF-8 字节容量时返回字段错误
+	 */
+	private Response<String> validateExecutorParam(String executorParam) {
 		if (executorParam != null && executorParam.getBytes(StandardCharsets.UTF_8).length > JOB_EXECUTOR_PARAM_BYTE_LIMIT) {
 			return Response.ofFail(MessageFormat.format(I18nUtil.getString("jobinfo_param_too_long"),
 					JOB_EXECUTOR_PARAM_BYTE_LIMIT));
@@ -355,7 +387,7 @@ public class XxlJobServiceImpl implements XxlJobService {
 	 *
 	 * 作者: Arthur 亚瑟
 	 * 时间: 2026/11/18 19:45
-	 * 说明: 校验子任务编号、数量和执行器组权限，并整理任务编号列表
+	 * 说明: 校验子任务编号、字段容量和执行器组权限，按首次出现的顺序保存唯一编号。
 	 * @param jobInfo 待保存的任务配置
 	 * @param loginInfo 当前登录人
 	 * @return
@@ -376,7 +408,10 @@ public class XxlJobServiceImpl implements XxlJobService {
 		if (exceedsCharacters(childJobIds, JOB_TEXT_LIMIT)) {
 			return tooLong("jobinfo_field_childJobId", JOB_TEXT_LIMIT);
 		}
-		for (String childId : childIds) {
+		Set<Integer> childJobs = new HashSet<>();
+		StringJoiner normalizedChildren = new StringJoiner(",");
+		for (String item : childIds) {
+			String childId = item.strip();
 			int childJobId;
 			try {
 				childJobId = Integer.parseInt(childId);
@@ -386,6 +421,9 @@ public class XxlJobServiceImpl implements XxlJobService {
 			if (childJobId <= 0 || childId.charAt(0) == '+' || childJobId == jobInfo.getId()) {
 				return Response.ofFail(label + "(" + childId + ")" + I18nUtil.getString("system_invalid"));
 			}
+			if (!childJobs.add(childJobId)) {
+				continue;
+			}
 			XxlJobInfo childJobInfo = xxlJobInfoMapper.loadById(childJobId);
 			if (childJobInfo == null) {
 				return Response.ofFail(label + "(" + childId + ")" + I18nUtil.getString("system_not_found"));
@@ -393,8 +431,9 @@ public class XxlJobServiceImpl implements XxlJobService {
 			if (!JobGroupPermissionUtil.hasJobGroupPermission(loginInfo, childJobInfo.getJobGroup())) {
 				return Response.ofFail(label + "(" + childId + ")" + I18nUtil.getString("system_permission_limit"));
 			}
+			normalizedChildren.add(Integer.toString(childJobId));
 		}
-		jobInfo.setChildJobId(childJobIds);
+		jobInfo.setChildJobId(normalizedChildren.toString());
 		return Response.ofSuccess();
 	}
 
@@ -534,6 +573,19 @@ public class XxlJobServiceImpl implements XxlJobService {
 	 * 返回值: Response<String>
 	 * 返回值说明: 进入派发队列返回成功，任务不存在、无权限、地址非法或提交被拒绝时返回失败
 	 */
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/18 23:05
+	 * 说明: 校验执行器组权限和覆盖字段容量后，将立即触发请求提交到派发队列。
+	 * @param loginInfo 当前登录用户，必须有该任务的执行器组权限
+	 * @param jobId 任务 ID
+	 * @param executorParam 本次触发参数，缺省时使用空串
+	 * @param addressList 临时执行器地址列表，空白时使用原配置
+	 * @return
+	 * 返回值: Response<String>
+	 * 返回值说明: 入队成功时返回成功，校验失败或队列拒绝时返回具体原因
+	 */
 	@Override
 	public Response<String> trigger(LoginInfo loginInfo, int jobId, String executorParam, String addressList) {
 		// valid job
@@ -552,6 +604,11 @@ public class XxlJobServiceImpl implements XxlJobService {
 			addressOverride = ExecutorAddressUtil.normalize(addressList);
 		} catch (IllegalArgumentException e) {
 			return Response.ofFail(I18nUtil.getString("jobgroup_field_registryList_invalid"));
+		}
+
+		Response<String> paramCheck = validateExecutorParam(executorParam);
+		if (!paramCheck.isSuccess()) {
+			return paramCheck;
 		}
 
 		// force cover job param

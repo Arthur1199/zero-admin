@@ -68,6 +68,17 @@
 			`update_time` = IF(`update_time` IS NULL OR `update_time` &lt; #{updateTime}, #{updateTime}, `update_time`)
 	</insert>
 
+	<select id="findPendingReportDays" resultType="java.util.Date">
+		SELECT trigger_day
+		FROM xxl_job_log_report
+		WHERE running_count &gt; 0
+			AND trigger_day &lt; #{recentStart}
+			<if test="retentionStart != null">AND trigger_day &gt;= #{retentionStart}</if>
+			<if test="afterDay != null">AND trigger_day &gt; #{afterDay}</if>
+		ORDER BY trigger_day ASC
+		LIMIT #{limit}
+	</select>
+
 	<select id="queryLogReport" resultMap="XxlJobLogReport">
 		SELECT <include refid="Base_Column_List" />
 		FROM xxl_job_log_report AS t

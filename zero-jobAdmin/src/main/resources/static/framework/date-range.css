@@ -1,0 +1,36 @@
+@media (max-width: 729px), (max-height: 540px) {
+    .daterangepicker.zero-job-date-picker {
+        position: fixed;
+        /* 日期组件用内联样式定位，紧凑窗口内改用视口居中。 */
+        top: 50% !important;
+        left: 50% !important;
+        right: auto !important;
+        transform: translate(-50%, -50%);
+        width: min(390px, calc(100vw - 24px));
+        max-height: calc(100vh - 24px);
+        max-height: calc(100dvh - 24px);
+        margin: 0;
+        overflow: auto;
+    }
+
+    .zero-job-date-picker::before,
+    .zero-job-date-picker::after {
+        display: none;
+    }
+
+    .daterangepicker.zero-job-date-picker .calendar,
+    .daterangepicker.zero-job-date-picker .ranges {
+        float: none;
+        max-width: none;
+        margin: 4px;
+    }
+
+    .daterangepicker.zero-job-date-picker .ranges ul {
+        width: auto;
+    }
+
+    .daterangepicker.zero-job-date-picker .calendar th,
+    .daterangepicker.zero-job-date-picker .calendar td {
+        min-width: 0;
+    }
+}

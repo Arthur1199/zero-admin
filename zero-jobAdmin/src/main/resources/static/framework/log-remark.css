@@ -1,9 +1,16 @@
 #logRemarkModal > .modal-dialog {
-    width: 960px;
+    width: 880px;
+    pointer-events: none;
 }
 
 #logRemarkModal .modal-content {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - 32px);
     background: #fff;
+    border: 1px solid #e6ebf3;
+    pointer-events: auto;
 }
 
 #logRemarkModal .modal-header,
@@ -14,18 +21,23 @@
 
 #logRemarkModal .modal-title {
     font-weight: 600;
+    color: #233249;
 }
 
 #logRemarkModal .modal-body {
-    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 12px 20px;
+    overflow: auto;
 }
 
 .log-remark-text {
     display: block;
     width: 100%;
     height: 55vh;
-    min-height: 72px;
-    max-height: min(440px, 55vh);
+    min-height: 48px;
+    max-height: min(520px, 65vh);
     padding: 14px 16px;
     resize: none;
     border: 1px solid #dce3ee;
@@ -33,6 +45,7 @@
     background: #f6f8fc;
     color: #233249;
     font: 13px/1.65 Consolas, "Liberation Mono", monospace;
+    white-space: pre-wrap;
     overflow-wrap: anywhere;
 }
 
@@ -60,8 +73,17 @@
     margin: 0;
 }
 
+#logRemarkModal .modal-footer::before,
+#logRemarkModal .modal-footer::after {
+    content: none;
+}
+
 .log-remark-status {
     flex: 1 1 auto;
     color: #475569;
     text-align: left;
+}
+
+.log-remark-status:empty {
+    display: none;
 }

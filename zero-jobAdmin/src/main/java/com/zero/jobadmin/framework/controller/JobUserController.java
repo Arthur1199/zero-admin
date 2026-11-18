@@ -6,6 +6,7 @@ import com.zero.jobadmin.framework.mapper.XxlJobUserMapper;
 import com.zero.jobadmin.business.model.XxlJobGroup;
 import com.zero.jobadmin.framework.model.XxlJobUser;
 import com.zero.jobadmin.framework.util.I18nUtil;
+import com.zero.jobadmin.framework.util.PageQueryUtil;
 import com.xxl.sso.core.annotation.XxlSso;
 import com.xxl.sso.core.helper.XxlSsoHelper;
 import com.xxl.sso.core.model.LoginInfo;
@@ -18,6 +19,8 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -54,9 +57,9 @@ public class JobUserController {
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/18 20:06
-     * 说明: 管理员查询用户列表，只返回账号、角色及执行器权限等管理字段。
+     * 说明: 管理员在同一数据库快照中查询用户列表和总数，仅返回管理所需字段。
      * @param offset 分页起始位置，默认 0
-     * @param pagesize 每页条数，默认 10
+     * @param pagesize 每页条数，默认 10，最大 500
      * @param username 账号筛选值
      * @param role 角色筛选值，-1 为全部角色
      * @return
@@ -66,11 +69,15 @@ public class JobUserController {
     @RequestMapping("/pageList")
     @ResponseBody
     @XxlSso(role = Consts.ADMIN_ROLE)
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public Response<PageModel<XxlJobUser>> pageList(@RequestParam(required = false, defaultValue = "0") int offset,
                                                     @RequestParam(required = false, defaultValue = "10") int pagesize,
                                                     @RequestParam String username,
                                                     @RequestParam int role) {
 
+        if (PageQueryUtil.isInvalid(offset, pagesize)) {
+            return Response.ofFail(I18nUtil.getString("system_page_invalid"));
+        }
         // page list
         List<XxlJobUser> list = xxlJobUserMapper.pageList(offset, pagesize, username, role);
         int list_count = xxlJobUserMapper.pageListCount(offset, pagesize, username, role);

@@ -8,6 +8,7 @@ import com.zero.jobadmin.business.model.XxlJobInfo;
 import com.zero.jobadmin.business.model.XxlJobLog;
 import com.zero.jobadmin.business.scheduler.config.XxlJobAdminBootstrap;
 import com.zero.jobadmin.business.scheduler.route.ExecutorRouteStrategyEnum;
+import com.zero.jobadmin.business.util.ExecutorAddressUtil;
 import com.zero.jobadmin.framework.util.I18nUtil;
 import com.xxl.job.core.constant.ExecutorBlockStrategyEnum;
 import com.xxl.job.core.context.XxlJobContext;
@@ -16,14 +17,15 @@ import com.xxl.job.core.openapi.executor.ExecutorBiz;
 import com.xxl.job.core.openapi.executor.dto.TriggerRequest;
 import com.xxl.tool.core.StringTool;
 import com.xxl.tool.crypto.Sha256Tool;
-import com.xxl.tool.error.ThrowableTool;
 import com.xxl.tool.http.IPTool;
 import com.xxl.tool.response.Response;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.HtmlUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 
@@ -36,6 +38,10 @@ import java.util.List;
 public class JobTrigger {
     private static final Logger logger = LoggerFactory.getLogger(JobTrigger.class);
 
+    /** 调度备注的 UTF-8 字节上限，给后续追加的重试备注预留 TEXT 容量。 */
+    private static final int MAX_TRIGGER_MESSAGE_BYTES = 64_000;
+    /** 标记备注中因容量限制省略的内容。 */
+    private static final String MESSAGE_TRUNCATED = "…";
 
     @Resource
     private XxlJobInfoMapper xxlJobInfoMapper;
@@ -49,12 +55,12 @@ public class JobTrigger {
      *
      * 作者: xuxueli
      * 时间: 2017/7/13
-     * 说明: 读取任务配置并触发执行，异常的执行器、路由和分片配置写入调度日志。
+     * 说明: 读取任务配置并触发执行，临时覆盖仅用于本次任务派发，配置异常写入调度日志。
      * @param jobId 任务 ID
      * @param triggerType 触发类型
      * @param failRetryCount 剩余重试次数，小于 0 时使用任务配置
      * @param executorShardingParam 指定重试分片，非空时格式为 索引/总数
-     * @param executorParam 临时任务参数，为空时使用任务配置
+     * @param executorParam 临时任务参数，null 时使用任务配置，空串表示清空参数
      * @param addressList 临时指定的地址列表，为空时使用执行器组地址
      * @return
      * 返回值: void
@@ -73,23 +79,15 @@ public class JobTrigger {
             logger.warn(">>>>>>>>>>>> trigger fail, jobId invalid，jobId={}", jobId);
             return;
         }
-        if (executorParam != null) {
-            jobInfo.setExecutorParam(executorParam);
-        }
+        String effectiveParam = executorParam == null ? jobInfo.getExecutorParam() : executorParam;
         int finalFailRetryCount = failRetryCount>=0?failRetryCount:jobInfo.getExecutorFailRetryCount();
-        XxlJobGroup group = xxlJobGroupMapper.load(jobInfo.getJobGroup());
-
-        // cover addressList
-        if (group != null && StringTool.isNotBlank(addressList)) {
-            group.setAddressType(1);
-            group.setAddressList(addressList.trim());
-        }
+        XxlJobGroup group = resolveTriggerGroup(xxlJobGroupMapper.load(jobInfo.getJobGroup()), addressList);
 
         // sharding param
         Date triggerTime = new Date();
         int[] shardingParam = parseShardingParam(executorShardingParam);
         if (StringTool.isNotBlank(executorShardingParam) && shardingParam == null) {
-            processTrigger(group, jobInfo, finalFailRetryCount, triggerType, triggerTime, 0, 1,
+            processTrigger(group, jobInfo, effectiveParam, finalFailRetryCount, triggerType, triggerTime, 0, 1,
                     I18nUtil.getString("jobconf_trigger_sharding_invalid"));
             return;
         }
@@ -97,14 +95,39 @@ public class JobTrigger {
         if (ExecutorRouteStrategyEnum.SHARDING_BROADCAST == ExecutorRouteStrategyEnum.match(jobInfo.getExecutorRouteStrategy(), null)
                 && addresses != null && !addresses.isEmpty() && shardingParam == null) {
             for (int i = 0; i < addresses.size(); i++) {
-                processTrigger(group, jobInfo, finalFailRetryCount, triggerType, triggerTime, i, addresses.size(), null);
+                processTrigger(group, jobInfo, effectiveParam, finalFailRetryCount, triggerType, triggerTime, i, addresses.size(), null);
             }
         } else {
             int index = shardingParam == null ? 0 : shardingParam[0];
             int total = shardingParam == null ? 1 : shardingParam[1];
-            processTrigger(group, jobInfo, finalFailRetryCount, triggerType, triggerTime, index, total, null);
+            processTrigger(group, jobInfo, effectiveParam, finalFailRetryCount, triggerType, triggerTime, index, total, null);
         }
 
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 23:03
+     * 说明: 以独立的执行器组配置承载本次触发的临时地址，避免改写 Mapper 返回的数据。
+     * @param group 原执行器组，历史数据中可能缺失
+     * @param addressList 临时地址列表，空白时使用原执行器组
+     * @return
+     * 返回值: XxlJobGroup
+     * 返回值说明: 临时地址配置保留原组的应用和通信凭据
+     */
+    private XxlJobGroup resolveTriggerGroup(XxlJobGroup group, String addressList) {
+        if (group == null || StringTool.isBlank(addressList)) {
+            return group;
+        }
+        XxlJobGroup override = new XxlJobGroup();
+        override.setId(group.getId());
+        override.setAppname(group.getAppname());
+        override.setName(group.getName());
+        override.setAccessToken(group.getAccessToken());
+        override.setAddressType(1);
+        override.setAddressList(addressList.trim());
+        return override;
     }
 
     /**
@@ -180,9 +203,10 @@ public class JobTrigger {
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/18 20:11
-     * 说明: 创建调度日志后尝试路由和提交，保存实际调度结果及失败原因。
+     * 说明: 创建调度日志后尝试路由和提交，限制备注长度并保留实际调度结果及失败原因。
      * @param group 执行器组，历史数据中可能缺失
      * @param jobInfo 任务配置
+     * @param executorParam 本次派发的实际任务参数，可能为空
      * @param finalFailRetryCount 剩余重试次数
      * @param triggerType 触发类型
      * @param triggerTime 调度发起时间
@@ -195,6 +219,7 @@ public class JobTrigger {
      */
     private void processTrigger(XxlJobGroup group,
                                 XxlJobInfo jobInfo,
+                                String executorParam,
                                 int finalFailRetryCount,
                                 TriggerTypeEnum triggerType,
                                 Date triggerTime,
@@ -215,6 +240,11 @@ public class JobTrigger {
         jobLog.setJobGroup(jobInfo.getJobGroup());
         jobLog.setJobId(jobInfo.getId());
         jobLog.setTriggerTime(triggerTime);
+        // 执行器可能在派发响应返回前回调，失败处理必须能从首条记录读取重试上下文。
+        jobLog.setExecutorHandler(jobInfo.getExecutorHandler());
+        jobLog.setExecutorParam(executorParam);
+        jobLog.setExecutorShardingParam(shardingParam);
+        jobLog.setExecutorFailRetryCount(retryCount);
         xxlJobLogMapper.save(jobLog);
         if (jobLog.getId() <= 0) {
             logger.error("Trigger log was not created, jobId={}", jobInfo.getId());
@@ -226,8 +256,8 @@ public class JobTrigger {
         TriggerRequest triggerParam = new TriggerRequest();
         triggerParam.setJobId(jobInfo.getId());
         triggerParam.setExecutorHandler(jobInfo.getExecutorHandler());
-        triggerParam.setExecutorParams(jobInfo.getExecutorParam());
-        triggerParam.setExecutorBlockStrategy(jobInfo.getExecutorBlockStrategy());
+        triggerParam.setExecutorParams(executorParam);
+        triggerParam.setExecutorBlockStrategy(blockStrategy.name());
         triggerParam.setExecutorTimeout(jobInfo.getExecutorTimeout());
         triggerParam.setLogId(jobLog.getId());
         triggerParam.setLogDateTime(jobLog.getTriggerTime().getTime());
@@ -263,6 +293,12 @@ public class JobTrigger {
             }
         } else {
             routeAddressResult = Response.of(XxlJobContext.HANDLE_CODE_FAIL, I18nUtil.getString("jobconf_trigger_address_empty"));
+        }
+
+        // 历史执行器组中可能留有超长地址，避免已派发后无法保存调度结果。
+        if (StringTool.isNotBlank(address) && !ExecutorAddressUtil.fitsAddressColumn(address)) {
+            address = null;
+            routeAddressResult = Response.ofFail(I18nUtil.getString("jobgroup_field_registryList_invalid"));
         }
 
         // 4、trigger remote executor
@@ -304,28 +340,75 @@ public class JobTrigger {
         if (StringTool.isNotBlank(jobInfo.getExecutorHandler())) {
             triggerMsgSb.append("<br>").append("JobHandler").append("：").append(jobInfo.getExecutorHandler());
         }
-        triggerMsgSb.append("<br>").append(I18nUtil.getString("jobinfo_field_executorparam")).append("：").append(jobInfo.getExecutorParam());
-        triggerMsgSb.append("<br>").append(I18nUtil.getString("joblog_field_triggerMsg")).append("：");
+        triggerMsgSb.append("<br>").append(I18nUtil.getString("jobinfo_field_executorparam")).append("：").append(executorParam);
+        StringBuilder resultMessage = new StringBuilder("<br>").append(I18nUtil.getString("joblog_field_triggerMsg")).append("：");
         if (triggerResult.isSuccess()) {
-            triggerMsgSb.append("success");
+            resultMessage.append("success");
         } else if (triggerResult.getMsg()!=null) {
-            triggerMsgSb.append("error, ").append(triggerResult.getMsg());
+            resultMessage.append("error, ").append(triggerResult.getMsg());
         } else {
-            triggerMsgSb.append("fail");
+            resultMessage.append("fail");
         }
 
         // 6、save log trigger-info
         jobLog.setExecutorAddress(address);
-        jobLog.setExecutorHandler(jobInfo.getExecutorHandler());
-        jobLog.setExecutorParam(jobInfo.getExecutorParam());
-        jobLog.setExecutorShardingParam(shardingParam);
-        jobLog.setExecutorFailRetryCount(retryCount);
-        //jobLog.setTriggerTime();
         jobLog.setTriggerCode(triggerResult.getCode());
-        jobLog.setTriggerMsg(triggerMsgSb.toString());
+        jobLog.setTriggerMsg(fitTriggerMessage(triggerMsgSb.toString(), resultMessage.toString()));
         xxlJobLogMapper.updateTriggerInfo(jobLog);
 
         logger.debug(">>>>>>>>>>> xxl-job trigger end, jobId:{}", jobLog.getJobId());
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 23:00
+     * 说明: 调度备注超过字段容量时，给执行器响应保留空间，避免参数占满备注。
+     * @param context 调度配置、路由信息和执行参数
+     * @param result 实际派发结果和诊断信息
+     * @return
+     * 返回值: String
+     * 返回值说明: 不超过调度备注字节上限的完整或截断文本
+     */
+    private String fitTriggerMessage(String context, String result) {
+        int resultBytes = result.getBytes(StandardCharsets.UTF_8).length;
+        int contextBytes = context.getBytes(StandardCharsets.UTF_8).length;
+        if (contextBytes <= MAX_TRIGGER_MESSAGE_BYTES - resultBytes) {
+            return context + result;
+        }
+        String boundedContext = truncateMessage(context, MAX_TRIGGER_MESSAGE_BYTES
+                - Math.min(resultBytes, MAX_TRIGGER_MESSAGE_BYTES / 2));
+        return boundedContext + truncateMessage(result,
+                MAX_TRIGGER_MESSAGE_BYTES - boundedContext.getBytes(StandardCharsets.UTF_8).length);
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 23:00
+     * 说明: 按 UTF-8 字节预算截断日志，避免拆开一个 Unicode 字符。
+     * @param message 待保存的非空备注
+     * @param maxBytes 包含省略标记在内的字节上限
+     * @return
+     * 返回值: String
+     * 返回值说明: 可完整编码到指定字节容量的文本
+     */
+    private String truncateMessage(String message, int maxBytes) {
+        if (message.getBytes(StandardCharsets.UTF_8).length <= maxBytes) {
+            return message;
+        }
+        int remaining = maxBytes - MESSAGE_TRUNCATED.getBytes(StandardCharsets.UTF_8).length;
+        int offset = 0;
+        while (remaining > 0) {
+            int codePoint = message.codePointAt(offset);
+            int size = codePoint < 0x80 ? 1 : codePoint < 0x800 ? 2 : codePoint < 0x10000 ? 3 : 4;
+            if (size > remaining) {
+                break;
+            }
+            remaining -= size;
+            offset += Character.charCount(codePoint);
+        }
+        return message.substring(0, offset) + MESSAGE_TRUNCATED;
     }
 
     /**
@@ -351,33 +434,40 @@ public class JobTrigger {
     }
 
     /**
-     * do trigger with address
      *
-     * @param triggerParam  trigger param
-     * @param address       the address
-     * @param jobGroup      job group
-     * @return return
+     * 作者: xuxueli
+     * 时间: 2017/7/13
+     * 说明: 向选中的节点提交任务，将空响应和通信异常转换成调度失败。
+     * @param triggerParam 调度参数，包含任务和日志 ID
+     * @param address 选中的执行器地址
+     * @param jobGroup 提供执行器客户端的通信配置
+     * @return
+     * 返回值: Response<String>
+     * 返回值说明: 保留执行器的有效状态码，失败时提供可展示的原因
      */
-    private Response<String> doTrigger(TriggerRequest triggerParam, String address, XxlJobGroup jobGroup){
+    private Response<String> doTrigger(TriggerRequest triggerParam, String address, XxlJobGroup jobGroup) {
         try {
-            // build client
             ExecutorBiz executorBiz = XxlJobAdminBootstrap.getExecutorBiz(address, jobGroup);
-
-            // invoke
-            Response<String> runResult = executorBiz.trigger(triggerParam);
-
-            // build result
-            StringBuffer runResultSB = new StringBuffer(I18nUtil.getString("jobconf_trigger_run") + "：");
-            runResultSB.append("<br>address：").append(address);
-            runResultSB.append("<br>code：").append(runResult.getCode());
-            runResultSB.append("<br>msg：").append(runResult.getMsg());
-
-            // return
-            runResult.setMsg(runResultSB.toString());
-            return runResult;
+            Response<String> result = executorBiz == null ? null : executorBiz.trigger(triggerParam);
+            if (result == null || result.getCode() <= 0) {
+                return Response.of(XxlJobContext.HANDLE_CODE_FAIL, I18nUtil.getString("jobconf_trigger_empty_response"));
+            }
+            String message = result.getMsg();
+            String token = jobGroup.getAccessToken();
+            if (message != null && StringTool.isNotBlank(token)) {
+                message = message.replace(token, "***");
+            }
+            return Response.of(result.getCode(), I18nUtil.getString("jobconf_trigger_run") + "："
+                    + "<br>address：" + HtmlUtils.htmlEscape(address, "UTF-8")
+                    + "<br>code：" + result.getCode()
+                    + "<br>msg：" + HtmlUtils.htmlEscape(message == null ? "" : message, "UTF-8"));
         } catch (Exception e) {
-            logger.error(">>>>>>>>>>> xxl-job trigger error, please check if the executor[{}] is running.", address, e);
-            return Response.of(XxlJobContext.HANDLE_CODE_FAIL, ThrowableTool.toString(e));
+            // HTTP 客户端异常详情可能包含通信凭据，使用日志 ID 和异常类型定位。
+            String errorType = e.getClass().getSimpleName();
+            logger.warn("Executor dispatch failed, jobId={}, logId={}, type={}",
+                    triggerParam.getJobId(), triggerParam.getLogId(), errorType);
+            return Response.of(XxlJobContext.HANDLE_CODE_FAIL,
+                    I18nUtil.getString("jobconf_trigger_communication_error") + " (" + errorType + ")");
         }
     }
 
