@@ -33,10 +33,11 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        # 与report/file一致，向Boot Admin开放全部可用监控端点；部署时须限制访问来源。
+        include: "*"
   endpoint:
     health:
-      show-details: never
+      show-details: always
   health:
     mail:
       enabled: false
@@ -48,5 +49,6 @@ xxl-sso:
     # 单位毫秒，沿用官方7天登录有效期。
     timeout: 604800000
   client:
-    excluded.paths: /actuator/health,/actuator/info
+    # Boot Admin采集监控信息不使用控制台登录态，仅对Actuator路径排除登录拦截。
+    excluded.paths: /actuator,/actuator/**
     login.path: /auth/login

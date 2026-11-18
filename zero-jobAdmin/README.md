@@ -37,7 +37,7 @@ namespace为空表示公共空间；需要和其它服务注册在同一空间�
 
 数据库连接及Hikari参数仅在 `nacosConfig/zero-job-admin-mysql.yml` 定义，直接填写配置值，不使用占位符；须发布到Nacos才能加载，`application.yml` 不保留本地数据源兜底。邮件完整配置（包含SMTP认证、TLS和超时）以及 `xxl.job` 调度参数仅在 `nacosConfig/zero-job-admin-common.yml` 定义，直接填写配置值，不使用占位符；`application.yml` 不再重复定义，须发布到Nacos后加载。官方调度参数在启动时初始化，修改后统一重启生效。
 
-本模块保留官方 Hikari 单数据源和 MyBatis XML，不使用 report 的动态数据源或 MyBatis-Plus。日志写入 `logs/zero-job-admin`（相对于启动目录）。HTTP 监控仅暴露 `/actuator/health`、`/actuator/info`，健康检查不显示组件详情；其它监控端点不放行。
+本模块保留官方 Hikari 单数据源和 MyBatis XML，不使用 report 的动态数据源或 MyBatis-Plus。日志写入 `logs/zero-job-admin`（相对于启动目录）。与report/file一致，HTTP监控使用 `management.endpoints.web.exposure.include: "*"` 暴露全部已启用Actuator端点，健康检查显示组件详情。`/actuator` 和其子路径无需控制台登录，Boot Admin可读取指标、线程、日志级别、Bean、环境及映射等信息。部署时必须限制内部访问来源；全量暴露不等于启用默认关闭的端点（例如shutdown），也不自动生成未配置的信息贡献项。
 
 ## 执行器及集群
 
