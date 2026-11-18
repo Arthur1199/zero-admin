@@ -26,6 +26,7 @@
         <module>zero-bootAdmin</module>
         <module>zero-report</module>
         <module>zero-file</module>
+        <module>zero-jobAdmin</module>
     </modules>
 
     <properties>

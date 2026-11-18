@@ -1,0 +1,23 @@
+spring:
+  config:
+    import:
+      - optional:nacos:zero-job-admin-mysql.yml?group=${spring.profiles.active}&refreshEnabled=false
+      - optional:nacos:zero-job-admin-common.yml?group=${spring.profiles.active}&refreshEnabled=false
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+        namespace: d2785810-7346-4859-bcfa-f3bf929a628f
+        username: nacos
+        password: nacos
+        enabled: true
+        ephemeral: true
+      config:
+        server-addr: 127.0.0.1:8848
+        namespace: d2785810-7346-4859-bcfa-f3bf929a628f
+        username: nacos
+        password: nacos
+        enabled: true
+        file-extension: yml
+        # 官方调度组件在启动时读取参数，修改后需重启，避免宣称支持动态重配。
+        refresh-enabled: false
