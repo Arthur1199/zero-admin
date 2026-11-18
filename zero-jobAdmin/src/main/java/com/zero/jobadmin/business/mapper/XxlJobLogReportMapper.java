@@ -30,6 +30,24 @@ public interface XxlJobLogReportMapper {
 	 */
 	public int saveOrUpdate(XxlJobLogReport xxlJobLogReport);
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/18 23:07
+	 * 说明: 按日期分批找出最近三天之外仍含进行中任务的汇总。
+	 * @param retentionStart 日志保留范围起点，未启用保留策略时为空
+	 * @param recentStart 常规刷新窗口起点，不含该日
+	 * @param afterDay 分批读取的日期下界，首次查询时为空
+	 * @param limit 本轮最多返回的日期数
+	 * @return
+	 * 返回值: List<Date>
+	 * 返回值说明: 可重新汇总的历史日期，按时间升序排列
+	 */
+	List<Date> findPendingReportDays(@Param("retentionStart") Date retentionStart,
+									@Param("recentStart") Date recentStart,
+									@Param("afterDay") Date afterDay,
+									@Param("limit") int limit);
+
 	public List<XxlJobLogReport> queryLogReport(@Param("triggerDayFrom") Date triggerDayFrom,
 												@Param("triggerDayTo") Date triggerDayTo);
 

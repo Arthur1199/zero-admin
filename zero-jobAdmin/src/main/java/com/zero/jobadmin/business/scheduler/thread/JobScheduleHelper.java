@@ -28,10 +28,12 @@ public class JobScheduleHelper {
      * pre-read time for scheduler, increase efficiency
      */
     public static final long PRE_READ_MS = 5000;
-    /*
-    * elegant shutdown wait seconds
+    /**
+     * 关停扫描后，允许时间轮派发已预读任务的最长时间。
      */
     private static final long ELEGANT_SHUTDOWN_WAITING_SECONDS = 10;
+    /** 关停期间检查时间轮是否已排空的间隔，单位毫秒。 */
+    private static final long SHUTDOWN_DRAIN_CHECK_MS = 100;
 
     private Thread scheduleThread;
     private Thread ringThread;
@@ -339,57 +341,68 @@ public class JobScheduleHelper {
      *
      * 作者: xuxueli
      * 时间: 2019/5/21
-     * 说明: 先停止扫描，再等待时间轮中已提交的任务进入执行线程池后关闭时间轮。
+     * 说明: 停止调度扫描，在宽限时间内派发已预读任务，再关闭时间轮并记录未派发任务。
      * @return
      * 返回值: void
-     * 返回值说明: 结束调度扫描线程和时间轮线程
+     * 返回值说明: 已初始化的工作线程结束后恢复调用线程的中断状态
      */
     public void stop(){
-
-        // 1、stop schedule
-        scheduleThreadToStop = true;
+        boolean interrupted = Thread.interrupted();
         try {
-            TimeUnit.SECONDS.sleep(1);  // wait
-        } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
-        }
-        if (scheduleThread.getState() != Thread.State.TERMINATED){
-            // interrupt and wait
-            scheduleThread.interrupt();
-            try {
-                scheduleThread.join();
-            } catch (Throwable e) {
-                logger.error(e.getMessage(), e);
+            scheduleThreadToStop = true;
+            interrupted |= stopWorker(scheduleThread);
+
+            long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(ELEGANT_SHUTDOWN_WAITING_SECONDS);
+            while (!ringData.isEmpty() && ringThread != null && ringThread.isAlive() && System.nanoTime() < deadline) {
+                try {
+                    TimeUnit.MILLISECONDS.sleep(SHUTDOWN_DRAIN_CHECK_MS);
+                } catch (InterruptedException e) {
+                    interrupted = true;
+                }
+            }
+
+            ringThreadToStop = true;
+            interrupted |= stopWorker(ringThread);
+            for (int jobId : drainTimeRing(Long.MAX_VALUE)) {
+                try {
+                    XxlJobAdminBootstrap.getInstance().getJobTrigger()
+                            .recordUndispatchedTrigger(jobId, TriggerTypeEnum.CRON, -1, null, null, true);
+                } catch (RuntimeException e) {
+                    logger.error("Failed to record time ring job cancelled at shutdown, jobId={}", jobId, e);
+                }
+            }
+        } finally {
+            if (interrupted) {
+                Thread.currentThread().interrupt();
             }
         }
-
-        // if has ring data, wait for elegent shutdown
-        if (!ringData.isEmpty()) {
-            try {
-                TimeUnit.SECONDS.sleep(ELEGANT_SHUTDOWN_WAITING_SECONDS);
-            } catch (Throwable e) {
-                logger.error(e.getMessage(), e);
-            }
-        }
-
-        // 2、stop ring (wait job-in-memory stop)
-        ringThreadToStop = true;
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
-        }
-        if (ringThread.getState() != Thread.State.TERMINATED){
-            // interrupt and wait
-            ringThread.interrupt();
-            try {
-                ringThread.join();
-            } catch (Throwable e) {
-                logger.error(e.getMessage(), e);
-            }
-        }
-
         logger.info(">>>>>>>>>>> xxl-job, JobScheduleHelper stop");
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 22:44
+     * 说明: 唤醒工作线程并等待其退出，避免派发线程池关闭后仍有调度提交。
+     * @param worker 待停止的调度或时间轮线程，可能尚未创建
+     * @return
+     * 返回值: boolean
+     * 返回值说明: 等待过程中调用线程被中断时返回 true
+     */
+    private boolean stopWorker(Thread worker) {
+        if (worker == null || !worker.isAlive()) {
+            return false;
+        }
+        boolean interrupted = false;
+        worker.interrupt();
+        while (worker.isAlive()) {
+            try {
+                worker.join();
+            } catch (InterruptedException e) {
+                interrupted = true;
+            }
+        }
+        return interrupted;
     }
 
 }

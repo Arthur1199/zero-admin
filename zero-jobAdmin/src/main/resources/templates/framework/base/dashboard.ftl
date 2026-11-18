@@ -7,7 +7,8 @@
     <!-- 1-style start -->
     <@netCommon.commonStyle />
     <link rel="stylesheet" href="${request.contextPath}/static/adminlte/bower_components/bootstrap-daterangepicker/daterangepicker.css">
-    <link rel="stylesheet" href="${request.contextPath}/static/framework/dashboard.css?v=${I18n.admin_version}&amp;layout=2">
+    <link rel="stylesheet" href="${request.contextPath}/static/framework/date-range.css?v=${I18n.admin_version}">
+    <link rel="stylesheet" href="${request.contextPath}/static/framework/dashboard.css?v=${I18n.admin_version}&amp;layout=4">
     <!-- 1-style end -->
 
 </head>
@@ -476,6 +477,7 @@ $(function () {
     var chartRequest = null;
     var requestVersion = 0;
     var chartElements = [document.getElementById('reportLineChart'), document.getElementById('reportPieChart')];
+    var resumeRequest = false;
 
     // 页签iframe可能仍被隐藏；只在容器尺寸有效后绘图，避免ECharts记住零宽度。
     function renderCharts() {
@@ -508,6 +510,10 @@ $(function () {
         if (chartObserver) {
             chartElements.forEach(function (element) { chartObserver.observe(element); });
         }
+        if (resumeRequest) {
+            resumeRequest = false;
+            refreshReport();
+        }
         scheduleCharts();
     });
     $(window).on('pagehide.dashboardCharts', function () {
@@ -519,6 +525,7 @@ $(function () {
             chartFrame = null;
         }
         if (chartRequest) {
+            resumeRequest = true;
             chartRequest.abort();
         }
         chartElements.forEach(function (element) {
@@ -570,11 +577,22 @@ $(function () {
             firstDay: 1
         }
     }, function () { loadReport(1); });
+    dateInput.on('show.daterangepicker', function (_, picker) {
+        picker.container.addClass('zero-job-date-picker');
+    });
     group.on('change', function () { loadReport(1); });
-    $('#refreshReport').on('click', function () { loadReport(1); });
+    $('#refreshReport').on('click', refreshReport);
     $('#previousPending').on('click', function () { goToPendingPage(-1); });
     $('#nextPending').on('click', function () { goToPendingPage(1); });
     loadReport(1);
+
+    function refreshReport() {
+        if (chartData && !$('#reportContent').prop('hidden')) {
+            loadReport(chartData.page, 'refresh');
+        } else {
+            loadReport(1);
+        }
+    }
 
     function goToPendingPage(offset) {
         if (!chartData || chartRequest || $('#reportContent').prop('hidden')) {
@@ -582,11 +600,11 @@ $(function () {
         }
         var page = chartData.page + offset;
         if (page >= 1 && page <= Math.ceil(chartData.pendingTotal / chartData.pageSize)) {
-            loadReport(page, true);
+            loadReport(page, 'page');
         }
     }
 
-    function loadReport(page, paging) {
+    function loadReport(page, mode) {
         var currentVersion = ++requestVersion;
         if (chartRequest) {
             chartRequest.abort();
@@ -594,11 +612,19 @@ $(function () {
         var dateRange = dateInput.data('daterangepicker');
         var start = dateRange.startDate.format('YYYY-MM-DD');
         var end = dateRange.endDate.format('YYYY-MM-DD');
+        var paging = mode === 'page';
         var statusMessage = $(paging ? '#pendingStatus' : '#reportStatus');
-        var failedMessage = paging ? I18n.job_report_pending_failed : I18n.job_dashboard_report_loaddata_fail;
-        setPendingBusy(!!paging);
+        var failedMessage = I18n.job_dashboard_report_loaddata_fail;
+        if (paging) {
+            failedMessage = I18n.job_report_pending_failed;
+        } else if (mode === 'refresh') {
+            failedMessage = I18n.job_report_refresh_failed;
+        }
+        setPendingBusy(!!mode);
         if (!paging) {
             $('#pendingStatus').text('');
+        }
+        if (!mode) {
             $('#reportContent').prop('hidden', true);
         }
         statusMessage.text(paging ? I18n.job_report_pending_loading : I18n.job_report_loading);
@@ -610,16 +636,19 @@ $(function () {
                 if (currentVersion !== requestVersion) {
                     return;
                 }
-                if (!response || response.code !== 200 || !response.data) {
+                var data = response && response.data;
+                if (!data || response.code !== 200 || !Array.isArray(data.trend)
+                        || !Array.isArray(data.failedJobs) || !Array.isArray(data.pendingJobs)) {
                     statusMessage.text((response && response.msg) || failedMessage);
                     return;
                 }
-                chartData = response.data;
+                chartData = data;
                 chartData.totals = outcomes.map(function (outcome) {
                     return chartData.trend.reduce(function (sum, day) { return sum + day[outcome.key]; }, 0);
                 });
                 renderReport(chartData, start, end);
                 statusMessage.text('');
+                $('#reportStatus').text('');
                 $('#reportContent').prop('hidden', false);
                 scheduleCharts();
             },

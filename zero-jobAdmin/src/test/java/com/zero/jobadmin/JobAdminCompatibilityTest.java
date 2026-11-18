@@ -26,6 +26,7 @@ import com.zero.jobadmin.business.scheduler.config.XxlJobAdminBootstrap;
 import com.zero.jobadmin.business.scheduler.openapi.OpenApiController;
 import com.zero.jobadmin.business.scheduler.openapi.impl.AdminBizImpl;
 import com.zero.jobadmin.business.scheduler.openapi.impl.AdminJobBizImpl;
+import com.zero.jobadmin.business.scheduler.route.ExecutorRouteStrategyEnum;
 import com.zero.jobadmin.business.scheduler.thread.JobCompleteHelper;
 import com.zero.jobadmin.business.scheduler.thread.JobLogReportHelper;
 import com.zero.jobadmin.business.scheduler.thread.JobFailAlarmMonitorHelper;
@@ -50,7 +51,10 @@ import com.xxl.job.core.constant.Const;
 import com.xxl.job.core.openapi.admin.dto.CallbackData;
 import com.xxl.job.core.openapi.admin.dto.CallbackRequest;
 import com.xxl.job.core.openapi.admin.dto.RegistryRequest;
+import com.xxl.job.core.openapi.executor.ExecutorBiz;
+import com.xxl.job.core.openapi.executor.dto.TriggerRequest;
 import com.xxl.sso.core.model.LoginInfo;
+import com.xxl.tool.response.Response;
 import freemarker.template.Configuration;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.junit.jupiter.api.Test;
@@ -82,12 +86,15 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Pattern;
 
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -155,6 +162,354 @@ class JobAdminCompatibilityTest {
     private XxlJobLogGlueMapper jobLogGlueMapper;
     @MockitoBean
     private XxlJobRegistryMapper registryMapper;
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 22:44
+     * 说明: 验证关停线程已被中断时仍结束扫描并记录时间轮剩余任务。
+     * @return
+     * 返回值: void
+     * 返回值说明: 同秒重复任务只记录一次，关停结束后恢复中断标志
+     */
+    @Test
+    void schedulerShutdownRecordsRemainingRingJobsAndPreservesInterrupt() {
+        var scheduler = new JobScheduleHelper();
+        var waiting = new CountDownLatch(1);
+        var scanWorker = new Thread(() -> {
+            try {
+                waiting.await();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, "scheduler-shutdown-fixture");
+        scanWorker.setDaemon(true);
+        scanWorker.start();
+        ReflectionTestUtils.setField(scheduler, "scheduleThread", scanWorker);
+        ReflectionTestUtils.invokeMethod(scheduler, "pushTimeRing", 5000L, 42);
+        ReflectionTestUtils.invokeMethod(scheduler, "pushTimeRing", 5000L, 42);
+        ReflectionTestUtils.invokeMethod(scheduler, "pushTimeRing", 5001L, 43);
+        var bootstrap = mock(XxlJobAdminBootstrap.class);
+        var trigger = mock(JobTrigger.class);
+        when(bootstrap.getJobTrigger()).thenReturn(trigger);
+        try (var bootstrapStatic = mockStatic(XxlJobAdminBootstrap.class)) {
+            bootstrapStatic.when(XxlJobAdminBootstrap::getInstance).thenReturn(bootstrap);
+            try {
+                Thread.currentThread().interrupt();
+                scheduler.stop();
+                assertThat(Thread.currentThread().isInterrupted()).isTrue();
+            } finally {
+                Thread.interrupted();
+            }
+            scheduler.stop();
+        } finally {
+            waiting.countDown();
+        }
+        assertThat(scanWorker.isAlive()).isFalse();
+        verify(trigger).recordUndispatchedTrigger(42, TriggerTypeEnum.CRON, -1, null, null, true);
+        verify(trigger).recordUndispatchedTrigger(43, TriggerTypeEnum.CRON, -1, null, null, true);
+        verifyNoMoreInteractions(trigger);
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 22:42
+     * 说明: 验证部分启动失败时按依赖反序回收，并保留实际启动异常和线程中断标志。
+     * @return
+     * 返回值: void
+     * 返回值说明: 有组件关闭失败仍继续清理，重复销毁不会再次关停
+     */
+    @Test
+    void failedBootstrapStopsInitializedComponentsInReverseOrder() {
+        var bootstrap = new XxlJobAdminBootstrap();
+        var startupFailure = new IllegalStateException("fixture startup failure");
+        var cleanupFailure = new IllegalStateException("fixture cleanup failure");
+        try (var pools = mockConstruction(JobTriggerPoolHelper.class, (helper, context) -> doAnswer(invocation -> {
+                 assertThat(Thread.currentThread().isInterrupted()).isFalse();
+                 return null;
+             }).when(helper).stop());
+             var registries = mockConstruction(JobRegistryHelper.class,
+                     (helper, context) -> doAnswer(invocation -> {
+                         Thread.currentThread().interrupt();
+                         throw cleanupFailure;
+                     }).when(helper).stop());
+             var alarms = mockConstruction(JobFailAlarmMonitorHelper.class, (helper, context) -> {
+                 doAnswer(invocation -> {
+                     Thread.currentThread().interrupt();
+                     throw startupFailure;
+                 }).when(helper).start();
+                 doAnswer(invocation -> {
+                     assertThat(Thread.currentThread().isInterrupted()).isFalse();
+                     return null;
+                 }).when(helper).stop();
+             });
+             var completions = mockConstruction(JobCompleteHelper.class)) {
+            try {
+                assertThatThrownBy(bootstrap::afterPropertiesSet).isSameAs(startupFailure);
+                assertThat(Thread.currentThread().isInterrupted()).isTrue();
+            } finally {
+                Thread.interrupted();
+            }
+            assertThat(startupFailure.getSuppressed()).containsExactly(cleanupFailure);
+            assertThat(XxlJobAdminBootstrap.getInstance()).isNull();
+            assertThat(completions.constructed()).isEmpty();
+            bootstrap.destroy();
+            var pool = pools.constructed().get(0);
+            var registry = registries.constructed().get(0);
+            var alarm = alarms.constructed().get(0);
+            var stops = inOrder(alarm, registry, pool);
+            stops.verify(alarm).stop();
+            stops.verify(registry).stop();
+            stops.verify(pool).stop();
+            verify(alarm).stop();
+            verify(registry).stop();
+            verify(pool).stop();
+        }
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 22:54
+     * 说明: 验证并发触发同一任务时，状态型路由仍可均衡选取在线节点。
+     * @return
+     * 返回值: void
+     * 返回值说明: 各路由覆盖全部节点，节点下线后仅使用剩余地址
+     */
+    @Test
+    void statefulRoutesRemainBalancedUnderConcurrentTriggers() throws Exception {
+        var group = new XxlJobGroup();
+        var addresses = List.of("http://127.0.0.1:18081", "http://127.0.0.1:18082", "http://127.0.0.1:18083");
+        var trigger = new TriggerRequest();
+        trigger.setJobId(925001);
+        var pool = Executors.newFixedThreadPool(8);
+        try {
+            for (var strategy : List.of(ExecutorRouteStrategyEnum.ROUND, ExecutorRouteStrategyEnum.LEAST_RECENTLY_USED,
+                    ExecutorRouteStrategyEnum.LEAST_FREQUENTLY_USED)) {
+                group.setAddressList(String.join(",", addresses));
+                var router = strategy.getRouter();
+                var start = new CountDownLatch(1);
+                var pending = new ArrayList<Future<String>>();
+                for (int i = 0; i < 600; i++) {
+                    pending.add(pool.submit(() -> {
+                        start.await();
+                        return router.route(trigger, group).getData();
+                    }));
+                }
+                start.countDown();
+                var picks = new TreeMap<String, Integer>();
+                for (var result : pending) {
+                    picks.merge(result.get(5, TimeUnit.SECONDS), 1, Integer::sum);
+                }
+                int tolerance = strategy == ExecutorRouteStrategyEnum.LEAST_FREQUENTLY_USED ? 2 : 0;
+                assertThat(picks).as(strategy.name()).containsOnlyKeys(addresses);
+                assertThat(picks.values()).allMatch(total -> Math.abs(total - 200) <= tolerance);
+
+                group.setAddressList(addresses.get(2));
+                assertThat(router.route(trigger, group).getData()).isEqualTo(addresses.get(2));
+                group.setAddressList(null);
+                assertThat(router.route(trigger, group).isSuccess()).isFalse();
+            }
+        } finally {
+            pool.shutdownNow();
+        }
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 22:55
+     * 说明: 验证故障转移和忙碌转移按节点顺序处理空响应、异常和主动拒绝。
+     * @return
+     * 返回值: void
+     * 返回值说明: 首个可用节点被选中，全部不可用时失败，探测备注不暴露令牌
+     */
+    @Test
+    void probeRoutesContinueAfterMissingResponseAndNodeFailure() throws Exception {
+        var group = new XxlJobGroup();
+        group.setAccessToken("fixture-probe-secret");
+        var trigger = new TriggerRequest();
+        trigger.setJobId(925002);
+        var addresses = List.of("http://127.0.0.1:18181", "http://127.0.0.1:18182", "http://127.0.0.1:18183",
+                "http://127.0.0.1:18184", "http://127.0.0.1:18185");
+        group.setAddressList(String.join(",", addresses));
+        var first = mock(ExecutorBiz.class);
+        var second = mock(ExecutorBiz.class);
+        var third = mock(ExecutorBiz.class);
+        var available = mock(ExecutorBiz.class);
+        var unused = mock(ExecutorBiz.class);
+        var transportFailure = new IllegalStateException(group.getAccessToken());
+        var probeAddress = Pattern.compile("<br>address：([^<]+)");
+        Response<String> rejected = Response.ofFail("busy <fixture> " + group.getAccessToken());
+        Response<String> accepted = Response.ofSuccess("original payload");
+        when(second.beat()).thenThrow(transportFailure);
+        when(second.idleBeat(any())).thenThrow(transportFailure);
+        when(third.beat()).thenReturn(rejected);
+        when(third.idleBeat(any())).thenReturn(rejected);
+        when(available.beat()).thenReturn(accepted);
+        when(available.idleBeat(any())).thenReturn(accepted);
+
+        try (var bootstrap = mockStatic(XxlJobAdminBootstrap.class)) {
+            bootstrap.when(() -> XxlJobAdminBootstrap.getExecutorBiz(addresses.get(0), group)).thenReturn(first);
+            bootstrap.when(() -> XxlJobAdminBootstrap.getExecutorBiz(addresses.get(1), group)).thenReturn(second);
+            bootstrap.when(() -> XxlJobAdminBootstrap.getExecutorBiz(addresses.get(2), group)).thenReturn(third);
+            bootstrap.when(() -> XxlJobAdminBootstrap.getExecutorBiz(addresses.get(3), group)).thenReturn(available);
+            bootstrap.when(() -> XxlJobAdminBootstrap.getExecutorBiz(addresses.get(4), group)).thenReturn(unused);
+
+            for (var strategy : List.of(ExecutorRouteStrategyEnum.FAILOVER, ExecutorRouteStrategyEnum.BUSYOVER)) {
+                group.setAddressList(String.join(",", addresses));
+                var selected = strategy.getRouter().route(trigger, group);
+                assertThat(selected.isSuccess()).isTrue();
+                assertThat(selected.getData()).isEqualTo(addresses.get(3));
+                assertThat(probeAddress.matcher(selected.getMsg()).results().map(match -> match.group(1)).toList())
+                        .containsExactlyElementsOf(addresses.subList(0, 4));
+                assertThat(selected.getMsg()).contains("busy &lt;fixture&gt; ***")
+                        .doesNotContain(group.getAccessToken(), addresses.get(4));
+
+                group.setAddressList(String.join(",", addresses.subList(0, 3)));
+                var failed = strategy.getRouter().route(trigger, group);
+                assertThat(failed.isSuccess()).isFalse();
+                assertThat(probeAddress.matcher(failed.getMsg()).results().map(match -> match.group(1)).toList())
+                        .containsExactlyElementsOf(addresses.subList(0, 3));
+            }
+        }
+        verify(available).beat();
+        verify(available).idleBeat(argThat(request -> request.getJobId() == trigger.getJobId()));
+        verifyNoInteractions(unused);
+        assertThat(accepted.getData()).isEqualTo("original payload");
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 22:36
+     * 说明: 验证告警收件人整理、正文转义和 SMTP 批量发送行为。
+     * @return
+     * 返回值: void
+     * 返回值说明: 使用模拟 SMTP 传输验证各封邮件独立发送且正常情况下只建立一次连接
+     */
+    @Test
+    void emailAlarmPreservesLogTextAndSendsOncePerValidAddress() throws Exception {
+        var transport = mock(jakarta.mail.Transport.class);
+        when(transport.isConnected()).thenReturn(true);
+        doThrow(new jakarta.mail.MessagingException("fixture send failure")).doNothing()
+                .when(transport).sendMessage(any(), any(jakarta.mail.Address[].class));
+        var connections = new java.util.concurrent.atomic.AtomicInteger();
+        var sender = new org.springframework.mail.javamail.JavaMailSenderImpl() {
+            @Override
+            protected jakarta.mail.Transport connectTransport() {
+                connections.incrementAndGet();
+                return transport;
+            }
+        };
+        var bootstrap = mock(XxlJobAdminBootstrap.class);
+        when(bootstrap.getXxlJobGroupMapper()).thenReturn(groupMapper);
+        when(bootstrap.getMailSender()).thenReturn(sender);
+        when(bootstrap.getEmailFrom()).thenReturn("zero-job@example.test");
+        var group = new XxlJobGroup();
+        group.setName("执行器 <测试>");
+        when(groupMapper.load(2)).thenReturn(group);
+        var job = new XxlJobInfo();
+        job.setId(1234);
+        job.setJobGroup(2);
+        job.setName("任务 & <测试>");
+        job.setAlarmEmail(" first@example.test ,invalid,, first@example.test, second@example.test ");
+        var log = new XxlJobLog();
+        log.setId(20L);
+        log.setTriggerCode(500);
+        log.setTriggerMsg("第一行<br><node>\r\n第二行");
+        log.setHandleCode(-3);
+        log.setHandleMsg("执行 <异常>");
+        try (var bootstrapStatic = mockStatic(XxlJobAdminBootstrap.class)) {
+            bootstrapStatic.when(XxlJobAdminBootstrap::getInstance).thenReturn(bootstrap);
+            assertThat(new com.zero.jobadmin.business.scheduler.alarm.impl.EmailJobAlarm().doAlarm(job, log)).isFalse();
+        }
+        var mail = org.mockito.ArgumentCaptor.forClass(jakarta.mail.Message.class);
+        verify(transport, times(2)).sendMessage(mail.capture(), any(jakarta.mail.Address[].class));
+        verify(transport).close();
+        assertThat(connections.get()).isEqualTo(1);
+        var messages = mail.getAllValues();
+        assertThat(messages.get(0).getAllRecipients()[0].toString()).isEqualTo("first@example.test");
+        assertThat(messages.get(1).getAllRecipients()[0].toString()).isEqualTo("second@example.test");
+        assertThat(messages.get(0).getContent().toString()).contains("执行器 &lt;测试&gt;", "任务 &amp; &lt;测试&gt;",
+                "<td>1234</td>", "第一行<br>&lt;node&gt;<br>第二行", "HandleCode=-3", "执行 &lt;异常&gt;")
+                .doesNotContain("<node>");
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 22:27
+     * 说明: 验证过期心跳清理限量，并确认续约后仍会刷新自动注册组。
+     * @return
+     * 返回值: void
+     * 返回值说明: 查询和清理使用同一时间基准，在线地址去重且不阻塞本轮更新
+     */
+    @Test
+    void registryMonitorLimitsCleanupAndRefreshesActiveAddresses() {
+        var group = new XxlJobGroup();
+        group.setId(2);
+        group.setAppname("worker-app");
+        var online = new XxlJobRegistry();
+        online.setRegistryGroup("EXECUTOR");
+        online.setRegistryKey("worker-app");
+        online.setRegistryValue("http://worker.example:9999");
+        var expiredIds = List.of(801L);
+        when(groupMapper.findByAddressType(0)).thenReturn(List.of(group));
+        when(registryMapper.findDead(eq(Const.DEAD_TIMEOUT), any(), eq(1000))).thenReturn(expiredIds);
+        when(registryMapper.removeDead(eq(expiredIds), eq(Const.DEAD_TIMEOUT), any())).thenReturn(0);
+        when(registryMapper.findAll(eq(Const.DEAD_TIMEOUT), any())).thenReturn(List.of(online, online));
+        var bootstrap = mock(XxlJobAdminBootstrap.class);
+        when(bootstrap.getXxlJobGroupMapper()).thenReturn(groupMapper);
+        when(bootstrap.getXxlJobRegistryMapper()).thenReturn(registryMapper);
+        try (var bootstrapStatic = mockStatic(XxlJobAdminBootstrap.class)) {
+            bootstrapStatic.when(XxlJobAdminBootstrap::getInstance).thenReturn(bootstrap);
+            ReflectionTestUtils.invokeMethod(new JobRegistryHelper(), "refreshRegistry");
+        }
+        var time = org.mockito.ArgumentCaptor.forClass(java.util.Date.class);
+        verify(registryMapper).findDead(eq(Const.DEAD_TIMEOUT), time.capture(), eq(1000));
+        verify(registryMapper).removeDead(eq(expiredIds), eq(Const.DEAD_TIMEOUT), same(time.getValue()));
+        verify(registryMapper).findAll(eq(Const.DEAD_TIMEOUT), same(time.getValue()));
+        verify(groupMapper).refreshAutoRegisteredAddresses(same(group), eq("http://worker.example:9999"), same(time.getValue()));
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 22:29
+     * 说明: 验证自动注册组是否存在不影响心跳清理，清理失败也不跳过地址刷新。
+     * @return
+     * 返回值: void
+     * 返回值说明: 无组时只清理，有组时清理失败后仍从有效心跳刷新节点
+     */
+    @Test
+    void registryCleanupRunsWithoutGroupsAndDoesNotBlockAddressRefresh() {
+        var expiredIds = List.of(802L);
+        when(registryMapper.findDead(eq(Const.DEAD_TIMEOUT), any(), eq(1000))).thenReturn(expiredIds);
+        when(registryMapper.removeDead(eq(expiredIds), eq(Const.DEAD_TIMEOUT), any()))
+                .thenReturn(1)
+                .thenThrow(new org.springframework.dao.TransientDataAccessResourceException("fixture cleanup failure"));
+        var group = new XxlJobGroup();
+        group.setId(2);
+        group.setAppname("worker-app");
+        when(groupMapper.findByAddressType(0)).thenReturn(List.of(), List.of(group));
+        when(registryMapper.findAll(eq(Const.DEAD_TIMEOUT), any())).thenReturn(List.of());
+        var bootstrap = mock(XxlJobAdminBootstrap.class);
+        when(bootstrap.getXxlJobGroupMapper()).thenReturn(groupMapper);
+        when(bootstrap.getXxlJobRegistryMapper()).thenReturn(registryMapper);
+        try (var bootstrapStatic = mockStatic(XxlJobAdminBootstrap.class)) {
+            bootstrapStatic.when(XxlJobAdminBootstrap::getInstance).thenReturn(bootstrap);
+            var monitor = new JobRegistryHelper();
+            ReflectionTestUtils.invokeMethod(monitor, "refreshRegistry");
+            verify(registryMapper).removeDead(eq(expiredIds), eq(Const.DEAD_TIMEOUT), any());
+            verify(registryMapper, never()).findAll(anyInt(), any());
+
+            ReflectionTestUtils.invokeMethod(monitor, "refreshRegistry");
+            verify(registryMapper).findAll(eq(Const.DEAD_TIMEOUT), any());
+            verify(groupMapper).refreshAutoRegisteredAddresses(same(group), isNull(), any());
+        }
+    }
 
     /**
      *
@@ -255,6 +610,10 @@ class JobAdminCompatibilityTest {
         verify(dashboardMapper).topFailures(first.atStartOfDay(), until, List.of(2));
         verify(dashboardMapper).pending(first.atStartOfDay(), until, List.of(2), 10L, 10);
 
+        var logOption = new XxlJobInfo();
+        logOption.setId(10987);
+        logOption.setName("任务 <示例>");
+        when(jobInfoMapper.getJobsByGroup(2)).thenReturn(List.of(logOption));
         mvc.perform(get("/joblog").cookie(login).param("jobGroup", "2").param("jobId", "123")
                         .param("failedOnly", "true").param("startDate", first.toString()).param("endDate", last.toString()))
                 .andExpect(status().isOk())
@@ -262,7 +621,8 @@ class JobAdminCompatibilityTest {
                 .andExpect(model().attribute("reportHistoricalJob", true))
                 .andExpect(model().attribute("reportToday", org.hamcrest.Matchers.matchesPattern("\\d{4}-\\d{2}-\\d{2}")))
                 .andExpect(model().attribute("reportStart", first.toString()))
-                .andExpect(model().attribute("reportEnd", last.toString()));
+                .andExpect(model().attribute("reportEnd", last.toString()))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("value=\"10987\" >任务 &lt;示例&gt;")));
         verifyNoInteractions(jobLogMapper);
 
         for (String invalidTime : List.of("invalid", "2026-02-30 00:00:00 - 2026-03-01 23:59:59",
@@ -383,7 +743,7 @@ class JobAdminCompatibilityTest {
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/18 19:45
-     * 说明: 验证任务配置更新同时校验原组和目标组，并处理 GLUE 可空字段和非法子任务编号
+     * 说明: 验证任务配置更新同时校验原组和目标组，并校验、去重子任务编号。
      * @return
      * 返回值: void
      * 返回值说明: 无权移组和非法输入不会更新任务，正常更新保留调度进度
@@ -424,10 +784,17 @@ class JobAdminCompatibilityTest {
         assertThat(service.update(edit, login).isSuccess()).isFalse();
         verify(jobInfoMapper, never()).updateInGroup(any(), anyInt(), anyBoolean());
 
-        edit.setChildJobId(null);
+        var child = new XxlJobInfo();
+        child.setJobGroup(2);
+        when(jobInfoMapper.loadById(44)).thenReturn(child);
+        when(jobInfoMapper.loadById(43)).thenReturn(child);
+        edit.setChildJobId(" 44, 43 ,044,43");
         when(jobInfoMapper.updateInGroup(stored, 2, false)).thenReturn(1, 0);
         assertThat(service.update(edit, login).isSuccess()).isTrue();
         assertThat(stored.getExecutorHandler()).isEmpty();
+        assertThat(stored.getChildJobId()).isEqualTo("44,43");
+        verify(jobInfoMapper, times(1)).loadById(44);
+        verify(jobInfoMapper, times(1)).loadById(43);
         assertThat(service.update(edit, login).isSuccess()).isFalse();
     }
 
@@ -624,22 +991,60 @@ class JobAdminCompatibilityTest {
         var pool = mock(JobTriggerPoolHelper.class);
         var bootstrap = mock(XxlJobAdminBootstrap.class);
         when(bootstrap.getJobTriggerPoolHelper()).thenReturn(pool);
+        String endpointPrefix = "http://fixture.invalid/";
+        String maxAddress = endpointPrefix + "a".repeat(255 - endpointPrefix.length());
+        String maxParam = "🚀".repeat(16_383) + "abc";
         try (var bootstrapStatic = mockStatic(XxlJobAdminBootstrap.class)) {
             bootstrapStatic.when(XxlJobAdminBootstrap::getInstance).thenReturn(bootstrap);
             for (String address : List.of("https://", "ftp://fixture.invalid", "http://fixture.invalid:0",
-                    "http://fixture.invalid:70000", "http://fixture.invalid,")) {
+                    "http://fixture.invalid:70000", "http://fixture.invalid,", maxAddress + "a",
+                    (maxAddress + ",").repeat(256) + maxAddress)) {
                 var response = service.trigger(login, 42, "fixture", address);
                 assertThat(response.isSuccess()).isFalse();
                 assertThat(response.getMsg()).isEqualTo(I18nUtil.getString("jobgroup_field_registryList_invalid"));
             }
+            var oversizedParam = service.trigger(login, 42, maxParam + "d", null);
+            assertThat(oversizedParam.isSuccess()).isFalse();
             verifyNoInteractions(pool);
             assertThat(service.trigger(login, 42, "fixture",
                     " http://fixture.invalid:9999 , https://[::1]:9443 ").isSuccess()).isTrue();
             assertThat(service.trigger(login, 42, "fixture", "   ").isSuccess()).isTrue();
+            assertThat(service.trigger(login, 42, maxParam, maxAddress).isSuccess()).isTrue();
         }
         verify(pool).trigger(42, TriggerTypeEnum.MANUAL, -1, null, "fixture",
                 "http://fixture.invalid:9999,https://[::1]:9443");
         verify(pool).trigger(42, TriggerTypeEnum.MANUAL, -1, null, "fixture", null);
+        verify(pool).trigger(42, TriggerTypeEnum.MANUAL, -1, null, maxParam, maxAddress);
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 23:06
+     * 说明: 验证执行器注册及下线在访问数据库前检查单节点容量。
+     * @return
+     * 返回值: void
+     * 返回值说明: 超限请求不触发 Mapper，达到字段上限的有效值可正常写入
+     */
+    @Test
+    void registryRejectsOversizedAddressBeforeAccessingMapper() {
+        var helper = new JobRegistryHelper();
+        var bootstrap = mock(XxlJobAdminBootstrap.class);
+        when(bootstrap.getXxlJobRegistryMapper()).thenReturn(registryMapper);
+        String prefix = "http://fixture.invalid/";
+        String maxAddress = prefix + "a".repeat(255 - prefix.length());
+        var oversized = new RegistryRequest("EXECUTOR", "fixture", maxAddress + "a");
+        var boundary = new RegistryRequest("EXECUTOR", "fixture", maxAddress);
+        try (var bootstrapStatic = mockStatic(XxlJobAdminBootstrap.class)) {
+            bootstrapStatic.when(XxlJobAdminBootstrap::getInstance).thenReturn(bootstrap);
+            assertThat(helper.registry(oversized).isSuccess()).isFalse();
+            assertThat(helper.registryRemove(oversized).isSuccess()).isFalse();
+            verifyNoInteractions(registryMapper);
+            assertThat(helper.registry(boundary).isSuccess()).isTrue();
+            assertThat(helper.registryRemove(boundary).isSuccess()).isTrue();
+        }
+        verify(registryMapper).registrySaveOrUpdate(eq("EXECUTOR"), eq("fixture"), eq(maxAddress), any());
+        verify(registryMapper).registryDelete("EXECUTOR", "fixture", maxAddress);
     }
 
     /**
@@ -806,8 +1211,9 @@ class JobAdminCompatibilityTest {
         log.setId(501L);
         log.setJobId(42);
         log.setHandleCode(200);
+        log.setHandleMsg("父任务执行结果：" + "🚀".repeat(9_000));
         var job = new XxlJobInfo();
-        job.setChildJobId("99999999999999,43");
+        job.setChildJobId("99999999999999, 43,043,42,,44,43");
         when(jobInfoMapper.loadById(42)).thenReturn(job);
         when(jobLogMapper.updateHandleInfo(log)).thenReturn(1, 0);
         var bootstrap = mock(XxlJobAdminBootstrap.class);
@@ -821,10 +1227,17 @@ class JobAdminCompatibilityTest {
         var operation = inOrder(jobLogMapper, pool);
         operation.verify(jobLogMapper).updateHandleInfo(log);
         operation.verify(pool).trigger(43, TriggerTypeEnum.PARENT, -1, null, null, null);
-        operation.verify(jobLogMapper).updateHandleMessage(eq(501L),
-                argThat(message -> message.contains("99999999999999") && message.contains("43")));
+        operation.verify(pool).trigger(44, TriggerTypeEnum.PARENT, -1, null, null, null);
+        var remarks = org.mockito.ArgumentCaptor.forClass(String.class);
+        operation.verify(jobLogMapper).updateHandleMessage(eq(501L), remarks.capture());
+        String remark = remarks.getValue();
+        assertThat(remark).startsWith("父任务执行结果：🚀")
+                .contains("…", I18nUtil.getString("jobconf_trigger_child_run"), "99999999999999", "43", "44")
+                .hasSizeLessThanOrEqualTo(15_000);
+        assertThat(StandardCharsets.UTF_8.newEncoder().canEncode(remark)).isTrue();
         operation.verify(jobLogMapper).updateHandleInfo(log);
         operation.verifyNoMoreInteractions();
+        verifyNoMoreInteractions(pool);
         verify(jobInfoMapper, times(1)).loadById(42);
     }
 
@@ -1032,7 +1445,7 @@ class JobAdminCompatibilityTest {
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/18 20:13
-     * 说明: 验证已删除任务跳过重试，单条异常释放已认领状态。
+     * 说明: 验证读取异常可重试、已成功日志被跳过、发起告警后不会因异常重复处理。
      * @return
      * 返回值: void
      * 返回值说明: 随后的日志仍可完成处理，告警使用模拟实现
@@ -1052,25 +1465,75 @@ class JobAdminCompatibilityTest {
         var available = new XxlJobLog();
         available.setJobId(42);
         available.setExecutorFailRetryCount(2);
+        var completed = new XxlJobLog();
+        completed.setJobId(42);
+        completed.setExecutorFailRetryCount(2);
+        completed.setHandleCode(200);
+        var alarmFailure = new XxlJobLog();
+        alarmFailure.setJobId(42);
         var job = new XxlJobInfo();
         when(jobLogMapper.updateAlarmStatus(anyLong(), eq(0), eq(-1))).thenReturn(1);
         when(jobLogMapper.load(10L)).thenReturn(deleted);
         when(jobLogMapper.load(11L)).thenThrow(new IllegalStateException("fixture load failure"));
         when(jobLogMapper.load(12L)).thenReturn(available);
+        when(jobLogMapper.load(13L)).thenReturn(completed);
+        when(jobLogMapper.load(14L)).thenReturn(alarmFailure);
         when(jobInfoMapper.loadById(42)).thenReturn(job);
         when(alarmer.alarm(job, available)).thenReturn(true);
+        when(alarmer.alarm(job, alarmFailure)).thenThrow(new IllegalStateException("fixture alarm failure"));
 
-        for (long id : List.of(10L, 11L, 12L)) {
+        for (long id : List.of(10L, 11L, 12L, 13L, 14L)) {
             ReflectionTestUtils.invokeMethod(monitor, "processFailure", bootstrap, jobLogMapper, id);
         }
         verify(jobLogMapper).updateAlarmStatus(10L, -1, 1);
-        verify(jobLogMapper).updateAlarmStatus(11L, -1, 3);
+        verify(jobLogMapper).updateAlarmStatus(11L, -1, 0);
         verify(jobLogMapper).updateAlarmStatus(12L, -1, 2);
+        verify(jobLogMapper).updateAlarmStatus(13L, -1, 1);
+        verify(jobLogMapper).updateAlarmStatus(14L, -1, 3);
         verify(pool).trigger(42, TriggerTypeEnum.RETRY, 1, null, null, null);
         verifyNoMoreInteractions(pool);
         verify(jobLogMapper).appendRetryMessage(eq(12L), anyString());
         verify(jobLogMapper, never()).updateTriggerInfo(any());
         verify(alarmer).alarm(job, available);
+        verify(alarmer).alarm(job, alarmFailure);
+        verifyNoMoreInteractions(alarmer);
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 22:40
+     * 说明: 验证扫描期间关停会释放已认领但尚未派发的日志。
+     * @return
+     * 返回值: void
+     * 返回值说明: 本批次后续日志留待处理，关停后不再拉取新的批次
+     */
+    @Test
+    void failedJobMonitorStopsBeforeClaimingMoreWork() {
+        var monitor = new JobFailAlarmMonitorHelper();
+        var bootstrap = mock(XxlJobAdminBootstrap.class);
+        when(bootstrap.getXxlJobLogMapper()).thenReturn(jobLogMapper);
+        when(bootstrap.getXxlJobInfoMapper()).thenReturn(jobInfoMapper);
+        when(jobLogMapper.findFailJobLogIds(1000)).thenReturn(List.of(10L, 11L));
+        when(jobLogMapper.updateAlarmStatus(10L, 0, -1)).thenReturn(1);
+        var failedLog = new XxlJobLog();
+        failedLog.setJobId(42);
+        failedLog.setExecutorFailRetryCount(1);
+        when(jobLogMapper.load(10L)).thenAnswer(invocation -> {
+            monitor.stop();
+            return failedLog;
+        });
+        when(jobInfoMapper.loadById(42)).thenReturn(new XxlJobInfo());
+        try (var bootstrapStatic = mockStatic(XxlJobAdminBootstrap.class)) {
+            bootstrapStatic.when(XxlJobAdminBootstrap::getInstance).thenReturn(bootstrap);
+            ReflectionTestUtils.invokeMethod(monitor, "scanFailures");
+            ReflectionTestUtils.invokeMethod(monitor, "scanFailures");
+        }
+        verify(jobLogMapper).findFailJobLogIds(1000);
+        verify(jobLogMapper).updateAlarmStatus(10L, -1, 0);
+        verify(jobLogMapper, never()).updateAlarmStatus(eq(11L), anyInt(), anyInt());
+        verify(bootstrap, never()).getJobTriggerPoolHelper();
+        verify(bootstrap, never()).getJobAlarmer();
     }
 
     /**
@@ -1308,17 +1771,151 @@ class JobAdminCompatibilityTest {
             bootstrapStatic.when(() -> XxlJobAdminBootstrap.getExecutorBiz("http://executor.example:9999", group))
                     .thenReturn(executor);
             trigger.trigger(42, TriggerTypeEnum.MANUAL, -1, null, null, null);
+            group.setAddressList("http://executor.example/" + "a".repeat(255));
+            trigger.trigger(42, TriggerTypeEnum.CRON, -1, null, null, null);
         }
         var logs = org.mockito.ArgumentCaptor.forClass(XxlJobLog.class);
-        verify(jobLogMapper, times(4)).updateTriggerInfo(logs.capture());
+        verify(jobLogMapper, times(5)).updateTriggerInfo(logs.capture());
         var outcomes = logs.getAllValues();
         assertThat(outcomes.get(0).getTriggerMsg()).contains(I18nUtil.getString("jobgroup_empty"));
         assertThat(outcomes.get(1).getTriggerMsg()).contains(I18nUtil.getString("jobconf_trigger_sharding_invalid"));
         assertThat(outcomes.get(1).getExecutorFailRetryCount()).isZero();
         assertThat(outcomes.get(2).getTriggerMsg()).contains(I18nUtil.getString("jobinfo_field_executorRouteStrategy")
                 + I18nUtil.getString("system_invalid"));
-        assertThat(outcomes).extracting(XxlJobLog::getTriggerCode).containsExactly(500, 500, 500, 200);
+        assertThat(outcomes.get(4).getTriggerMsg()).contains(I18nUtil.getString("jobgroup_field_registryList_invalid"));
+        assertThat(outcomes.get(4).getExecutorAddress()).isNull();
+        assertThat(outcomes).extracting(XxlJobLog::getTriggerCode).containsExactly(500, 500, 500, 200, 500);
         verify(executor).trigger(argThat(request -> request.getGlueUpdatetime() == 0L));
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 23:03
+     * 说明: 验证临时覆盖只用于当次触发，历史无效的阻塞策略按默认值派发。
+     * @return
+     * 返回值: void
+     * 返回值说明: 后续调度继续使用配置地址和参数，显式传入空串仍可清空参数
+     */
+    @Test
+    void dispatchOverridesDoNotChangeLoadedTaskOrExecutorGroup() throws Exception {
+        var trigger = new JobTrigger();
+        ReflectionTestUtils.setField(trigger, "xxlJobInfoMapper", jobInfoMapper);
+        ReflectionTestUtils.setField(trigger, "xxlJobGroupMapper", groupMapper);
+        ReflectionTestUtils.setField(trigger, "xxlJobLogMapper", jobLogMapper);
+        var group = new XxlJobGroup();
+        String registered = "http://127.0.0.1:18480";
+        String temporary = "http://127.0.0.1:18481";
+        group.setId(2);
+        group.setAppname("override-fixture");
+        group.setAccessToken("fixture-override-credential");
+        group.setAddressList(registered);
+        var job = new XxlJobInfo();
+        job.setId(42);
+        job.setJobGroup(2);
+        job.setExecutorParam("configured");
+        job.setExecutorBlockStrategy("legacy-unrecognized-value");
+        job.setExecutorRouteStrategy("FIRST");
+        job.setGlueType("BEAN");
+        when(jobInfoMapper.loadById(42)).thenReturn(job);
+        when(groupMapper.load(2)).thenReturn(group);
+        var logIds = new AtomicLong(900);
+        when(jobLogMapper.save(any())).thenAnswer(invocation -> {
+            invocation.getArgument(0, XxlJobLog.class).setId(logIds.incrementAndGet());
+            return 1L;
+        });
+        var temporaryExecutor = mock(ExecutorBiz.class);
+        var registeredExecutor = mock(ExecutorBiz.class);
+        when(temporaryExecutor.trigger(any())).thenReturn(Response.ofSuccess());
+        when(registeredExecutor.trigger(any())).thenReturn(Response.ofSuccess());
+        try (var bootstrap = mockStatic(XxlJobAdminBootstrap.class)) {
+            bootstrap.when(() -> XxlJobAdminBootstrap.getExecutorBiz(eq(temporary), argThat(override ->
+                    override != group && override.getId() == group.getId() && override.getAddressType() == 1
+                    && group.getAppname().equals(override.getAppname())
+                    && group.getAccessToken().equals(override.getAccessToken())))).thenReturn(temporaryExecutor);
+            bootstrap.when(() -> XxlJobAdminBootstrap.getExecutorBiz(registered, group)).thenReturn(registeredExecutor);
+            trigger.trigger(42, TriggerTypeEnum.MANUAL, -1, null, "", " " + temporary + " ");
+            trigger.trigger(42, TriggerTypeEnum.CRON, -1, null, null, null);
+        }
+        verify(temporaryExecutor).trigger(argThat(request -> request.getExecutorParams().isEmpty()
+                && request.getExecutorBlockStrategy().equals("SERIAL_EXECUTION")));
+        verify(registeredExecutor).trigger(argThat(request -> request.getExecutorParams().equals("configured")
+                && request.getExecutorBlockStrategy().equals("SERIAL_EXECUTION")));
+        assertThat(group.getAddressType()).isZero();
+        assertThat(group.getAddressList()).isEqualTo(registered);
+        assertThat(job.getExecutorParam()).isEqualTo("configured");
+        var logs = org.mockito.ArgumentCaptor.forClass(XxlJobLog.class);
+        verify(jobLogMapper, times(2)).updateTriggerInfo(logs.capture());
+        assertThat(logs.getAllValues()).extracting(XxlJobLog::getExecutorAddress).containsExactly(temporary, registered);
+        assertThat(logs.getAllValues()).extracting(XxlJobLog::getExecutorParam).containsExactly("", "configured");
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 22:58
+     * 说明: 验证派发前保存分片重试上下文，并为无响应、通信异常和超长响应写入可读备注。
+     * @return
+     * 返回值: void
+     * 返回值说明: 日志初次写入即具备重试所需参数，最终调度备注不展示通信令牌
+     */
+    @Test
+    void dispatchPersistsRetryContextBeforeCallingExecutor() throws Exception {
+        var trigger = new JobTrigger();
+        ReflectionTestUtils.setField(trigger, "xxlJobInfoMapper", jobInfoMapper);
+        ReflectionTestUtils.setField(trigger, "xxlJobGroupMapper", groupMapper);
+        ReflectionTestUtils.setField(trigger, "xxlJobLogMapper", jobLogMapper);
+        var job = new XxlJobInfo();
+        job.setId(42);
+        job.setJobGroup(2);
+        job.setExecutorHandler("fixtureHandler");
+        job.setExecutorFailRetryCount(2);
+        job.setExecutorRouteStrategy("SHARDING_BROADCAST");
+        job.setGlueType("BEAN");
+        var group = new XxlJobGroup();
+        var address = "http://127.0.0.1:18381";
+        group.setAddressList("http://127.0.0.1:18380," + address);
+        group.setAccessToken("fixture-trigger-credential");
+        when(jobInfoMapper.loadById(42)).thenReturn(job);
+        when(groupMapper.load(2)).thenReturn(group);
+        var logIds = new AtomicLong(800);
+        String largeParameter = "🚀".repeat(16_383);
+        String largeError = "执行器拒绝：" + "界".repeat(27_000);
+        when(jobLogMapper.save(any())).thenAnswer(invocation -> {
+            XxlJobLog log = invocation.getArgument(0);
+            assertThat(log.getTriggerCode()).isZero();
+            assertThat(log.getExecutorHandler()).isEqualTo("fixtureHandler");
+            assertThat(log.getExecutorParam()).isEqualTo(logIds.get() < 803 ? "override" : largeParameter);
+            assertThat(log.getExecutorShardingParam()).isEqualTo("1/2");
+            assertThat(log.getExecutorFailRetryCount()).isEqualTo(2);
+            log.setId(logIds.incrementAndGet());
+            return 1L;
+        });
+        var executor = mock(ExecutorBiz.class);
+        Response<String> rejection = Response.ofFail("拒绝 <确认> " + group.getAccessToken());
+        when(executor.trigger(any())).thenReturn(null)
+                .thenThrow(new IllegalStateException(group.getAccessToken())).thenReturn(rejection)
+                .thenReturn(Response.ofFail(largeError));
+        try (var bootstrap = mockStatic(XxlJobAdminBootstrap.class)) {
+            bootstrap.when(() -> XxlJobAdminBootstrap.getExecutorBiz(address, group)).thenReturn(executor);
+            for (int i = 0; i < 3; i++) {
+                trigger.trigger(42, TriggerTypeEnum.RETRY, 2, "1/2", "override", null);
+            }
+            trigger.trigger(42, TriggerTypeEnum.RETRY, 2, "1/2", largeParameter, null);
+        }
+        var logs = org.mockito.ArgumentCaptor.forClass(XxlJobLog.class);
+        verify(jobLogMapper, times(4)).updateTriggerInfo(logs.capture());
+        var results = logs.getAllValues();
+        assertThat(results).extracting(XxlJobLog::getTriggerCode).containsExactly(500, 500, 500, 500);
+        assertThat(results.get(0).getTriggerMsg()).contains(I18nUtil.getString("jobconf_trigger_empty_response"));
+        assertThat(results.get(1).getTriggerMsg()).contains(I18nUtil.getString("jobconf_trigger_communication_error"));
+        assertThat(results.get(2).getTriggerMsg()).contains("拒绝 &lt;确认&gt; ***");
+        String bounded = results.get(3).getTriggerMsg();
+        assertThat(bounded).contains("🚀", "执行器拒绝：").endsWith("…");
+        assertThat(bounded.getBytes(StandardCharsets.UTF_8).length).isLessThanOrEqualTo(64_000);
+        assertThat(StandardCharsets.UTF_8.newEncoder().canEncode(bounded)).isTrue();
+        assertThat(results.get(3).getExecutorParam()).isEqualTo(largeParameter);
+        assertThat(results).allSatisfy(log -> assertThat(log.getTriggerMsg()).doesNotContain(group.getAccessToken()));
     }
 
     /**
@@ -1527,6 +2124,54 @@ class JobAdminCompatibilityTest {
     /**
      *
      * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 23:08
+     * 说明: 验证历史补算可同步迟到回调，并跳过明细已清空的日期。
+     * @return
+     * 返回值: void
+     * 返回值说明: 按批次推进游标，保留窗口外和无明细的历史汇总
+     */
+    @Test
+    void pendingHistoricalReportRefreshRevisitsLateCallbacksInBatches() {
+        var bootstrap = mock(XxlJobAdminBootstrap.class);
+        var reports = mock(XxlJobLogReportMapper.class);
+        var helper = new JobLogReportHelper();
+        when(bootstrap.getXxlJobLogMapper()).thenReturn(jobLogMapper);
+        when(bootstrap.getXxlJobLogReportMapper()).thenReturn(reports);
+        when(bootstrap.getLogretentiondays()).thenReturn(7);
+        var zone = ZoneId.of("Asia/Shanghai");
+        var today = LocalDate.of(2026, 11, 18);
+        var dates = java.util.stream.IntStream.rangeClosed(2, 7)
+                .mapToObj(offset -> java.util.Date.from(today.minusDays(offset).atStartOfDay(zone).toInstant())).toList();
+        var recentStart = dates.get(0);
+        var retentionStart = dates.get(5);
+        var firstPage = List.of(dates.get(5), dates.get(4), dates.get(3));
+        when(reports.findPendingReportDays(retentionStart, recentStart, null, 3)).thenReturn(firstPage);
+        when(reports.findPendingReportDays(retentionStart, recentStart, dates.get(3), 3)).thenReturn(List.of(dates.get(2)));
+        var lateSuccess = new XxlJobLogReport();
+        lateSuccess.setSucCount(1);
+        var lateFailure = new XxlJobLogReport();
+        lateFailure.setFailCount(1);
+        when(jobLogMapper.findLogReport(dates.get(5), dates.get(4))).thenReturn(new XxlJobLogReport());
+        when(jobLogMapper.findLogReport(dates.get(4), dates.get(3))).thenReturn(lateSuccess);
+        when(jobLogMapper.findLogReport(dates.get(3), dates.get(2))).thenThrow(new IllegalStateException("fixture error"));
+        when(jobLogMapper.findLogReport(dates.get(2), dates.get(1))).thenReturn(lateFailure);
+
+        for (int i = 0; i < 3; i++) {
+            ReflectionTestUtils.invokeMethod(helper, "refreshPendingHistoricalReports", bootstrap, today, zone);
+        }
+
+        verify(reports, times(2)).findPendingReportDays(retentionStart, recentStart, null, 3);
+        verify(reports).findPendingReportDays(retentionStart, recentStart, dates.get(3), 3);
+        verify(reports, times(2)).saveOrUpdate(lateSuccess);
+        verify(reports).saveOrUpdate(lateFailure);
+        verifyNoMoreInteractions(reports);
+        assertThat(lateSuccess.getTriggerDay()).isEqualTo(dates.get(4));
+        assertThat(lateFailure.getTriggerDay()).isEqualTo(dates.get(2));
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
      * 时间: 2026/11/18 21:26
      * 说明: 验证清理固定上限，其他实例先删除一批时仍能继续推进。
      * @return
@@ -1553,8 +2198,52 @@ class JobAdminCompatibilityTest {
     /**
      *
      * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 23:10
+     * 说明: 验证保留期清理按轮限量、跨轮续跑，停机后不再启动新批次。
+     * @return
+     * 返回值: void
+     * 返回值说明: 一轮始终使用原 ID 上限，同一自然日扫完后不重复清理
+     */
+    @Test
+    void retentionCleanupResumesOnNextTickAndStopsBetweenBatches() {
+        var bootstrap = mock(XxlJobAdminBootstrap.class);
+        var helper = new JobLogReportHelper();
+        var zone = ZoneId.of("Asia/Shanghai");
+        var today = LocalDate.of(2026, 11, 18);
+        var before = java.util.Date.from(today.minusDays(7).atStartOfDay(zone).toInstant());
+        var nextBefore = java.util.Date.from(today.minusDays(6).atStartOfDay(zone).toInstant());
+        when(bootstrap.getLogretentiondays()).thenReturn(7);
+        when(bootstrap.getXxlJobLogMapper()).thenReturn(jobLogMapper);
+        when(jobLogMapper.findMaxClearLogId(0, 0)).thenReturn(9L, 20L);
+        when(jobLogMapper.findClearLogIds(0, 0, before, 0, 1000, 0, 9)).thenReturn(List.of(1L));
+        when(jobLogMapper.findClearLogIds(0, 0, before, 0, 1000, 1, 9)).thenReturn(List.of(2L));
+        when(jobLogMapper.findClearLogIds(0, 0, before, 0, 1000, 2, 9)).thenReturn(List.of(3L));
+        when(jobLogMapper.findClearLogIds(0, 0, before, 0, 1000, 3, 9)).thenReturn(List.of(9L));
+        when(jobLogMapper.findClearLogIds(0, 0, nextBefore, 0, 1000, 0, 20)).thenReturn(List.of(10L));
+        when(jobLogMapper.clearLog(List.of(10L))).thenAnswer(call -> {
+            helper.stop();
+            return 1;
+        });
+
+        ReflectionTestUtils.invokeMethod(helper, "cleanExpiredLogs", bootstrap, today, zone);
+        verify(jobLogMapper, never()).clearLog(List.of(9L));
+        ReflectionTestUtils.invokeMethod(helper, "cleanExpiredLogs", bootstrap, today, zone);
+        ReflectionTestUtils.invokeMethod(helper, "cleanExpiredLogs", bootstrap, today, zone);
+        verify(jobLogMapper).findMaxClearLogId(0, 0);
+        verify(jobLogMapper).clearLog(List.of(9L));
+
+        ReflectionTestUtils.invokeMethod(helper, "cleanExpiredLogs", bootstrap, today.plusDays(1), zone);
+        ReflectionTestUtils.invokeMethod(helper, "cleanExpiredLogs", bootstrap, today.plusDays(1), zone);
+        verify(jobLogMapper, times(2)).findMaxClearLogId(0, 0);
+        verify(jobLogMapper).clearLog(List.of(10L));
+        verify(jobLogMapper, never()).findClearLogIds(0, 0, nextBefore, 0, 1000, 10, 20);
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
      * 时间: 2026/11/18 20:00
-     * 说明: 验证手动地址校验和自动注册切换。
+     * 说明: 验证手动地址校验、自动注册切换及清空地址后的节点列表。
      * @return
      * 返回值: void
      * 返回值说明: 无效地址拒绝保存，自动注册读取当前执行器组的心跳
@@ -1594,10 +2283,14 @@ class JobAdminCompatibilityTest {
         otherNode.setRegistryGroup("EXECUTOR");
         otherNode.setRegistryKey("another-app");
         otherNode.setRegistryValue("http://other.example:9999");
-        when(registryMapper.findAll(anyInt(), any())).thenReturn(List.of(otherNode, ownNode));
+        when(registryMapper.findActiveByGroupAndKey(eq("EXECUTOR"), eq("existing-app"), eq(Const.DEAD_TIMEOUT), any()))
+                .thenReturn(List.of(otherNode, ownNode, ownNode));
         when(groupMapper.update(submitted, 1)).thenReturn(1, 0);
         assertThat(controller.update(submitted).isSuccess()).isTrue();
         assertThat(submitted.getAddressList()).isEqualTo("http://own.example:9999");
+        assertThat(submitted.getRegistryList()).containsExactly("http://own.example:9999");
+        submitted.setAddressList(null);
+        assertThat(submitted.getRegistryList()).isNull();
         assertThat(controller.update(submitted).isSuccess()).isFalse();
     }
 
@@ -1668,6 +2361,25 @@ class JobAdminCompatibilityTest {
         var login = mvc.perform(post("/auth/doLogin").param("userName", "admin-fixture")
                         .param("password", "test-fixture-password"))
                 .andExpect(jsonPath("$.code").value(200)).andReturn().getResponse().getCookie("job_test_cookie");
+
+        for (String route : List.of("/jobinfo/pageList", "/jobgroup/pageList", "/user/pageList", "/joblog/pageList")) {
+            for (List<String> page : List.of(List.of("-1", "10"), List.of("0", "0"), List.of("0", "501"))) {
+                mvc.perform(post(route).cookie(login)
+                                .param("offset", page.get(0)).param("pagesize", page.get(1))
+                                .param("jobGroup", "2").param("jobId", "0").param("logStatus", "-1")
+                                .param("filterTime", "").param("triggerStatus", "-1").param("name", "")
+                                .param("executorHandler", "").param("author", "").param("username", "").param("role", "-1"))
+                        .andExpect(jsonPath("$.code").value(500))
+                        .andExpect(jsonPath("$.msg").value(I18nUtil.getString("system_page_invalid")));
+            }
+        }
+        verifyNoInteractions(jobService, groupMapper, jobLogMapper);
+        verify(userMapper, never()).pageList(anyInt(), anyInt(), anyString(), anyInt());
+
+        mvc.perform(post("/user/pageList").cookie(login).param("username", "").param("role", "-1")
+                        .param("offset", "1").param("pagesize", "500"))
+                .andExpect(jsonPath("$.code").value(200));
+        verify(userMapper).pageList(1, 500, "", -1);
 
         var visibleUser = new com.zero.jobadmin.framework.model.XxlJobUser();
         visibleUser.setId(43);
@@ -1917,6 +2629,51 @@ class JobAdminCompatibilityTest {
     /**
      *
      * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 22:21
+     * 说明: 验证任务分页的记录和总数通过同一个只读 JDBC 事务查询。
+     * @return
+     * 返回值: void
+     * 返回值说明: 查询使用同一连接和可重复读隔离级别，测试不访问数据库
+     */
+    @Test
+    void taskPageUsesOneReadOnlyTransactionForRowsAndCount() throws Exception {
+        var dataSource = mock(javax.sql.DataSource.class);
+        var connection = mock(java.sql.Connection.class);
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.getAutoCommit()).thenReturn(true);
+        when(connection.getTransactionIsolation()).thenReturn(java.sql.Connection.TRANSACTION_READ_COMMITTED);
+
+        var transactionManager = new org.springframework.jdbc.datasource.DataSourceTransactionManager(dataSource);
+        var interceptor = new org.springframework.transaction.interceptor.TransactionInterceptor();
+        interceptor.setTransactionManager(transactionManager);
+        interceptor.setTransactionAttributeSource(new org.springframework.transaction.annotation.AnnotationTransactionAttributeSource());
+        var service = new XxlJobServiceImpl();
+        ReflectionTestUtils.setField(service, "xxlJobInfoMapper", jobInfoMapper);
+        var proxyFactory = new org.springframework.aop.framework.ProxyFactory(service);
+        proxyFactory.addAdvice(interceptor);
+
+        List<Object> queryResources = new ArrayList<>();
+        when(jobInfoMapper.pageList(0, 10, 2, -1, "", "", "")).thenAnswer(invocation -> {
+            queryResources.add(org.springframework.transaction.support.TransactionSynchronizationManager.getResource(dataSource));
+            return List.of(new XxlJobInfo());
+        });
+        when(jobInfoMapper.pageListCount(0, 10, 2, -1, "", "", "")).thenAnswer(invocation -> {
+            queryResources.add(org.springframework.transaction.support.TransactionSynchronizationManager.getResource(dataSource));
+            return 1;
+        });
+        var result = ((XxlJobService) proxyFactory.getProxy()).pageList(0, 10, 2, -1, "", "", "");
+        assertThat(result.getData().getTotal()).isEqualTo(1);
+        assertThat(queryResources).hasSize(2);
+        assertThat(queryResources.get(0)).isNotNull().isSameAs(queryResources.get(1));
+        verify(connection).setReadOnly(true);
+        verify(connection).setTransactionIsolation(java.sql.Connection.TRANSACTION_REPEATABLE_READ);
+        verify(dataSource).getConnection();
+        verify(connection).commit();
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
      * 时间: 2026/11/18 15:50
      * 说明: 解析全部官方Mapper和模板，发现包迁移遗漏和资源语法不兼容
      * @return
@@ -1948,6 +2705,19 @@ class JobAdminCompatibilityTest {
         assertThat(observedSchedule.job().getTriggerNextTime()).isEqualTo(2000);
         var completeLog = mybatis.getMappedStatement(XxlJobLogMapper.class.getName() + ".updateHandleInfo");
         assertThat(completeLog.getBoundSql(new XxlJobLog()).getSql()).contains("AND `handle_code` = 0");
+        var triggerUpdate = mybatis.getMappedStatement(XxlJobLogMapper.class.getName() + ".updateTriggerInfo");
+        String triggerSql = triggerUpdate.getBoundSql(new XxlJobLog()).getSql();
+        assertThat(triggerSql).contains("CONCAT(COALESCE(?, ''), `trigger_msg`)");
+        assertThat(triggerSql.indexOf("`trigger_msg`= CASE WHEN `trigger_code` = 0"))
+                .isBetween(0, triggerSql.indexOf("`trigger_code`= ?") - 1);
+        var retryMessage = mybatis.getMappedStatement(XxlJobLogMapper.class.getName() + ".appendRetryMessage");
+        assertThat(retryMessage.getBoundSql(java.util.Map.of("id", 1L, "suffix", "重试")).getSql())
+                .contains("OCTET_LENGTH(COALESCE(trigger_msg, '')) + OCTET_LENGTH(?)");
+        var alarmStatus = mybatis.getMappedStatement(XxlJobLogMapper.class.getName() + ".updateAlarmStatus");
+        assertThat(alarmStatus.getBoundSql(java.util.Map.of("logId", 10L, "oldAlarmStatus", 0, "newAlarmStatus", -1))
+                .getSql()).contains("`handle_code` != 200", "`alarm_status` = ?");
+        assertThat(alarmStatus.getBoundSql(java.util.Map.of("logId", 10L, "oldAlarmStatus", -1, "newAlarmStatus", 0))
+                .getSql()).doesNotContain("`handle_code`");
         var terminateLog = mybatis.getMappedStatement(XxlJobLogMapper.class.getName() + ".markManuallyTerminated");
         assertThat(terminateLog.getBoundSql(new XxlJobLog()).getSql())
                 .contains("`executor_fail_retry_count` = 0", "AND `job_group` = ?", "AND `handle_code` = 0");
@@ -1958,11 +2728,28 @@ class JobAdminCompatibilityTest {
                     .getBoundSql(offlineWindow).getSql()).contains("t.handle_code = 0", "g.address_type = 0",
                     "r.registry_key = g.app_name", "r.registry_value = t.executor_address", "r.update_time", "NOT EXISTS");
         }
+        String jobMapper = XxlJobInfoMapper.class.getName() + ".";
+        var jobList = mybatis.getMappedStatement(jobMapper + "pageList");
+        var jobFilters = java.util.Map.of("offset", 0, "pagesize", 10, "jobGroup", 2, "triggerStatus", -1,
+                "name", "", "executorHandler", "", "author", "");
+        assertThat(jobList.getBoundSql(jobFilters).getSql()).contains("t.executor_param", "t.schedule_conf")
+                .doesNotContain("glue_source");
+        var jobOptions = mybatis.getMappedStatement(jobMapper + "getJobsByGroup");
+        assertThat(jobOptions.getBoundSql(java.util.Map.of("jobGroup", 2)).getSql().replaceAll("\\s+", " "))
+                .contains("SELECT t.id, t.name FROM xxl_job_info AS t WHERE t.job_group = ? ORDER BY t.id ASC");
+        assertThat(mybatis.getMappedStatement(jobMapper + "loadById").getBoundSql(1).getSql()).contains("t.glue_source");
         var userList = mybatis.getMappedStatement(XxlJobUserMapper.class.getName() + ".pageList");
         assertThat(userList.getBoundSql(java.util.Map.of("offset", 0, "pagesize", 10, "username", "", "role", -1))
                 .getSql()).doesNotContain("password", "token");
         var removeDead = mybatis.getMappedStatement(XxlJobRegistryMapper.class.getName() + ".removeDead");
         var now = new java.util.Date();
+        var findDead = mybatis.getMappedStatement(XxlJobRegistryMapper.class.getName() + ".findDead");
+        assertThat(findDead.getBoundSql(java.util.Map.of("nowTime", now, "timeout", 60, "limit", 1000))
+                .getSql().replaceAll("\\s+", " ")).contains("WHERE t.update_time < DATE_ADD", "ORDER BY t.id ASC LIMIT ?");
+        var activeGroup = mybatis.getMappedStatement(XxlJobRegistryMapper.class.getName() + ".findActiveByGroupAndKey");
+        assertThat(activeGroup.getBoundSql(java.util.Map.of("registryGroup", "EXECUTOR", "registryKey", "existing-app",
+                        "timeout", Const.DEAD_TIMEOUT, "nowTime", now)).getSql().replaceAll("\\s+", " "))
+                .contains("t.registry_group = ? AND t.registry_key = ?", "t.update_time >= DATE_ADD");
         var aggregate = mybatis.getMappedStatement(XxlJobLogMapper.class.getName() + ".findLogReport");
         assertThat(aggregate.getBoundSql(java.util.Map.of("from", now, "to", now)).getSql())
                 .contains("AS runningCount", "AS sucCount", "AS failCount", "trigger_time >= ? AND trigger_time < ?");
@@ -1972,6 +2759,26 @@ class JobAdminCompatibilityTest {
             var logQuery = mybatis.getMappedStatement(XxlJobLogMapper.class.getName() + "." + statement);
             assertThat(logQuery.getBoundSql(logFilters).getSql().replaceAll("\\s+", " "))
                     .contains("t.trigger_time >= ?", "t.trigger_time < ?", "t.trigger_code NOT IN (0, 200)");
+        }
+        String logMapper = XxlJobLogMapper.class.getName() + ".";
+        String pageSql = mybatis.getMappedStatement(logMapper + "pageList").getBoundSql(logFilters)
+                .getSql().replaceAll("\\s+", " ");
+        String countSql = mybatis.getMappedStatement(logMapper + "pageListCount").getBoundSql(logFilters)
+                .getSql().replaceAll("\\s+", " ");
+        assertThat(pageSql.substring(pageSql.indexOf(" WHERE "), pageSql.indexOf(" ORDER BY ")))
+                .isEqualTo(countSql.substring(countSql.indexOf(" WHERE ")).stripTrailing());
+        String dashboardMapper = JobDashboardMapper.class.getName() + ".";
+        var reportFilters = java.util.Map.of("from", now, "until", now, "groups", List.of(2), "offset", 0L, "limit", 10);
+        String dispatchFailed = "t.handle_code = 0 AND t.trigger_code NOT IN (0, 200)";
+        String executionFailed = "t.handle_code NOT IN (0, 200)";
+        assertThat(pageSql).contains(dispatchFailed, executionFailed);
+        assertThat(mybatis.getMappedStatement(dashboardMapper + "topFailures").getBoundSql(reportFilters).getSql())
+                .contains(dispatchFailed, executionFailed);
+        assertThat(mybatis.getMappedStatement(dashboardMapper + "trend").getBoundSql(reportFilters).getSql())
+                .contains("CASE WHEN t.handle_code = 200", dispatchFailed, executionFailed);
+        for (String statement : List.of("trend", "pending")) {
+            assertThat(mybatis.getMappedStatement(dashboardMapper + statement).getBoundSql(reportFilters).getSql())
+                    .contains("t.trigger_code = 200 AND t.handle_code = 0");
         }
         var cleanupQuery = mybatis.getMappedStatement(XxlJobLogMapper.class.getName() + ".findClearLogIds");
         assertThat(cleanupQuery.getBoundSql(java.util.Map.of("jobGroup", 2, "jobId", 123, "clearBeforeNum", 1000,
@@ -1985,13 +2792,22 @@ class JobAdminCompatibilityTest {
                         "registryKey", "fixture", "registryValue", "http://fixture.invalid", "updateTime", now)).getSql())
                 .contains("CASE WHEN `update_time` > ? THEN `update_time` ELSE ? END");
         assertThat(removeDead.getBoundSql(java.util.Map.of("nowTime", now, "timeout", 60, "ids", List.of(1L)))
-                .getSql()).contains("WHERE update_time", "AND id IN");
+                .getSql()).contains("WHERE update_time", "<", "AND id IN");
         assertThat(removeDead.getBoundSql(java.util.Map.of("nowTime", now, "timeout", 60, "ids", List.of()))
                 .getSql()).contains("AND 1 = 0");
         var refreshAddresses = mybatis.getMappedStatement(XxlJobGroupMapper.class.getName()
                 + ".refreshAutoRegisteredAddresses");
-        assertThat(refreshAddresses.getBoundSql(java.util.Map.of("id", 2, "nowTime", now, "addressList", ""))
-                .getSql()).contains("SET address_list", "AND address_type = 0").doesNotContain("access_token");
+        var observedGroup = new XxlJobGroup();
+        observedGroup.setId(2);
+        observedGroup.setAddressList("https://executor.example/OldPath");
+        observedGroup.setUpdateTime(now);
+        var refreshSql = refreshAddresses.getBoundSql(java.util.Map.of("group", observedGroup, "nowTime", now,
+                "addressList", "https://executor.example/oldpath"));
+        assertThat(refreshSql.getSql()).contains("SET address_list", "AND address_type = 0", "update_time <=> ?",
+                "AND CAST(address_list AS BINARY) <=> CAST(? AS BINARY)",
+                "AND NOT (CAST(address_list AS BINARY) <=> CAST(? AS BINARY))").doesNotContain("access_token");
+        assertThat(refreshSql.getParameterMappings()).extracting(org.apache.ibatis.mapping.ParameterMapping::getProperty)
+                .contains("group.id", "group.updateTime", "group.addressList", "addressList");
         var updateGroup = mybatis.getMappedStatement(XxlJobGroupMapper.class.getName() + ".update");
         var automaticGroup = new XxlJobGroup();
         assertThat(updateGroup.getBoundSql(java.util.Map.of("group", automaticGroup, "previousAddressType", 0))

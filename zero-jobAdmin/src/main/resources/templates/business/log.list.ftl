@@ -11,12 +11,24 @@
 	<link rel="stylesheet" href="${request.contextPath}/static/plugins/bootstrap-table/bootstrap-table.min.css">
 	<!-- daterangepicker -->
 	<link rel="stylesheet" href="${request.contextPath}/static/adminlte/bower_components/bootstrap-daterangepicker/daterangepicker.css">
-	<link rel="stylesheet" href="${request.contextPath}/static/framework/log-remark.css?v=${I18n.admin_version}&amp;layout=2">
+	<link rel="stylesheet" href="${request.contextPath}/static/framework/date-range.css?v=${I18n.admin_version}">
+	<link rel="stylesheet" href="${request.contextPath}/static/framework/log-remark.css?v=${I18n.admin_version}&amp;layout=3">
 	<!-- 1-style end -->
 
 </head>
 <body class="hold-transition zero-job-tab-page">
 <div class="wrapper">
+	<template id="standaloneLogBackground">
+		<@netCommon.jobBackground />
+	</template>
+	<script>
+		// 报表下钻会打开独立日志页，后台页签则继续使用父页面背景。
+		if (window.self === window.top) {
+			var backgroundTemplate = document.getElementById('standaloneLogBackground');
+			backgroundTemplate.parentElement.classList.add('zero-job-detail-background', 'zero-job-detail-layout');
+			backgroundTemplate.replaceWith(backgroundTemplate.content);
+		}
+	</script>
 	<section class="content">
 
 		<!-- 2-content start -->
@@ -31,7 +43,7 @@
 							<span class="input-group-addon">${I18n.jobinfo_field_jobgroup}</span>
 							<select class="form-control" id="jobGroup"  >
 								<#list JobGroupList as group>
-									<option value="${group.id}" <#if jobGroup==group.id>selected</#if> >${group.name}</option>
+									<option value="${group.id?c}" <#if jobGroup==group.id>selected</#if> >${(group.name!'')?html}</option>
 								</#list>
 							</select>
 						</div>
@@ -46,7 +58,7 @@
 								</#if>
 								<#if jobInfoList?size gt 0>
 									<#list jobInfoList as jobItem>
-										<option value="${jobItem.id}" >${jobItem.name}</option>
+										<option value="${jobItem.id?c}" >${(jobItem.name!'')?html}</option>
 									</#list>
 								</#if>
 							</select>
@@ -207,15 +219,6 @@
 		$('#jobId').select2();
 
 		/**
-		 * jobGroup change
- 		 */
-		$('#jobGroup').on('change', function(){
-			//reload
-			var jobGroup = $('#jobGroup').val();
-			window.location.href = base_url + "/joblog?jobGroup=" + jobGroup;
-		});
-
-		/**
 		 * filter Time
 		 */
 		var rangesConf = {};
@@ -253,9 +256,12 @@
 		});
 
 		// init filter
-		var jobGroup = '${jobGroup}';
-		var jobId = '${jobId}';
+		var jobGroup = '${jobGroup?c}';
+		var jobId = '${jobId?c}';
 		var filterTime = $('#filterTime');
+		filterTime.on('show.daterangepicker', function (_, picker) {
+			picker.container.addClass('zero-job-date-picker');
+		});
 		var reportStart = filterTime.attr('data-report-start');
 		var reportEnd = filterTime.attr('data-report-end');
 		var fromReport = !!(reportStart && reportEnd);
@@ -272,6 +278,32 @@
 			$('#logStatus').val(fromReport ? '2' : '-1');
 		}
 		resetFilter();
+
+		// 切换执行器组时由服务端重新生成任务选项，仅继承日期和状态。
+		var navigation = new URLSearchParams(window.location.search);
+		if (!fromReport && navigation.has('jobGroup') && !navigation.has('jobId')) {
+			var filterRange = (navigation.get('filterTime') || '').split(' - ');
+			if (filterRange.length === 2) {
+				var start = moment(filterRange[0], 'YYYY-MM-DD HH:mm:ss', true);
+				var end = moment(filterRange[1], 'YYYY-MM-DD HH:mm:ss', true);
+				if (start.isValid() && end.isValid() && !start.isAfter(end)) {
+					var picker = filterTime.data('daterangepicker');
+					picker.setStartDate(start);
+					picker.setEndDate(end);
+				}
+			}
+			var status = navigation.get('logStatus');
+			if (['-1', '1', '2', '3'].indexOf(status) !== -1) {
+				$('#logStatus').val(status);
+			}
+		}
+		$('#jobGroup').on('change', function () {
+			window.location.href = base_url + '/joblog?' + $.param({
+				jobGroup: $(this).val(),
+				logStatus: $('#logStatus').val(),
+				filterTime: filterTime.val()
+			});
+		});
 
 		// ---------------------- page ----------------------
 
@@ -576,17 +608,22 @@
 				if (version !== remarkVersion) {
 					return;
 				}
+				var scrollTop = remarkText.scrollTop;
 				remarkText.focus();
 				remarkText.select();
+				var copied = false;
 				try {
-					if (!document.execCommand('copy')) {
-						throw new Error('Clipboard unavailable');
-					}
-					copyButton.focus();
+					copied = document.execCommand('copy');
 				} catch (_) {
+					// 保留选区，便于手动复制。
+				}
+				if (!copied) {
 					remarkStatus.text(I18n.joblog_copy_manual || I18n.system_opt_fail);
 					return;
 				}
+				remarkText.setSelectionRange(0, 0);
+				remarkText.scrollTop = scrollTop;
+				copyButton.focus();
 			}
 			if (version === remarkVersion) {
 				remarkStatus.text(I18n.joblog_copy_success || (I18n.system_opt_copy + ' ' + I18n.system_success));

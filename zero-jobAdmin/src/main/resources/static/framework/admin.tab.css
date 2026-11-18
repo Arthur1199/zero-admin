@@ -117,6 +117,11 @@ nav.page-tabs .page-tabs-content {
     outline: none;
 }
 
+.content-tabs .fullscreen:focus-visible {
+    outline: 2px solid #356a98;
+    outline-offset: -3px;
+}
+
 .dropdown-menu-right {
     left: auto;
 }

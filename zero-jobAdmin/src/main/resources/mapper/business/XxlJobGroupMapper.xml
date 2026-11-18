@@ -55,9 +55,12 @@
 
 	<update id="refreshAutoRegisteredAddresses">
 		UPDATE xxl_job_group
-		SET address_list = #{addressList}, update_time = #{nowTime}
-		WHERE id = #{id} AND address_type = 0
-			AND NOT (address_list &lt;=&gt; #{addressList})
+		SET address_list = #{addressList},
+			update_time = CASE WHEN update_time &gt; #{nowTime} THEN update_time ELSE #{nowTime} END
+		WHERE id = #{group.id} AND address_type = 0
+			AND update_time &lt;=&gt; #{group.updateTime}
+			AND CAST(address_list AS BINARY) &lt;=&gt; CAST(#{group.addressList} AS BINARY)
+			AND NOT (CAST(address_list AS BINARY) &lt;=&gt; CAST(#{addressList} AS BINARY))
 	</update>
 
 	<delete id="remove" parameterType="java.lang.Integer" >

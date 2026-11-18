@@ -6,7 +6,7 @@
 
     <!-- 1-style start -->
     <@netCommon.commonStyle />
-    <link rel="stylesheet" href="${request.contextPath}/static/framework/admin.tab.css?v=${I18n.admin_version}&amp;layout=3">
+    <link rel="stylesheet" href="${request.contextPath}/static/framework/admin.tab.css?v=${I18n.admin_version}&amp;layout=4">
     <!-- 1-style end -->
 
 </head>
@@ -75,7 +75,7 @@
                     <#-- catalog -->
                         <li class="treeview" style="height: auto;"  >
                             <a href="javascript:void(0);">
-                                <i class="fa ${resource.icon}"></i>
+                                <i class="fa ${resource.icon}" aria-hidden="true"></i>
                                 <span>${resource.name}</span>
                                 <span class="pull-right-container">
                                     <i class="fa fa-angle-left pull-right"></i>
@@ -97,7 +97,7 @@
                             </#if>
                             <#-- menu -->
                             <a class="J_menuItem" href="${resourceUrl}">
-                                <i class="fa ${resource.icon}"></i>
+                                <i class="fa ${resource.icon}" aria-hidden="true"></i>
                                 <span>${resource.name}</span>
                             </a>
                         </li>
@@ -139,7 +139,10 @@
             <!-- refresh -->
             <a href="#" class="roll-nav roll-right tabReload"><i class="fa fa-refresh"></i> ${I18n.tab_refresh}</a>
             <!-- fullscreen -->
-            <a href="#" class="roll-nav roll-right fullscreen" id="fullScreen"><i class="fa fa-arrows-alt"></i></a>
+            <button type="button" class="roll-nav roll-right fullscreen" id="fullScreen"
+                    title="${I18n.tab_fullscreen}" aria-label="${I18n.tab_fullscreen}" aria-pressed="false">
+                <i class="fa fa-arrows-alt" aria-hidden="true"></i>
+            </button>
         </div>
         <!-- Iframe Content -->
         <div class="J_mainContent" id="content-main" >
@@ -164,7 +167,7 @@
 
 <!-- 6-script start -->
 <@netCommon.commonScript />
-<script src="${request.contextPath}/static/framework/admin.tab.js?v=${I18n.admin_version}&amp;layout=2"></script>
+<script src="${request.contextPath}/static/framework/admin.tab.js?v=${I18n.admin_version}&amp;layout=3"></script>
 <script src="${request.contextPath}/static/framework/admin.setting.js?v=${I18n.admin_version}"></script>
 <script>
     $(function () {

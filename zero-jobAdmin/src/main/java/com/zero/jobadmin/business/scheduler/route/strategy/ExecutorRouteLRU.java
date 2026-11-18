@@ -5,78 +5,67 @@ import com.zero.jobadmin.business.scheduler.route.ExecutorRouter;
 import com.xxl.job.core.openapi.executor.dto.TriggerRequest;
 import com.xxl.tool.response.Response;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import com.zero.jobadmin.framework.util.I18nUtil;
+
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
- * 单个JOB对应的每个执行器，最久为使用的优先被选举
- *      a、LFU(Least Frequently Used)：最不经常使用，频率/次数
- *      b(*)、LRU(Least Recently Used)：最近最久未使用，时间
  *
- * Created by xuxueli on 17/3/10.
+ * 作者: xuxueli
+ * 时间: 2017/3/10
+ * 说明: 按任务选取距离上次使用最久的执行器节点。
  */
 public class ExecutorRouteLRU extends ExecutorRouter {
 
+    /** 每个任务的节点使用顺序，队首为最久未使用的节点。 */
+    private static final JobRouteStateCache<LinkedHashSet<String>> USAGE = new JobRouteStateCache<>();
+
     /**
-     * job lru map
      *
-     * <jobId, <address, address>>
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 22:52
+     * 说明: 同步维护同一任务的执行器使用顺序，选中后将其移至队尾。
+     * @param jobId 任务 ID
+     * @param addressList 当前执行器地址列表
+     * @return
+     * 返回值: String
+     * 返回值说明: 本次选中的地址，地址列表为空时返回 null
      */
-    private static ConcurrentMap<Integer, LinkedHashMap<String, String>> jobLRUMap = new ConcurrentHashMap<Integer, LinkedHashMap<String, String>>();
-    private static long CACHE_VALID_TIME = 0;
-
     public String route(int jobId, List<String> addressList) {
-
-        // cache clear
-        if (System.currentTimeMillis() > CACHE_VALID_TIME) {
-            jobLRUMap.clear();
-            CACHE_VALID_TIME = System.currentTimeMillis() + 1000*60*60*24;
+        if (addressList == null || addressList.isEmpty()) {
+            return null;
         }
-
-        // init lru
-        LinkedHashMap<String, String> lruItem = jobLRUMap.get(jobId);
-        if (lruItem == null) {
-            /**
-             * LinkedHashMap
-             *      a、accessOrder：true=访问顺序排序（get/put时排序）；false=插入顺序排期；
-             *      b、removeEldestEntry：新增元素时将会调用，返回true时会删除最老元素；可封装LinkedHashMap并重写该方法，比如定义最大容量，超出是返回true即可实现固定长度的LRU算法；
-             */
-            lruItem = new LinkedHashMap<>(16, 0.75f, true);
-            jobLRUMap.putIfAbsent(jobId, lruItem);
+        LinkedHashSet<String> usage = USAGE.get(jobId, ignored -> new LinkedHashSet<>());
+        synchronized (usage) {
+            usage.retainAll(new HashSet<>(addressList));
+            usage.addAll(addressList);
+            var oldest = usage.iterator();
+            String address = oldest.next();
+            oldest.remove();
+            usage.add(address);
+            return address;
         }
-
-        // put new
-        for (String address: addressList) {
-            if (!lruItem.containsKey(address)) {
-                lruItem.put(address, address);
-            }
-        }
-        // remove old
-        List<String> delKeys = new ArrayList<>();
-        for (String existKey: lruItem.keySet()) {
-            if (!addressList.contains(existKey)) {
-                delKeys.add(existKey);
-            }
-        }
-        if (!delKeys.isEmpty()) {
-            for (String delKey: delKeys) {
-                lruItem.remove(delKey);
-            }
-        }
-
-        // load first elment, eldest entry
-        String eldestKey = lruItem.entrySet().iterator().next().getKey();
-        return lruItem.get(eldestKey);
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 22:52
+     * 说明: 为任务选择执行器地址。
+     * @param triggerParam 调度请求，提供任务 ID
+     * @param jobGroup 执行器组，提供当前可选节点
+     * @return
+     * 返回值: Response<String>
+     * 返回值说明: 成功时返回执行器地址，无可用节点时返回失败
+     */
     @Override
     public Response<String> route(TriggerRequest triggerParam, XxlJobGroup jobGroup) {
-        List<String> addressList = jobGroup.getRegistryList();
-        String address = route(triggerParam.getJobId(), addressList);
-        return Response.ofSuccess(address);
+        List<String> addressList = jobGroup == null ? null : jobGroup.getRegistryList();
+        if (triggerParam == null || addressList == null || addressList.isEmpty()) {
+            return Response.ofFail(I18nUtil.getString("jobconf_trigger_address_empty"));
+        }
+        return Response.ofSuccess(route(triggerParam.getJobId(), addressList));
     }
-
 }

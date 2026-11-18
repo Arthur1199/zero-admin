@@ -15,7 +15,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.text.MessageFormat;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * xxl-job job log complete
@@ -27,7 +29,11 @@ public class JobCompleter {
     private static final Logger logger = LoggerFactory.getLogger(JobCompleter.class);
 
     /** UTF-8 下按字符保守限制备注长度，避免超出 TEXT 容量。 */
-    private static final int MAX_HANDLE_MESSAGE_LENGTH = 15000;
+    private static final int MAX_HANDLE_MESSAGE_LENGTH = 15_000;
+    /** 主任务备注过长时，子任务提交结果至少可使用的空间。 */
+    private static final int RESERVED_CHILD_MESSAGE_LENGTH = MAX_HANDLE_MESSAGE_LENGTH / 2;
+    /** 标记因字段容量省略的备注内容。 */
+    private static final String MESSAGE_TRUNCATED = "…";
 
     @Resource
     private XxlJobInfoMapper xxlJobInfoMapper;
@@ -39,7 +45,7 @@ public class JobCompleter {
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/18 20:08
-     * 说明: 在执行结果首次写入成功后提交子任务，重复完成请求直接返回。
+     * 说明: 首次写入成功终态后提交子任务，并为子任务派发结果保留备注空间。
      * @param xxlJobLog 持有最终执行结果的调度日志
      * @return
      * 返回值: int
@@ -51,14 +57,17 @@ public class JobCompleter {
             return 0;
         }
 
-        String storedMessage = limitHandleMessage(Objects.toString(xxlJobLog.getHandleMsg(), ""));
+        String storedMessage = limitHandleMessage(Objects.toString(xxlJobLog.getHandleMsg(), ""), MAX_HANDLE_MESSAGE_LENGTH);
         xxlJobLog.setHandleMsg(storedMessage);
         int updated = xxlJobLogMapper.updateHandleInfo(xxlJobLog);
         if (updated == 1 && XxlJobContext.HANDLE_CODE_SUCCESS == xxlJobLog.getHandleCode()) {
-            processChildJob(xxlJobLog);
-            String finalMessage = limitHandleMessage(xxlJobLog.getHandleMsg());
-            if (!storedMessage.equals(finalMessage)) {
+            int childLimit = Math.max(RESERVED_CHILD_MESSAGE_LENGTH, MAX_HANDLE_MESSAGE_LENGTH - storedMessage.length());
+            String childMessage = limitHandleMessage(processChildJob(xxlJobLog), childLimit);
+            if (!childMessage.isEmpty()) {
+                String finalMessage = limitHandleMessage(storedMessage, MAX_HANDLE_MESSAGE_LENGTH - childMessage.length())
+                        + childMessage;
                 xxlJobLogMapper.updateHandleMessage(xxlJobLog.getId(), finalMessage);
+                xxlJobLog.setHandleMsg(finalMessage);
             }
         }
         return updated;
@@ -75,7 +84,7 @@ public class JobCompleter {
      * 返回值说明: 当前调用先写入终态时返回 true
      */
     public boolean completeManualTermination(XxlJobLog log) {
-        log.setHandleMsg(limitHandleMessage(Objects.toString(log.getHandleMsg(), "")));
+        log.setHandleMsg(limitHandleMessage(Objects.toString(log.getHandleMsg(), ""), MAX_HANDLE_MESSAGE_LENGTH));
         return xxlJobLogMapper.markManuallyTerminated(log) == 1;
     }
 
@@ -85,32 +94,33 @@ public class JobCompleter {
      * 时间: 2026/11/18 20:08
      * 说明: 在 UTF-16 字符边界截断超长备注，保留完整表情和扩展字形。
      * @param message 待保存的非空备注
+     * @param maxLength 包含省略标记在内的字符上限
      * @return
      * 返回值: String
      * 返回值说明: 可保存到日志字段的备注
      */
-    private String limitHandleMessage(String message) {
-        if (message.length() <= MAX_HANDLE_MESSAGE_LENGTH) {
+    private String limitHandleMessage(String message, int maxLength) {
+        if (message.length() <= maxLength) {
             return message;
         }
-        int end = MAX_HANDLE_MESSAGE_LENGTH;
+        int end = maxLength - MESSAGE_TRUNCATED.length();
         if (Character.isHighSurrogate(message.charAt(end - 1))) {
             end--;
         }
-        return message.substring(0, end);
+        return message.substring(0, end) + MESSAGE_TRUNCATED;
     }
 
     /**
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/18 20:08
-     * 说明: 提交父任务配置中的子任务，并在内存中追加提交结果。
+     * 说明: 按配置顺序提交子任务，每次父任务完成对同一个子任务最多提交一次。
      * @param xxlJobLog 已成功完成的调度日志
      * @return
-     * 返回值: void
-     * 返回值说明: 仅在配置子任务时追加备注
+     * 返回值: String
+     * 返回值说明: 子任务提交结果，未配置子任务时返回空串
      */
-    private void processChildJob(XxlJobLog xxlJobLog){
+    private String processChildJob(XxlJobLog xxlJobLog){
 
         // 1、handle success, to trigger child job
         String triggerChildMsg = null;
@@ -121,13 +131,15 @@ public class JobCompleter {
             if (xxlJobInfo!=null && StringTool.isNotBlank(xxlJobInfo.getChildJobId())) {
                 triggerChildMsg = "<br><br><span style=\"color:#00c0ef;\" > >>>>>>>>>>>"+ I18nUtil.getString("jobconf_trigger_child_run") +"<<<<<<<<<<< </span><br>";
                 String[] childJobIds = xxlJobInfo.getChildJobId().split(",");
+                Set<Integer> dispatched = new HashSet<>();
                 for (int i = 0; i < childJobIds.length; i++) {
 
                     // process eath child
+                    String childId = childJobIds[i].strip();
                     int childJobId = -1;
                     try {
-                        if (StringTool.isNotBlank(childJobIds[i]) && StringTool.isNumeric(childJobIds[i])) {
-                            childJobId = Integer.parseInt(childJobIds[i]);
+                        if (StringTool.isNotBlank(childId) && StringTool.isNumeric(childId)) {
+                            childJobId = Integer.parseInt(childId);
                         }
                     } catch (NumberFormatException ignored) {
                         // 历史配置可能包含超出 int 范围的子任务编号。
@@ -136,6 +148,9 @@ public class JobCompleter {
                         // valid
                         if (childJobId == xxlJobLog.getJobId()) {
                             logger.debug(">>>>>>>>>>> xxl-job, XxlJobCompleter-finishJob ignore childJobId,  childJobId {} is self.", childJobId);
+                            continue;
+                        }
+                        if (!dispatched.add(childJobId)) {
                             continue;
                         }
 
@@ -166,11 +181,7 @@ public class JobCompleter {
             }
         }
 
-        // 2、append trigger-child message
-        if (StringTool.isNotBlank(triggerChildMsg)) {
-            xxlJobLog.setHandleMsg( xxlJobLog.getHandleMsg() + triggerChildMsg );
-        }
-
+        return Objects.toString(triggerChildMsg, "");
     }
 
     /*private static boolean isNumeric(String str){

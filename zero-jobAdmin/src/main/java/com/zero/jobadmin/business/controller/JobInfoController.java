@@ -13,6 +13,7 @@ import com.zero.jobadmin.business.scheduler.type.ScheduleTypeEnum;
 import com.zero.jobadmin.business.service.XxlJobService;
 import com.zero.jobadmin.framework.util.I18nUtil;
 import com.zero.jobadmin.framework.util.JobGroupPermissionUtil;
+import com.zero.jobadmin.framework.util.PageQueryUtil;
 import com.xxl.job.core.constant.ExecutorBlockStrategyEnum;
 import com.xxl.job.core.glue.GlueTypeEnum;
 import com.xxl.sso.core.helper.XxlSsoHelper;
@@ -86,6 +87,23 @@ public class JobInfoController {
 		return "business/job.list";
 	}
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/18 22:19
+	 * 说明: 仅查询当前登录账号有权访问的任务列表，越界分页直接返回错误。
+	 * @param request 当前登录请求
+	 * @param offset 分页偏移，默认 0
+	 * @param pagesize 每页条数，默认 10，最大 500
+	 * @param jobGroup 待查询的执行器组
+	 * @param triggerStatus 调度状态筛选，负数表示全部
+	 * @param name 可选的任务名称筛选
+	 * @param executorHandler 可选的 JobHandler 筛选
+	 * @param author 可选的负责人筛选
+	 * @return
+	 * 返回值: Response<PageModel<XxlJobInfo>>
+	 * 返回值说明: 分页任务配置及匹配总数
+	 */
 	@RequestMapping("/pageList")
 	@ResponseBody
 	public Response<PageModel<XxlJobInfo>> pageList(HttpServletRequest request,
@@ -97,6 +115,9 @@ public class JobInfoController {
 													@RequestParam String executorHandler,
 													@RequestParam String author) {
 
+		if (PageQueryUtil.isInvalid(offset, pagesize)) {
+			return Response.ofFail(I18nUtil.getString("system_page_invalid"));
+		}
 		// valid jobGroup permission
 		JobGroupPermissionUtil.validJobGroupPermission(request, jobGroup);
 

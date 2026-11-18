@@ -46,7 +46,7 @@ public class XxlJobRegistryMapperTest {
         Date expired = new Date(now.getTime() - TimeUnit.MINUTES.toMillis(2));
         xxlJobRegistryMapper.registrySaveOrUpdate(group, appName, address, expired);
         List<Long> ids = List.of(fixture.getId());
-        assertThat(xxlJobRegistryMapper.findDead(60, now)).contains(fixture.getId());
+        assertThat(xxlJobRegistryMapper.findDead(60, now, 1000)).contains(fixture.getId());
         xxlJobRegistryMapper.registrySaveOrUpdate(group, appName, address, now);
         assertThat(xxlJobRegistryMapper.removeDead(ids, 60, now)).isZero();
 

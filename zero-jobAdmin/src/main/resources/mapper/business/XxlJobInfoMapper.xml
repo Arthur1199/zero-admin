@@ -38,7 +38,7 @@
 		<result column="trigger_next_time" property="triggerNextTime" />
 	</resultMap>
 
-	<sql id="Base_Column_List">
+	<sql id="Page_Column_List">
 		t.id,
 		t.job_group,
 		t.name,
@@ -56,7 +56,6 @@
 		t.executor_timeout,
 		t.executor_fail_retry_count,
 		t.glue_type,
-		t.glue_source,
 		t.glue_remark,
 		t.glue_updatetime,
 		t.child_jobid,
@@ -65,8 +64,13 @@
 		t.trigger_next_time
 	</sql>
 
+	<sql id="Base_Column_List">
+		<include refid="Page_Column_List" />,
+		t.glue_source
+	</sql>
+
 	<select id="pageList" parameterType="java.util.HashMap" resultMap="XxlJobInfo">
-		SELECT <include refid="Base_Column_List" />
+		SELECT <include refid="Page_Column_List" />
 		FROM xxl_job_info AS t
 		<trim prefix="WHERE" prefixOverrides="AND | OR" >
 			<if test="jobGroup gt 0">
@@ -254,9 +258,10 @@
 	</delete>
 
 	<select id="getJobsByGroup" parameterType="java.util.HashMap" resultMap="XxlJobInfo">
-		SELECT <include refid="Base_Column_List" />
+		SELECT t.id, t.name
 		FROM xxl_job_info AS t
 		WHERE t.job_group = #{jobGroup}
+		ORDER BY t.id ASC
 	</select>
 
 	<select id="findAllCount" resultType="int">

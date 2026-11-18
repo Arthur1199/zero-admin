@@ -23,6 +23,8 @@
 		SELECT t.id
 		FROM xxl_job_registry AS t
 		WHERE t.update_time <![CDATA[ < ]]> DATE_ADD(#{nowTime},INTERVAL -#{timeout} SECOND)
+		ORDER BY t.id ASC
+		LIMIT #{limit}
 	</select>
 	
 	<delete id="removeDead">
@@ -43,6 +45,13 @@
 		SELECT <include refid="Base_Column_List" />
 		FROM xxl_job_registry AS t
 		WHERE t.update_time <![CDATA[ >= ]]> DATE_ADD(#{nowTime},INTERVAL -#{timeout} SECOND)
+	</select>
+
+	<select id="findActiveByGroupAndKey" resultMap="XxlJobRegistry">
+		SELECT t.registry_group, t.registry_key, t.registry_value
+		FROM xxl_job_registry AS t
+		WHERE t.registry_group = #{registryGroup} AND t.registry_key = #{registryKey}
+			AND t.update_time <![CDATA[ >= ]]> DATE_ADD(#{nowTime},INTERVAL -#{timeout} SECOND)
 	</select>
 
 	<insert id="registrySaveOrUpdate" >

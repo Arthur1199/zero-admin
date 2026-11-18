@@ -35,16 +35,16 @@ public interface XxlJobGroupMapper {
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/11/18 19:56
-     * 说明: 注册监控仅更新仍处于自动注册模式的节点列表。
-     * @param id 执行器组 ID
+     * 时间: 2026/11/18 22:25
+     * 说明: 仅当执行器组仍处于自动注册且读取的配置未变化时，写入本轮在线节点。
+     * @param group 本轮读取的执行器组快照，包含 ID、原地址和更新时间
      * @param addressList 在线地址列表，无在线节点时为空
      * @param nowTime 本轮监控时间
      * @return
      * 返回值: int
-     * 返回值说明: 节点列表发生变更时更新一行，否则为 0
+     * 返回值说明: 快照仍有效且节点列表有变化时返回 1，否则为 0
      */
-    int refreshAutoRegisteredAddresses(@Param("id") int id, @Param("addressList") String addressList,
+    int refreshAutoRegisteredAddresses(@Param("group") XxlJobGroup group, @Param("addressList") String addressList,
                                        @Param("nowTime") Date nowTime);
 
     public int remove(@Param("id") int id);
