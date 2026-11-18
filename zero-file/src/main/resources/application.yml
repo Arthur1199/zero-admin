@@ -20,7 +20,7 @@ spring:
       resolve-lazily: true
 ---
 server:
-  port: 10003
+  port: 9103
   servlet:
     context-path: /
   tomcat:
