@@ -108,4 +108,8 @@ management:
   endpoint:
     health:
       show-details: always
-
+---
+# 备忘录加密密钥，禁止提交、分享或随意替换；请独立备份。
+zero:
+  memo:
+    encryption-key: 'Vp0T9mhvhlqtylnwrpbEBgDlTSHLlt0lELpO3BJDt28='

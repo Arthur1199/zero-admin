@@ -9,6 +9,11 @@ package com.zero.packageconfig;
 public class PackageProperties
 {
     /**
+     * 管理后台谷歌动态验证码绑定签发方名称
+     */
+    public static final String GOOGLE_ISSUER_NAME = "Zero管理后台";
+
+    /**
      * 管理后台服务基础包名，重命名根包时优先修改该常量
      */
     public static final String BASE_PACKAGE = "com.zero";

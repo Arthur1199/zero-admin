@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zero.system.mapper.SysMemoMapper">
+    <resultMap id="SysMemoResult" type="com.zero.system.domain.SysMemo">
+        <id property="memoId" column="memo_id"/>
+        <result property="title" column="title"/>
+        <result property="resourceUrl" column="resource_url"/>
+        <result property="contentCipher" column="memo_content"/>
+        <result property="remark" column="remark"/>
+        <result property="visibility" column="visibility"/>
+        <result property="ownerUserId" column="owner_user_id"/>
+        <result property="version" column="version"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="metadataColumns">
+        memo_id, title, resource_url, remark, visibility, owner_user_id, version,
+        create_by, create_time, update_by, update_time
+    </sql>
+
+    <!-- 不读取正文，降低敏感内容暴露面和列表查询开销；userId只取服务端登录态。 -->
+    <select id="selectMemoList" resultMap="SysMemoResult" useCache="false">
+        select <include refid="metadataColumns"/> from sys_memo
+        where 1 = 1
+        <if test="admin != true">
+            and (visibility = '1' or owner_user_id = #{userId})
+        </if>
+        <if test="query.title != null and query.title != ''">
+            and title like concat('%', #{query.title}, '%')
+        </if>
+        <if test="query.resourceUrl != null and query.resourceUrl != ''">
+            and resource_url like concat('%', #{query.resourceUrl}, '%')
+        </if>
+        <if test="query.visibility != null and query.visibility != ''">
+            and visibility = #{query.visibility}
+        </if>
+        order by create_time desc, memo_id desc
+    </select>
+
+    <select id="selectVisibleMemo" resultMap="SysMemoResult" useCache="false">
+        select <include refid="metadataColumns"/>, memo_content from sys_memo
+        where memo_id = #{memoId}
+        <if test="admin != true">
+            and (visibility = '1' or owner_user_id = #{userId})
+        </if>
+    </select>
+
+    <insert id="insertMemo" useGeneratedKeys="true" keyProperty="memoId">
+        insert into sys_memo
+            (title, resource_url, memo_content, remark, visibility, owner_user_id,
+             version, create_by, create_time)
+        values
+            (#{title}, #{resourceUrl}, #{contentCipher}, #{remark}, #{visibility}, #{ownerUserId},
+             0, #{createBy}, sysdate())
+    </insert>
+
+    <!-- 所属用户不可修改；版本检查和写入在同一SQL完成，避免先查后改的并发窗口。 -->
+    <update id="updateMemo">
+        update sys_memo
+        set title = #{memo.title}, resource_url = #{memo.resourceUrl}, memo_content = #{memo.contentCipher},
+            remark = #{memo.remark}, visibility = #{memo.visibility},
+            update_by = #{memo.updateBy}, update_time = sysdate(), version = version + 1
+        where memo_id = #{memo.memoId} and version = #{memo.version}
+        <if test="admin != true">
+            and owner_user_id = #{userId}
+        </if>
+    </update>
+
+    <delete id="deleteMemo">
+        delete from sys_memo
+        where memo_id = #{memoId} and version = #{version}
+        <if test="admin != true">
+            and owner_user_id = #{userId}
+        </if>
+    </delete>
+</mapper>
+

@@ -196,6 +196,7 @@ insert into sys_menu values('125',  '文件管理', '3',   '1', 'fileManagement'
 insert into sys_menu values('115',  '表单构建', '3',   '2', 'build',      'tool/build/index',         '', '', 1, 0, 'C', '0', '0', 'tool:build:list',         'build',         'admin', sysdate(), '', null, '表单构建菜单');
 insert into sys_menu values('116',  '代码生成', '3',   '3', 'gen',        'tool/gen/index',           '', '', 1, 0, 'C', '0', '0', 'tool:gen:list',           'code',          'admin', sysdate(), '', null, '代码生成菜单');
 insert into sys_menu values('117',  '系统接口', '3',   '4', 'swagger',    'tool/swagger/index',       '', '', 1, 0, 'C', '0', '0', 'tool:swagger:list',       'swagger',       'admin', sysdate(), '', null, '系统接口菜单');
+insert into sys_menu values('129', '备忘录', '3', '5', 'memo', 'systemTools/memo/index', '', 'Memo', 1, 1, 'C', '0', '0', 'systemTools:memo:list', 'edit', 'admin', sysdate(), '', null, '普通账号公开及本人可见、仅本人维护；超级管理员管理全部');
 -- 三级菜单
 insert into sys_menu values('500',  '操作日志', '108', '1', 'operlog',    'monitor/operlog/index',    '', '', 1, 0, 'C', '0', '0', 'monitor:operlog:list',    'form',          'admin', sysdate(), '', null, '操作日志菜单');
 insert into sys_menu values('501',  '登录日志', '108', '2', 'logininfor', 'monitor/logininfor/index', '', '', 1, 0, 'C', '0', '0', 'monitor:logininfor:list', 'logininfor',    'admin', sysdate(), '', null, '登录日志菜单');
@@ -254,6 +255,10 @@ insert into sys_menu values('1073', '业务参数修改', '124', '2', '#', '', '
 insert into sys_menu values('1074', '业务参数删除', '124', '3', '#', '', '', '', 1, 0, 'F', '0', '0', 'reportSystem:bizDict:remove', '#', 'admin', sysdate(), '', null, '');
 -- 系统通知独立按钮：不自动为普通角色授权。
 insert into sys_menu values('1280', '发送通知', '128', '1', '', '', '', '', 1, 0, 'F', '0', '0', 'systemTools:systemNotice:send', '#', 'admin', sysdate(), '', null, '独立发送权限，包含向全部在线账号发送通知的能力');
+-- 备忘录按钮：不自动为普通角色授权。
+insert into sys_menu values('1290', '备忘录新增', '129', '1', '#', '', '', '', 1, 0, 'F', '0', '0', 'systemTools:memo:add', '#', 'admin', sysdate(), '', null, '');
+insert into sys_menu values('1291', '备忘录修改', '129', '2', '#', '', '', '', 1, 0, 'F', '0', '0', 'systemTools:memo:edit', '#', 'admin', sysdate(), '', null, '创建人或超级管理员可修改');
+insert into sys_menu values('1292', '备忘录删除', '129', '3', '#', '', '', '', 1, 0, 'F', '0', '0', 'systemTools:memo:remove', '#', 'admin', sysdate(), '', null, '创建人或超级管理员可删除');
 -- 文件管理按钮
 insert into sys_menu values('1076', '文件上传', '125', '1', '#', '', '', '', 1, 0, 'F', '0', '0', 'systemTools:fileManagement:add',    '#', 'admin', sysdate(), '', null, '');
 insert into sys_menu values('1078', '文件删除', '125', '2', '#', '', '', '', 1, 0, 'F', '0', '0', 'systemTools:fileManagement:remove', '#', 'admin', sysdate(), '', null, '');
@@ -925,3 +930,27 @@ CREATE TABLE sys_stat_event_consumed (
   PRIMARY KEY (event_id),
   KEY idx_consumed_at (consumed_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='消费去重记录，与汇总同事务提交';
+
+-- ----------------------------
+-- 系统工具：备忘录表
+-- ----------------------------
+-- 内容由应用层AES-256-GCM加密，禁止直接向memo_content写入明文。
+DROP TABLE IF EXISTS sys_memo;
+CREATE TABLE sys_memo (
+    memo_id        BIGINT        NOT NULL AUTO_INCREMENT COMMENT '备忘录ID',
+    title          VARCHAR(200)  NOT NULL COMMENT '备忘录标题',
+    resource_url   VARCHAR(2000) DEFAULT NULL COMMENT '资源地址，不存放密码或Token',
+    memo_content   MEDIUMTEXT    DEFAULT NULL COMMENT '备忘录内容密文，格式v1:Base64(随机数+密文+认证标签)',
+    remark         VARCHAR(1000) DEFAULT NULL COMMENT '普通备注说明，不存放敏感内容',
+    visibility     CHAR(1)       NOT NULL DEFAULT '0' COMMENT '可见范围：0私有，1公开',
+    owner_user_id  BIGINT        NOT NULL COMMENT '创建用户ID，服务端设置，不允许转移',
+    version        BIGINT        NOT NULL DEFAULT 0 COMMENT '并发版本，每次修改递增',
+    create_by      VARCHAR(64)   NOT NULL DEFAULT '' COMMENT '创建人',
+    create_time    DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_by      VARCHAR(64)   NOT NULL DEFAULT '' COMMENT '更新人',
+    update_time    DATETIME      DEFAULT NULL COMMENT '更新时间',
+    PRIMARY KEY (memo_id),
+    KEY idx_memo_owner_time (owner_user_id, create_time, memo_id),
+    KEY idx_memo_visibility_time (visibility, create_time, memo_id),
+    KEY idx_memo_create_time (create_time, memo_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='备忘录';
