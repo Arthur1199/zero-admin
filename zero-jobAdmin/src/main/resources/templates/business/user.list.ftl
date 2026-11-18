@@ -289,15 +289,11 @@
 			}
 		});
 
-		// add role
-		$("#addModal .form input[name=role]").change(function () {
-			var role = $(this).val();
-			if (role == 1) {
-				$("#addModal .form input[name=permission]").parents('.form-group').hide();
-			} else {
-				$("#addModal .form input[name=permission]").parents('.form-group').show();
-			}
-			$("#addModal .form input[name='permission']").prop("checked",false);
+		// 管理员无需提交执行器组，切回普通用户时保留本次勾选。
+		$("#addModal .form input[name=role], #updateModal .form input[name=role]").change(function () {
+			var isAdmin = this.value === '1';
+			var permissions = $(this).closest('form').find('input[name=permission]');
+			permissions.prop('disabled', isAdmin).closest('.form-group').toggle(!isAdmin);
 		});
 
 		/**
@@ -330,17 +326,6 @@
 				// request
 				return $("#updateModal .form").serializeArray();
 			}
-		});
-
-		// update role
-		$("#updateModal .form input[name=role]").change(function () {
-			var role = $(this).val();
-			if (role == 1) {
-				$("#updateModal .form input[name=permission]").parents('.form-group').hide();
-			} else {
-				$("#updateModal .form input[name=permission]").parents('.form-group').show();
-			}
-			$("#updateModal .form input[name='permission']").prop("checked",false);
 		});
 
 	});
