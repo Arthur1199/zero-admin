@@ -1,0 +1,28 @@
+# 邮件和调度参数统一在Nacos维护，发布到对应namespace及dev/test/prod分组。
+# 修改后重启服务生效；邮件凭据按环境填写，不提交真实凭据。
+spring:
+  mail:
+    # 保留JavaMailSender实例供官方告警组件注入；未配置有效邮件服务时不具备发信能力。
+    host: localhost
+    port: 25
+    username: ''
+    password: ''
+    from: ''
+    properties:
+      mail.smtp:
+        auth: true
+        starttls:
+          enable: true
+          required: true
+        connectiontimeout: 5000
+        timeout: 5000
+        writetimeout: 5000
+xxl:
+  job:
+    timeout: 3
+    i18n: zh_CN
+    triggerpool:
+      fast.max: 300
+      slow.max: 200
+    schedule.batchsize: 100
+    logretentiondays: 30

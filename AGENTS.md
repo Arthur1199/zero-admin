@@ -10,7 +10,7 @@
 
 ## 当前项目真实技术栈
 
-- 后端是 Maven 多模块项目，父工程 `pom.xml` 当前模块为：`zero-tools`、`zero-admin`、`zero-bootAdmin`、`zero-report`、`zero-file`。
+- 后端是 Maven 多模块项目，父工程 `pom.xml` 当前模块为：`zero-tools`、`zero-admin`、`zero-bootAdmin`、`zero-report`、`zero-file`、`zero-jobAdmin`。
 - 父工程当前基线：Java 17、Spring Boot 3.5.12、Spring Framework 6.2.18、Spring Cloud 2025.0.2、Spring Cloud Alibaba 2025.0.0.0。不要按 Java 8 或旧 Spring Boot 2 项目处理，也不要引入未经项目验证的新框架。
 - `zero-admin` 是管理后台服务，主入口为 `com.zero.ZeroAdminApplication`，启用 Nacos 注册/配置、OpenFeign、LoadBalancer，并排除默认数据源自动配置。主要技术包括 Spring Security、JWT、MyBatis XML、PageHelper、Druid、Redis、Quartz、Actuator、SpringDoc、Kaptcha、Fastjson2、POI。
 - 系统接口文档使用 SpringDoc 2.8.17，与当前 Boot 3.5 / Spring 6.2 配套；文档子路径 `/v3/api-docs/**` 仅额外放行 GET，保证 Swagger UI 可读取配置和文档，不扩大业务接口的匿名访问。
@@ -47,6 +47,7 @@
 | zero-bootAdmin | ZeroBootAdminApplication | 9100 | zero-boot-admin，可由 `zero.boot-admin.application-name` 覆盖 |
 | zero-report | ZeroReportApplication | 9101 | zero-report |
 | zero-file | ZeroFileApplication | 10003 | zero-file |
+| zero-jobAdmin | ZeroJobAdminApplication | 9102 | zero-job-admin |
 | zero-tools | 无独立服务入口 | 无 | 无 |
 
 - admin 的 `ServiceNameConstants.ZERO_ADMIN` 和 tools 的 `ServiceNameConstant.ZERO_ADMIN` 当前仍为 `zeroAdmin`，与 admin 本地应用名 `zero-admin` 不一致。涉及服务调用时核对 Nacos 实际注册名和调用双方配置，不宣称两者已一致，不在无关任务中直接改名。
@@ -385,3 +386,12 @@ public static final String OPEN_GOOGLE_AUTH = "sys.account.openGoogleAuth";
 
 - 项目后端需要 Java 17；如果本机 Maven 使用 JDK 8，会出现 `无效的标记: --release` 等编译失败。
 - `application-dev.yml` 含数据库连接信息，提交或回复时不要泄露明文密码。
+
+## zero-jobAdmin 调度中心规则
+
+- `zero-jobAdmin` 基于官方 XXL-JOB 3.5.0 源码，入口 `com.zero.ZeroJobAdminApplication`，调度业务包 `com.zero.jobadmin`；保持官方控制台、独立登录及原生响应/调度协议，不套用 admin JWT 或 report 的业务父类。
+- 使用当前父工程 Java 17 / Boot 3.5 / Spring 6.2 基线，core 版本 3.5.0，MyBatis starter 使用 Boot 3 适配版本，单数据源 Hikari 连接独立 `zero_job` 库；不因上游Boot 4基线升级其它服务。
+- Nacos 注册名 `zero-job-admin`、默认端口 9102；discovery默认DEFAULT_GROUP，配置默认按profile分组。Data ID 为 `zero-job-admin-mysql.yml`、`zero-job-admin-common.yml`，四个application配置文件直接写配置值、凭据暂留空，数据源整段仅在Nacos的zero-job-admin-mysql.yml直接配置，邮件整段和xxl.job调度参数仅在Nacos的zero-job-admin-common.yml直接配置，不使用环境变量占位符；配置修改后重启，不宣称动态生效。
+- Nacos发现不替代XXL-JOB执行器注册协议，执行器仍需配置可访问的调度中心HTTP地址，并使用3.5.0及对应AppName/AccessToken。
+- `sql/zero_job.sql` 为首次初始化脚本，保留官方初始数据，不自动执行；来源、许可证及适配差异见 `zero-jobAdmin/upstream/README.md`。既有Quartz不迁移、不替换。
+- 默认验证：`mvn -pl zero-jobAdmin -am package`。官方有外部写操作的测试位于`src/integration-test/java`，仅显式`job-integration` profile加入，不在未经授权时运行。编译或隔离测试通过不代表真实Nacos、数据库及执行器闭环已验证。

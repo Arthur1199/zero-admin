@@ -1,0 +1,52 @@
+server:
+  port: 9102
+  servlet:
+    context-path: /
+spring:
+  application:
+    name: zero-job-admin
+  profiles:
+    # 默认开发环境，可通过 --spring.profiles.active=test/prod 切换。
+    active: dev
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+  mvc:
+    servlet:
+      load-on-startup: 0
+    static-path-pattern: /static/**
+  web:
+    resources:
+      static-locations: classpath:/static/
+  freemarker:
+    template-loader-path: classpath:/templates/
+    suffix: .ftl
+    charset: UTF-8
+    request-context-attribute: request
+    settings:
+      number_format: 0.##########
+      new_builtin_class_resolver: safer
+server.error.whitelabel.enabled: false
+mybatis:
+  mapper-locations: classpath:/mapper/**/*Mapper.xml
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+  health:
+    mail:
+      enabled: false
+logging:
+  config: classpath:logback-spring.xml
+xxl-sso:
+  token:
+    key: zero_job_login_token
+    # 单位毫秒，沿用官方7天登录有效期。
+    timeout: 604800000
+  client:
+    excluded.paths: /actuator/health,/actuator/info
+    login.path: /auth/login

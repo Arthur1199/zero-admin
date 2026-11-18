@@ -24,9 +24,9 @@ public class PackageProperties
     public static final String APPLICATION_NAME = "zero-boot-admin";
 
     /**
-     * Boot Admin服务日志目录，避免重命名服务后日志仍写入旧目录
+     * Boot Admin服务日志目录，相对于进程运行目录，目录名与服务名保持一致
      */
-    public static final String LOG_PATH = "logs/zeroBootAdmin";
+    public static final String LOG_PATH = "logs/zero-boot-admin";
 
     /**
      * 启动成功提示文案

@@ -1,0 +1,19 @@
+# 数据源统一在Nacos维护，发布到对应namespace及dev/test/prod分组。
+# 账号密码按实际环境填写，不提交真实凭据。
+spring:
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/zero_job?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: 8!4hFfBDr7*R<Js79tJnk:BX9ljN
+    hikari:
+      minimum-idle: 10
+      maximum-pool-size: 30
+      auto-commit: true
+      idle-timeout: 30000
+      pool-name: ZeroJobHikariCP
+      max-lifetime: 900000
+      connection-timeout: 10000
+      connection-test-query: SELECT 1
+      validation-timeout: 1000
