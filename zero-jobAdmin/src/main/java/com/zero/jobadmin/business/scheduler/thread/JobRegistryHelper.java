@@ -9,27 +9,24 @@ import com.xxl.job.core.openapi.admin.dto.RegistryRequest;
 import com.xxl.tool.concurrent.CyclicThread;
 import com.xxl.tool.core.CollectionTool;
 import com.xxl.tool.core.StringTool;
-import com.xxl.tool.json.GsonTool;
 import com.xxl.tool.response.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.concurrent.*;
 
 /**
- * job registry instance helper
  *
- * @author xuxueli 2016-10-02 19:10:24
+ * 作者: xuxueli
+ * 时间: 2016/10/2 19:10:24
+ * 说明: 写入执行器心跳和下线状态，定期维护在线地址。
  */
 public class JobRegistryHelper {
 	private static final Logger logger = LoggerFactory.getLogger(JobRegistryHelper.class);
 
 
-	/**
-	 * registry or remove thread pool
-	 */
-	private ThreadPoolExecutor registryOrRemoveThreadPool = null;
+	/** 停止时拒绝新的心跳和下线请求。 */
+	private volatile boolean stopping;
 
 	/**
 	 * registry monitor thread
@@ -37,54 +34,35 @@ public class JobRegistryHelper {
 	private CyclicThread registryMonitorThread;
 
 	/**
-	 * job group cache
-	 */
-	private volatile Map<String, XxlJobGroup> appname2GroupCache = new ConcurrentHashMap<>();
-	private volatile Map<Integer, XxlJobGroup> id2GroupCache = new ConcurrentHashMap<>();
-
-	/**
-	 * start
+	 *
+	 * 作者: xuxueli
+	 * 时间: 2016/10/2 19:10
+	 * 说明: 接收注册请求并启动周期监控，按心跳维护在线地址。
+	 * @return
+	 * 返回值: void
+	 * 返回值说明: 初始化并启动后台线程
 	 */
 	public void start(){
 
-		// 1、for registry or remove
-		registryOrRemoveThreadPool = new ThreadPoolExecutor(
-				2,
-				10,
-				30L,
-				TimeUnit.SECONDS,
-				new LinkedBlockingQueue<Runnable>(2000),
-				new ThreadFactory() {
-					@Override
-					public Thread newThread(Runnable r) {
-						return new Thread(r, "xxl-job, admin JobRegistryMonitorHelper-registryOrRemoveThreadPool-" + r.hashCode());
-					}
-				},
-				new RejectedExecutionHandler() {
-					@Override
-					public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-						r.run();
-						logger.warn(">>>>>>>>>>> xxl-job, registry or remove too fast, match threadpool rejected handler(run now).");
-					}
-				});
-
-		// 2、for registry monitor
+		stopping = false;
 		registryMonitorThread = new CyclicThread("JobRegistryHelper#registryMonitorThread", true, new Runnable() {
 			@Override
 			public void run() {
 				// 2.1、refresh auto-registry group
 				List<XxlJobGroup> groupList = XxlJobAdminBootstrap.getInstance().getXxlJobGroupMapper().findByAddressType(0);
 				if (groupList!=null && !groupList.isEmpty()) {
+					Date now = new Date();
+					var registryMapper = XxlJobAdminBootstrap.getInstance().getXxlJobRegistryMapper();
 
 					// a、remove dead address (admin/executor)
-					List<Integer> ids = XxlJobAdminBootstrap.getInstance().getXxlJobRegistryMapper().findDead(Const.DEAD_TIMEOUT, new Date());
+					List<Long> ids = registryMapper.findDead(Const.DEAD_TIMEOUT, now);
 					if (ids!=null && !ids.isEmpty()) {
-						XxlJobAdminBootstrap.getInstance().getXxlJobRegistryMapper().removeDead(ids);
+						registryMapper.removeDead(ids, Const.DEAD_TIMEOUT, now);
 					}
 
 					// b、fresh online address (appname ： List<address>)
 					HashMap<String, List<String>> appnameAddressMap = new HashMap<>();
-					List<XxlJobRegistry> list = XxlJobAdminBootstrap.getInstance().getXxlJobRegistryMapper().findAll(Const.DEAD_TIMEOUT, new Date());
+					List<XxlJobRegistry> list = registryMapper.findAll(Const.DEAD_TIMEOUT, now);
 					if (list != null) {
 						for (XxlJobRegistry item: list) {
 							if (RegistTypeEnum.EXECUTOR.name().equals(item.getRegistryGroup())) {
@@ -111,31 +89,11 @@ public class JobRegistryHelper {
 							Collections.sort(registryList);
 							addressListStr = StringTool.join(registryList, ",");
 						}
-						// fill address
-						group.setAddressList(addressListStr);
-						group.setUpdateTime(new Date());
-
-						XxlJobAdminBootstrap.getInstance().getXxlJobGroupMapper().update(group);
+						// 监控读到旧配置后，管理员仍可能切换为手动录入。
+						XxlJobAdminBootstrap.getInstance().getXxlJobGroupMapper()
+								.refreshAutoRegisteredAddresses(group.getId(), addressListStr, now);
 					}
 				}
-
-				// 2.2、refresh localcache
-				List<XxlJobGroup> jobGroupList = XxlJobAdminBootstrap.getInstance().getXxlJobGroupMapper().findAll();
-				Map<String, XxlJobGroup> appname2GroupCacheNew = new ConcurrentHashMap<>();
-				Map<Integer, XxlJobGroup> id2GroupCacheNew = new ConcurrentHashMap<>();
-				if (CollectionTool.isNotEmpty(jobGroupList)) {
-					for (XxlJobGroup group: jobGroupList) {
-						group.setUpdateTime(null);
-						appname2GroupCacheNew.put(group.getAppname(), group);
-						id2GroupCacheNew.put(group.getId(), group);
-					}
-				}
-				if (!GsonTool.toJson(appname2GroupCacheNew).equals(GsonTool.toJson(appname2GroupCache))) {
-					appname2GroupCache = appname2GroupCacheNew;
-					id2GroupCache = id2GroupCacheNew;
-					logger.info(">>>>>>>>>>> xxl-job, JobRegistryHelper, detect changes and refresh JobGroupCache success, appname2GroupCache:{}, id2GroupCache:{}", appname2GroupCache, id2GroupCache);
-				}
-				logger.debug(">>>>>>>>>>> xxl-job, JobRegistryHelper, refresh JobGroupCache success, appname2GroupCache:{}, id2GroupCache:{}", appname2GroupCache, id2GroupCache);
 
 			}
 		}, Const.BEAT_TIMEOUT * 1000L, true);
@@ -144,101 +102,91 @@ public class JobRegistryHelper {
 
 
 	/**
-	 * stop
+	 *
+	 * 作者: xuxueli
+	 * 时间: 2016/10/2 19:10:24
+	 * 说明: 拒绝新的注册写入并停止周期监控。
+	 * @return
+	 * 返回值: void
+	 * 返回值说明: 已开始写入的请求返回各自的实际结果
 	 */
 	public void stop(){
-
-		// 1、registryOrRemoveThreadPool
-		registryOrRemoveThreadPool.shutdownNow();
-
-		// 2、registryMonitorThread
-		registryMonitorThread.stop();
+		stopping = true;
+		if (registryMonitorThread != null) {
+			registryMonitorThread.stop();
+		}
 	}
 
 
 	// ---------------------- tool ----------------------
 
 	/**
-	 * registry
+	 *
+	 * 作者: xuxueli
+	 * 时间: 2016/10/2 19:10:24
+	 * 说明: 写入当前执行器的注册或心跳后确认成功。
+	 * @param registryParam 已认证应用的执行器注册信息
+	 * @return
+	 * 返回值: Response<String>
+	 * 返回值说明: 执行器已注册或心跳已更新时返回成功，同秒的重复心跳也视为成功
 	 */
 	public Response<String> registry(RegistryRequest registryParam) {
-
-		// valid
-		if (StringTool.isBlank(registryParam.getRegistryGroup())
-				|| StringTool.isBlank(registryParam.getRegistryKey())
-				|| StringTool.isBlank(registryParam.getRegistryValue())) {
+		if (!isValidRegistry(registryParam)) {
 			return Response.ofFail("Illegal Argument.");
 		}
-
-		// async execute
-		registryOrRemoveThreadPool.execute(new Runnable() {
-			@Override
-			public void run() {
-				// 0-fail; 1-save suc; 2-update suc;
-				int ret = XxlJobAdminBootstrap.getInstance().getXxlJobRegistryMapper().registrySaveOrUpdate(registryParam.getRegistryGroup(), registryParam.getRegistryKey(), registryParam.getRegistryValue(), new Date());
-				if (ret == 1) {
-					// fresh (add)
-					freshGroupRegistryInfo(registryParam);
-				}
-				/*int ret = XxlJobAdminConfig.getAdminConfig().getXxlJobRegistryDao().registryUpdate(registryParam.getRegistryGroup(), registryParam.getRegistryKey(), registryParam.getRegistryValue(), new Date());
-				if (ret < 1) {
-					XxlJobAdminConfig.getAdminConfig().getXxlJobRegistryDao().registrySave(registryParam.getRegistryGroup(), registryParam.getRegistryKey(), registryParam.getRegistryValue(), new Date());
-
-					// fresh
-					freshGroupRegistryInfo(registryParam);
-				}*/
-			}
-		});
-
-		return Response.ofSuccess();
+		if (stopping) {
+			return Response.ofFail("Registry service is stopping.");
+		}
+		try {
+			XxlJobAdminBootstrap.getInstance().getXxlJobRegistryMapper().registrySaveOrUpdate(
+					registryParam.getRegistryGroup(), registryParam.getRegistryKey(), registryParam.getRegistryValue(), new Date());
+			return Response.ofSuccess();
+		} catch (RuntimeException e) {
+			logger.error("Failed to write executor heartbeat", e);
+			return Response.ofFail("Failed to save executor heartbeat.");
+		}
 	}
 
 	/**
-	 * registry remove
+	 *
+	 * 作者: xuxueli
+	 * 时间: 2016/10/2 19:10:24
+	 * 说明: 删除指定执行器的注册状态后确认下线。
+	 * @param registryParam 已认证应用的执行器注册信息
+	 * @return
+	 * 返回值: Response<String>
+	 * 返回值说明: 当前注册已移除或不存在时返回成功
 	 */
 	public Response<String> registryRemove(RegistryRequest registryParam) {
-
-		// valid
-		if (StringTool.isBlank(registryParam.getRegistryGroup())
-				|| StringTool.isBlank(registryParam.getRegistryKey())
-				|| StringTool.isBlank(registryParam.getRegistryValue())) {
+		if (!isValidRegistry(registryParam)) {
 			return Response.ofFail("Illegal Argument.");
 		}
-
-		// async execute
-		registryOrRemoveThreadPool.execute(new Runnable() {
-			@Override
-			public void run() {
-				int ret = XxlJobAdminBootstrap.getInstance().getXxlJobRegistryMapper().registryDelete(registryParam.getRegistryGroup(), registryParam.getRegistryKey(), registryParam.getRegistryValue());
-				if (ret > 0) {
-					// fresh (delete)
-					freshGroupRegistryInfo(registryParam);
-				}
-			}
-		});
-
-		return Response.ofSuccess();
-	}
-
-	private void freshGroupRegistryInfo(RegistryRequest registryParam){
-		// Under consideration, prevent affecting core tables
-	}
-
-	// ---------------------- cache ----------------------
-
-	/**
-	 * load JobGroup by id
-	 */
-	public XxlJobGroup load(int jobGroup){
-		return id2GroupCache.get(jobGroup);
+		if (stopping) {
+			return Response.ofFail("Registry service is stopping.");
+		}
+		try {
+			XxlJobAdminBootstrap.getInstance().getXxlJobRegistryMapper().registryDelete(
+					registryParam.getRegistryGroup(), registryParam.getRegistryKey(), registryParam.getRegistryValue());
+			return Response.ofSuccess();
+		} catch (RuntimeException e) {
+			logger.error("Failed to remove executor registry", e);
+			return Response.ofFail("Failed to remove executor registry.");
+		}
 	}
 
 	/**
-	 * load JobGroup by appname
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/18 21:00
+	 * 说明: 校验定位执行器注册记录所需的三个字段。
+	 * @param registryParam 执行器注册信息，可为空
+	 * @return
+	 * 返回值: boolean
+	 * 返回值说明: 类别、应用名及执行器地址均有效时返回 true
 	 */
-	public XxlJobGroup loadByAppName(String appname){
-		return appname2GroupCache.get(appname);
+	private boolean isValidRegistry(RegistryRequest registryParam) {
+		return registryParam != null && StringTool.isNotBlank(registryParam.getRegistryGroup())
+				&& StringTool.isNotBlank(registryParam.getRegistryKey())
+				&& StringTool.isNotBlank(registryParam.getRegistryValue());
 	}
-
-
 }

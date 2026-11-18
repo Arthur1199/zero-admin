@@ -1,0 +1,98 @@
+/* 页签共用父页面背景，固定定位的弹窗 iframe 仍可覆盖整个窗口。 */
+#content-main,
+.zero-job-detail-background {
+    position: relative;
+}
+
+#content-main > .J_iframe {
+    position: relative;
+}
+
+.zero-job-background {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    background: #667eea;
+}
+
+body.zero-job-tab-page {
+    background-color: transparent;
+}
+
+.zero-job-detail-background {
+    isolation: isolate;
+}
+
+.zero-job-detail-background > .zero-job-background {
+    z-index: -1;
+}
+
+.wrapper.zero-job-detail-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.zero-job-detail-layout > .content-wrapper {
+    flex: 1 0 auto;
+    background: transparent;
+}
+
+.main-footer.zero-job-console-footer {
+    border-top: 0;
+    background: transparent;
+    color: #182038;
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.65);
+}
+
+.zero-job-login .zero-job-background {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.zero-job-background .zero-job-gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+    background-size: 400% 400%;
+    animation: zero-job-gradient-shift 15s ease infinite;
+}
+
+.zero-job-background .zero-job-bubble {
+    position: absolute;
+    bottom: -100px;
+    border-radius: 50%;
+    opacity: 0;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(5px);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    animation: zero-job-bubble-rise linear infinite;
+}
+
+@keyframes zero-job-gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+@keyframes zero-job-bubble-rise {
+    0% {
+        bottom: -100px;
+        opacity: 0;
+        transform: translateX(0) scale(1);
+    }
+    10%, 90% { opacity: 1; }
+    100% {
+        bottom: 110%;
+        opacity: 0;
+        transform: translateX(50px) scale(0.8);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .zero-job-background .zero-job-gradient { animation: none; }
+    .zero-job-background .zero-job-bubble { display: none; }
+}

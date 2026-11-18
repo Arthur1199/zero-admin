@@ -16,6 +16,7 @@ import com.xxl.tool.response.PageModel;
 import com.xxl.tool.response.Response;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,6 +50,19 @@ public class JobUserController {
         return "business/user.list";
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 20:06
+     * 说明: 管理员查询用户列表，只返回账号、角色及执行器权限等管理字段。
+     * @param offset 分页起始位置，默认 0
+     * @param pagesize 每页条数，默认 10
+     * @param username 账号筛选值
+     * @param role 角色筛选值，-1 为全部角色
+     * @return
+     * 返回值: Response<PageModel<XxlJobUser>>
+     * 返回值说明: 用户分页结果，移除密码和登录令牌
+     */
     @RequestMapping("/pageList")
     @ResponseBody
     @XxlSso(role = Consts.ADMIN_ROLE)
@@ -65,6 +79,7 @@ public class JobUserController {
         if (list!=null && !list.isEmpty()) {
             for (XxlJobUser item: list) {
                 item.setPassword(null);
+                item.setToken(null);
             }
         }
 
@@ -76,10 +91,23 @@ public class JobUserController {
         return Response.ofSuccess(pageModel);
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 20:06
+     * 说明: 管理员新增用户，沿用现有密码摘要格式，并处理并发新增同名账号。
+     * @param xxlJobUser 账号、初始密码、角色和执行器权限
+     * @return
+     * 返回值: Response<String>
+     * 返回值说明: 新增结果或输入错误提示
+     */
     @RequestMapping("/insert")
     @ResponseBody
     @XxlSso(role = Consts.ADMIN_ROLE)
     public Response<String> insert(XxlJobUser xxlJobUser) {
+        if (xxlJobUser.getRole() != 0 && xxlJobUser.getRole() != 1) {
+            return Response.ofFail(I18nUtil.getString("user_role") + I18nUtil.getString("system_invalid"));
+        }
 
         // valid username
         if (StringTool.isBlank(xxlJobUser.getUsername())) {
@@ -97,7 +125,7 @@ public class JobUserController {
         if (!(xxlJobUser.getPassword().length()>=4 && xxlJobUser.getPassword().length()<=20)) {
             return Response.ofFail(I18nUtil.getString("system_length_limit")+"[4-20]" );
         }
-        // md5 password
+        // 沿用登录校验使用的 SHA-256 摘要格式。
         String passwordHash = Sha256Tool.sha256(xxlJobUser.getPassword());
         xxlJobUser.setPassword(passwordHash);
 
@@ -107,20 +135,43 @@ public class JobUserController {
             return Response.ofFail( I18nUtil.getString("user_username_repeat") );
         }
 
-        // write
-        xxlJobUserMapper.save(xxlJobUser);
-        return Response.ofSuccess();
+        try {
+            return xxlJobUserMapper.save(xxlJobUser) > 0
+                    ? Response.ofSuccess() : Response.ofFail(I18nUtil.getString("system_opt_fail"));
+        } catch (DuplicateKeyException e) {
+            return Response.ofFail(I18nUtil.getString("user_username_repeat"));
+        }
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 20:06
+     * 说明: 管理员更新其他用户的角色、执行器权限或密码，以用户 ID 拦截本人操作。
+     * @param request 当前登录请求
+     * @param xxlJobUser 要更新的用户配置，空密码表示保留已有密码
+     * @return
+     * 返回值: Response<String>
+     * 返回值说明: 更新结果，目标不存在或更新没有命中时返回失败
+     */
     @RequestMapping("/update")
     @ResponseBody
     @XxlSso(role = Consts.ADMIN_ROLE)
     public Response<String> update(HttpServletRequest request, XxlJobUser xxlJobUser) {
 
-        // avoid opt login seft
         Response<LoginInfo> loginInfoResponse = XxlSsoHelper.loginCheckWithAttr(request);
-        if (loginInfoResponse.getData().getUserName().equals(xxlJobUser.getUsername())) {
+        LoginInfo loginUser = loginInfoResponse.getData();
+        if (!loginInfoResponse.isSuccess() || loginUser == null) {
+            return Response.ofFail(I18nUtil.getString("system_permission_limit"));
+        }
+        if (String.valueOf(xxlJobUser.getId()).equals(loginUser.getUserId())) {
             return Response.ofFail(I18nUtil.getString("user_update_loginuser_limit"));
+        }
+        if (xxlJobUser.getId() <= 0) {
+            return Response.ofFail(I18nUtil.getString("system_opt_fail"));
+        }
+        if (xxlJobUser.getRole() != 0 && xxlJobUser.getRole() != 1) {
+            return Response.ofFail(I18nUtil.getString("user_role") + I18nUtil.getString("system_invalid"));
         }
 
         // valid password
@@ -129,16 +180,15 @@ public class JobUserController {
             if (!(xxlJobUser.getPassword().length()>=4 && xxlJobUser.getPassword().length()<=20)) {
                 return Response.ofFail(I18nUtil.getString("system_length_limit")+"[4-20]" );
             }
-            // md5 password
+            // 沿用登录校验使用的 SHA-256 摘要格式。
             String passwordHash = Sha256Tool.sha256(xxlJobUser.getPassword());
             xxlJobUser.setPassword(passwordHash);
         } else {
             xxlJobUser.setPassword(null);
         }
 
-        // write
-        xxlJobUserMapper.update(xxlJobUser);
-        return Response.ofSuccess();
+        return xxlJobUserMapper.update(xxlJobUser) > 0
+                ? Response.ofSuccess() : Response.ofFail(I18nUtil.getString("system_opt_fail"));
     }
 
     @RequestMapping("/delete")

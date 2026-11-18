@@ -1,5 +1,26 @@
 /* admin dialog start */
 
+/* 解除渐变容器的层级限制，让弹窗 iframe 单独覆盖顶栏。 */
+.zero-job-console-content:has(> #content-main > .J_iframe.J_dialogExpand) {
+    z-index: auto;
+    transform: none;
+}
+
+/* 用最小高度实现垂直居中，长表单仍可通过 Bootstrap 的弹窗容器滚动。 */
+.modal > .modal-dialog {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: calc(100% - 32px);
+    max-width: calc(100% - 32px);
+    margin: 16px auto;
+}
+
+.modal > .modal-dialog > .modal-content {
+    border-radius: 10px;
+    box-shadow: 0 16px 40px rgba(20, 29, 53, 0.24);
+}
+
 /* 弹框展示期间：当前 iframe 临时撑满窗口、作为弹框承载层（正文由 JS 偏移回原内容区） */
 .J_iframe.J_dialogExpand {
     position: fixed !important;

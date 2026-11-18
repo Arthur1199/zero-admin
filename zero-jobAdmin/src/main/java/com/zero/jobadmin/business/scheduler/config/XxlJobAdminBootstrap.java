@@ -21,8 +21,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.Arrays;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.LinkedHashMap;
+import java.util.Objects;
 
 /**
  * xxl-job config
@@ -136,43 +136,68 @@ public class XxlJobAdminBootstrap implements InitializingBean, DisposableBean {
 
     // ---------------------- executor-client ----------------------
 
-    private static final ConcurrentMap<String, ExecutorBiz> executorBizRepository = new ConcurrentHashMap<>();
+    /** 按最近使用顺序存放执行器代理，访问与逐条淘汰使用同一把锁。 */
+    private static final LinkedHashMap<ExecutorEndpoint, ExecutorClient> executorBizRepository =
+            new LinkedHashMap<>(16, 0.75f, true);
+    /** 执行器代理缓存上限。 */
     private static final int EXECUTOR_BIZ_CACHE_MAX_SIZE = 1000;
 
     /**
-     * get executor-client
+     *
+     * 作者: xuxueli
+     * 时间: 2017/4/28
+     * 说明: 按地址和应用复用执行器客户端，令牌或超时配置变化时替换旧客户端。
+     * @param address 执行器 HTTP 地址
+     * @param xxlJobGroup 当前执行器组配置
+     * @return
+     * 返回值: ExecutorBiz
+     * 返回值说明: 绑定当前应用和通信凭据的执行器客户端，缺少地址或配置时返回空
      */
     public static ExecutorBiz getExecutorBiz(String address, XxlJobGroup xxlJobGroup) throws Exception {
-        // valid
         if (StringTool.isBlank(address) || xxlJobGroup == null) {
             return null;
         }
-        address = address.trim();
+        ExecutorEndpoint endpoint = new ExecutorEndpoint(address.trim(), xxlJobGroup.getAppname());
         String accessToken = xxlJobGroup.getAccessToken();
-        String appname = xxlJobGroup.getAppname();
+        int timeoutMillis = XxlJobAdminBootstrap.getInstance().getTimeout() * 1000;
+        synchronized (executorBizRepository) {
+            ExecutorClient cached = executorBizRepository.get(endpoint);
+            if (cached != null && cached.timeoutMillis() == timeoutMillis
+                    && Objects.equals(cached.accessToken(), accessToken)) {
+                return cached.client();
+            }
 
-        // load-cache
-        String cacheKey = address + "|" + accessToken + "|" + appname;
-        ExecutorBiz executorBiz = executorBizRepository.get(cacheKey);
-        if (executorBiz != null) {
-            return executorBiz;
+            ExecutorBiz client = HttpTool.createClient()
+                    .url(endpoint.address())
+                    .connectTimeout(timeoutMillis)
+                    .readTimeout(timeoutMillis)
+                    .header(Const.XXL_JOB_ACCESS_TOKEN, accessToken)
+                    .header(Const.XXL_JOB_APPNAME, endpoint.appName())
+                    .proxy(ExecutorBiz.class);
+            executorBizRepository.put(endpoint, new ExecutorClient(accessToken, timeoutMillis, client));
+            if (executorBizRepository.size() > EXECUTOR_BIZ_CACHE_MAX_SIZE) {
+                executorBizRepository.remove(executorBizRepository.keySet().iterator().next());
+            }
+            return client;
         }
+    }
 
-        // new client
-        executorBiz = HttpTool.createClient()
-                .url(address)
-                .connectTimeout(XxlJobAdminBootstrap.getInstance().getTimeout() * 1000)
-                .readTimeout(XxlJobAdminBootstrap.getInstance().getTimeout() * 1000)
-                .header(Const.XXL_JOB_ACCESS_TOKEN, accessToken)
-                .header(Const.XXL_JOB_APPNAME, appname)
-                .proxy(ExecutorBiz.class);
-        executorBizRepository.put(cacheKey, executorBiz);
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 21:04
+     * 说明: 同一执行器地址可以服务不同应用，客户端按应用隔离。
+     */
+    private record ExecutorEndpoint(String address, String appName) {
+    }
 
-        // avoid unbounded growth
-        if (executorBizRepository.size() > EXECUTOR_BIZ_CACHE_MAX_SIZE) {
-            executorBizRepository.clear();
-        }
-        return executorBiz;
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 21:04
+     * 说明: 记录创建代理时的通信配置，仅用于判断是否能复用。
+     */
+    private record ExecutorClient(String accessToken, int timeoutMillis, ExecutorBiz client) {
     }
 
 

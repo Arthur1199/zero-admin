@@ -1,9 +1,23 @@
 package com.zero.jobadmin.business.model.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.zero.jobadmin.business.model.XxlJobLog;
-import com.xxl.tool.core.DateTool;
+import com.zero.jobadmin.business.service.JobDashboardService;
 
+import java.time.format.DateTimeFormatter;
+
+/**
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/18 21:22
+ * 说明: 调度日志列表的显示数据，日志 ID 在浏览器接口中使用十进制字符串。
+ */
 public class XxlJobLogDTO {
+
+    /** 按日志筛选的上海时区输出时间，保留已有的 JSON 日期格式。 */
+    private static final DateTimeFormatter LOG_TIME_FORMAT = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss")
+            .withZone(JobDashboardService.REPORT_ZONE);
 
     private long id;
 
@@ -31,6 +45,16 @@ public class XxlJobLogDTO {
     // alarm info
     private int alarmStatus;
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 21:51
+     * 说明: 转为日志列表数据，页面时间与筛选区间统一使用上海时区
+     * @param xxlJobLog 已读取的调度日志
+     * @return
+     * 返回值: 无
+     * 返回值说明: 初始化展示字段，缺失的调度或执行时间保留为空
+     */
     public XxlJobLogDTO(XxlJobLog xxlJobLog) {
         this.id = xxlJobLog.getId();
         this.jobGroup = xxlJobLog.getJobGroup();
@@ -40,15 +64,25 @@ public class XxlJobLogDTO {
         this.executorParam = xxlJobLog.getExecutorParam();
         this.executorShardingParam = xxlJobLog.getExecutorShardingParam();
         this.executorFailRetryCount = xxlJobLog.getExecutorFailRetryCount();
-        this.triggerTime = xxlJobLog.getTriggerTime() != null ? DateTool.formatDateTime(xxlJobLog.getTriggerTime()) : null;
+        this.triggerTime = xxlJobLog.getTriggerTime() != null ? LOG_TIME_FORMAT.format(xxlJobLog.getTriggerTime().toInstant()) : null;
         this.triggerCode = xxlJobLog.getTriggerCode();
         this.triggerMsg = xxlJobLog.getTriggerMsg();
-        this.handleTime = xxlJobLog.getHandleTime() != null ? DateTool.formatDateTime(xxlJobLog.getHandleTime()) : null;
+        this.handleTime = xxlJobLog.getHandleTime() != null ? LOG_TIME_FORMAT.format(xxlJobLog.getHandleTime().toInstant()) : null;
         this.handleCode = xxlJobLog.getHandleCode();
         this.handleMsg = xxlJobLog.getHandleMsg();
         this.alarmStatus = xxlJobLog.getAlarmStatus();
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 21:22
+     * 说明: 保留 Java 内部的 long，序列化时避免浏览器数字精度丢失。
+     * @return
+     * 返回值: long
+     * 返回值说明: 数据库中的完整日志 ID，JSON 中输出十进制字符串
+     */
+    @JsonSerialize(using = ToStringSerializer.class)
     public long getId() {
         return id;
     }

@@ -2,29 +2,40 @@ package com.zero.jobadmin.business.scheduler.thread;
 
 import com.zero.jobadmin.business.model.XxlJobLogReport;
 import com.zero.jobadmin.business.scheduler.config.XxlJobAdminBootstrap;
+import com.zero.jobadmin.business.service.JobLogCleanup;
 import com.xxl.tool.concurrent.CyclicThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * job log report helper
  *
- * @author xuxueli 2019-11-22
+ * 作者: xuxueli
+ * 时间: 2019/11/22
+ * 说明: 定期维护历史运行报表汇总和调度日志保留周期。
  */
 public class JobLogReportHelper {
     private static final Logger logger = LoggerFactory.getLogger(JobLogReportHelper.class);
+
+    /** 每轮刷新当天及前两天的历史报表汇总。 */
+    private static final int REPORT_REFRESH_DAYS = 3;
 
     private CyclicThread logReportThread;
     private AtomicLong lastCleanLogTime;
 
     /**
-     * start
+     *
+     * 作者: xuxueli
+     * 时间: 2019/11/22
+     * 说明: 启动报表刷新和日志清理线程。
+     * @return
+     * 返回值: void
+     * 返回值说明: 后台线程启动后按现有周期处理
      */
     public void start(){
 
@@ -38,53 +49,8 @@ public class JobLogReportHelper {
             @Override
             public void run() {
 
-                // 1、log-report refresh: refresh log report in 3 days
-                for (int i = 0; i < 3; i++) {
-
-                    // today
-                    Calendar itemDay = Calendar.getInstance();
-                    itemDay.add(Calendar.DAY_OF_MONTH, -i);
-                    itemDay.set(Calendar.HOUR_OF_DAY, 0);
-                    itemDay.set(Calendar.MINUTE, 0);
-                    itemDay.set(Calendar.SECOND, 0);
-                    itemDay.set(Calendar.MILLISECOND, 0);
-
-                    Date todayFrom = itemDay.getTime();
-
-                    itemDay.set(Calendar.HOUR_OF_DAY, 23);
-                    itemDay.set(Calendar.MINUTE, 59);
-                    itemDay.set(Calendar.SECOND, 59);
-                    itemDay.set(Calendar.MILLISECOND, 999);
-
-                    Date todayTo = itemDay.getTime();
-
-                    // refresh log-report every minute
-                    XxlJobLogReport xxlJobLogReport = new XxlJobLogReport();
-                    xxlJobLogReport.setTriggerDay(todayFrom);
-                    xxlJobLogReport.setRunningCount(0);
-                    xxlJobLogReport.setSucCount(0);
-                    xxlJobLogReport.setFailCount(0);
-                    xxlJobLogReport.setUpdateTime(new Date());
-
-                    // fill count-data
-                    Map<String, Object> triggerCountMap = XxlJobAdminBootstrap.getInstance().getXxlJobLogMapper().findLogReport(todayFrom, todayTo);
-                    if (triggerCountMap!=null && !triggerCountMap.isEmpty()) {
-                        int triggerDayCount = triggerCountMap.containsKey("triggerDayCount")?Integer.parseInt(String.valueOf(triggerCountMap.get("triggerDayCount"))):0;
-                        int triggerDayCountRunning = triggerCountMap.containsKey("triggerDayCountRunning")?Integer.parseInt(String.valueOf(triggerCountMap.get("triggerDayCountRunning"))):0;
-                        int triggerDayCountSuc = triggerCountMap.containsKey("triggerDayCountSuc")?Integer.parseInt(String.valueOf(triggerCountMap.get("triggerDayCountSuc"))):0;
-                        int triggerDayCountFail = triggerDayCount - triggerDayCountRunning - triggerDayCountSuc;
-
-                        xxlJobLogReport.setRunningCount(triggerDayCountRunning);
-                        xxlJobLogReport.setSucCount(triggerDayCountSuc);
-                        xxlJobLogReport.setFailCount(triggerDayCountFail);
-                    }
-
-                    // do refresh:
-                    XxlJobAdminBootstrap.getInstance().getXxlJobLogReportMapper().saveOrUpdate(xxlJobLogReport);      // 0-fail; 1-save suc; 2-update suc;
-                        /*if (ret < 1) {
-                            XxlJobAdminBootstrap.getInstance().getXxlJobLogReportMapper().save(xxlJobLogReport);
-                        }*/
-                }
+                ZoneId zone = ZoneId.systemDefault();
+                refreshRecentReports(XxlJobAdminBootstrap.getInstance(), LocalDate.now(zone), zone);
 
                 // 2、log-clean: switch open & once each day
                 if (XxlJobAdminBootstrap.getInstance().getLogretentiondays()>0
@@ -99,23 +65,51 @@ public class JobLogReportHelper {
                     expiredDay.set(Calendar.MILLISECOND, 0);
                     Date clearBeforeTime = expiredDay.getTime();
 
-                    // clean expired log
-                    List<Long> logIds = null;
-                    do {
-                        logIds = XxlJobAdminBootstrap.getInstance().getXxlJobLogMapper().findClearLogIds(0, 0, clearBeforeTime, 0, 1000);
-                        if (logIds!=null && !logIds.isEmpty()) {
-                            XxlJobAdminBootstrap.getInstance().getXxlJobLogMapper().clearLog(logIds);
-                        }
-                    } while (logIds!=null && !logIds.isEmpty());
-
-                    // update clean time
-                    lastCleanLogTime.set(System.currentTimeMillis());
+                    try {
+                        JobLogCleanup.clear(XxlJobAdminBootstrap.getInstance().getXxlJobLogMapper(), 0, 0, clearBeforeTime, 0);
+                        lastCleanLogTime.set(System.currentTimeMillis());
+                    } catch (RuntimeException e) {
+                        logger.error("Failed to finish retention log cleanup", e);
+                    }
                 }
 
             }
         }, 60 * 1000L, true);
         logReportThread.start();
 
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 21:06
+     * 说明: 用同一个自然日和时区计算最近三天的汇总范围，单日失败时继续处理其他日期。
+     * @param bootstrap 调度中心组件入口
+     * @param today 本轮刷新时的当地日期
+     * @param zone 调度中心使用的时区
+     * @return
+     * 返回值: void
+     * 返回值说明: 保存可用的日汇总，缺失的查询结果保留原有汇总
+     */
+    private void refreshRecentReports(XxlJobAdminBootstrap bootstrap, LocalDate today, ZoneId zone) {
+        for (int offset = 0; offset < REPORT_REFRESH_DAYS; offset++) {
+            LocalDate day = today.minusDays(offset);
+            Date start = Date.from(day.atStartOfDay(zone).toInstant());
+            Date endExclusive = Date.from(day.plusDays(1).atStartOfDay(zone).toInstant());
+            try {
+                Date snapshotStartedAt = new Date();
+                XxlJobLogReport report = bootstrap.getXxlJobLogMapper().findLogReport(start, endExclusive);
+                if (report == null) {
+                    logger.warn("Missing aggregate result for job report, day={}", day);
+                    continue;
+                }
+                report.setTriggerDay(start);
+                report.setUpdateTime(snapshotStartedAt);
+                bootstrap.getXxlJobLogReportMapper().saveOrUpdate(report);
+            } catch (RuntimeException e) {
+                logger.error("Failed to refresh job report, day={}", day, e);
+            }
+        }
     }
 
     /**

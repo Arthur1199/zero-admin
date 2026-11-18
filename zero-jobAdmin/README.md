@@ -1,6 +1,17 @@
-# zero-jobAdmin
+# ZERO-JOB
+
+ZERO-JOB 是由 **Arthur** 维护的任务调度中心，当前项目版本为 **1.0.0**，作为 `zero-admin` 多模块工程中的独立微服务运行。
 
 基于 XXL-JOB 3.5.0 官方调度中心源码，使用当前工程的 Java 17、Spring Boot 3.5、Spring Cloud Alibaba 基线，保留官方独立控制台和登录。Maven 模块名为 `zero-jobAdmin`，Nacos 服务名为 `zero-job-admin`，默认端口 `9102`，控制台路径为 `/`。
+
+## 作者与开源说明
+
+- 项目维护者及修改部分作者：Arthur。
+- 页面展示版本：1.0.0；上游源码及执行器协议基线：XXL-JOB 3.5.0，两者分别维护，不将执行器依赖版本改成1.0.0。
+- Copyright © 2026 Arthur（本项目修改部分）。原始代码版权归原作者及其贡献者所有。
+- 本项目是XXL-JOB的修改版本，按GNU GPL v3.0发布。`LICENSE` 保留许可证原文；`NOTICE` 同时保留上游及第三方声明，并补充Arthur的修改声明。
+- 品牌名称、页面版权和维护者信息的调整不改变上游代码的归属与许可证。对外分发时应保留相关声明并遵守GPL v3.0要求。
+- 上游来源及技术改造记录见 [upstream/README.md](upstream/README.md)，完整许可文本见 [LICENSE](LICENSE)，版权及依赖声明见 [NOTICE](NOTICE)。
 
 ## 初始化与启动
 

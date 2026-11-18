@@ -1,9 +1,14 @@
 package com.zero.jobadmin.framework.controller;
 
+import com.zero.jobadmin.business.mapper.XxlJobGroupMapper;
+import com.zero.jobadmin.business.model.XxlJobGroup;
+import com.zero.jobadmin.business.model.dto.JobDashboardReport;
+import com.zero.jobadmin.business.service.JobDashboardService;
 import com.zero.jobadmin.framework.constant.Consts;
 import com.zero.jobadmin.framework.model.dto.XxlBootResourceDTO;
 import com.zero.jobadmin.business.service.XxlJobService;
 import com.zero.jobadmin.framework.util.I18nUtil;
+import com.zero.jobadmin.framework.util.JobGroupPermissionUtil;
 import com.xxl.sso.core.annotation.XxlSso;
 import com.xxl.sso.core.helper.XxlSsoHelper;
 import com.xxl.sso.core.model.LoginInfo;
@@ -13,9 +18,11 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,6 +30,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,6 +45,10 @@ public class IndexController {
 
 	@Resource
 	private XxlJobService xxlJobService;
+	@Resource
+	private XxlJobGroupMapper xxlJobGroupMapper;
+	@Resource
+	private JobDashboardService jobDashboardService;
 
 	/**
 	 * index
@@ -78,23 +91,71 @@ public class IndexController {
 	}
 
 	/**
-	 * dashboard
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/18 19:08
+	 * 说明: 保留历史报表概况，新增报表仅提供当前账号可用的执行器组
+	 * @param request 用于获取当前登录人
+	 * @param model 报表视图参数
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 运行报表模板路径
 	 */
 	@RequestMapping("/dashboard")
 	@XxlSso
 	public String dashboard(HttpServletRequest request, Model model) {
 
-		Map<String, Object> dashboardMap = xxlJobService.dashboardInfo();
-		model.addAllAttributes(dashboardMap);
+		model.addAllAttributes(xxlJobService.dashboardInfo());
+		model.addAttribute("reportGroups", JobGroupPermissionUtil.filterJobGroupByPermission(request, xxlJobGroupMapper.findAll()));
+		model.addAttribute("reportToday", LocalDate.now(JobDashboardService.REPORT_ZONE).toString());
+		model.addAttribute("reportMaxDays", JobDashboardService.MAX_DAYS);
 
 		return "framework/base/dashboard";
 	}
 
 	@RequestMapping("/chartInfo")
+	@XxlSso
 	@ResponseBody
 	public Response<Map<String, Object>> chartInfo(@RequestParam("startDate") Date startDate, @RequestParam("endDate") Date endDate) {
 		Response<Map<String, Object>> chartInfo = xxlJobService.chartInfo(startDate, endDate);
 		return chartInfo;
+	}
+
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/18 19:08
+	 * 说明: 按调度自然日查询当前账号可见的趋势、失败榜和待回调记录
+	 * @param request 用于确认可访问的执行器组
+	 * @param startDate 首日，格式 yyyy-MM-dd
+	 * @param endDate 末日，含当天，最多查询 31 天
+	 * @param jobGroup 执行器组 ID，0 表示全部有权限的组
+	 * @param page 待回调页码，默认 1
+	 * @return
+	 * 返回值: Response<JobDashboardReport>
+	 * 返回值说明: 无权限的执行器组或无效日期返回错误信息
+	 */
+	@GetMapping("/dashboard/report")
+	@XxlSso
+	@ResponseBody
+	public Response<JobDashboardReport> report(HttpServletRequest request,
+			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+			@RequestParam(defaultValue = "0") int jobGroup,
+			@RequestParam(defaultValue = "1") int page) {
+		if (startDate.isAfter(endDate) || endDate.isAfter(LocalDate.now(JobDashboardService.REPORT_ZONE))
+				|| ChronoUnit.DAYS.between(startDate, endDate) >= JobDashboardService.MAX_DAYS || page < 1) {
+			return Response.ofFail(I18nUtil.getString("job_report_invalid_range"));
+		}
+		List<Integer> groups = JobGroupPermissionUtil.filterJobGroupByPermission(request, xxlJobGroupMapper.findAll())
+				.stream().map(XxlJobGroup::getId).toList();
+		if (jobGroup != 0) {
+			if (!groups.contains(jobGroup)) {
+				return Response.ofFail(I18nUtil.getString("system_permission_limit"));
+			}
+			groups = List.of(jobGroup);
+		}
+		return Response.ofSuccess(jobDashboardService.report(startDate, endDate, groups, page));
 	}
 
 	/**

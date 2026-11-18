@@ -10,20 +10,23 @@
 	<link rel="stylesheet" href="${request.contextPath}/static/plugins/codemirror/addon/hint/show-hint.css">
 	<title>${I18n.admin_name}</title>
 	<style type="text/css" >
-		.CodeMirror {
-			font-size:16px;
+		#ideWindow {
+			position: relative;
+		}
+		#ideWindow > .CodeMirror {
+			position: absolute;
+			inset: 0;
+			font-size: 16px;
 			width: 100%;
 			height: 100%;
-			/*bottom: 0;
-            top: 0px;*/
-			position: absolute;
 		}
 	</style>
 	<!-- 1-style end -->
 
 </head>
 <body class="hold-transition skin-blue layout-top-nav" >
-<div class="wrapper" >
+<div class="wrapper zero-job-detail-background zero-job-detail-layout" >
+	<@netCommon.jobBackground />
 
 	<!-- 2-header start -->
 	<header class="main-header">
@@ -42,7 +45,7 @@
 				<div class="collapse navbar-collapse pull-left" id="navbar-collapse">
 					<ul class="nav navbar-nav">
 						<li class="active" >
-							<a href="javascript:;">${I18n.jobinfo_job}：${jobInfo.name} ｜<#list GlueTypeEnum as item><#if item == jobInfo.glueType>${item.desc}</#if></#list></a>
+							<a href="javascript:;">${I18n.jobinfo_job}：${(jobInfo.name!'')?html} ｜<#list GlueTypeEnum as item><#if item == jobInfo.glueType>${item.desc}</#if></#list></a>
 						</li>
 					</ul>
 				</div>
@@ -53,20 +56,22 @@
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">${I18n.jobinfo_glue_rollback} <span class="caret"></span></a>
 							<ul class="dropdown-menu" role="menu">
-								<li <#if jobLogGlues?exists && jobLogGlues?size gt 0 >style="display: none;"</#if> >
+								<li>
 									<a href="javascript:;" class="source_version" version="version_now" glueType="${jobInfo.glueType}" >
-										<#list GlueTypeEnum as item><#if item == jobInfo.glueType>${item.desc}</#if></#list>： ${jobInfo.glueRemark}
+										${I18n.jobinfo_glue_current_version}<#if (jobInfo.glueRemark!'')?has_content>： ${jobInfo.glueRemark?html}</#if>
 									</a>
 								</li>
-								<textarea id="version_now" style="display:none;" >${jobInfo.glueSource}</textarea>
+								<textarea id="version_now" style="display:none;" >
+${(jobInfo.glueSource!'')?html}</textarea>
 								<#if jobLogGlues?exists && jobLogGlues?size gt 0 >
 									<#list jobLogGlues as glue>
 										<li>
-											<a href="javascript:;" class="source_version" version="version_${glue.id}" glueType="${glue.glueType}" >
-												${glue.addTime?string["yyyy-MM-dd HH:mm:ss"]}： ${glue.glueRemark}
+											<a href="javascript:;" class="source_version" version="version_${glue.id?c}" glueType="${(glue.glueType!'')?html}" >
+												${glue.addTime?string["yyyy-MM-dd HH:mm:ss"]}： ${(glue.glueRemark!'')?html}
 											</a>
 										</li>
-										<textarea id="version_${glue.id}" style="display:none;" >${glue.glueSource}</textarea>
+										<textarea id="version_${glue.id?c}" style="display:none;" >
+${(glue.glueSource!'')?html}</textarea>
 									</#list>
 								</#if>
 							</ul>
@@ -92,8 +97,7 @@
 	<!-- 2-header end -->
 
 	<!-- 3-content start -->
-	<div class="content-wrapper" id="ideWindow" >
-	</div>
+	<div class="content-wrapper" id="ideWindow"></div>
 
 	<!-- 保存.模态框 -->
 	<div class="modal fade" id="saveModal" tabindex="-1" role="dialog"  aria-hidden="true">
@@ -105,8 +109,8 @@
 				<div class="modal-body">
 					<div class="form-horizontal form" role="form" >
 						<div class="form-group">
-							<label for="lastname" class="col-sm-2 control-label">${I18n.jobinfo_glue_remark}<font color="red">*</font></label>
-							<div class="col-sm-9"><input type="text" class="form-control" id="glueRemark" placeholder="${I18n.system_please_input}${I18n.jobinfo_glue_remark}" maxlength="64" ></div>
+							<label for="glueRemark" class="col-sm-2 control-label">${I18n.jobinfo_glue_remark}<font color="red">*</font></label>
+							<div class="col-sm-9"><input type="text" class="form-control" id="glueRemark" placeholder="${I18n.system_please_input}${I18n.jobinfo_glue_remark}" maxlength="100" ></div>
 						</div>
 						<hr>
 						<div class="form-group">
@@ -123,13 +127,10 @@
 	<!-- 3-content end -->
 
 	<!-- 4-footer start -->
-	<footer class="main-footer">
-		Powered by <b>XXL-JOB</b> ${I18n.admin_version}
+	<footer class="main-footer zero-job-console-footer">
+		Powered by <b>ZERO-JOB</b> ${I18n.admin_version}
 		<div class="pull-right hidden-xs">
-			<strong>Copyright &copy; 2015-${.now?string('yyyy')} &nbsp;
-				<a href="https://www.xuxueli.com/" target="_blank" >xuxueli</a>
-				&nbsp;
-				<a href="https://github.com/xuxueli/xxl-job" target="_blank" >github</a>
+			<strong>Copyright &copy; 2026<#if .now?string("yyyy") != "2026">-${.now?string("yyyy")}</#if> ZERO-JOB
 			</strong><!-- All rights reserved. -->
 		</div>
 	</footer>
@@ -180,13 +181,18 @@
 <script>
 	$(function() {
 		// init param
-		var id = '${jobInfo.id}';
+		var id = '${jobInfo.id?c}';
+		var glueVersion = '${glueVersion}';
 		var ideMode = '${glueTypeIdeMode}';
 
 		/**
 		 * init code editor
  		 */
 		var codeEditor;
+		var loadedSource;
+		var saving = false;
+		var saveTimeoutMs = 30000;
+		var saveModal = $('#saveModal');
 		function initIde(glueSource) {
 			if (codeEditor == null) {
 				codeEditor = CodeMirror(document.getElementById("ideWindow"), {
@@ -198,26 +204,54 @@
 			} else {
 				codeEditor.setValue(glueSource);
 			}
+			loadedSource = codeEditor.getValue();
 		}
 		initIde($("#version_now").val());
 
 		// code change
 		$(".source_version").click(function(){
-			var sourceId = $(this).attr('version');
-			var temp = $( "#" + sourceId ).val();
-
-			//codeEditor.setValue('');
-			initIde(temp);
+			if (saving) {
+				return;
+			}
+			var source = $('#' + $(this).attr('version')).val();
+			var currentSource = codeEditor.getValue();
+			if (source === undefined || source === currentSource) {
+				return;
+			}
+			if (currentSource === loadedSource) {
+				initIde(source);
+				return;
+			}
+			layer.confirm(I18n.jobinfo_glue_discard_changes, {
+				title: I18n.system_tips,
+				btn: [I18n.system_ok, I18n.system_cancel],
+				icon: 3
+			}, function (index) {
+				layer.close(index);
+				if (!saving) {
+					initIde(source);
+				}
+			});
 		});
 
 		// code source save
+		saveModal.on('hide.bs.modal', function () {
+			if (saving) {
+				return false;
+			}
+		});
 		$("#save").click(function() {
-			$('#saveModal').modal({backdrop: false, keyboard: false}).modal('show');
+			if (!saving) {
+				saveModal.modal({backdrop: false, keyboard: false}).modal('show');
+			}
 		});
 		$("#saveModal .ok").click(function() {
+			if (saving) {
+				return;
+			}
 
 			var glueSource = codeEditor.getValue();
-			var glueRemark = $("#glueRemark").val();
+			var glueRemark = $("#glueRemark").val().trim();
 
 			if (!glueRemark) {
 				layer.open({
@@ -238,24 +272,31 @@
 				return;
 			}
 
+			var controls = saveModal.find(':input:enabled');
+			var saved = false;
+			saving = true;
+			controls.prop('disabled', true);
+			codeEditor.setOption('readOnly', true);
 			$.ajax({
 				type : 'POST',
 				url : base_url + '/jobcode/save',
 				data : {
 					'id' : id,
 					'glueSource' : glueSource,
-					'glueRemark' : glueRemark
+					'glueRemark' : glueRemark,
+					'glueVersion' : glueVersion
 				},
 				dataType : "json",
+				timeout: saveTimeoutMs,
 				success : function(data){
-					if (data.code == 200) {
+					saved = !!data && data.code === 200;
+					if (saved) {
 						layer.open({
 							title: I18n.system_tips,
 							btn: [ I18n.system_ok ],
 							content: (I18n.system_save + I18n.system_success) ,
 							icon: '1',
-							end: function(layero, index){
-								//$(window).unbind('beforeunload');
+							end: function(){
 								window.location.reload();
 							}
 						});
@@ -263,9 +304,19 @@
 						layer.open({
 							title: I18n.system_tips,
 							btn: [ I18n.system_ok ],
-							content: (data.msg || (I18n.system_save + I18n.system_fail) ),
+							content: $('<span>').text((data && data.msg) || I18n.system_opt_fail).html(),
 							icon: '2'
 						});
+					}
+				},
+				error: function () {
+					layer.alert(I18n.system_save_unconfirmed, {icon: 2});
+				},
+				complete: function () {
+					if (!saved) {
+						saving = false;
+						controls.prop('disabled', false);
+						codeEditor.setOption('readOnly', false);
 					}
 				}
 			});

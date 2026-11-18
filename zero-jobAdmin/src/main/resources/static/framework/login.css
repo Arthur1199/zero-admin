@@ -1,0 +1,125 @@
+/* 登录页单独覆盖 AdminLTE 写入的内联最小高度。 */
+body.zero-job-login {
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    margin: 0;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #667eea;
+    isolation: isolate;
+}
+
+.zero-job-login .login-box {
+    flex: none;
+    width: 400px;
+    max-width: 100%;
+    margin: auto 0;
+}
+
+.zero-job-login .login-box-body {
+    padding: 25px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    color: #606266;
+}
+
+.zero-job-login .login-box-msg {
+    margin: 0 0 30px;
+    padding: 0;
+    color: #333;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.zero-job-login .form-group {
+    margin-bottom: 18px;
+}
+
+.zero-job-login .form-control {
+    height: 38px;
+    border: 1px solid #dcdfe6;
+    border-radius: 4px;
+    padding: 0 12px 0 34px;
+    background: #fff;
+    color: #606266;
+    box-shadow: none;
+}
+
+.zero-job-login .form-control:focus {
+    border-color: #409eff;
+}
+
+.zero-job-login .form-control-feedback {
+    left: 0;
+    right: auto;
+    height: 38px;
+    line-height: 38px;
+    color: #a8abb2;
+}
+
+.zero-job-login .has-error .form-control {
+    border-color: #dd4b39;
+}
+
+.zero-job-login .login-password-field .form-control {
+    padding-right: 38px;
+}
+
+.zero-job-login .login-password-toggle {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: #909399;
+    cursor: pointer;
+}
+
+.zero-job-login .login-password-toggle:hover,
+.zero-job-login .login-password-toggle:focus-visible {
+    color: #409eff;
+}
+
+.zero-job-login .login-password-toggle:focus-visible {
+    outline: 2px solid #409eff;
+    outline-offset: -3px;
+}
+
+.zero-job-login .login-remember {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 32px;
+    margin: 0 0 25px;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+.zero-job-login .login-remember input {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    accent-color: #409eff;
+}
+
+.zero-job-login .btn-primary {
+    min-height: 32px;
+    padding: 5px 12px;
+    border: 1px solid #409eff;
+    border-radius: 4px;
+    background: #409eff;
+}
+
+.zero-job-login .btn-primary:hover,
+.zero-job-login .btn-primary:focus {
+    border-color: #337ecc;
+    background: #337ecc;
+}

@@ -6,11 +6,13 @@
 
 	<!-- 1-style start -->
 	<@netCommon.commonStyle />
+	<link rel="stylesheet" href="${request.contextPath}/static/framework/log-detail.css?v=${I18n.admin_version}">
 	<!-- 1-style end -->
 
 </head>
 <body class="hold-transition skin-blue layout-top-nav" >
-<div class="wrapper" >
+<div class="wrapper zero-job-detail-background zero-job-detail-layout" >
+	<@netCommon.jobBackground />
 
 	<!-- 2-header start -->
 	<header class="main-header">
@@ -28,7 +30,7 @@
 				<div class="collapse navbar-collapse pull-left" id="navbar-collapse">
 					<ul class="nav navbar-nav">
 						<li class="active" >
-							<a href="javascript:;">${I18n.jobinfo_job}：${jobInfo.name}</a>
+							<a href="javascript:;">${I18n.jobinfo_job}：${jobName?html}</a>
 						</li>
 					</ul>
 				</div>
@@ -60,22 +62,20 @@
 	<div class="content-wrapper">
 		<section class="content">
 			<!-- rolling log -->
-			<pre style="font-size:12px;position:relative;" >
-				<div id="logConsole"></div>
-				<li class="fa fa-refresh fa-spin" style="font-size: 20px;float: left;" id="logConsoleRunning" ></li>
-			</pre>
+			<div class="job-log-console">
+				<pre id="logConsole" hidden></pre>
+				<div id="logConsoleStatus" role="status"></div>
+				<i class="fa fa-refresh fa-spin" id="logConsoleRunning" aria-hidden="true"></i>
+			</div>
 		</section>
 	</div>
 	<!-- 3-content end -->
 
 	<!-- 4-footer start -->
-	<footer class="main-footer">
-		Powered by <b>XXL-JOB</b> ${I18n.admin_version}
+	<footer class="main-footer zero-job-console-footer">
+		Powered by <b>ZERO-JOB</b> ${I18n.admin_version}
 		<div class="pull-right hidden-xs">
-			<strong>Copyright &copy; 2015-${.now?string('yyyy')} &nbsp;
-				<a href="https://www.xuxueli.com/" target="_blank" >xuxueli</a>
-				&nbsp;
-				<a href="https://github.com/xuxueli/xxl-job" target="_blank" >github</a>
+			<strong>Copyright &copy; 2026<#if .now?string("yyyy") != "2026">-${.now?string("yyyy")}</#if> ZERO-JOB
 			</strong><!-- All rights reserved. -->
 		</div>
 	</footer>
@@ -87,105 +87,106 @@
 <@netCommon.commonScript />
 <script src="${request.contextPath}/static/framework/admin.setting.js?v=${I18n.admin_version}"></script>
 <script>
-	$(function() {
+	$(function () {
+		var triggerCode = Number('${triggerCode}');
+		var handleCode = Number('${handleCode}');
+		var logId = '${logId?c}';
+		var output = $('#logConsole');
+		var status = $('#logConsoleStatus');
+		var spinner = $('#logConsoleRunning');
+		var fromLineNum = 1;
+		var failureCount = 0;
+		var maxFailures = 20;
+		var pollingDelay = 3000;
+		var timer;
+		var request;
+		var suspended = false;
+		var finished = false;
 
-		// init param
-		var triggerCode = '${triggerCode}';
-		var handleCode = '${handleCode}';
-		var logId = '${logId}';
-
-		// trigger fail and not handle
-        if (triggerCode != 200 && handleCode == 0) {
-			$('#logConsoleRunning').hide();
-			$('#logConsole').append('<span style="color: red;">['+ I18n.joblog_rolling_log_triggerfail +']</span>');
-			return;
+		function setStatus(message, error) {
+			status.toggleClass('text-danger', error).text(message || '');
 		}
 
-		/**
-		 * pull log
-		 */
-		var fromLineNum = 1;    // [from, to], start as 1
-		var pullFailCount = 0;
-		function pullLog() {
-            // limit max pull-fail count, max=20
-			if (pullFailCount++ > 20) {
-				logRunStop('<span style="color: red;">['+ I18n.joblog_rolling_log_failoften +']</span>');
-				return;
+		function stop(message, error) {
+			finished = true;
+			spinner.hide();
+			setStatus(message, error);
+		}
+
+		function reportFailure(message) {
+			if (++failureCount >= maxFailures) {
+				stop(I18n.joblog_rolling_log_failoften, true);
+			} else {
+				setStatus(message || I18n.system_opt_fail, true);
 			}
+		}
 
-			// load
-			console.log("pullLog, fromLineNum:" + fromLineNum);
-			$.ajax({
-				type : 'POST',
-				async: false,   // sync, make log ordered
-				url : base_url + '/joblog/logDetailCat',
-				data : {
-					"logId":logId,
-					"fromLineNum":fromLineNum
-				},
-				dataType : "json",
-				success : function(data){
+		function pullLog() {
+			request = $.ajax({
+				type: 'POST',
+				url: base_url + '/joblog/logDetailCat',
+				data: { logId: logId, fromLineNum: fromLineNum, plainText: true },
+				dataType: 'json'
+			}).done(function (response) {
+				var data = response && response.data;
+				if (!response || response.code !== 200) {
+					reportFailure(response && response.msg);
+					return;
+				}
+				if (!data || data.fromLineNum !== fromLineNum || !Number.isInteger(data.toLineNum)) {
+					reportFailure();
+					return;
+				}
 
-					if (data.code == 200) {
-                        // pull fail
-						if (!data.data) {
-							console.log('pullLog fail');
-							return;
-						}
-						if (fromLineNum != data.data.fromLineNum) {
-							console.log('pullLog fromLineNum not match');
-							return;
-						}
-                        // pull to end
-						if (fromLineNum > data.data.toLineNum ) {
-							console.log('pullLog already line-end');
-
-							// valid end
-							if (data.data.end) {
-								logRunStop('<br><span style="color: green;">[Rolling Log End]</span>');
-								return;
-							}
-							return;
-						}
-
-						// append content
-						fromLineNum = data.data.toLineNum + 1;
-						$('#logConsole').append(data.data.logContent);
-						pullFailCount = 0;
-
-						// scroll to bottom
-						scrollTo(0, document.body.scrollHeight);        // $('#logConsolePre').scrollTop( document.body.scrollHeight + 300 );
-
-					} else {
-                        // pull fail
-						console.log('pullLog fail:'+data.msg);
-                        $('#logConsole').append('<span style="color: red;">[Rolling Log Error]: '+ data.msg +'</span>');
+				// 没有新日志是正常状态，只有连续请求失败才计入退出阈值。
+				failureCount = 0;
+				setStatus('', false);
+				var hasNewLines = data.toLineNum >= fromLineNum;
+				if (hasNewLines) {
+					fromLineNum = data.toLineNum + 1;
+				}
+				if ((hasNewLines || data.end) && typeof data.logContent === 'string' && data.logContent.length) {
+					var viewport = document.scrollingElement;
+					var followTail = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight < 80;
+					output.prop('hidden', false);
+					output[0].appendChild(document.createTextNode(data.logContent));
+					if (followTail) {
+						viewport.scrollTop = viewport.scrollHeight;
 					}
+				}
+				if (data.end) {
+					stop(I18n.joblog_rolling_log_finished || 'Rolling Log End', false);
+				}
+			}).fail(function (_, reason) {
+				if (reason !== 'abort') {
+					reportFailure();
+				}
+			}).always(function () {
+				request = null;
+				if (!suspended && !finished) {
+					timer = window.setTimeout(pullLog, pollingDelay);
 				}
 			});
 		}
 
-		// pull first page
-		pullLog();
-
-		// if handle already callback, stop cycle pull
-		if (handleCode > 0) {
-			logRunStop('<br><span style="color: green;">[Rolling Log Finish]</span>');
+		if (triggerCode !== 200 && handleCode === 0) {
+			stop(I18n.joblog_rolling_log_triggerfail, true);
 			return;
 		}
 
-		/**
-		 * cycle pull, until end
-		 */
-		var logRun = setInterval(function () {
-			pullLog()
-		}, 3000);
-		function logRunStop(content){
-			$('#logConsoleRunning').hide();
-			logRun = window.clearInterval(logRun);
-			$('#logConsole').append(content);
-		}
-
+		$(window).on('pagehide.jobLog', function () {
+			suspended = true;
+			window.clearTimeout(timer);
+			if (request) {
+				request.abort();
+			}
+		}).on('pageshow.jobLog', function () {
+			if (suspended && !finished) {
+				suspended = false;
+				pullLog();
+			}
+		});
+		pullLog();
 	});
 </script>
 <!-- 5-script end -->

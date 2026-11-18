@@ -6,28 +6,23 @@
 
 	<!-- 1-style start -->
 	<@netCommon.commonStyle />
+	<link rel="stylesheet" href="${request.contextPath}/static/framework/help.css?v=${I18n.admin_version}">
 	<!-- 1-style end -->
 
 </head>
-<body class="hold-transition" style="background-color: #ecf0f5;">
+<body class="hold-transition zero-job-tab-page">
 <div class="wrapper">
 	<section class="content">
 
 		<#-- 2-biz start -->
-		<div class="callout callout-info">
-			<h4>${I18n.admin_name_full}</h4>
-			<br>
-			<p>
-
-				<a target="_blank" href="https://github.com/xuxueli/xxl-job">Github</a>&nbsp;&nbsp;&nbsp;&nbsp;
-				<iframe src="https://ghbtns.com/github-btn.html?user=xuxueli&repo=xxl-job&type=star&count=true" frameborder="0" scrolling="0" width="170px" height="20px" style="margin-bottom:-5px;"></iframe>
-				<br><br>
-				<a target="_blank" href="https://www.xuxueli.com/xxl-job/">${I18n.admin_help_document}</a>
-				<br><br>
-
-			</p>
-			<p></p>
-		</div>
+		<section class="zero-job-help-card" aria-labelledby="help-title">
+			<h1 id="help-title">${I18n.admin_name_full}</h1>
+			<a class="zero-job-help-link" target="_blank" rel="noopener" href="https://www.xuxueli.com/xxl-job/">
+				<i class="fa fa-book" aria-hidden="true"></i>
+				${I18n.admin_help_document}
+				<i class="fa fa-external-link" aria-hidden="true"></i>
+			</a>
+		</section>
 		<#-- 2-biz end -->
 
 	</section>

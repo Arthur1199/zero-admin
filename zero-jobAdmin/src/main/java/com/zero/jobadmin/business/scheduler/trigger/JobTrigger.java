@@ -11,9 +11,11 @@ import com.zero.jobadmin.business.scheduler.route.ExecutorRouteStrategyEnum;
 import com.zero.jobadmin.framework.util.I18nUtil;
 import com.xxl.job.core.constant.ExecutorBlockStrategyEnum;
 import com.xxl.job.core.context.XxlJobContext;
+import com.xxl.job.core.glue.GlueTypeEnum;
 import com.xxl.job.core.openapi.executor.ExecutorBiz;
 import com.xxl.job.core.openapi.executor.dto.TriggerRequest;
 import com.xxl.tool.core.StringTool;
+import com.xxl.tool.crypto.Sha256Tool;
 import com.xxl.tool.error.ThrowableTool;
 import com.xxl.tool.http.IPTool;
 import com.xxl.tool.response.Response;
@@ -23,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * xxl-job trigger
@@ -43,22 +46,19 @@ public class JobTrigger {
 
 
     /**
-     * trigger job
      *
-     * @param jobId
-     * @param triggerType
-     * @param failRetryCount
-     * 			>=0: use this param
-     * 			<0: use param from job info config
-     * @param executorShardingParam
-     *          null: new sharding, all nodes
-     *          not null: for retry, only one node
-     * @param executorParam
-     *          null: use job param
-     *          not null: cover job param
-     * @param addressList
-     *          null: use executor addressList
-     *          not null: cover
+     * 作者: xuxueli
+     * 时间: 2017/7/13
+     * 说明: 读取任务配置并触发执行，异常的执行器、路由和分片配置写入调度日志。
+     * @param jobId 任务 ID
+     * @param triggerType 触发类型
+     * @param failRetryCount 剩余重试次数，小于 0 时使用任务配置
+     * @param executorShardingParam 指定重试分片，非空时格式为 索引/总数
+     * @param executorParam 临时任务参数，为空时使用任务配置
+     * @param addressList 临时指定的地址列表，为空时使用执行器组地址
+     * @return
+     * 返回值: void
+     * 返回值说明: 更新调度日志，广播时每个实际分片单独记录
      */
     public void trigger(int jobId,
                                TriggerTypeEnum triggerType,
@@ -80,56 +80,118 @@ public class JobTrigger {
         XxlJobGroup group = xxlJobGroupMapper.load(jobInfo.getJobGroup());
 
         // cover addressList
-        if (StringTool.isNotBlank(addressList)) {
+        if (group != null && StringTool.isNotBlank(addressList)) {
             group.setAddressType(1);
             group.setAddressList(addressList.trim());
         }
 
         // sharding param
-        int[] shardingParam = null;
         Date triggerTime = new Date();
-        if (executorShardingParam!=null){
-            String[] shardingArr = executorShardingParam.split("/");
-            if (shardingArr.length==2 && StringTool.isNumeric(shardingArr[0]) && StringTool.isNumeric(shardingArr[1])) {
-                shardingParam = new int[2];
-                shardingParam[0] = Integer.parseInt(shardingArr[0]);
-                shardingParam[1] = Integer.parseInt(shardingArr[1]);
-            }
+        int[] shardingParam = parseShardingParam(executorShardingParam);
+        if (StringTool.isNotBlank(executorShardingParam) && shardingParam == null) {
+            processTrigger(group, jobInfo, finalFailRetryCount, triggerType, triggerTime, 0, 1,
+                    I18nUtil.getString("jobconf_trigger_sharding_invalid"));
+            return;
         }
-        if (ExecutorRouteStrategyEnum.SHARDING_BROADCAST==ExecutorRouteStrategyEnum.match(jobInfo.getExecutorRouteStrategy(), null)
-                && group.getRegistryList()!=null && !group.getRegistryList().isEmpty()
-                && shardingParam==null) {
-            for (int i = 0; i < group.getRegistryList().size(); i++) {
-                processTrigger(group, jobInfo, finalFailRetryCount, triggerType, triggerTime, i, group.getRegistryList().size());
+        List<String> addresses = group == null ? null : group.getRegistryList();
+        if (ExecutorRouteStrategyEnum.SHARDING_BROADCAST == ExecutorRouteStrategyEnum.match(jobInfo.getExecutorRouteStrategy(), null)
+                && addresses != null && !addresses.isEmpty() && shardingParam == null) {
+            for (int i = 0; i < addresses.size(); i++) {
+                processTrigger(group, jobInfo, finalFailRetryCount, triggerType, triggerTime, i, addresses.size(), null);
             }
         } else {
-            if (shardingParam == null) {
-                shardingParam = new int[]{0, 1};
-            }
-            processTrigger(group, jobInfo, finalFailRetryCount, triggerType, triggerTime, shardingParam[0], shardingParam[1]);
+            int index = shardingParam == null ? 0 : shardingParam[0];
+            int total = shardingParam == null ? 1 : shardingParam[1];
+            processTrigger(group, jobInfo, finalFailRetryCount, triggerType, triggerTime, index, total, null);
         }
 
     }
 
-    /*private static boolean isNumeric(String str){
-        try {
-            int result = Integer.valueOf(str);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 20:52
+     * 说明: 线程池拒绝派发或停机取消排队任务时，直接写入失败日志。
+     * @param jobId 任务 ID
+     * @param triggerType 触发类型
+     * @param failRetryCount 剩余重试次数，小于 0 时使用任务配置
+     * @param executorShardingParam 可选分片编号，重试时保持原分片
+     * @param executorParam 临时任务参数，为空时使用任务配置
+     * @param cancelledAfterAccept 已入队但因停机取消时为 true
+     * @return
+     * 返回值: void
+     * 返回值说明: 任务存在时插入一条失败日志，未开始的手动派发不后台重试
+     */
+    public void recordUndispatchedTrigger(int jobId, TriggerTypeEnum triggerType, int failRetryCount,
+                                          String executorShardingParam, String executorParam, boolean cancelledAfterAccept) {
+        XxlJobInfo job = xxlJobInfoMapper.loadById(jobId);
+        if (job == null) {
+            logger.warn("Undispatched job could not be recorded because it no longer exists, jobId={}", jobId);
+            return;
         }
-    }*/
+
+        String message = I18nUtil.getString(cancelledAfterAccept
+                ? "jobconf_trigger_shutdown_cancelled" : "jobconf_trigger_pool_rejected");
+        int retryCount = failRetryCount >= 0 ? failRetryCount : job.getExecutorFailRetryCount();
+        boolean invalidShard = StringTool.isNotBlank(executorShardingParam) && parseShardingParam(executorShardingParam) == null;
+        XxlJobLog log = new XxlJobLog();
+        log.setJobId(jobId);
+        log.setJobGroup(job.getJobGroup());
+        log.setTriggerTime(new Date());
+        log.setTriggerCode(Response.ofFail(message).getCode());
+        log.setTriggerMsg(I18nUtil.getString("jobconf_trigger_type") + "：" + triggerType.getTitle() + "<br>" + message);
+        log.setExecutorHandler(job.getExecutorHandler());
+        log.setExecutorParam(executorParam == null ? job.getExecutorParam() : executorParam);
+        log.setExecutorShardingParam(invalidShard ? null : executorShardingParam);
+        log.setExecutorFailRetryCount(triggerType == TriggerTypeEnum.MANUAL || invalidShard ? 0 : Math.max(0, retryCount));
+        if (xxlJobLogMapper.save(log) != 1) {
+            throw new IllegalStateException("Undispatched job log was not inserted for jobId=" + jobId);
+        }
+    }
 
     /**
-     * process trigger with log
      *
-     * @param group                     job group, registry list may be empty
-     * @param jobInfo                   job info
-     * @param finalFailRetryCount       the fail-retry count
-     * @param triggerType               trigger type
-     * @param triggerTime               trigger time
-     * @param index                     sharding index
-     * @param total                     sharding index
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 20:11
+     * 说明: 解析既有分片记录，检查索引范围和整数边界。
+     * @param value 可选分片编号，格式为 索引/总数
+     * @return
+     * 返回值: int[]
+     * 返回值说明: 分片索引和总数，缺失或无效时为空
+     */
+    private int[] parseShardingParam(String value) {
+        if (StringTool.isBlank(value)) {
+            return null;
+        }
+        String[] fields = value.split("/", -1);
+        if (fields.length != 2 || !StringTool.isNumeric(fields[0]) || !StringTool.isNumeric(fields[1])) {
+            return null;
+        }
+        try {
+            int index = Integer.parseInt(fields[0]);
+            int total = Integer.parseInt(fields[1]);
+            return index >= 0 && index < total ? new int[]{index, total} : null;
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 20:11
+     * 说明: 创建调度日志后尝试路由和提交，保存实际调度结果及失败原因。
+     * @param group 执行器组，历史数据中可能缺失
+     * @param jobInfo 任务配置
+     * @param finalFailRetryCount 剩余重试次数
+     * @param triggerType 触发类型
+     * @param triggerTime 调度发起时间
+     * @param index 分片索引
+     * @param total 分片总数
+     * @param preflightFailure 在提交前已发现的配置错误，为空时继续路由
+     * @return
+     * 返回值: void
+     * 返回值说明: 持久化调度结果
      */
     private void processTrigger(XxlJobGroup group,
                                 XxlJobInfo jobInfo,
@@ -137,12 +199,16 @@ public class JobTrigger {
                                 TriggerTypeEnum triggerType,
                                 Date triggerTime,
                                 int index,
-                                int total){
+                                int total,
+                                String preflightFailure){
 
         // param
         ExecutorBlockStrategyEnum blockStrategy = ExecutorBlockStrategyEnum.match(jobInfo.getExecutorBlockStrategy(), ExecutorBlockStrategyEnum.SERIAL_EXECUTION);  // block strategy
         ExecutorRouteStrategyEnum executorRouteStrategyEnum = ExecutorRouteStrategyEnum.match(jobInfo.getExecutorRouteStrategy(), null);    // route strategy
-        String shardingParam = (ExecutorRouteStrategyEnum.SHARDING_BROADCAST==executorRouteStrategyEnum)?String.valueOf(index).concat("/").concat(String.valueOf(total)):null;
+        String shardingParam = preflightFailure == null && ExecutorRouteStrategyEnum.SHARDING_BROADCAST == executorRouteStrategyEnum
+                ? index + "/" + total : null;
+        // 无效分片不能由重试退化为其他分片或广播。
+        int retryCount = preflightFailure == null ? finalFailRetryCount : 0;
 
         // 1、save log-id
         XxlJobLog jobLog = new XxlJobLog();
@@ -150,6 +216,10 @@ public class JobTrigger {
         jobLog.setJobId(jobInfo.getId());
         jobLog.setTriggerTime(triggerTime);
         xxlJobLogMapper.save(jobLog);
+        if (jobLog.getId() <= 0) {
+            logger.error("Trigger log was not created, jobId={}", jobInfo.getId());
+            return;
+        }
         logger.debug(">>>>>>>>>>> xxl-job trigger start, jobId:{}", jobLog.getJobId());
 
         // 2、init trigger-param
@@ -163,24 +233,32 @@ public class JobTrigger {
         triggerParam.setLogDateTime(jobLog.getTriggerTime().getTime());
         triggerParam.setGlueType(jobInfo.getGlueType());
         triggerParam.setGlueSource(jobInfo.getGlueSource());
-        triggerParam.setGlueUpdatetime(jobInfo.getGlueUpdatetime().getTime());
+        triggerParam.setGlueUpdatetime(glueCacheVersion(jobInfo));
         triggerParam.setBroadcastIndex(index);
         triggerParam.setBroadcastTotal(total);
 
         // 3、init address
         String address = null;
         Response<String> routeAddressResult = null;
-        if (group.getRegistryList()!=null && !group.getRegistryList().isEmpty()) {
+        List<String> addresses = group == null ? null : group.getRegistryList();
+        if (preflightFailure != null) {
+            routeAddressResult = Response.of(XxlJobContext.HANDLE_CODE_FAIL, preflightFailure);
+        } else if (group == null) {
+            routeAddressResult = Response.of(XxlJobContext.HANDLE_CODE_FAIL, I18nUtil.getString("jobgroup_empty"));
+        } else if (executorRouteStrategyEnum == null) {
+            routeAddressResult = Response.of(XxlJobContext.HANDLE_CODE_FAIL,
+                    I18nUtil.getString("jobinfo_field_executorRouteStrategy") + I18nUtil.getString("system_invalid"));
+        } else if (addresses != null && !addresses.isEmpty()) {
             if (ExecutorRouteStrategyEnum.SHARDING_BROADCAST == executorRouteStrategyEnum) {
-                if (index < group.getRegistryList().size()) {
-                    address = group.getRegistryList().get(index);
-                } else {
-                    address = group.getRegistryList().get(0);
-                }
+                address = addresses.get(index < addresses.size() ? index : 0);
             } else {
-                routeAddressResult = executorRouteStrategyEnum.getRouter().route(triggerParam, group);
-                if (routeAddressResult.isSuccess()) {
-                    address = routeAddressResult.getData();
+                try {
+                    routeAddressResult = executorRouteStrategyEnum.getRouter().route(triggerParam, group);
+                    if (routeAddressResult != null && routeAddressResult.isSuccess()) {
+                        address = routeAddressResult.getData();
+                    }
+                } catch (RuntimeException e) {
+                    logger.error("Routing failed, jobId={}, logId={}", jobInfo.getId(), jobLog.getId(), e);
                 }
             }
         } else {
@@ -189,7 +267,7 @@ public class JobTrigger {
 
         // 4、trigger remote executor
         Response<String> triggerResult = null;
-        if (address != null) {
+        if (StringTool.isNotBlank(address)) {
             triggerResult = doTrigger(triggerParam, address, group);
         } else {
             triggerResult = Response.of(XxlJobContext.HANDLE_CODE_FAIL, "Address Router Fail.");
@@ -201,15 +279,17 @@ public class JobTrigger {
         triggerMsgSb.append(I18nUtil.getString("jobconf_trigger_type")).append("：").append(triggerType.getTitle());
         triggerMsgSb.append("<br>").append(I18nUtil.getString("jobconf_trigger_admin_adress")).append("：").append(IPTool.getIp());
         triggerMsgSb.append("<br>").append(I18nUtil.getString("jobconf_trigger_exe_regtype")).append("：")
-                .append( (group.getAddressType() == 0)?I18nUtil.getString("jobgroup_field_addressType_0"):I18nUtil.getString("jobgroup_field_addressType_1") );
-        triggerMsgSb.append("<br>").append(I18nUtil.getString("jobconf_trigger_exe_regaddress")).append("：").append(group.getRegistryList());
-        triggerMsgSb.append("<br>").append(I18nUtil.getString("jobinfo_field_executorRouteStrategy")).append("：").append(executorRouteStrategyEnum.getTitle());
+                .append(group == null ? I18nUtil.getString("system_empty")
+                        : I18nUtil.getString(group.getAddressType() == 0 ? "jobgroup_field_addressType_0" : "jobgroup_field_addressType_1"));
+        triggerMsgSb.append("<br>").append(I18nUtil.getString("jobconf_trigger_exe_regaddress")).append("：").append(addresses);
+        triggerMsgSb.append("<br>").append(I18nUtil.getString("jobinfo_field_executorRouteStrategy")).append("：")
+                .append(executorRouteStrategyEnum == null ? I18nUtil.getString("system_invalid") : executorRouteStrategyEnum.getTitle());
         if (shardingParam != null) {
             triggerMsgSb.append("(").append(shardingParam).append(")");
         }
         triggerMsgSb.append("<br>").append(I18nUtil.getString("jobinfo_field_executorBlockStrategy")).append("：").append(blockStrategy.getTitle());
         triggerMsgSb.append("<br>").append(I18nUtil.getString("jobinfo_field_timeout")).append("：").append(jobInfo.getExecutorTimeout());
-        triggerMsgSb.append("<br>").append(I18nUtil.getString("jobinfo_field_executorFailRetryCount")).append("：").append(finalFailRetryCount);
+        triggerMsgSb.append("<br>").append(I18nUtil.getString("jobinfo_field_executorFailRetryCount")).append("：").append(retryCount);
 
         // trigger data
         triggerMsgSb.append("<br><br><span style=\"color:#00c0ef;\" > >>>>>>>>>>>").append(I18nUtil.getString("jobconf_trigger_run")).append("<<<<<<<<<<< </span><br>");
@@ -239,13 +319,35 @@ public class JobTrigger {
         jobLog.setExecutorHandler(jobInfo.getExecutorHandler());
         jobLog.setExecutorParam(jobInfo.getExecutorParam());
         jobLog.setExecutorShardingParam(shardingParam);
-        jobLog.setExecutorFailRetryCount(finalFailRetryCount);
+        jobLog.setExecutorFailRetryCount(retryCount);
         //jobLog.setTriggerTime();
         jobLog.setTriggerCode(triggerResult.getCode());
         jobLog.setTriggerMsg(triggerMsgSb.toString());
         xxlJobLogMapper.updateTriggerInfo(jobLog);
 
         logger.debug(">>>>>>>>>>> xxl-job trigger end, jobId:{}", jobLog.getJobId());
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 22:11
+     * 说明: GLUE 执行器用版本值判断是否复用处理器，数据库时间只有秒精度。
+     * @param job 本次派发读取的任务快照
+     * @return
+     * 返回值: long
+     * 返回值说明: 有源码的 GLUE 任务返回类型和源码的稳定标识，其余任务沿用原时间值
+     */
+    private long glueCacheVersion(XxlJobInfo job) {
+        GlueTypeEnum type = GlueTypeEnum.match(job.getGlueType());
+        String source = job.getGlueSource();
+        if (type != null && type != GlueTypeEnum.BEAN && source != null && !source.isEmpty()) {
+            String digest = Sha256Tool.sha256(type.name() + "\n" + source);
+            // 执行器只比较 long 是否相等，使用负值区间避开旧调度中心的现代时间戳。
+            return Long.parseUnsignedLong(digest.substring(0, 16), 16) | Long.MIN_VALUE;
+        }
+        Date updated = job.getGlueUpdatetime() != null ? job.getGlueUpdatetime() : job.getUpdateTime();
+        return updated == null ? 0L : updated.getTime();
     }
 
     /**

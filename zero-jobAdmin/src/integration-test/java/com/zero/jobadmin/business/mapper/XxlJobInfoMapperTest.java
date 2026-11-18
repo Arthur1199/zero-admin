@@ -2,6 +2,7 @@ package com.zero.jobadmin.business.mapper;
 
 import com.zero.jobadmin.business.constant.TriggerStatus;
 import com.zero.jobadmin.business.model.XxlJobInfo;
+import com.zero.jobadmin.business.model.dto.JobScheduleUpdate;
 import com.zero.jobadmin.business.scheduler.config.XxlJobAdminBootstrap;
 import com.zero.jobadmin.business.scheduler.misfire.MisfireStrategyEnum;
 import com.zero.jobadmin.business.scheduler.type.ScheduleTypeEnum;
@@ -89,6 +90,15 @@ public class XxlJobInfoMapperTest {
 
 	}
 
+	/**
+	 *
+	 * 作者: xuxueli
+	 * 时间: 2016/1/12
+	 * 说明: 使用初始任务快照验证调度批量游标写入和停止状态。
+	 * @return
+	 * 返回值: void
+	 * 返回值说明: 在隔离集成环境调用 Mapper 并记录更新数量
+	 */
 	@Test
 	public void scheduleBatchUpdateTest(){
 
@@ -97,6 +107,7 @@ public class XxlJobInfoMapperTest {
 
 		// update
 		List<XxlJobInfo> list2 = list1.stream().filter(item -> (item.getId()>=4 && item.getId()<=14)).toList();
+		List<JobScheduleUpdate> updates = list2.stream().map(JobScheduleUpdate::capture).toList();
 		list2.forEach(item -> {
 			item.setTriggerLastTime(DateTool.addHours(new Date(), -1).getTime());
 			item.setTriggerNextTime(DateTool.addHours(new Date(), 1).getTime());
@@ -106,8 +117,8 @@ public class XxlJobInfoMapperTest {
 		});
 
 		// batch update
-		List<List<XxlJobInfo>> scheduleListBatches = CollectionTool.split(list2, batchSize);
-		for (List<XxlJobInfo> scheduleListBatch : scheduleListBatches) {
+		List<List<JobScheduleUpdate>> scheduleListBatches = CollectionTool.split(updates, batchSize);
+		for (List<JobScheduleUpdate> scheduleListBatch : scheduleListBatches) {
 			int totalAffected = XxlJobAdminBootstrap.getInstance().getXxlJobInfoMapper().scheduleBatchUpdate(scheduleListBatch);
 			logger.info("scheduleBatchUpdate records:" + totalAffected);
 		}

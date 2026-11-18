@@ -1,0 +1,27 @@
+.job-log-console {
+    padding: 12px 16px;
+    border: 1px solid #dce3ee;
+    border-radius: 8px;
+    background: #f6f8fc;
+    color: #233249;
+}
+
+.job-log-console pre {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.job-log-console #logConsoleStatus:empty {
+    display: none;
+}
+
+.job-log-console pre:not([hidden]) + #logConsoleStatus {
+    margin-top: 8px;
+}

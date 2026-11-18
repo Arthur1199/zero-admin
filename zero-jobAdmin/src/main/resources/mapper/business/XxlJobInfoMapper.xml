@@ -173,6 +173,29 @@
 		WHERE t.id = #{id}
 	</select>
 
+	<select id="loadByIdForUpdate" resultMap="XxlJobInfo">
+		SELECT <include refid="Base_Column_List" />
+		FROM xxl_job_info AS t
+		WHERE t.id = #{id}
+		FOR UPDATE
+	</select>
+
+	<update id="updateGlue">
+		UPDATE xxl_job_info
+		SET glue_source = #{glueSource}, glue_remark = #{glueRemark},
+			glue_updatetime = #{glueUpdatetime}, update_time = #{updateTime}
+		WHERE id = #{id}
+	</update>
+
+	<update id="updateTriggerState">
+		UPDATE xxl_job_info
+		SET trigger_status = #{status}, trigger_last_time = 0,
+			trigger_next_time = #{nextTriggerTime}, update_time = #{job.updateTime}
+		WHERE id = #{job.id} AND job_group = #{job.jobGroup}
+			AND trigger_status = #{job.triggerStatus} AND schedule_type = #{job.scheduleType}
+			AND schedule_conf &lt;=&gt; #{job.scheduleConf}
+	</update>
+
 	<update id="update" parameterType="com.zero.jobadmin.business.model.XxlJobInfo" >
 		UPDATE xxl_job_info
 		SET
@@ -199,6 +222,29 @@
 			trigger_last_time = #{triggerLastTime},
 			trigger_next_time = #{triggerNextTime}
 		WHERE id = #{id}
+	</update>
+
+	<update id="updateInGroup">
+		UPDATE xxl_job_info
+		SET job_group = #{job.jobGroup},
+			name = #{job.name},
+			update_time = #{job.updateTime},
+			author = #{job.author},
+			alarm_email = #{job.alarmEmail},
+			schedule_type = #{job.scheduleType},
+			schedule_conf = #{job.scheduleConf},
+			misfire_strategy = #{job.misfireStrategy},
+			executor_route_strategy = #{job.executorRouteStrategy},
+			executor_handler = #{job.executorHandler},
+			executor_param = #{job.executorParam},
+			executor_block_strategy = #{job.executorBlockStrategy},
+			executor_timeout = #{job.executorTimeout},
+			executor_fail_retry_count = #{job.executorFailRetryCount},
+			child_jobid = #{job.childJobId}
+			<if test="refreshNextTime">
+				, trigger_next_time = #{job.triggerNextTime}
+			</if>
+		WHERE id = #{job.id} AND job_group = #{originalGroup} AND trigger_status = #{job.triggerStatus}
 	</update>
 
 	<delete id="delete" parameterType="java.util.HashMap">
@@ -245,33 +291,39 @@
 		SET
 			trigger_last_time = CASE id
 			<foreach collection="list" item="item" separator=" ">
-				WHEN #{item.id} THEN #{item.triggerLastTime}
+				WHEN #{item.job.id} THEN #{item.job.triggerLastTime}
 			</foreach>
 			ELSE trigger_last_time
 			END,
 			trigger_next_time = CASE id
 			<foreach collection="list" item="item" separator=" ">
-				WHEN #{item.id} THEN #{item.triggerNextTime}
+				WHEN #{item.job.id} THEN #{item.job.triggerNextTime}
 			</foreach>
 			ELSE trigger_next_time
 			END,
 			trigger_status = CASE id
 			<foreach collection="list" item="item" separator=" ">
-				WHEN #{item.id} THEN
+				WHEN #{item.job.id} THEN
 				<choose>
-					<when test="item.triggerStatus gte 0">
-						#{item.triggerStatus}
+					<when test="item.job.triggerStatus gte 0">
+						#{item.job.triggerStatus}
 					</when>
 					<otherwise>trigger_status</otherwise>
 				</choose>
 			</foreach>
 			ELSE trigger_status
 			END
-		WHERE id IN
-			<foreach collection="list" item="item" open="(" separator="," close=")">
-				#{item.id}
+		WHERE trigger_status = 1
+			AND
+			<foreach collection="list" item="item" open="(" separator=" OR " close=")">
+				(id = #{item.job.id}
+					AND job_group = #{item.expectedGroup}
+					AND trigger_last_time = #{item.expectedLastTime}
+					AND trigger_next_time = #{item.expectedNextTime}
+					AND schedule_type = #{item.expectedScheduleType}
+					AND schedule_conf &lt;=&gt; #{item.expectedScheduleConf,jdbcType=VARCHAR}
+					AND misfire_strategy = #{item.expectedMisfireStrategy})
 			</foreach>
-			AND trigger_status = 1
 	</update>
 
 
