@@ -5,6 +5,8 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import com.google.zxing.WriterException;
+import com.zero.packageconfig.PackageProperties;
+import com.zero.util.EnvironmentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.zero.common.annotation.DataScope;
@@ -129,10 +131,28 @@ public class SysGoogleServiceImpl implements ISysGoogleService
             throw new ServiceException("用户已绑定谷歌动态码");
         }
         String secretKey = GoogleAuthenticatorUtils.createSecretKey();
-        String qrCodeData = GoogleAuthenticatorUtils.createGoogleAuthQRCodeData(secretKey, userName, "Zero");
+        //谷歌动态验证码绑定签发方名称
+        String issuer = getGoogleIssuerName();
+        String qrCodeData = GoogleAuthenticatorUtils.createGoogleAuthQRCodeData(secretKey, userName, issuer);
         // 绑定前密钥只临时放入 Redis，用户输入动态码确认后才落库。
         redisCache.setCacheObject(getBindCacheKey(userName), secretKey, 15, TimeUnit.MINUTES);
         QRCodeUtils.writeToStream(qrCodeData, outputStream);
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/18 14:40
+     * 说明: 获取包含运行环境的谷歌绑定签发方名称，冒号和账号由二维码工具统一追加
+     * @return
+     * 返回值:String
+     * 返回值说明：签发方名称，例如Zero管理后台(dev)，不包含末尾冒号和用户账号
+     */
+    private String getGoogleIssuerName(){
+        return "%s(%s)".formatted(
+                PackageProperties.GOOGLE_ISSUER_NAME,
+                EnvironmentUtil.getEnvEnName()
+        );
     }
 
     /**
