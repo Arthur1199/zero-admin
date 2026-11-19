@@ -1,5 +1,6 @@
 package com.zero.jobadmin.openapi;
 
+import lombok.extern.slf4j.Slf4j;
 import com.xxl.job.core.constant.Const;
 import com.xxl.job.core.openapi.admin.AdminJobBiz;
 import com.xxl.job.core.openapi.admin.dto.JobAddRequest;
@@ -9,8 +10,6 @@ import com.xxl.job.core.openapi.admin.dto.JobUpdateRequest;
 import com.xxl.tool.http.HttpTool;
 import com.xxl.tool.response.Response;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -21,10 +20,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author xuxueli
  */
 // 官方集成用例可能操作数据库或执行器，普通打包按标签排除。
+@Slf4j
 @org.junit.jupiter.api.Tag("job-integration")
 public class AdminJobBizTest {
-    private static final Logger logger = LoggerFactory.getLogger(AdminJobBizTest.class);
-
     private static String addressUrl = "http://127.0.0.1:8080";
     private static String accessToken = "default_token";
     private static String appname = "xxl-job-executor-sample";
@@ -65,7 +63,7 @@ public class AdminJobBizTest {
         assertTrue(returnT.isSuccess());
         assertNotNull(returnT.getData());
         jobId = Integer.parseInt(returnT.getData());
-        logger.info("addJob jobId: {}", jobId);
+        log.info("addJob jobId: {}", jobId);
     }
 
     @Test
@@ -88,7 +86,7 @@ public class AdminJobBizTest {
         request.setGlueType("BEAN");
 
         Response<String> returnT = adminJobBiz.updateJob(request);
-        logger.info("updateJob response: {}", returnT);
+        log.info("updateJob response: {}", returnT);
         assertTrue(returnT.isSuccess());
     }
 
@@ -100,7 +98,7 @@ public class AdminJobBizTest {
         request.setId(jobId);
 
         Response<String> returnT = adminJobBiz.startJob(request);
-        logger.info("startJob response: {}", returnT);
+        log.info("startJob response: {}", returnT);
         assertTrue(returnT.isSuccess());
     }
 
@@ -112,7 +110,7 @@ public class AdminJobBizTest {
         request.setId(jobId);
 
         Response<String> returnT = adminJobBiz.stopJob(request);
-        logger.info("stopJob response: {}", returnT);
+        log.info("stopJob response: {}", returnT);
         assertTrue(returnT.isSuccess());
     }
 
@@ -124,7 +122,7 @@ public class AdminJobBizTest {
         request.setId(jobId);
 
         Response<String> returnT = adminJobBiz.triggerJob(request);
-        logger.info("triggerJob response: {}", returnT);
+        log.info("triggerJob response: {}", returnT);
         assertTrue(returnT.isSuccess());
     }
 
@@ -136,7 +134,7 @@ public class AdminJobBizTest {
         request.setId(jobId);
 
         Response<String> returnT = adminJobBiz.removeJob(request);
-        logger.info("removeJob response: {}", returnT);
+        log.info("removeJob response: {}", returnT);
         assertTrue(returnT.isSuccess());
     }
 

@@ -1,5 +1,6 @@
 package com.zero.jobadmin.business.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.jobadmin.business.constant.TriggerStatus;
 import com.zero.jobadmin.business.mapper.*;
 import com.zero.jobadmin.business.model.XxlJobGroup;
@@ -24,8 +25,6 @@ import com.xxl.tool.json.GsonTool;
 import com.xxl.tool.response.PageModel;
 import com.xxl.tool.response.Response;
 import jakarta.annotation.Resource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,10 +40,9 @@ import java.util.concurrent.RejectedExecutionException;
  * 时间: 2016/5/28 15:30:33
  * 说明: 负责任务配置维护、启停和触发，并校验执行器组权限
  */
+@Slf4j
 @Service
 public class XxlJobServiceImpl implements XxlJobService {
-	private static Logger logger = LoggerFactory.getLogger(XxlJobServiceImpl.class);
-
 	/** xxl_job_info 中 name、alarm_email、executor_handler 和 child_jobid 的字符上限。 */
 	private static final int JOB_TEXT_LIMIT = 255;
 	/** xxl_job_info.author 的字符上限。 */
@@ -178,7 +176,7 @@ public class XxlJobServiceImpl implements XxlJobService {
 		}
 
 		// write operation log
-		logger.info(">>>>>>>>>>> xxl-job operation log: operator = {}, type = {}, jobId = {}, jobGroup = {}",
+		log.info(">>>>>>>>>>> xxl-job operation log: operator = {}, type = {}, jobId = {}, jobGroup = {}",
 				loginInfo.getUserName(), "jobinfo-save", jobInfo.getId(), jobInfo.getJobGroup());
 
 		return Response.ofSuccess(String.valueOf(jobInfo.getId()));
@@ -273,7 +271,7 @@ public class XxlJobServiceImpl implements XxlJobService {
 				}
 				nextTriggerTime = nextValidTime.getTime();
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				log.error(e.getMessage(), e);
 				return Response.ofFail ( (I18nUtil.getString("schedule_type")+I18nUtil.getString("system_invalid")) );
 			}
 		}
@@ -302,7 +300,7 @@ public class XxlJobServiceImpl implements XxlJobService {
 		}
 
 		// write operation log
-		logger.info(">>>>>>>>>>> xxl-job operation log: operator = {}, type = {}, jobId = {}, jobGroup = {}",
+		log.info(">>>>>>>>>>> xxl-job operation log: operator = {}, type = {}, jobId = {}, jobGroup = {}",
 				loginInfo.getUserName(), "jobinfo-update", exists_jobInfo.getId(), exists_jobInfo.getJobGroup());
 
 		return Response.ofSuccess();
@@ -455,7 +453,7 @@ public class XxlJobServiceImpl implements XxlJobService {
 		xxlJobLogGlueMapper.deleteByJobId(id);
 
 		// write operation log
-		logger.info(">>>>>>>>>>> xxl-job operation log: operator = {}, type = {}, content = {}",
+		log.info(">>>>>>>>>>> xxl-job operation log: operator = {}, type = {}, content = {}",
 				loginInfo.getUserName(), "jobinfo-remove", GsonTool.toJson(xxlJobInfo));
 
 		return Response.ofSuccess();
@@ -505,7 +503,7 @@ public class XxlJobServiceImpl implements XxlJobService {
 			}
 			nextTriggerTime = nextValidTime.getTime();
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 			return Response.ofFail ( (I18nUtil.getString("schedule_type")+I18nUtil.getString("system_invalid")) );
 		}
 
@@ -515,7 +513,7 @@ public class XxlJobServiceImpl implements XxlJobService {
 		}
 
 		// write operation log
-		logger.info(">>>>>>>>>>> xxl-job operation log: operator = {}, type = {}, content = {}",
+		log.info(">>>>>>>>>>> xxl-job operation log: operator = {}, type = {}, content = {}",
 				loginInfo.getUserName(), "jobinfo-start", id);
 
 		return Response.ofSuccess();
@@ -554,7 +552,7 @@ public class XxlJobServiceImpl implements XxlJobService {
 		}
 
 		// write operation log
-		logger.info(">>>>>>>>>>> xxl-job operation log: operator = {}, type = {}, content = {}",
+		log.info(">>>>>>>>>>> xxl-job operation log: operator = {}, type = {}, content = {}",
 				loginInfo.getUserName(), "jobinfo-stop", id);
 
 		return Response.ofSuccess();
@@ -624,7 +622,7 @@ public class XxlJobServiceImpl implements XxlJobService {
 		}
 
 		// write operation log
-		logger.info(">>>>>>>>>>> xxl-job operation log: operator = {}, type = {}, content = {}",
+		log.info(">>>>>>>>>>> xxl-job operation log: operator = {}, type = {}, content = {}",
 				loginInfo.getUserName(), "jobinfo-trigger", jobId);
 
 		return Response.ofSuccess();

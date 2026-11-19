@@ -1,10 +1,9 @@
 package com.zero.config;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.dto.TableDataInfo;
 import com.zero.model.AjaxResult;
 import jakarta.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -22,14 +21,13 @@ import java.util.stream.Collectors;
  * 时间: 2026/6/28 04:37
  * 说明: 报表服务统一异常处理器，按接口返回类型转换为 AjaxResult 或 TableDataInfo，便于 admin 通过 ReportRestService 原样返回前端
  */
+@Slf4j
 @RestControllerAdvice
 public class ReportExceptionHandler
 {
     /**
      * 日志对象，仅记录接口路径和异常类型，不输出请求体、令牌等敏感内容
      */
-    private static final Logger log = LoggerFactory.getLogger(ReportExceptionHandler.class);
-
     /**
      *
      * 作者: Arthur 亚瑟

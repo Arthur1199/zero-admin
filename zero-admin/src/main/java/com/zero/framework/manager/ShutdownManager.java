@@ -1,7 +1,6 @@
 package com.zero.framework.manager;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import jakarta.annotation.PreDestroy;
 
@@ -11,13 +10,13 @@ import jakarta.annotation.PreDestroy;
  * 时间: 2026/5/14 00:58
  * 说明: 确保应用退出时能关闭后台线程
  */
+@Slf4j(topic = "sys-user")
 @Component
 public class ShutdownManager
 {
     /**
      * logger字段
      */
-    private static final Logger logger = LoggerFactory.getLogger("sys-user");
     /**
      *
      * 作者: Arthur 亚瑟
@@ -47,12 +46,12 @@ public class ShutdownManager
     {
         try
         {
-            logger.info("====关闭后台任务任务线程池====");
+            log.info("====关闭后台任务任务线程池====");
             AsyncManager.me().shutdown();
         }
         catch (Exception e)
         {
-            logger.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 }

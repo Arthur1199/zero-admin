@@ -4,12 +4,9 @@ import com.zero.base.TaskBaseService;
 import com.zero.domain.DictItem;
 import com.zero.mapper.TaskDictItemMapper;
 import com.zero.service.TaskBizDictTestService;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -21,16 +18,16 @@ import java.util.Map;
 public class TaskBizDictTestServiceImpl extends TaskBaseService<TaskDictItemMapper, DictItem> implements TaskBizDictTestService{
     @Override
     public DictItem getActiveItem(String groupCode, String itemCode) {
-        return getBizDictItem(groupCode + "." + itemCode);
+        return getDictItem(groupCode + "." + itemCode);
     }
 
     @Override
     public List<DictItem> getActiveItems(String groupCode) {
-        return getBizDictItems(groupCode);
+        return getDictItems(groupCode);
     }
 
     @Override
     public String findBizDictValue(String dictKey) {
-        return getBizDictValue(dictKey);
+        return getDictValue(dictKey);
     }
 }

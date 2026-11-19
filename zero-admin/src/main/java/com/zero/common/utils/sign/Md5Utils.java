@@ -1,9 +1,8 @@
 package com.zero.common.utils.sign;
 
+import lombok.extern.slf4j.Slf4j;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -11,12 +10,12 @@ import org.slf4j.LoggerFactory;
  * 时间: 2026/5/14 00:58
  * 说明: Md5加密方法
  */
+@Slf4j
 public class Md5Utils
 {
     /**
      * log字段
      */
-    private static final Logger log = LoggerFactory.getLogger(Md5Utils.class);
     /**
      *
      * 作者: Arthur 亚瑟

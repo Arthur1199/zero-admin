@@ -1,5 +1,6 @@
 package com.zero.util;
 
+import lombok.extern.slf4j.Slf4j;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -11,8 +12,6 @@ import java.util.regex.Pattern;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -20,9 +19,8 @@ import org.slf4j.LoggerFactory;
  * 时间: 2026/5/17 01:46
  * 说明: XML配置读取工具，支持从环境变量读取敏感配置
  */
+@Slf4j
 public class XmlConfig {
-
-	private static final Logger logger = LoggerFactory.getLogger(XmlConfig.class);
 
 	private static final Pattern ENV_PLACEHOLDER_PATTERN = Pattern.compile("^\\$\\{([A-Za-z0-9_]+)(?::([^}]*))?}$");
 
@@ -42,14 +40,14 @@ public class XmlConfig {
 	@SuppressWarnings("rawtypes")
 	public static void loadConfig() {
 		if (!items.isEmpty()) {
-			logger.error("配置{}文件已经装载完成，无需重新加载", CONFIG_FILE_NAME);
+			log.error("配置{}文件已经装载完成，无需重新加载", CONFIG_FILE_NAME);
 			return;
 		}
 
-		logger.info("开始加载{}配置文件", CONFIG_FILE_NAME);
+		log.info("开始加载{}配置文件", CONFIG_FILE_NAME);
 		InputStream inputStream = PropHelper.guessPropFile(XmlConfig.class, CONFIG_FILE_NAME);
 		if (inputStream == null) {
-			logger.error("未找到{}配置文件", CONFIG_FILE_NAME);
+			log.error("未找到{}配置文件", CONFIG_FILE_NAME);
 			return;
 		}
 
@@ -75,10 +73,10 @@ public class XmlConfig {
 				}
 			}
 		} catch (Exception ex) {
-			logger.error("读取配置文件出错", ex);
+			log.error("读取配置文件出错", ex);
 			return;
 		}
-		logger.info("加载{}配置文件完成，配置项数量：{}", CONFIG_FILE_NAME, items.size());
+		log.info("加载{}配置文件完成，配置项数量：{}", CONFIG_FILE_NAME, items.size());
 	}
 
 	/**
@@ -127,7 +125,7 @@ public class XmlConfig {
 		try {
 			return Integer.parseInt(value);
 		} catch (NumberFormatException ex) {
-			logger.error("配置文件key[{}]配置错误，return 0", name, ex);
+			log.error("配置文件key[{}]配置错误，return 0", name, ex);
 			return 0;
 		}
 	}
@@ -151,7 +149,7 @@ public class XmlConfig {
 		try {
 			return Integer.parseInt(value);
 		} catch (NumberFormatException ex) {
-			logger.error("配置文件key[{}]配置错误，return {}", name, defaultValue, ex);
+			log.error("配置文件key[{}]配置错误，return {}", name, defaultValue, ex);
 			return defaultValue;
 		}
 	}
@@ -187,7 +185,7 @@ public class XmlConfig {
 		try {
 			return Double.parseDouble(value);
 		} catch (NumberFormatException ex) {
-			logger.error("配置文件key[{}]配置错误，return {}", name, defaultValue, ex);
+			log.error("配置文件key[{}]配置错误，return {}", name, defaultValue, ex);
 			return defaultValue;
 		}
 	}

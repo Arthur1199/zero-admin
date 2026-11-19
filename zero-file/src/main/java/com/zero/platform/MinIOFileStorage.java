@@ -1,5 +1,6 @@
 package com.zero.platform;
 
+import lombok.extern.slf4j.Slf4j;
 import cn.hutool.core.util.StrUtil;
 import com.zero.exception.FileStorageRuntimeException;
 import com.zero.vo.FileInfo;
@@ -11,8 +12,6 @@ import io.minio.PutObjectOptions;
 import io.minio.errors.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
 
@@ -27,11 +26,10 @@ import java.util.function.Consumer;
 /**
  * MinIO 存储。
  */
+@Slf4j
 @Getter
 @Setter
 public class MinIOFileStorage implements FileStorage {
-    private static final Logger log = LoggerFactory.getLogger(MinIOFileStorage.class);
-
     /* 存储平台 */
     private String platform;
     private String accessKey;

@@ -1,5 +1,6 @@
 package com.zero.listener;
 
+import lombok.extern.slf4j.Slf4j;
 import com.alibaba.fastjson.JSON;
 import com.zero.util.EnvironmentUtil;
 import com.zero.util.TelRobotUtil;
@@ -10,8 +11,6 @@ import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
 import de.codecentric.boot.admin.server.domain.events.InstanceStatusChangedEvent;
 import de.codecentric.boot.admin.server.notify.AbstractStatusChangeNotifier;
 import org.apache.commons.lang3.time.DateFormatUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
 import java.util.Date;
@@ -23,10 +22,9 @@ import java.util.Date;
  *
  */
 //@Component
+@Slf4j
 public class CustomNotifier extends AbstractStatusChangeNotifier {
 	
-    private static final Logger logger = LoggerFactory.getLogger(CustomNotifier.class);
-
 //
 //    @Value("${client.notify.mail.subject}")
 //    private String subject;
@@ -43,11 +41,11 @@ public class CustomNotifier extends AbstractStatusChangeNotifier {
 
     @Override
     protected Mono<Void> doNotify(InstanceEvent event, Instance instance) {
-    	logger.info("event:{}",JSON.toJSONString(event));
-    	logger.info("instance:{}",JSON.toJSONString(instance));
+        log.info("event:{}",JSON.toJSONString(event));
+        log.info("instance:{}",JSON.toJSONString(instance));
         return Mono.fromRunnable(() -> {
             if (event instanceof InstanceStatusChangedEvent) {
-                logger.info("Instance {} ({}) is {}", instance.getRegistration().getName(), event.getInstance(),
+                log.info("Instance {} ({}) is {}", instance.getRegistration().getName(), event.getInstance(),
                         ((InstanceStatusChangedEvent) event).getStatusInfo().getStatus());
                 //获取服务状态 status  UP上线,OFFLINE离职
                 String status = ((InstanceStatusChangedEvent) event).getStatusInfo().getStatus();
@@ -76,7 +74,7 @@ public class CustomNotifier extends AbstractStatusChangeNotifier {
                 	TelRobotUtil.sendMessage(msg.toString());
                 }
             } else {
-                logger.info("Instance {} ({}) {}", instance.getRegistration().getName(), event.getInstance(),
+                log.info("Instance {} ({}) {}", instance.getRegistration().getName(), event.getInstance(),
                         event.getType());
             }
 

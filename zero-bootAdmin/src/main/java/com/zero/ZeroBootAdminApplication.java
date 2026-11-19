@@ -1,12 +1,11 @@
 package com.zero;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.packageconfig.PackageProperties;
 import java.util.Arrays;
 import java.util.TimeZone;
 
 import de.codecentric.boot.admin.server.config.EnableAdminServer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -18,12 +17,11 @@ import org.springframework.context.ConfigurableApplicationContext;
  * 时间: 2026/5/17 01:49
  * 说明: 零号Boot Admin监控服务启动入口，负责启动监控控制台并注册到Nacos
  */
+@Slf4j
 @SpringBootApplication(scanBasePackages = PackageProperties.SCAN_BASE_PACKAGES)
 @EnableAdminServer
 @EnableDiscoveryClient
 public class ZeroBootAdminApplication {
-
-	private static final Logger logger = LoggerFactory.getLogger(ZeroBootAdminApplication.class);
 
 	/**
 	 *
@@ -39,7 +37,7 @@ public class ZeroBootAdminApplication {
 		TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"));
 		PackageProperties.applySystemProperties();
 		ConfigurableApplicationContext context = SpringApplication.run(ZeroBootAdminApplication.class, args);
-        logger.info("\n" +
+        log.info("\n" +
                 "  ______  ______  _____    ____  \n" +
                 " |___  / |  ____| |  __ \\  / __ \\ \n" +
                 "    / /  | |__    | |__) || |  | |\n" +
@@ -48,6 +46,6 @@ public class ZeroBootAdminApplication {
                 " /_____| |______| |_|  \\_\\ \\____/ \n" +
                 " " + PackageProperties.START_SUCCESS_MESSAGE + "  ");
         String[] profiles = context.getEnvironment().getActiveProfiles();
-		logger.info("当前应用启动环境：{}", Arrays.asList(profiles));
+		log.info("当前应用启动环境：{}", Arrays.asList(profiles));
 	}
 }

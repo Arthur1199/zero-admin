@@ -1,5 +1,6 @@
 package com.zero.jobadmin.business.scheduler.config;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.jobadmin.business.mapper.*;
 import com.zero.jobadmin.business.model.XxlJobGroup;
 import com.zero.jobadmin.business.scheduler.alarm.JobAlarmer;
@@ -11,8 +12,6 @@ import com.xxl.job.core.openapi.executor.ExecutorBiz;
 import com.xxl.tool.core.StringTool;
 import com.xxl.tool.http.HttpTool;
 import jakarta.annotation.Resource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,10 +32,9 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author xuxueli 2017-04-28
  */
 
+@Slf4j
 @Component
 public class XxlJobAdminBootstrap implements InitializingBean, DisposableBean {
-    private static final Logger logger = LoggerFactory.getLogger(XxlJobAdminBootstrap.class);
-
     // ---------------------- instance ----------------------
 
     private static final AtomicReference<XxlJobAdminBootstrap> adminConfig = new AtomicReference<>();
@@ -142,7 +140,7 @@ public class XxlJobAdminBootstrap implements InitializingBean, DisposableBean {
         stopActions.addFirst(jobScheduleHelper::stop);
         jobScheduleHelper.start();
 
-        logger.info(">>>>>>>>> xxl-job admin start success.");
+        log.info(">>>>>>>>> xxl-job admin start success.");
     }
 
     /**
@@ -167,7 +165,7 @@ public class XxlJobAdminBootstrap implements InitializingBean, DisposableBean {
                     if (startupFailure != null && startupFailure != failure) {
                         startupFailure.addSuppressed(failure);
                     } else {
-                        logger.error("Failed to stop a job admin component", failure);
+                        log.error("Failed to stop a job admin component", failure);
                     }
                 } finally {
                     interrupted |= Thread.interrupted();
@@ -180,7 +178,7 @@ public class XxlJobAdminBootstrap implements InitializingBean, DisposableBean {
             }
         }
 
-        logger.info(">>>>>>>>> xxl-job admin stopped.");
+        log.info(">>>>>>>>> xxl-job admin stopped.");
     }
 
 

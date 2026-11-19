@@ -1,5 +1,6 @@
 package com.zero.common.utils.poi;
 
+import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -69,8 +70,6 @@ import org.apache.poi.xssf.usermodel.XSSFShape;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openxmlformats.schemas.drawingml.x2006.spreadsheetDrawing.CTMarker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.zero.common.annotation.Excel;
 import com.zero.common.annotation.Excel.ColumnType;
 import com.zero.common.annotation.Excel.Type;
@@ -93,12 +92,12 @@ import com.zero.common.utils.reflect.ReflectUtils;
  * 时间: 2026/5/14 00:58
  * 说明: Excel相关处理
  */
+@Slf4j
 public class ExcelUtil<T>
 {
     /**
      * log字段
      */
-    private static final Logger log = LoggerFactory.getLogger(ExcelUtil.class);
     /**
      * SEPARATOR字段
      */

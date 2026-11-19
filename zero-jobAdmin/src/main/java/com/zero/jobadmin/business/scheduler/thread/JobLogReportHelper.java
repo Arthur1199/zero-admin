@@ -1,11 +1,10 @@
 package com.zero.jobadmin.business.scheduler.thread;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.jobadmin.business.model.XxlJobLogReport;
 import com.zero.jobadmin.business.scheduler.config.XxlJobAdminBootstrap;
 import com.zero.jobadmin.business.service.JobLogCleanup;
 import com.xxl.tool.concurrent.CyclicThread;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -19,9 +18,8 @@ import java.util.List;
  * 时间: 2019/11/22
  * 说明: 定期维护历史运行报表汇总和调度日志保留周期。
  */
+@Slf4j
 public class JobLogReportHelper {
-    private static final Logger logger = LoggerFactory.getLogger(JobLogReportHelper.class);
-
     /** 每轮刷新当天及前两天的历史报表汇总。 */
     private static final int REPORT_REFRESH_DAYS = 3;
     /** 每轮额外补算的历史日期上限，避免积压占满刷新线程。 */
@@ -117,7 +115,7 @@ public class JobLogReportHelper {
                 historyCursor = null;
             }
         } catch (RuntimeException e) {
-            logger.error("Failed to scan historical job reports", e);
+            log.error("Failed to scan historical job reports", e);
         }
     }
 
@@ -164,7 +162,7 @@ public class JobLogReportHelper {
                 retentionSweep = new RetentionSweep(cutoff, afterId, maxId);
             }
         } catch (RuntimeException e) {
-            logger.error("Failed to finish retention log cleanup, cutoff={}", cutoff, e);
+            log.error("Failed to finish retention log cleanup, cutoff={}", cutoff, e);
         }
     }
 
@@ -197,7 +195,7 @@ public class JobLogReportHelper {
             Date snapshotStartedAt = new Date();
             XxlJobLogReport report = bootstrap.getXxlJobLogMapper().findLogReport(start, endExclusive);
             if (report == null) {
-                logger.warn("Missing aggregate result for job report, day={}", day);
+                log.warn("Missing aggregate result for job report, day={}", day);
                 return;
             }
             if (historical && report.getRunningCount() == 0 && report.getSucCount() == 0 && report.getFailCount() == 0) {
@@ -207,7 +205,7 @@ public class JobLogReportHelper {
             report.setUpdateTime(snapshotStartedAt);
             bootstrap.getXxlJobLogReportMapper().saveOrUpdate(report);
         } catch (RuntimeException e) {
-            logger.error("Failed to refresh job report, day={}", day, e);
+            log.error("Failed to refresh job report, day={}", day, e);
         }
     }
 

@@ -2,8 +2,7 @@ package com.zero.controller;
 
 import com.zero.model.AjaxResult;
 import com.zero.feign.admin.RemoteAdminHealthService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,14 +18,11 @@ import java.util.Map;
  * 时间: 2026/6/27 17:47
  * 说明: 报表服务内部健康检查接口，承载 admin 调 report 和 report 调 admin 的最小可验证跨服务链路
  */
+@Slf4j
 @RestController
 @RequestMapping("/internal/report/health")
 public class ReportHealthController
 {
-    /**
-     * 日志记录器，跨服务调用失败时输出服务名和异常栈，便于定位注册中心或网络问题
-     */
-    private static final Logger log = LoggerFactory.getLogger(ReportHealthController.class);
 
     /**
      * 当前服务环境配置，用于读取服务名和端口，不直接硬编码运行信息

@@ -1,5 +1,6 @@
 package com.zero.framework.aspectj;
 
+import lombok.extern.slf4j.Slf4j;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
@@ -7,8 +8,6 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
@@ -25,6 +24,7 @@ import com.zero.common.utils.ip.IpUtils;
  * 时间: 2026/5/14 00:58
  * 说明: 限流处理
  */
+@Slf4j
 @Aspect
 @Component
 public class RateLimiterAspect
@@ -32,7 +32,6 @@ public class RateLimiterAspect
     /**
      * log字段
      */
-    private static final Logger log = LoggerFactory.getLogger(RateLimiterAspect.class);
     /**
      * RedisTemplate字段
      */

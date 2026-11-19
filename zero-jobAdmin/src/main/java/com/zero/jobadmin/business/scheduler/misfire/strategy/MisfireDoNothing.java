@@ -1,15 +1,13 @@
 package com.zero.jobadmin.business.scheduler.misfire.strategy;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.jobadmin.business.scheduler.misfire.MisfireHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public class MisfireDoNothing extends MisfireHandler {
-    private static final Logger logger = LoggerFactory.getLogger(MisfireDoNothing.class);
-
     @Override
     public void handle(int jobId) {
-        logger.warn(">>>>>>>>>>> xxl-job, schedule MisfireDoNothing: jobId = " + jobId );
+        log.warn(">>>>>>>>>>> xxl-job, schedule MisfireDoNothing: jobId = " + jobId );
     }
 
 }

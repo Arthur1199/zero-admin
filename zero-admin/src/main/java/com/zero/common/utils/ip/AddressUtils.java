@@ -1,5 +1,6 @@
 package com.zero.common.utils.ip;
 
+import lombok.extern.slf4j.Slf4j;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -12,8 +13,6 @@ import java.util.StringJoiner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.lionsoul.ip2region.xdb.Searcher;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
@@ -26,13 +25,12 @@ import com.zero.common.utils.StringUtils;
  * 优先调用太平洋网络接口获取实时地址；远程不可用或返回无效时，
  * 使用 classpath 下的 ip2region/ip2region.xdb 离线库兜底，避免登录日志地址长期为空。
  */
+@Slf4j
 public class AddressUtils
 {
     /**
      * 日志对象
      */
-    private static final Logger log = LoggerFactory.getLogger(AddressUtils.class);
-
     /**
      * 太平洋网络IP地址查询接口，接口返回GBK编码JSON。
      */

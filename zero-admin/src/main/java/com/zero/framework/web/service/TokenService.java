@@ -1,5 +1,6 @@
 package com.zero.framework.web.service;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.common.constant.CacheConstants;
 import com.zero.common.constant.Constants;
 import com.zero.common.core.domain.model.LoginUser;
@@ -14,8 +15,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -34,14 +33,13 @@ import java.util.concurrent.TimeUnit;
  * 时间: 2026/5/14 00:58
  * 说明: token验证处理
  */
+@Slf4j
 @Component
 public class TokenService
 {
     /**
      * log字段
      */
-    private static final Logger log = LoggerFactory.getLogger(TokenService.class);
-
     // 令牌自定义标识
     /**
      * header字段

@@ -1,13 +1,12 @@
 package com.zero.platform;
 
+import lombok.extern.slf4j.Slf4j;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
 
@@ -29,11 +28,10 @@ import lombok.Setter;
 /**
  * AWS S3 存储。
  */
+@Slf4j
 @Getter
 @Setter
 public class AwsS3FileStorage implements FileStorage {
-    private static final Logger log = LoggerFactory.getLogger(AwsS3FileStorage.class);
-
     /* 存储平台 */
     private String platform;
     private String accessKey;

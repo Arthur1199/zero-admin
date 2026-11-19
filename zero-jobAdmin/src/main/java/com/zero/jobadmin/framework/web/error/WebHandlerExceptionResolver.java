@@ -1,12 +1,11 @@
 package com.zero.jobadmin.framework.web.error;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.jobadmin.business.scheduler.exception.XxlJobException;
 import com.xxl.tool.json.GsonTool;
 import com.xxl.tool.response.Response;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.method.HandlerMethod;
@@ -20,15 +19,14 @@ import java.io.IOException;
  *
  * @author xuxueli 2016-1-6 19:22:18
  */
+@Slf4j
 @Component
 public class WebHandlerExceptionResolver implements HandlerExceptionResolver {
-	private static transient Logger logger = LoggerFactory.getLogger(WebHandlerExceptionResolver.class);
-
 	@Override
 	public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
 
 		if (!(ex instanceof XxlJobException)) {
-			logger.error("WebExceptionResolver:{}", ex);
+			log.error("WebExceptionResolver:{}", ex);
 		}
 
 		// parse isJson
@@ -50,7 +48,7 @@ public class WebHandlerExceptionResolver implements HandlerExceptionResolver {
 				response.setContentType("application/json;charset=UTF-8");
 				response.getWriter().println(errorMsg);
 			} catch (IOException e) {
-				logger.error(e.getMessage(), e);
+				log.error(e.getMessage(), e);
 			}
 			return mv;
 		} else {

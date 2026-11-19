@@ -1,5 +1,6 @@
 package com.zero;
 
+import lombok.extern.slf4j.Slf4j;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.core.FileAppender;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -44,6 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * 时间: 2026/11/19 12:22
  * 说明: 在回环网络验证官方客户端、真实执行器和模拟调度中心之间的 HTTP 协议。
  */
+@Slf4j
 @EnabledIfSystemProperty(named = "zero.task.http-test", matches = "true")
 class TaskExecutorHttpTest {
 
@@ -122,10 +124,9 @@ class TaskExecutorHttpTest {
                     "--xxl.job.executor.port=" + executorPort,
                     "--xxl.job.executor.access-token=" + token,
                     "--xxl.job.executor.log-path=" + logPath)) {
-                var logger = LoggerFactory.getLogger(TaskExecutorHttpTest.class);
-                logger.info("zero-task test info");
-                logger.warn("zero-task test warning");
-                logger.error("zero-task test error");
+                log.info("zero-task test info");
+                log.warn("zero-task test warning");
+                log.error("zero-task test error");
                 assertThat(Files.readString(logPath.resolve("sys-info.log")))
                         .contains(" - [shouldExecuteBeanTaskAndReportResultOverHttp,", " - zero-task test info")
                         .doesNotContain("zero-task test warning", "zero-task test error");

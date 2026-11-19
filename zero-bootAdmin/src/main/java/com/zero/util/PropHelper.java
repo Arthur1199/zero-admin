@@ -1,20 +1,19 @@
 package com.zero.util;
 
+import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
 
 
+@Slf4j
 public class PropHelper
 {
-	 private static final Logger logger = LoggerFactory.getLogger(PropHelper.class);
 	/**
 	*guessPropFile:
 	*@param cls:和要寻找的属性文件处于相同的包中的任意的类
@@ -89,22 +88,22 @@ public class PropHelper
 				}
 				f = null;
 			}
-			logger.info("PropHelper本地文件File:{}", f!= null ? f.getName() : "NULL");
+			log.info("PropHelper本地文件File:{}", f!= null ? f.getName() : "NULL");
 			if(f == null){
 				try {
 					Resource resource = new ClassPathResource(propFile);
 					if(resource != null){
 						inputStream = resource.getInputStream();
 						File file2 = resource.getFile();
-						logger.info("Resource本地文件File:{}", file2!= null ? file2.getName() : "NULL");
+						log.info("Resource本地文件File:{}", file2!= null ? file2.getName() : "NULL");
 						if(inputStream != null){
 							return inputStream;
 						}
 					}
 				} catch (Exception e) {
 //					e.printStackTrace();
-//					logger.error("获取文件出错，文件不存在或者加载错误！", e);
-					logger.error("获取文件出错，文件不存在或者加载错误！");
+//					log.error("获取文件出错，文件不存在或者加载错误！", e);
+					log.error("获取文件出错，文件不存在或者加载错误！");
 				}
 			}else{
 				return new FileInputStream(f);
@@ -112,8 +111,8 @@ public class PropHelper
 		}
 		catch (Exception e)
 		{
-//			logger.error("获取文件出错，文件不存在或者加载错误！", e);
-			logger.error("获取文件出错，文件不存在或者加载错误！");
+//			log.error("获取文件出错，文件不存在或者加载错误！", e);
+			log.error("获取文件出错，文件不存在或者加载错误！");
 			f = null;
 		}
 		return inputStream;

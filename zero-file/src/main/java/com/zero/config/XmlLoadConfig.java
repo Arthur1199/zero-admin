@@ -1,8 +1,7 @@
 package com.zero.config;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.utils.xml.config.XmlConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -10,11 +9,10 @@ import org.springframework.stereotype.Component;
 /**
  * XML 配置加载器。
  */
+@Slf4j
 @Component
 public class XmlLoadConfig implements ApplicationListener<ApplicationReadyEvent>
 {
-    private static final Logger log = LoggerFactory.getLogger(XmlLoadConfig.class);
-
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event)
     {

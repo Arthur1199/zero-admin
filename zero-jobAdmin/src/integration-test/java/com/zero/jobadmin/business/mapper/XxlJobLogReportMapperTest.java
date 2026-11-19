@@ -1,21 +1,19 @@
 package com.zero.jobadmin.business.mapper;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.jobadmin.business.model.XxlJobLogReport;
 import com.xxl.tool.core.DateTool;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Date;
 
+@Slf4j(topic = "com.zero.jobadmin.business.mapper.XxlJobLogMapperTest")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 // 官方集成用例可能操作数据库或执行器，普通打包按标签排除。
 @org.junit.jupiter.api.Tag("job-integration")
 public class XxlJobLogReportMapperTest {
-    private static final Logger logger = LoggerFactory.getLogger(XxlJobLogMapperTest.class);
-
     @Resource
     private XxlJobLogReportMapper xxlJobLogReportMapper;
 
@@ -32,6 +30,6 @@ public class XxlJobLogReportMapperTest {
         xxlJobLogReport.setUpdateTime(new Date());
 
         int ret = xxlJobLogReportMapper.saveOrUpdate(xxlJobLogReport);
-        logger.info("ret:{}", ret);
+        log.info("ret:{}", ret);
     }
 }

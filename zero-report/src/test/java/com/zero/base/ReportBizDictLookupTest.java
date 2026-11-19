@@ -382,7 +382,7 @@ class ReportBizDictLookupTest {
          * @return 完整字典项，无记录时为空
          */
         DictItem item(String key) {
-            return getBizDictItem(key);
+            return getDictItem(key);
         }
 
         /**
@@ -396,7 +396,7 @@ class ReportBizDictLookupTest {
          * 返回值说明: 分组内的有效字典项列表
          */
         List<DictItem> items(String groupCode) {
-            return getBizDictItems(groupCode);
+            return getDictItems(groupCode);
         }
 
         /**
@@ -408,7 +408,7 @@ class ReportBizDictLookupTest {
          * @return 原始字符串值，无记录时为空
          */
         String value(String key) {
-            return getBizDictValue(key);
+            return getDictValue(key);
         }
 
         /**
@@ -422,8 +422,8 @@ class ReportBizDictLookupTest {
         @Transactional
         public String valueFromAdminTransaction() {
             assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM admin_probe", Integer.class)).isEqualTo(1);
-            String value = getBizDictValue("order_status.paid");
-            assertThat(getBizDictItems("order_status")).hasSize(3);
+            String value = getDictValue("order_status.paid");
+            assertThat(getDictItems("order_status")).hasSize(3);
             assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM admin_probe", Integer.class)).isEqualTo(1);
             return value;
         }

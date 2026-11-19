@@ -1,8 +1,7 @@
 package com.zero.framework.config;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.common.config.XmlConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -13,11 +12,10 @@ import org.springframework.stereotype.Component;
  * 时间: 2026/5/16 07:16
  * 说明: XML配置文件启动加载器，应用启动完成后加载resources/configuration.xml，保证业务代码可通过XmlConfig读取老项目格式的配置
  */
+@Slf4j
 @Component
 public class XmlLoadConfig implements ApplicationListener<ApplicationReadyEvent>
 {
-    private static final Logger log = LoggerFactory.getLogger(XmlLoadConfig.class);
-
     /**
      *
      * 作者: Arthur 亚瑟

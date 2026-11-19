@@ -1,10 +1,9 @@
 package com.zero.quartz.util;
 
+import lombok.extern.slf4j.Slf4j;
 import java.util.Date;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.zero.common.constant.Constants;
 import com.zero.common.constant.ScheduleConstants;
 import com.zero.common.utils.ExceptionUtil;
@@ -20,13 +19,12 @@ import com.zero.quartz.service.ISysJobLogService;
  *
  * @author zero
  */
+@Slf4j
 public abstract class AbstractQuartzJob implements Job
 {
     /**
      * log字段
      */
-    private static final Logger log = LoggerFactory.getLogger(AbstractQuartzJob.class);
-
     /**
      * 线程本地变量
      */

@@ -17,6 +17,11 @@
     <description>零号Boot Admin监控服务</description>
 
     <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
         <!-- Spring Boot Admin Server，版本由父工程统一管理并与Spring Boot 3.5.x保持同一主线 -->
         <dependency>
             <groupId>de.codecentric</groupId>

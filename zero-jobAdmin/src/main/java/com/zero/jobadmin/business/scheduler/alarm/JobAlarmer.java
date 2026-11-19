@@ -1,10 +1,9 @@
 package com.zero.jobadmin.business.scheduler.alarm;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.jobadmin.business.model.XxlJobInfo;
 import com.zero.jobadmin.business.model.XxlJobLog;
 import com.xxl.tool.core.CollectionTool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,10 +14,9 @@ import java.util.List;
  *
  * @author xuxueli 17/7/13.
  */
+@Slf4j
 @Component
 public class JobAlarmer {
-    private static final Logger logger = LoggerFactory.getLogger(JobAlarmer.class);
-
     @Autowired
     private List<JobAlarm> jobAlarmList;
 
@@ -35,7 +33,7 @@ public class JobAlarmer {
                 try {
                     resultItem = alarm.doAlarm(info, jobLog);
                 } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
+                    log.error(e.getMessage(), e);
                 }
                 if (!resultItem) {
                     result = false;

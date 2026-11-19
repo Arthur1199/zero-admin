@@ -1,5 +1,6 @@
 package com.zero.jobadmin.openapi;
 
+import lombok.extern.slf4j.Slf4j;
 import com.xxl.job.core.constant.RegistTypeEnum;
 import com.xxl.job.core.openapi.admin.AdminBiz;
 import com.xxl.job.core.openapi.admin.dto.CallbackData;
@@ -10,8 +11,6 @@ import com.xxl.job.core.constant.Const;
 import com.xxl.tool.http.HttpTool;
 import com.xxl.tool.response.Response;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -23,10 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author xuxueli 2017-07-28 22:14:52
  */
 // 官方集成用例可能操作数据库或执行器，普通打包按标签排除。
+@Slf4j
 @org.junit.jupiter.api.Tag("job-integration")
 public class AdminBizTest {
-    private static final Logger logger = LoggerFactory.getLogger(AdminBizTest.class);
-
     private static String addressUrl = "http://127.0.0.1:8080";
     private static String accessToken = "default_token";
     private static String appname = "xxl-job-executor-sample";

@@ -1,5 +1,6 @@
 package com.zero.framework.aspectj;
 
+import lombok.extern.slf4j.Slf4j;
 import java.util.Collection;
 import java.util.Map;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,8 +11,6 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
@@ -39,6 +38,7 @@ import com.zero.system.domain.SysOperLog;
  * 时间: 2026/5/14 00:58
  * 说明: 操作日志记录处理
  */
+@Slf4j
 @Aspect
 @Component
 public class LogAspect
@@ -46,8 +46,6 @@ public class LogAspect
     /**
      * log字段
      */
-    private static final Logger log = LoggerFactory.getLogger(LogAspect.class);
-
     /**
      * 排除敏感属性字段
      */

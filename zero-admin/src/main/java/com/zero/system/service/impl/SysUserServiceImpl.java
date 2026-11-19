@@ -1,5 +1,6 @@
 package com.zero.system.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -10,8 +11,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import jakarta.validation.Validator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,13 +44,13 @@ import com.zero.system.service.AdminUserLogoutService;
  * 时间: 2026/5/14 00:58
  * 说明: 用户 业务层处理
  */
+@Slf4j
 @Service
 public class SysUserServiceImpl implements ISysUserService
 {
     /**
      * log字段
      */
-    private static final Logger log = LoggerFactory.getLogger(SysUserServiceImpl.class);
     /**
      * 用户数据访问字段
      */

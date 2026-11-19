@@ -1,9 +1,8 @@
 package com.zero.jobadmin.business.scheduler.thread;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.jobadmin.business.scheduler.config.XxlJobAdminBootstrap;
 import com.zero.jobadmin.business.scheduler.trigger.TriggerTypeEnum;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
@@ -17,9 +16,8 @@ import java.util.stream.Stream;
  * 时间: 2018/7/3 21:08:07
  * 说明: 管理快慢派发线程池，记录提交被拒绝或停机前未能开始的调度。
  */
+@Slf4j
 public class JobTriggerPoolHelper {
-    private static final Logger logger = LoggerFactory.getLogger(JobTriggerPoolHelper.class);
-
     /** 两组派发线程池共用的停机排空等待时间，单位秒。 */
     private static final long SHUTDOWN_GRACE_SECONDS = 10;
 
@@ -103,7 +101,7 @@ public class JobTriggerPoolHelper {
                     Thread.currentThread().interrupt();
                 }
             }
-            logger.info("Job trigger pools closed, queued tasks abandoned={}", abandoned.size());
+            log.info("Job trigger pools closed, queued tasks abandoned={}", abandoned.size());
         }
     }
 
@@ -154,7 +152,7 @@ public class JobTriggerPoolHelper {
                     // do trigger
                     XxlJobAdminBootstrap.getInstance().getJobTrigger().trigger(jobId, triggerType, failRetryCount, executorShardingParam, executorParam, addressList);
                 } catch (Throwable e) {
-                    logger.error(e.getMessage(), e);
+                    log.error(e.getMessage(), e);
                 } finally {
 
                     // check timeout-count-map
@@ -215,7 +213,7 @@ public class JobTriggerPoolHelper {
             XxlJobAdminBootstrap.getInstance().getJobTrigger().recordUndispatchedTrigger(
                     jobId, triggerType, retryCount, sharding, executorParam, cancelledAfterAccept);
         } catch (RuntimeException e) {
-            logger.error("Failed to record undispatched job, jobId={}, triggerType={}", jobId, triggerType, e);
+            log.error("Failed to record undispatched job, jobId={}, triggerType={}", jobId, triggerType, e);
         }
     }
 

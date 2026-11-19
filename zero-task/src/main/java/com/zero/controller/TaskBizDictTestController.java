@@ -1,8 +1,9 @@
 package com.zero.controller;
 
 import com.zero.domain.DictItem;
+import com.zero.model.AjaxResult;
 import com.zero.service.TaskBizDictTestService;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,18 +21,8 @@ import java.util.List;
 public class TaskBizDictTestController {
 
     /** 字典测试服务在请求时初始化，缺少 Mapper 时由 Spring 报错。 */
-    private final TaskBizDictTestService dictionaryService;
-
-    /**
-     *
-     * 作者: Arthur 亚瑟
-     * 时间: 2026/11/19
-     * 说明: 保留数据源关闭时的控制器装配。
-     * @param dictionaryService 延迟初始化的字典测试服务
-     */
-    public TaskBizDictTestController(@Lazy TaskBizDictTestService dictionaryService) {
-        this.dictionaryService = dictionaryService;
-    }
+    @Autowired
+    private TaskBizDictTestService dictionaryService;
 
     /**
      *
@@ -44,9 +35,10 @@ public class TaskBizDictTestController {
      * 返回值: DictItem
      * 返回值说明: 未匹配时为空
      */
-    @GetMapping("/findActiveItem")
-    public DictItem findActiveItem(String groupCode, String itemCode) {
-        return dictionaryService.getActiveItem(groupCode, itemCode);
+    @GetMapping("/getActiveItem")
+    public AjaxResult findActiveItem(String groupCode, String itemCode) {
+        DictItem activeItem = dictionaryService.getActiveItem(groupCode, itemCode);
+        return AjaxResult.success(activeItem);
     }
 
     /**
@@ -59,9 +51,10 @@ public class TaskBizDictTestController {
      * 返回值: List<DictItem>
      * 返回值说明: 未匹配时为空列表
      */
-    @GetMapping("/findActiveItems")
-    public List<DictItem> findActiveItems(String groupCode) {
-        return dictionaryService.getActiveItems(groupCode);
+    @GetMapping("/getActiveItems")
+    public AjaxResult findActiveItems(String groupCode) {
+        List<DictItem> activeItems = dictionaryService.getActiveItems(groupCode);
+        return AjaxResult.success(activeItems);
     }
 
     /**
@@ -74,8 +67,9 @@ public class TaskBizDictTestController {
      * 返回值: String
      * 返回值说明: 未匹配时为空
      */
-    @GetMapping("/getBizDictValue")
-    public String getBizDictValue(String dictKey) {
-        return dictionaryService.findBizDictValue(dictKey);
+    @GetMapping("/findBizDictValue")
+    public AjaxResult getBizDictValue(String dictKey) {
+        String bizDictValue = dictionaryService.findBizDictValue(dictKey);
+        return AjaxResult.success(bizDictValue);
     }
 }

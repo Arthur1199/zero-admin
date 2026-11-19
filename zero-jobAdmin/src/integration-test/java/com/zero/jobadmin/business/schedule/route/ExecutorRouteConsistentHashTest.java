@@ -1,17 +1,15 @@
 package com.zero.jobadmin.business.schedule.route;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.jobadmin.business.scheduler.route.strategy.ExecutorRouteConsistentHash;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 // 官方集成用例可能操作数据库或执行器，普通打包按标签排除。
+@Slf4j
 @org.junit.jupiter.api.Tag("job-integration")
 public class ExecutorRouteConsistentHashTest {
-    private static final Logger logger = LoggerFactory.getLogger(ExecutorRouteConsistentHashTest.class);
-
     @Test
     public void test() {
 
@@ -21,7 +19,7 @@ public class ExecutorRouteConsistentHashTest {
         for (int i = 0; i < 100; i++) {
             int jobId = 1000 + i;
             String address = executorRouteConsistentHash.hashJob(jobId, addressList);
-            logger.info("jobId:{}, address:{}", jobId, address);
+            log.info("jobId:{}, address:{}", jobId, address);
         }
     }
 }

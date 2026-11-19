@@ -1,5 +1,6 @@
 package com.zero.jobadmin.business.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.jobadmin.business.mapper.XxlJobGroupMapper;
 import com.zero.jobadmin.business.mapper.XxlJobInfoMapper;
 import com.zero.jobadmin.business.mapper.XxlJobLogMapper;
@@ -27,8 +28,6 @@ import com.xxl.tool.response.PageModel;
 import com.xxl.tool.response.Response;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -56,11 +55,10 @@ import java.util.List;
  * 时间: 2015/12/19 16:13:16
  * 说明: 调度日志列表、执行日志查看和日志维护入口，按执行器组校验访问权限
  */
+@Slf4j
 @Controller
 @RequestMapping("/joblog")
 public class JobLogController {
-	private static final Logger logger = LoggerFactory.getLogger(JobLogController.class);
-
 	/** 与日志列表日期选择器一致，严格校验日期及时间。 */
 	private static final DateTimeFormatter LOG_DATE_TIME =
 			DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss").withResolverStyle(ResolverStyle.STRICT);
@@ -283,7 +281,7 @@ public class JobLogController {
 			ExecutorBiz executorBiz = XxlJobAdminBootstrap.getExecutorBiz(log.getExecutorAddress(), jobGroup);
 			runResult = executorBiz.kill(new KillRequest(jobInfo.getId()));
 		} catch (Exception e) {
-			logger.error("Failed to terminate job for logId={}", id, e);
+			JobLogController.log.error("Failed to terminate job for logId={}", id, e);
 			return Response.ofFail(I18nUtil.getString("system_opt_fail"));
 		}
 
@@ -302,7 +300,7 @@ public class JobLogController {
 					return Response.ofFail(I18nUtil.getString("joblog_kill_state_changed"));
 				}
 			} catch (RuntimeException e) {
-				logger.error("Executor responded to termination but the result could not be saved, logId={}", id, e);
+				JobLogController.log.error("Executor responded to termination but the result could not be saved, logId={}", id, e);
 				return Response.ofFail(I18nUtil.getString("joblog_kill_store_failed"));
 			}
 			return Response.ofSuccess(runResult.getMsg());
@@ -364,7 +362,7 @@ public class JobLogController {
 			JobLogCleanup.clear(xxlJobLogMapper, jobGroup, jobId, clearBeforeTime, clearBeforeNum);
 			return Response.ofSuccess();
 		} catch (RuntimeException e) {
-			logger.error("Failed to finish log cleanup, jobGroup={}, jobId={}", jobGroup, jobId, e);
+			log.error("Failed to finish log cleanup, jobGroup={}, jobId={}", jobGroup, jobId, e);
 			return Response.ofFail(I18nUtil.getString("joblog_clean_incomplete"));
 		}
 	}
@@ -460,7 +458,7 @@ public class JobLogController {
 
 			return logResult;
 		} catch (Exception e) {
-			logger.error("logId({}) logDetailCat error: {}", logId, e.getMessage(), e);
+			log.error("logId({}) logDetailCat error: {}", logId, e.getMessage(), e);
 			return Response.ofFail(I18nUtil.getString("system_opt_fail"));
 		}
 	}

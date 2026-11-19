@@ -1,5 +1,6 @@
 package com.zero.jobadmin.business.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.jobadmin.business.constant.TriggerStatus;
 import com.zero.jobadmin.business.mapper.XxlJobGroupMapper;
 import com.zero.jobadmin.business.mapper.XxlJobInfoMapper;
@@ -24,8 +25,6 @@ import com.xxl.tool.response.PageModel;
 import com.xxl.tool.response.Response;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,11 +40,10 @@ import java.util.List;
  * index controller
  * @author xuxueli 2015-12-19 16:13:16
  */
+@Slf4j
 @Controller
 @RequestMapping("/jobinfo")
 public class JobInfoController {
-	private static final Logger logger = LoggerFactory.getLogger(JobInfoController.class);
-
 	/** 单次时间预览返回的最多计划点数。 */
 	private static final int PREVIEW_TIME_COUNT = 5;
 
@@ -348,7 +346,7 @@ public class JobInfoController {
 		} catch (java.text.ParseException e) {
 			return Response.ofFail(invalid);
 		} catch (Exception e) {
-			logger.warn("Failed to preview schedule, type={}, errorType={}", type, e.getClass().getSimpleName());
+			log.warn("Failed to preview schedule, type={}, errorType={}", type, e.getClass().getSimpleName());
 			return Response.ofFail(invalid);
 		}
 		return Response.ofSuccess(result);
