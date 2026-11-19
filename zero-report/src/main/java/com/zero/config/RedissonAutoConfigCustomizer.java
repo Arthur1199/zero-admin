@@ -56,6 +56,10 @@ public class RedissonAutoConfigCustomizer implements RedissonAutoConfigurationCu
 //		useSentinelServers.setCheckSentinelsList(false);
 //		SingleServerConfig useSingleServer = cfg.useSingleServer();
 		cfg.setCodec(new JsonJacksonCodec());
+        // 旧 Nacos 配置可能把空密码绑定为空字符串，转换成 null 以跳过 AUTH。
+        if ("".equals(cfg.getPassword())) {
+            cfg.setPassword(null);
+        }
 		// 与原 Redis 客户端一样，在首次访问时建立连接，保持服务独立启动。
 		cfg.setLazyInitialization(true);
 		if (cfg.isSingleConfig()) {

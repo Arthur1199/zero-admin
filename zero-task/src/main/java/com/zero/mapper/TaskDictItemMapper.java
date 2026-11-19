@@ -1,6 +1,7 @@
-package com.zero.task.mapper;
+package com.zero.mapper;
 
-import com.zero.task.domain.DictItem;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.zero.domain.DictItem;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -9,9 +10,9 @@ import java.util.List;
  *
  * 作者: Arthur 亚瑟
  * 时间: 2026/11/19 15:56
- * 说明: 为任务服务读取业务字典，查询同时检查字典组和字典项的启用及删除状态。
+ * 说明: 提供业务字典项 Mapper，按编码读取时检查字典组和字典项的启用及删除状态。
  */
-public interface TaskDictItemMapper {
+public interface TaskDictItemMapper extends BaseMapper<DictItem> {
 
     /**
      *

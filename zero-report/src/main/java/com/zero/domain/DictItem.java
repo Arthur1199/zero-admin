@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -41,6 +42,11 @@ public class DictItem implements Serializable
     @NotNull(message = "字典组ID不能为空")
     @TableField("group_id")
     private Long groupId;
+
+    /** 联查取得的原始分组编码，仅用于校验缓存键可按库中编码清理。 */
+    @JsonIgnore
+    @TableField(exist = false)
+    private String lookupGroupCode;
 
     /**
      * 字典编码，可用于程序识别；同一字典组下不允许重复，也不允许为空

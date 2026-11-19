@@ -1,9 +1,9 @@
-package com.zero.task.mapper;
+package com.zero.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.zero.task.domain.DictItem;
+import com.zero.domain.DictItem;
 
 /**
  *

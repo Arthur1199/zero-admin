@@ -1,4 +1,4 @@
-package com.zero.task.config;
+package com.zero.config;
 
 import com.xxl.job.core.executor.impl.XxlJobSpringExecutor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

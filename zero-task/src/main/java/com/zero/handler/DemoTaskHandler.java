@@ -1,4 +1,4 @@
-package com.zero.task.handler;
+package com.zero.handler;
 
 import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.handler.annotation.XxlJob;

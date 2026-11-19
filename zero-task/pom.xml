@@ -55,7 +55,7 @@
             <artifactId>xxl-job-core</artifactId>
             <version>${xxl-job.version}</version>
         </dependency>
-        <!-- 任务业务库访问与 Redis 能力分别按配置启用。 -->
+        <!-- 任务服务依赖业务数据源，Redis 按配置独立装配。 -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>

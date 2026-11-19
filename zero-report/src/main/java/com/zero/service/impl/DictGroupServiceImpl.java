@@ -6,8 +6,8 @@ import com.zero.base.ReportBaseService;
 import com.zero.domain.DictGroup;
 import com.zero.mapper.DictGroupMapper;
 import com.zero.queryDto.DictGroupQuery;
-import com.zero.service.BizDictLookup;
 import com.zero.service.IDictGroupService;
+import com.zero.util.DictConfigUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,7 +44,7 @@ public class DictGroupServiceImpl extends ReportBaseService<DictGroupMapper, Dic
 
     /** 写入成功后统一刷新业务字典查询缓存。 */
     @Autowired
-    private BizDictLookup bizDictLookup;
+    private DictConfigUtil dictConfigUtil;
 
     /**
      *
@@ -137,7 +137,7 @@ public class DictGroupServiceImpl extends ReportBaseService<DictGroupMapper, Dic
         }
         dictGroup.setCreateBy(getAdminName());
         dictGroup.setCreateTime(new Date());
-        return bizDictLookup.invalidateAfterWrite(save(dictGroup));
+        return dictConfigUtil.invalidateGroupsAfterWrite(save(dictGroup), List.of(dictGroup.getGroupCode()));
     }
 
     /**
@@ -167,7 +167,8 @@ public class DictGroupServiceImpl extends ReportBaseService<DictGroupMapper, Dic
         dictGroup.setDelFlag(DEL_FLAG_NORMAL);
         dictGroup.setUpdateBy(getAdminName());
         dictGroup.setUpdateTime(new Date());
-        return bizDictLookup.invalidateAfterWrite(updateById(dictGroup));
+        return dictConfigUtil.invalidateGroupsAfterWrite(updateById(dictGroup),
+                List.of(oldGroup.getGroupCode(), dictGroup.getGroupCode()));
     }
 
     /**
@@ -184,12 +185,13 @@ public class DictGroupServiceImpl extends ReportBaseService<DictGroupMapper, Dic
     public boolean deleteGroupByIds(Long[] ids)
     {
         List<Long> idList = parseIds(ids, "请选择要删除的字典组");
-        return bizDictLookup.invalidateAfterWrite(lambdaUpdate().in(DictGroup::getId, idList)
+        List<String> groupCodes = affectedGroupCodes(idList, DEL_FLAG_NORMAL);
+        return dictConfigUtil.invalidateGroupsAfterWrite(lambdaUpdate().in(DictGroup::getId, idList)
                 .eq(DictGroup::getDelFlag, DEL_FLAG_NORMAL)
                 .set(DictGroup::getDelFlag, DEL_FLAG_DELETE)
                 .set(DictGroup::getUpdateBy, getAdminName())
                 .set(DictGroup::getUpdateTime, new Date())
-                .update());
+                .update(), groupCodes);
     }
 
     /**
@@ -206,12 +208,30 @@ public class DictGroupServiceImpl extends ReportBaseService<DictGroupMapper, Dic
     public boolean restoreGroupByIds(Long[] ids)
     {
         List<Long> idList = parseIds(ids, "请选择要恢复的字典组");
-        return bizDictLookup.invalidateAfterWrite(lambdaUpdate().in(DictGroup::getId, idList)
+        List<String> groupCodes = affectedGroupCodes(idList, DEL_FLAG_DELETE);
+        return dictConfigUtil.invalidateGroupsAfterWrite(lambdaUpdate().in(DictGroup::getId, idList)
                 .eq(DictGroup::getDelFlag, DEL_FLAG_DELETE)
                 .set(DictGroup::getDelFlag, DEL_FLAG_NORMAL)
                 .set(DictGroup::getUpdateBy, getAdminName())
                 .set(DictGroup::getUpdateTime, new Date())
-                .update());
+                .update(), groupCodes);
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/19 19:35
+     * 说明: 按批量操作的条件获取受影响分组的缓存编码。
+     * @param ids 字典组主键
+     * @param delFlag 操作前的删除标志
+     * @return 受影响的分组编码
+     * 返回值: List<String>
+     * 返回值说明: 没有匹配记录时为空列表
+     */
+    private List<String> affectedGroupCodes(List<Long> ids, String delFlag)
+    {
+        return lambdaQuery().select(DictGroup::getGroupCode).in(DictGroup::getId, ids)
+                .eq(DictGroup::getDelFlag, delFlag).list().stream().map(DictGroup::getGroupCode).toList();
     }
 
     /**

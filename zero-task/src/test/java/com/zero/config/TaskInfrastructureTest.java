@@ -1,24 +1,18 @@
-package com.zero.task.config;
+package com.zero.config;
 
 import com.baomidou.dynamic.datasource.annotation.DS;
-import com.baomidou.dynamic.datasource.spring.boot.autoconfigure.DynamicDataSourceAutoConfiguration;
-import com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zero.ZeroTaskApplication;
 import com.zero.base.TaskBaseService;
-import com.zero.task.domain.DictItem;
-import com.zero.task.mapper.TaskRoutingProbeMapper;
-import com.zero.task.service.TaskBizDictLookup;
+import com.zero.controller.TaskBizDictTestController;
+import com.zero.domain.DictItem;
+import com.zero.mapper.TaskRoutingProbeMapper;
+import com.zero.util.DictConfigUtil;
 import com.zero.util.RedissonUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.redisson.api.RedissonClient;
-import org.redisson.client.codec.StringCodec;
 import org.redisson.spring.data.connection.RedissonConnectionFactory;
-import org.springframework.boot.autoconfigure.AutoConfigurations;
-import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
-import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -33,53 +27,68 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  *
  * 作者: Arthur 亚瑟
  * 时间: 2026/11/19 14:08
- * 说明: 验证任务数据源和 Redis 独立装配、路由、Mapper XML 及分页。
+ * 说明: 验证任务数据源必需、Redis 可选、数据源路由、Mapper XML 及分页。
  */
 class TaskInfrastructureTest {
 
-    /** 只装配任务基础设施。MySQL 兼容模式的内存库隔离业务数据库。 */
+    /** 使用实际启动配置，外部服务由测试覆盖参数隔离。 */
     private final ApplicationContextRunner runner = new ApplicationContextRunner()
-            .withConfiguration(AutoConfigurations.of(AopAutoConfiguration.class, DynamicDataSourceAutoConfiguration.class,
-                    MybatisPlusAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class,
-                    JdbcTemplateAutoConfiguration.class, TransactionAutoConfiguration.class))
-            .withUserConfiguration(TaskMybatisConfig.class, TaskRedisConfig.class, TaskBizDictLookup.class)
-            .withPropertyValues("spring.datasource.dynamic.enabled=false",
-                    "mybatis-plus.mapper-locations=classpath*:mapper/*Mapper.xml");
+            .withUserConfiguration(ZeroTaskApplication.class)
+            .withPropertyValues("mybatis-plus.mapper-locations=classpath*:mapper/*Mapper.xml",
+                    "spring.cloud.nacos.config.enabled=false", "spring.cloud.nacos.discovery.enabled=false",
+                    "spring.cloud.discovery.enabled=false", "xxl.job.executor.enabled=false");
+
+    /** 只验证 Redis 自身的装配条件。 */
+    private final ApplicationContextRunner redisRunner = new ApplicationContextRunner()
+            .withUserConfiguration(TaskRedisConfig.class);
 
     /**
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/19 14:08
-     * 说明: 未提供 Redis 主机或启用数据库时，不创建相应的客户端。
+     * 说明: 未配置业务库或尝试关闭动态数据源时，任务服务不能启动。
      */
     @Test
-    void leavesBothCapabilitiesDisabledByDefault() {
-        runner.run(context -> assertThat(context)
-                .doesNotHaveBean(DataSource.class).doesNotHaveBean(TaskRoutingProbeMapper.class)
-                .doesNotHaveBean(TaskBizDictLookup.class).doesNotHaveBean(RedisConnectionFactory.class)
-                .doesNotHaveBean(RedissonClient.class).doesNotHaveBean(RedissonUtil.class));
+    void requiresDataSourcesAtStartup() {
+        runner.run(context -> assertThat(context.getStartupFailure())
+                .hasStackTraceContaining("zero-task 必须配置 zeroBiz 数据源"));
+        runner.withPropertyValues("spring.datasource.dynamic.enabled=false")
+                .run(context -> assertThat(context.getStartupFailure())
+                        .hasStackTraceContaining("zero-task 必须启用动态数据源"));
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/19 18:37
+     * 说明: 未传入字典查询服务时保留参数短路和有效查询的配置缺失提示。
+     */
+    @Test
+    void keepsDictionaryLookupOptional() {
+        var caller = new DictionaryCaller();
+        assertThat(caller.item("invalid")).isNull();
+        assertThatIllegalStateException().isThrownBy(() -> caller.item("task_status.paid"))
+                .withMessage("查询业务字典需要启用 zero-task 业务数据源");
     }
 
     /**
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/19 14:08
-     * 说明: 校验数据库配置与空 Redis 主机，兼容旧部署显式关闭 Redis。
+     * 说明: 校验空 Redis 主机，兼容旧部署显式关闭 Redis。
      */
     @Test
-    void reportsMissingConnectionProperties() {
-        runner.withPropertyValues("spring.datasource.dynamic.enabled=true")
-                .run(context -> assertThat(context.getStartupFailure())
-                        .hasMessageContaining("spring.datasource.dynamic.datasource.zeroBiz.url"));
-        runner.withPropertyValues("spring.data.redis.host=")
+    void reportsMissingRedisConnectionProperties() {
+        redisRunner.withPropertyValues("spring.data.redis.host=")
                 .run(context -> assertThat(context.getStartupFailure())
                         .hasMessageContaining("spring.data.redis.host"));
-        runner.withPropertyValues("spring.data.redis.host=127.0.0.1", "zero.task.redis.enabled=false")
+        redisRunner.withPropertyValues("spring.data.redis.host=127.0.0.1", "zero.task.redis.enabled=false")
                 .run(context -> assertThat(context).doesNotHaveBean(RedissonClient.class));
     }
 
@@ -93,6 +102,7 @@ class TaskInfrastructureTest {
     void routesBothDataSourcesAndPaginatesXmlQuery() throws Exception {
         databaseRunner().run(context -> {
             assertThat(context).doesNotHaveBean(RedisConnectionFactory.class);
+            assertThat(context).hasSingleBean(DictConfigUtil.class);
             var mapper = context.getBean(TaskRoutingProbeMapper.class);
             var page = mapper.selectOrigin(new Page<>(2, 1));
             assertThat(page.getTotal()).isEqualTo(2);
@@ -114,7 +124,7 @@ class TaskInfrastructureTest {
         String[] redisProperties = {"spring.data.redis.host=127.0.0.1",
                 "zero.redis.connection-pool-size=4", "zero.redis.connection-minimum-idle-size=1",
                 "zero.task.redis.connection-pool-size=8", "zero.task.redis.connection-minimum-idle-size=0"};
-        runner.withPropertyValues(redisProperties).run(context -> {
+        redisRunner.withPropertyValues(redisProperties).run(context -> {
             assertThat(context)
                     .hasSingleBean(StringRedisTemplate.class).hasBean("redisTemplate").hasSingleBean(RedissonClient.class)
                     .hasSingleBean(RedissonUtil.class).hasSingleBean(RedissonConnectionFactory.class)
@@ -137,7 +147,7 @@ class TaskInfrastructureTest {
     @Test
     @EnabledIfSystemProperty(named = "zero.task.test.redis-port", matches = "[0-9]+")
     void readsAndExpiresKeysOnIsolatedRedis() {
-        runner.withPropertyValues("spring.data.redis.host=127.0.0.1",
+        redisRunner.withPropertyValues("spring.data.redis.host=127.0.0.1",
                 "spring.data.redis.password=", "spring.data.redis.port=" + System.getProperty("zero.task.test.redis-port"))
                 .run(context -> {
             var redis = context.getBean(StringRedisTemplate.class);
@@ -189,12 +199,31 @@ class TaskInfrastructureTest {
     /**
      *
      * 作者: Arthur 亚瑟
+     * 时间: 2026/11/19 18:43
+     * 说明: 验证测试入口在配置好数据源时可以查询字典。
+     */
+    @Test
+    void exposesDictionaryEndpointsWithoutProfileRestriction() throws Exception {
+        databaseRunner()
+                .withInitializer(context -> context.getEnvironment().setActiveProfiles("test"))
+                .run(context -> {
+                    var controller = context.getBean(TaskBizDictTestController.class);
+                    assertThat(controller.getBizDictValue("task_status.paid")).isEqualTo("paid");
+                    assertThat(controller.findActiveItem("task_status", "paid").getItemCode()).isEqualTo("paid");
+                    assertThat(controller.findActiveItems("task_status")).extracting(DictItem::getItemCode)
+                            .containsExactly("pending", "paid");
+                });
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
      * 时间: 2026/11/19 15:59
-     * 说明: 在隔离 Redis 验证任务缓存命中，以及报表服务切换共享字典版本后的回源。
+     * 说明: 在隔离 Redis 验证任务缓存命中，以及共享缓存清理后的回源。
      */
     @Test
     @EnabledIfSystemProperty(named = "zero.task.test.redis-port", matches = "[0-9]+")
-    void observesSharedBusinessDictionaryVersion() throws Exception {
+    void reloadsAfterSharedBusinessDictionaryEviction() throws Exception {
         databaseRunner().withBean(DictionaryCaller.class).withPropertyValues(
                 "spring.data.redis.host=127.0.0.1",
                 "spring.data.redis.port=" + System.getProperty("zero.task.test.redis-port")).run(context -> {
@@ -205,8 +234,10 @@ class TaskInfrastructureTest {
                     assertThat(caller.items("task_status")).hasSize(2);
                     jdbc.update("UPDATE biz_dict_item SET item_value = 'updated' WHERE id = 10");
                     assertThat(caller.valueFromAdminTransaction()).isEqualTo("paid");
-                    // 模拟 zero-report 在提交后写入同一 Redis 版本键。
-                    redis.getBucket("zero:report:biz-dict:version", StringCodec.INSTANCE).set(UUID.randomUUID().toString());
+                    // 模拟 zero-report 在提交后清理同一组固定键。
+                    assertThat(redis.getKeys().remainTimeToLive("zero:dict:config:item:task_status:paid")).isEqualTo(-1L);
+                    redis.getKeys().delete("zero:dict:config:item:task_status:paid",
+                            "zero:dict:config:group:task_status");
                     assertThat(caller.valueFromAdminTransaction()).isEqualTo("updated");
                     assertThat(caller.items("task_status")).extracting(DictItem::getItemValue)
                             .containsExactly("pending", "updated");
@@ -230,8 +261,7 @@ class TaskInfrastructureTest {
         createProbeRows(admin, "admin");
         createDictionaryRows(biz);
         return runner.withBean(RoutingProbe.class)
-                .withPropertyValues("spring.datasource.dynamic.enabled=true",
-                        "spring.datasource.dynamic.primary=zeroBiz", "spring.datasource.dynamic.strict=true",
+                .withPropertyValues("spring.datasource.dynamic.primary=zeroBiz", "spring.datasource.dynamic.strict=true",
                         "spring.datasource.dynamic.datasource.zeroBiz.url=" + biz,
                         "spring.datasource.dynamic.datasource.zeroBiz.username=sa",
                         "spring.datasource.dynamic.datasource.zeroAdmin.url=" + admin,

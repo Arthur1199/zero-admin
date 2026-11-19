@@ -1,4 +1,4 @@
-package com.zero.task.config;
+package com.zero.config;
 
 import com.zero.config.RedissonAutoConfigCustomizer;
 import com.zero.util.RedissonUtil;

@@ -1,9 +1,10 @@
-package com.zero.task.generator;
+package com.zero.generator;
 
 import com.baomidou.mybatisplus.generator.FastAutoGenerator;
 import com.baomidou.mybatisplus.generator.config.OutputFile;
 import com.baomidou.mybatisplus.generator.config.rules.DateType;
 import com.baomidou.mybatisplus.generator.engine.VelocityTemplateEngine;
+import com.zero.packageconfig.PackageProperties;
 import org.springframework.util.StringUtils;
 
 import java.nio.file.Files;
@@ -65,7 +66,7 @@ public final class TaskCodeGenerator {
                 .globalConfig(builder -> builder.author("Arthur").commentDate("yyyy/MM/dd HH:mm")
                         .dateType(DateType.ONLY_DATE).disableOpenDir()
                         .outputDir(moduleRoot.resolve("src/main/java").toString()))
-                .packageConfig(builder -> builder.parent("com.zero.task").entity("domain").mapper("mapper")
+                .packageConfig(builder -> builder.parent(PackageProperties.BASE_PACKAGE).entity("domain").mapper("mapper")
                         .service("service").serviceImpl("service.impl").xml("mapper")
                         .pathInfo(Map.of(OutputFile.xml, moduleRoot.resolve("src/main/resources/mapper").toString())))
                 .strategyConfig(builder -> {
@@ -90,7 +91,7 @@ public final class TaskCodeGenerator {
      * 返回值说明: 包含生成器源码的 zero-task 根目录
      */
     private static Path resolveModuleRoot() {
-        Path generatorSource = Path.of("src/test/java/com/zero/task/generator/TaskCodeGenerator.java");
+        Path generatorSource = Path.of("src/test/java/com/zero/generator/TaskCodeGenerator.java");
         for (Path current = Path.of("").toAbsolutePath(); current != null; current = current.getParent()) {
             if (Files.isRegularFile(current.resolve(generatorSource))) {
                 return current;
