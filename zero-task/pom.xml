@@ -16,6 +16,13 @@
         <task.redisson.version>4.6.1</task.redisson.version>
     </properties>
     <dependencies>
+        <!-- spring-boot-devtools -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <optional>true</optional> <!-- 表示依赖不会传递 -->
+        </dependency>
+
         <!-- 任务服务复用跨服务基础常量和通用工具。 -->
         <dependency>
             <groupId>com.zero</groupId>

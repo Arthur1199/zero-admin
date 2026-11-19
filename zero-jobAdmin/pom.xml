@@ -19,6 +19,13 @@
         <job.test.excluded-groups>job-integration</job.test.excluded-groups>
     </properties>
     <dependencies>
+        <!-- spring-boot-devtools -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <optional>true</optional> <!-- 表示依赖不会传递 -->
+        </dependency>
+
         <!-- Java日志注解，与admin启动类一致，由父工程统一管理版本。 -->
         <dependency>
             <groupId>org.projectlombok</groupId>

@@ -12,8 +12,8 @@ spring:
   devtools:
     # 开发期应用自动重启配置。
     restart:
-      # 控制 DevTools 是否在类路径发生变更时自动重启应用。
-      enabled: false
+      # 热部署开关
+      enabled: true
   # Spring Cloud 服务发现、配置导入及调用设置。
   cloud:
     # Nacos 注册发现和配置中心参数。

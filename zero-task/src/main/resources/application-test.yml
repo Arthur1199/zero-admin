@@ -10,6 +10,12 @@ spring:
       - optional:nacos:zero-task-mysql.yml?group=${spring.profiles.active}&refreshEnabled=true
       # 导入 Redis 连接和客户端连接池配置。
       - optional:nacos:zero-task-redis.yml?group=${spring.profiles.active}&refreshEnabled=true
+  # Spring Boot 开发工具配置。
+  devtools:
+    # 开发期应用自动重启配置。
+    restart:
+      # 热部署开关
+      enabled: true
   # Spring Cloud 服务发现、配置导入及调用设置。
   cloud:
     # Nacos 注册发现和配置中心参数。
