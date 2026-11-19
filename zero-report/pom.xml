@@ -20,6 +20,13 @@
     </properties>
 
     <dependencies>
+        <!-- spring-boot-devtools -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <optional>true</optional> <!-- 表示依赖不会传递 -->
+        </dependency>
+
         <!-- 报表服务基础工具包，跨服务常量、统一返回对象和通用工具从该模块复用 -->
         <dependency>
             <groupId>com.zero</groupId>

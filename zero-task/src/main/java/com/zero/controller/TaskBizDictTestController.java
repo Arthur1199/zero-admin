@@ -22,7 +22,7 @@ public class TaskBizDictTestController {
 
     /** 字典测试服务在请求时初始化，缺少 Mapper 时由 Spring 报错。 */
     @Autowired
-    private TaskBizDictTestService dictionaryService;
+    private TaskBizDictTestService taskBizDictTestService;
 
     /**
      *
@@ -36,7 +36,7 @@ public class TaskBizDictTestController {
      */
     @GetMapping("/findBizDictValue")
     public AjaxResult getBizDictValue(String dictKey) {
-        String bizDictValue = dictionaryService.findBizDictValue(dictKey);
+        String bizDictValue = taskBizDictTestService.findBizDictValue(dictKey);
         return AjaxResult.success("查询成功",bizDictValue);
     }
 
@@ -52,7 +52,7 @@ public class TaskBizDictTestController {
      */
     @GetMapping("/getActiveItem")
     public AjaxResult findActiveItem(String dictKey) {
-        DictItem activeItem = dictionaryService.getActiveItem(dictKey);
+        DictItem activeItem = taskBizDictTestService.getActiveItem(dictKey);
         return AjaxResult.success(activeItem);
     }
 
@@ -68,7 +68,7 @@ public class TaskBizDictTestController {
      */
     @GetMapping("/getActiveItems")
     public AjaxResult findActiveItems(String groupCode) {
-        List<DictItem> activeItems = dictionaryService.getActiveItems(groupCode);
+        List<DictItem> activeItems = taskBizDictTestService.getActiveItems(groupCode);
         return AjaxResult.success(activeItems);
     }
 
