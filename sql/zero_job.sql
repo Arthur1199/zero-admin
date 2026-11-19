@@ -1,12 +1,17 @@
 --
 -- XXL-JOB
 -- Copyright (c) 2015-present, xuxueli.
+--
+-- ZERO-JOB 初始化脚本：每次执行都删除并重建 zero_job 库中的 8 张调度表，
+-- 清空现有任务、执行器、账号及日志数据，并重新写入初始数据。
+-- 有业务数据时，执行前先备份并停止调度中心。MySQL 删表和建表会隐式提交。
 
 CREATE DATABASE IF NOT EXISTS `zero_job` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `zero_job`;
 
--- ================== job group and registry ==================
+-- ================== 执行器分组与注册 ==================
 
+DROP TABLE IF EXISTS `xxl_job_group`;
 CREATE TABLE `xxl_job_group`
 (
     `id`                    INT                 NOT NULL AUTO_INCREMENT,
@@ -21,6 +26,7 @@ CREATE TABLE `xxl_job_group`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+DROP TABLE IF EXISTS `xxl_job_registry`;
 CREATE TABLE `xxl_job_registry`
 (
     `id`                    BIGINT              NOT NULL AUTO_INCREMENT,
@@ -33,8 +39,9 @@ CREATE TABLE `xxl_job_registry`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
--- ================== job info ==================
+-- ================== 任务定义与 GLUE 历史 ==================
 
+DROP TABLE IF EXISTS `xxl_job_info`;
 CREATE TABLE `xxl_job_info`
 (
     `id`                        INT                 NOT NULL AUTO_INCREMENT,
@@ -65,6 +72,7 @@ CREATE TABLE `xxl_job_info`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+DROP TABLE IF EXISTS `xxl_job_logglue`;
 CREATE TABLE `xxl_job_logglue`
 (
     `id`                        INT                 NOT NULL AUTO_INCREMENT,
@@ -78,8 +86,9 @@ CREATE TABLE `xxl_job_logglue`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
--- ================== job log and report ==================
+-- ================== 调度日志与报表 ==================
 
+DROP TABLE IF EXISTS `xxl_job_log`;
 CREATE TABLE `xxl_job_log`
 (
     `id`                        BIGINT              NOT NULL AUTO_INCREMENT,
@@ -106,6 +115,7 @@ CREATE TABLE `xxl_job_log`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
+DROP TABLE IF EXISTS `xxl_job_log_report`;
 CREATE TABLE `xxl_job_log_report`
 (
     `id`                    INT             NOT NULL AUTO_INCREMENT,
@@ -119,8 +129,9 @@ CREATE TABLE `xxl_job_log_report`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
--- ================== lock ==================
+-- ================== 调度锁 ==================
 
+DROP TABLE IF EXISTS `xxl_job_lock`;
 CREATE TABLE `xxl_job_lock`
 (
     `lock_name` VARCHAR(50) NOT NULL COMMENT '锁名称',
@@ -128,8 +139,9 @@ CREATE TABLE `xxl_job_lock`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 
--- ================== user ==================
+-- ================== 调度中心用户 ==================
 
+DROP TABLE IF EXISTS `xxl_job_user`;
 CREATE TABLE `xxl_job_user`
 (
     `id`                INT                 NOT NULL AUTO_INCREMENT,
@@ -144,23 +156,23 @@ CREATE TABLE `xxl_job_user`
   DEFAULT CHARSET = utf8mb4;
 
 
--- ================== for default data ==================
+-- ================== 写入初始数据 ==================
 
 START TRANSACTION;
 
 INSERT INTO `xxl_job_group`(`id`, `app_name`, `name`, `address_type`, `address_list`, `access_token`, `update_time`)
-    VALUES (1, 'xxl-job-executor-sample', '通用执行器Sample', 0,  NULL, 'default_token', now()),
-           (2, 'xxl-job-executor-sample-ai', 'AI执行器Sample', 0, NULL, 'default_token', now());
+    VALUES (1, 'zero-task', '通用执行器Sample', 0,  NULL, 't59e70c4f87d091d849e262d755575020fd6f83b17822b489', now()),
+           (2, 'zero-task-ai', 'AI执行器Sample', 0, NULL, 'default_token', now());
 
 INSERT INTO `xxl_job_info`(`id`, `job_group`, `name`, `add_time`, `update_time`, `author`, `alarm_email`,
                            `schedule_type`, `schedule_conf`, `misfire_strategy`, `executor_route_strategy`,
                            `executor_handler`, `executor_param`, `executor_block_strategy`, `executor_timeout`,
                            `executor_fail_retry_count`, `glue_type`, `glue_source`, `glue_remark`, `glue_updatetime`,
                            `child_jobid`)
-VALUES (1, 1, '示例任务01', now(), now(), 'XXL', '', 'CRON', '0 0 0 * * ? *',
-        'DO_NOTHING', 'FIRST', 'demoJobHandler', '', 'SERIAL_EXECUTION', 0, 0, 'BEAN', '', 'GLUE代码初始化',
+VALUES (1, 1, '示例任务01', now(), now(), 'ZERO', '', 'CRON', '0 0 0 * * ? *',
+        'DO_NOTHING', 'FIRST', 'zeroTaskDemoHandler', '', 'SERIAL_EXECUTION', 0, 0, 'BEAN', '', 'GLUE代码初始化',
         now(), ''),
-       (2, 2, 'Ollama示例任务', now(), now(), 'XXL', '', 'NONE', '',
+       (2, 2, 'Ollama示例任务', now(), now(), 'ZERO', '', 'NONE', '',
         'DO_NOTHING', 'FIRST', 'ollamaJobHandler', '{
     "input": "Java实现二叉树层序遍历",
     "prompt": "你是一个研发工程师，擅长解决技术类问题。",

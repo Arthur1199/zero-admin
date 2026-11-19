@@ -2,11 +2,12 @@ package com.zero.base;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zero.domain.DictItem;
 import com.zero.dto.ReportAdminContext;
+import com.zero.service.BizDictLookup;
+import com.zero.util.RedissonUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.context.request.RequestAttributes;
@@ -19,20 +20,83 @@ import java.util.List;
  *
  * 作者: Arthur 亚瑟
  * 时间: 2026/6/28 02:05
- * 说明: 报表服务 Service 层基础父类，统一承载 MyBatis-Plus 通用 CRUD、请求上下文读取、Redis 和日志辅助能力
+ * 说明: 报表服务基础父类，提供通用 CRUD、请求上下文、Redisson 缓存和业务字典查询。
  */
-public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImpl<M, T> {
-    /**
-     * 子类业务日志对象，使用真实子类类型作为日志分类
-     */
-    protected final Logger log = LoggerFactory.getLogger(getClass());
+public abstract class ReportBaseService<M extends BaseMapper<T>, T> extends ServiceImpl<M, T> {
 
     /**
-     * Redis模板，未启用Redis或测试环境未创建Bean时允许为空，调用方需按业务需要判空
+     * 兼容已有 RedisTemplate 调用；连接由 Redisson 提供，未配置缓存的测试环境可为空。
      */
     @Getter
     @Autowired(required = false)
     private RedisTemplate<String, Object> redisTemplate;
+
+    /** 子类使用的 Redisson 缓存工具，未装配 Redis 的隔离测试环境可为空。 */
+    @Getter
+    @Autowired(required = false)
+    private RedissonUtil redissonUtil;
+
+    /** 独立读取业务字典，确保子类所在的数据源和事务不影响查询。 */
+    @Autowired
+    private BizDictLookup bizDictLookup;
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/19 14:34
+     * 说明: 按分组编码和字典项编码读取已启用、未删除的业务字典项。
+     * @param dictKey 分组编码.字典项编码，允许去除两段周围的空白
+     * @return
+     * 返回值: DictItem
+     * 返回值说明: 完整字典项，格式非法或无有效记录时返回 null
+     */
+    protected DictItem getBizDictItem(String dictKey) {
+        if (dictKey == null) {
+            return null;
+        }
+        int separator = dictKey.indexOf('.');
+        if (separator < 0 || separator != dictKey.lastIndexOf('.')) {
+            return null;
+        }
+        String groupCode = dictKey.substring(0, separator).strip();
+        String itemCode = dictKey.substring(separator + 1).strip();
+        if (groupCode.isEmpty() || itemCode.isEmpty()) {
+            return null;
+        }
+        return bizDictLookup.findActiveItem(groupCode, itemCode);
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/19 14:41
+     * 说明: 查询启用且未删除的业务字典分组下所有有效字典项。
+     * @param groupCode 字典分组编码，允许两侧有空白
+     * @return
+     * 返回值: List<DictItem>
+     * 返回值说明: 按排序值和主键升序的字典项，分组编码为空或查无有效项时返回空集合
+     */
+    protected List<DictItem> getBizDictItems(String groupCode) {
+        if (groupCode == null || groupCode.isBlank()) {
+            return List.of();
+        }
+        return bizDictLookup.findActiveItems(groupCode.strip());
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/19 14:34
+     * 说明: 获取有效业务字典项的原始字符串值。
+     * @param dictKey 分组编码.字典项编码，允许去除两段周围的空白
+     * @return
+     * 返回值: String
+     * 返回值说明: item_value 字段原值，格式非法或无有效记录时返回 null
+     */
+    protected String getBizDictValue(String dictKey) {
+        DictItem item = getBizDictItem(dictKey);
+        return item == null ? null : item.getItemValue();
+    }
 
     /**
      *
@@ -194,17 +258,5 @@ public abstract class BaseService<M extends BaseMapper<T>, T> extends ServiceImp
         return servletRequestAttributes.getRequest();
     }
 
-    /**
-     *
-     * 作者: Arthur 亚瑟
-     * 时间: 2026/6/28 02:05
-     * 说明: 获取指定类型的日志对象，兼容需要按工具类或辅助类分类输出日志的场景
-     *
-     * @param clazz 日志分类类型，不能为空
-     * @return 返回值: Logger
-     * 返回值说明: 指定类型对应的日志对象
-     */
-    public Logger getLogger(Class<?> clazz) {
-        return clazz == null ? log : LoggerFactory.getLogger(clazz);
-    }
+
 }

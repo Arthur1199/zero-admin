@@ -23,6 +23,68 @@
 * 不分离版本，请移步[Zero](https://gitee.com/y_project/Zero)，微服务版本，请移步[Zero-Cloud](https://gitee.com/y_project/Zero-Cloud)
 * 阿里云折扣场：[点我进入](http://aly.zero.vip)，腾讯云秒杀场：[点我进入](http://txy.zero.vip)&nbsp;&nbsp;
 
+## 项目整体架构
+
+| 模块目录 | 职责 |
+| --- | --- |
+| `zero-tools` | Java 基础工具包，提供跨服务复用的常量、返回对象和通用工具，由 `zero-report`、`zero-file` 和 `zero-task` 直接依赖，无独立进程。 |
+| `zero-admin` | 管理后台后端和统一 API 入口，负责登录、权限、操作审计和后台自身业务。 |
+| `zero-report` | 报表和业务数据服务，供 `zero-admin` 调用，负责所属业务数据的查询、管理和持久化。 |
+| `zero-jobAdmin` | 服务名为 `zero-job-admin`，负责 XXL-JOB 任务管理、执行器注册、任务调度和结果收集。 |
+| `zero-task` | XXL-JOB 执行服务，向调度中心注册，执行 `@XxlJob` 任务并回传结果。 |
+| `zero-bootAdmin` | 默认服务名为 `zero-boot-admin`，通过服务发现和 Actuator 独立监控服务运行状态。 |
+| `zero-file` | 独立文件存储服务，负责本地磁盘和已适配的云存储平台，并维护 `biz_file_detail` 文件记录。 |
+| `zero-ui` | Vue 管理后台前端，负责页面交互和数据展示。 |
+
+- **后台业务**由 `zero-ui` 统一请求 `zero-admin`。后台自身业务由 admin 处理，报表和业务数据通过 `ReportRestService` 调用 `zero-report`，文件管理通过 `FileRestService` 调用 `zero-file`。代理入口负责管理后台权限和操作审计，业务规则和持久化留在数据所属模块。
+- **报表探活**由 `zero-admin` 通过 OpenFeign 客户端 `RemoteReportHealthService` 验证到 `zero-report` 的服务调用。
+- **任务调度**由 `zero-task` 向 `zero-job-admin` 注册，调度中心派发任务，执行器运行任务并回传结果。XXL-JOB 注册和派发与 Nacos 服务发现分别配置。`zero-task` 主配置的 HTTP 端口为 9104，执行器配置源的默认端口为 9998。
+- **运行监控**由 `zero-boot-admin` 发现服务实例并访问各服务开放的 Actuator 端点，独立于核心业务调用链路。部署时核对服务名、Nacos 命名空间、管理端点的可达性和访问权限。
+
+## 技术栈
+
+| 范围 | 主要技术 |
+| --- | --- |
+| 后端基线 | Java 17、Maven 多模块、Spring Boot 3.5.12、Spring Framework 6.2.18、Spring Cloud 2025.0.2、Spring Cloud Alibaba 2025.0.0.0。父 POM 单独管理 `spring-boot-autoconfigure` 为 3.5.14。 |
+| 服务发现与调用 | Nacos 注册和配置、Spring Cloud LoadBalancer、OpenFeign。后台对报表和文件服务的代理分别使用带 `@LoadBalanced` 的 `reportRestTemplate` 和 `fileRestTemplate`，统一追加管理员上下文请求头。 |
+| 后台管理 | Spring Security、JWT、MyBatis XML、PageHelper、Druid、Redis、Quartz、SpringDoc 2.8.17。 |
+| 报表、文件与任务数据访问 | MySQL、MyBatis-Plus 3.5.16、dynamic-datasource 4.5.0。报表的复杂 XML 查询保留 PageHelper，报表与任务服务通过 Redisson 4.6.1 接入 Redis。 |
+| 调度与监控 | XXL-JOB 3.5.0 负责调度和任务执行，Spring Boot Admin 3.5.8 与 Actuator 负责运行监控。 |
+| 管理后台前端 | Node 开发基线为 24.21.0，引擎范围为 `>=24.21.0 <25`。使用 Vue 3.5.43、Vite 8.3.3、Vue Router 4.6.4、Vuex 4.1.0 和 Element Plus 2.14.7，沿用 Options API 和 Axios 请求封装。 |
+
+后端版本以 [父 POM](pom.xml) 和各模块 POM 的声明为准，排查依赖差异时通过有效 POM 或依赖树确认实际解析版本。前端版本见 [package.json](zero-ui/package.json)。Vite 开发代理默认指向 `http://localhost:9099`，可通过 `VITE_DEV_PROXY_TARGET` 覆盖。
+
+## 新建 Java 项目规范
+
+- 先确定模块职责、数据归属和调用方，再参考 [zero-task 模块说明](zero-task/README.md) 和 [Maven 配置](zero-task/pom.xml)。仓库内新模块沿用父工程版本管理并加入 Maven 聚合，核对组件及 Mapper 扫描范围。按业务需要接入 Nacos、Actuator、MySQL 和 Redis，仅在承担任务执行职责时接入 XXL-JOB。
+- 日志参考 [zero-task 的 Logback 配置](zero-task/src/main/resources/logback-spring.xml)。控制台和应用文件沿用现有服务的日志格式，保留毫秒时间、线程、级别、Logger、方法、行号和消息。每个服务使用独立日志目录，沿用 `sys-info.log`、`sys-error.log` 的分流和滚动方式。接入 Boot Admin 日志查看时，确认 Logback 写入的 `application.log` 与 Actuator logfile 读取的是同一文件。
+- 所有新建 `.yml` 和 `.yaml` 配置项都要就近添加中文注释。参考 zero-task 的 [主配置](zero-task/src/main/resources/application.yml)、[开发环境](zero-task/src/main/resources/application-dev.yml)、[测试环境](zero-task/src/main/resources/application-test.yml)、[生产环境](zero-task/src/main/resources/application-prod.yml)及 [Nacos 配置源](zero-task/src/main/resources/nacosConfig)。注明配置用途、数值单位、开关范围、默认行为和生效时机，涉及外部配置时说明来源和覆盖关系。
+- 每个新 Java 项目都要集成 [MyBatis-Plus 代码生成器](zero-task/src/test/java/com/zero/task/generator/TaskCodeGenerator.java)。MyBatis-Plus Generator 和 Velocity 使用测试作用域，从本地环境变量读取数据库连接信息，显式指定表名后生成实体、Mapper、Mapper XML、Service 接口和实现。生成器由开发人员显式运行，默认跳过已有文件。新模块要核对包名、输出路径和 Mapper XML 扫描配置。沿用 `zero-task` 的单层目录时，将 XML 写入 `src/main/resources/mapper`，文件名以 `Mapper.xml` 结尾。持久层按开关装配时，生成的 Service 模板也应遵循同一开关。在模块 README 中写清生成命令、输入和输出目录，用隔离测试验证生成产物及重复执行时跳过已有文件，并验证模块可构建。
+
+Java 类和方法沿用作者、时间和说明的 JavaDoc 模板，写清职责、参数和返回语义。YAML 在配置项上方用中文说明用途、默认行为和生效时机，凭据示例使用空值或安全占位。Vue、MyBatis XML 和 SQL 注释聚焦兼容行为、异步顺序、数据边界等关键逻辑。详见 [Java 注释规范](AGENTS.md#java-注释规范)、[YAML 配置注释规范](AGENTS.md#yaml-配置注释规范)和[编码风格](AGENTS.md#编码风格)。
+
+详细开发约束见 [AGENTS.md](AGENTS.md)，模块落位和代理权限见 [管理后台业务开发模式](AGENTS.md#管理后台业务开发模式规则)。
+
+## 后端配置入口
+
+每个服务从自身 `src/main/resources/application.yml` 读取基础配置。通过 `--spring.profiles.active=dev`、`test` 或 `prod` 选择对应的 `application-{profile}.yml`，环境文件负责 Nacos 连接和配置导入。下面的目录以仓库根目录为基准。
+
+| Maven 模块 | 配置文件或模板 | 主要内容 |
+| --- | --- | --- |
+| `zero-admin` | [nacosConfig](zero-admin/src/main/resources/nacosConfig) | 管理库、Redis、后台通用配置和 WebSocket |
+| `zero-bootAdmin` | [application.yml](zero-bootAdmin/src/main/resources/application.yml) | Spring Boot Admin 监控、服务发现和界面设置 |
+| `zero-report` | [nacosConfig](zero-report/src/main/resources/nacosConfig) | 业务数据源、Redis 和报表服务通用配置 |
+| `zero-file` | [nacosConfig](zero-file/src/main/resources/nacosConfig) | 文件元数据的数据源和本地或对象存储平台 |
+| `zero-jobAdmin` | [nacosConfig](zero-jobAdmin/src/main/resources/nacosConfig) | 调度数据库、SMTP 邮件和 XXL-JOB 调度参数 |
+| `zero-task` | [nacosConfig](zero-task/src/main/resources/nacosConfig) | XXL-JOB 执行器、任务数据源和 Redis |
+
+- 发布配置前，按环境文件的 `spring.config.import` 核对 Data ID、配置 Group 和 Namespace ID。配置分组用于加载配置，服务注册分组由 `spring.cloud.nacos.discovery` 单独决定。
+- `nacosConfig` 保存模板，应用读取的是配置中心已发布的内容。带 `optional:` 的导入允许对应资源缺失，依赖其中配置的功能仍需要有效值。
+- `zero-admin/src/main/resources/localYml` 保存本地配置模板，当前主配置中的导入已注释。Boot Admin 使用自己的 `application*.yml`，通过服务发现获取监控实例。
+- 修改已发布配置后，按服务的刷新开关和组件初始化方式判断生效时机。任务执行器或调度中心启动时读取的参数按各模块的启动说明处理。连接凭据通过部署环境或受控的 Nacos 配置维护。
+
+调度中心和执行器的配置、启动与验证步骤见 [ZERO-JOB](zero-jobAdmin/README.md) 和 [ZERO-TASK](zero-task/README.md)。
+
 ## 内置功能
 
 1.  用户管理：用户是系统操作者，该功能主要完成系统用户配置。

@@ -1,3 +1,4 @@
+# 管理后台本地配置模板，当前主配置未导入此文件。
 # 项目相关配置
 zero:
   # 项目中文名称
@@ -15,14 +16,17 @@ zero:
 server:
   # 服务器的HTTP端口，默认为8080
   port: 9099
+  # Servlet 容器配置。
   servlet:
     # 应用的访问路径
     context-path: /
+  # 内嵌 Tomcat 的连接、线程和运行目录配置。
   tomcat:
     # tomcat的URI编码
     uri-encoding: UTF-8
     # 连接数满后的排队数，默认为100
     accept-count: 1000
+    # 处理 HTTP 请求的 Tomcat 工作线程配置。
     threads:
       # tomcat最大线程数，默认为200
       max: 800
@@ -31,13 +35,18 @@ server:
 
 # 日志配置
 logging:
+  # Logback 配置文件位置，classpath 路径从应用资源目录加载。
   config: classpath:logback-spring.xml
+  # 按日志分类设置最低输出级别。
   level:
+    # 应用根日志级别，未单独配置的日志分类继承此级别。
     root: INFO
+    # Spring 框架日志分类的最低输出级别。
     org.springframework: warn
 
 # 用户配置
 user:
+  # 管理后台登录密码策略。
   password:
     # 密码最大错误次数
     maxRetryCount: 5
@@ -50,10 +59,13 @@ spring:
   messages:
     # 国际化资源文件路径
     basename: i18n/messages
+  # 应用环境配置选择。
   profiles:
+    # 启用的 Spring Profile，决定加载哪些环境配置。
     active: dev
   # 文件上传
   servlet:
+    # Multipart 文件上传配置。
     multipart:
       # 单个文件大小
       max-file-size: 10MB
@@ -61,11 +73,14 @@ spring:
       max-request-size: 20MB
   # 服务模块
   devtools:
+    # 开发期应用自动重启配置。
     restart:
       # 热部署开关
       enabled: true
 # redis 配置
+  # Spring Data 组件配置。
   data:
+    # Spring Redis 连接与客户端参数。
     redis:
       # 地址
       host: 127.0.0.1
@@ -77,7 +92,9 @@ spring:
       password:
       # 连接超时时间
       timeout: 10s
+      # Lettuce Redis 客户端配置。
       lettuce:
+        # Lettuce 普通连接池配置。
         pool:
           # 连接池中的最小空闲连接
           min-idle: 0
@@ -108,8 +125,11 @@ mybatis:
 ---
 # PageHelper分页插件
 pagehelper:
+  # 分页 SQL 所用的数据库方言。
   helperDialect: mysql
+  # 允许 PageHelper 从 Mapper 方法参数中提取分页参数。
   supportMethodsArguments: true
+  # PageHelper 分页参数名的映射规则。
   params: count=countSql
 ---
 ## Swagger配置
@@ -121,9 +141,11 @@ pagehelper:
 
 # ======== SpringDocs文档配置 ========
 springdoc:
+  # SpringDoc OpenAPI JSON 文档接口配置。
   api-docs:
     enabled: true  # 开启OpenApi接口
     path: /v3/api-docs  # 自定义路径，默认为 "/v3/api-docs"
+  # Swagger UI 页面设置。
   swagger-ui:
     enabled: true  #开启swagger界面，依赖OpenApi，需要OpenApi同时开启
     path: /swagger-ui.html # 自定义路径，默认为"/swagger-ui/index.html"

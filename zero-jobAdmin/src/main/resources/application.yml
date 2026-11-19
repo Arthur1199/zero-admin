@@ -1,54 +1,100 @@
+# 应用 HTTP 服务及内嵌容器配置。
 server:
+  # 应用 HTTP 监听端口。
   port: 9102
+  # Servlet 容器配置。
   servlet:
+    # 部署应用时使用的 URL 上下文路径。
     context-path: /
+# Spring Boot 及相关组件的配置。
 spring:
+  # Spring 应用标识配置。
   application:
+    # Spring 应用名称，用于服务标识及相关配置。
     name: zero-job-admin
+  # 应用环境配置选择。
   profiles:
     # 默认开发环境，可通过 --spring.profiles.active=test/prod 切换。
     active: dev
+  # HTTP JSON 序列化与反序列化配置。
   jackson:
+    # Jackson 处理传统日期类型时使用的格式。
     date-format: yyyy-MM-dd HH:mm:ss
+    # Jackson 处理日期时使用的默认时区。
     time-zone: Asia/Shanghai
+  # Spring MVC 请求处理设置。
   mvc:
+    # Spring MVC DispatcherServlet 设置。
     servlet:
+      # DispatcherServlet 初始化顺序，非负值表示随容器启动加载。
       load-on-startup: 0
+    # Spring MVC 用于匹配静态资源的 URL 模式。
     static-path-pattern: /static/**
+  # Spring Web 通用设置。
   web:
+    # Spring Web 静态资源设置。
     resources:
+      # 静态资源处理器查找文件的资源目录。
       static-locations: classpath:/static/
+  # FreeMarker 页面模板配置。
   freemarker:
+    # FreeMarker 查找页面模板的资源路径。
     template-loader-path: classpath:/templates/
+    # FreeMarker 页面模板文件的后缀。
     suffix: .ftl
+    # 加载 FreeMarker 模板时使用的字符编码。
     charset: UTF-8
+    # 模板中访问 Spring MVC 请求上下文所用的属性名称。
     request-context-attribute: request
+    # 传给 FreeMarker 引擎的原生设置。
     settings:
+      # 数字在模板中的默认输出格式。
       number_format: 0.##########
+      # 限制 FreeMarker 模板通过 new 取得 Java 类的解析策略。
       new_builtin_class_resolver: safer
+# 控制是否使用 Spring Boot 内置的默认错误页面。
 server.error.whitelabel.enabled: false
+# MyBatis Mapper 和会话配置。
 mybatis:
+  # MyBatis Mapper XML 的类路径匹配位置。
   mapper-locations: classpath:/mapper/**/*Mapper.xml
+# Spring Boot Actuator 管理和监控配置。
 management:
+  # Actuator 端点的整体访问和暴露规则。
   endpoints:
+    # Actuator 通过 HTTP 提供端点的配置。
     web:
+      # 指定哪些 Actuator 端点可以通过 HTTP 访问。
       exposure:
         # 与report/file一致，向Boot Admin开放全部可用监控端点；部署时须限制访问来源。
         include: "*"
+  # 各 Actuator 端点的行为配置。
   endpoint:
+    # Actuator 健康端点配置。
     health:
+      # 控制健康端点展示组件详情的条件，always 表示始终展示详情。
       show-details: always
+  # 健康指标组件配置。
   health:
+    # 邮件服务健康指标配置。
     mail:
+      # 控制是否检查邮件服务器的连接状态。
       enabled: false
+# 应用日志配置。
 logging:
+  # Logback 配置文件位置，classpath 路径从应用资源目录加载。
   config: classpath:logback-spring.xml
+# 调度平台 SSO 登录和令牌配置。
 xxl-sso:
+  # 调度平台 SSO 签发令牌所用配置。
   token:
+    # 调度平台 SSO 令牌签名密钥。
     key: zero_job_login_token
     # 单位毫秒，沿用官方7天登录有效期。
     timeout: 604800000
+  # 调度平台 SSO 客户端配置。
   client:
     # Boot Admin采集监控信息不使用控制台登录态，仅对Actuator路径排除登录拦截。
     excluded.paths: /actuator,/actuator/**
+    # 调度平台 SSO 客户端使用的登录路径。
     login.path: /auth/login

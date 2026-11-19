@@ -14,12 +14,17 @@
     <property name="log.maxHistory" value="60"/>
 
     <!-- 实时查看内存上限，可由环境变量或启动配置覆盖，不改变原文件日志。 -->
+    <!-- 实时日志缓冲区最多保留的事件条数。 -->
     <springProperty scope="context" name="realtime.maxEvents" source="zero.realtime-log.max-events" defaultValue="5000"/>
+    <!-- 实时日志缓冲区的总大小上限，单位字节。 -->
     <springProperty scope="context" name="realtime.maxBytes" source="zero.realtime-log.max-bytes" defaultValue="10485760"/>
+    <!-- 单条实时日志事件的大小上限，单位字节。 -->
     <springProperty scope="context" name="realtime.maxEventBytes" source="zero.realtime-log.max-event-bytes" defaultValue="65536"/>
     <!-- 完整控制台模式只读启动器或IDEA保存的进程输出文件，覆盖JVM原生输出。 -->
     <springProperty scope="context" name="realtime.consoleFile" source="zero.realtime-log.console-file" defaultValue=""/>
+    <!-- 读取进程输出文件使用的字符集。 -->
     <springProperty scope="context" name="realtime.consoleCharset" source="zero.realtime-log.console-charset" defaultValue="UTF-8"/>
+    <!-- 将应用日志事件写入实时日志缓冲区，供后台在线查看。 -->
     <appender name="realtime" class="com.zero.framework.realtimelog.RealtimeLogAppender">
         <pattern>${log.pattern}</pattern>
         <maxEvents>${realtime.maxEvents}</maxEvents>
@@ -95,6 +100,7 @@
         <appender-ref ref="sys-user"/>
     </logger>
 
+    <!-- 未单独配置的日志分类继承根日志级别，并输出到此处引用的目标。 -->
     <root level="info">
         <appender-ref ref="console"/>
         <appender-ref ref="realtime"/>

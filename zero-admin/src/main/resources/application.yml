@@ -1,11 +1,15 @@
 # Spring
+# Spring Boot 及相关组件的配置。
 spring:
+  # Spring 应用标识配置。
   application:
     # 应用名称
     name: zero-admin
+  # 国际化消息资源配置。
   messages:
     # 国际化资源路径兜底配置，避免 Nacos common 配置读取失败时登录成功消息无法解析
     basename: i18n/messages
+  # Spring Boot 主应用启动配置。
   main:
     # 配置覆盖本地同名Bean配置的场景
     allow-bean-definition-overriding: true
@@ -14,16 +18,25 @@ spring:
 #    import:
 #      - optional:classpath:localYml/application.yml
 #      - optional:classpath:localYml/application-${spring.profiles.active}.yml
+  # 应用环境配置选择。
   profiles:
     # 默认环境，可通过启动参数 --spring.profiles.active=test/prod 覆盖
     active: dev
+  # Spring Cloud 服务发现、配置导入及调用设置。
   cloud:
+    # OpenFeign 客户端配置。
     openfeign:
+      # Feign 客户端公共设置。
       client:
+        # 按客户端名称指定请求设置。
         config:
+          # 所有 Feign 客户端共享的默认请求设置。
           default:
+            # Feign 建立连接的超时时间，单位毫秒。
             connectTimeout: 5000
+            # Feign 等待响应的读取超时时间，单位毫秒。
             readTimeout: 30000
+            # Feign 请求日志详细程度。
             loggerLevel: basic
 # 开发环境配置Tomcat
 server:
@@ -33,11 +46,13 @@ server:
   servlet:
     # 应用的访问路径
     context-path: /
+  # 内嵌 Tomcat 的连接、线程和运行目录配置。
   tomcat:
     # tomcat的URI编码
     uri-encoding: UTF-8
     # 连接数满后的排队数，默认为100
     accept-count: 1000
+    # 处理 HTTP 请求的 Tomcat 工作线程配置。
     threads:
       # tomcat最大线程数，默认为200
       max: 800
@@ -46,9 +61,13 @@ server:
 ---
 # 日志配置
 logging:
+  # Logback 配置文件位置，classpath 路径从应用资源目录加载。
   config: classpath:logback-spring.xml
+  # 按日志分类设置最低输出级别。
   level:
+    # 应用根日志级别，未单独配置的日志分类继承此级别。
     root: INFO
+    # Spring 框架日志分类的最低输出级别。
     org.springframework: warn
 ---
 # token配置
@@ -63,10 +82,14 @@ token:
 # MyBatis配置
 # 用户密码策略兜底配置，避免Nacos配置解析失败时登录组件无法初始化
 user:
+  # 管理后台登录密码策略。
   password:
+    # 密码连续校验失败的最大次数。
     maxRetryCount: 5
+    # 达到登录失败次数上限后的锁定时间，单位分钟。
     lockTime: 1
 ---
+# MyBatis Mapper 和会话配置。
 mybatis:
   # 搜索指定包别名
   typeAliasesPackage: ${zero.package.type-aliases-package:com.zero.**.domain}
@@ -77,15 +100,20 @@ mybatis:
 ---
 # PageHelper分页插件
 pagehelper:
+  # 分页 SQL 所用的数据库方言。
   helperDialect: mysql
+  # 允许 PageHelper 从 Mapper 方法参数中提取分页参数。
   supportMethodsArguments: true
+  # PageHelper 分页参数名的映射规则。
   params: count=countSql
 ---
 # ======== SpringDocs文档配置 ========
 springdoc:
+  # SpringDoc OpenAPI JSON 文档接口配置。
   api-docs:
     enabled: true  # 开启OpenApi接口
     path: /v3/api-docs  # 自定义路径，默认为 "/v3/api-docs"
+  # Swagger UI 页面设置。
   swagger-ui:
     enabled: true  #开启swagger界面，依赖OpenApi，需要OpenApi同时开启
     path: /swagger-ui.html # 自定义路径，默认为"/swagger-ui/index.html"
@@ -101,15 +129,24 @@ xss:
 ---
 # 监控设置
 management:
+  # Actuator 端点的整体访问和暴露规则。
   endpoints:
+    # Actuator 通过 HTTP 提供端点的配置。
     web:
+      # 指定哪些 Actuator 端点可以通过 HTTP 访问。
       exposure:
+        # 通过 HTTP 暴露的 Actuator 端点，星号匹配全部已启用且未排除的端点。
         include: "*"
+  # 各 Actuator 端点的行为配置。
   endpoint:
+    # Actuator 健康端点配置。
     health:
+      # 控制健康端点展示组件详情的条件，always 表示始终展示详情。
       show-details: always
 ---
 # 备忘录加密密钥，禁止提交、分享或随意替换；请独立备份。
 zero:
+  # 敏感备忘录功能配置。
   memo:
+    # 备忘录内容加密所需密钥，按部署说明外部注入。
     encryption-key: 'Vp0T9mhvhlqtylnwrpbEBgDlTSHLlt0lELpO3BJDt28='

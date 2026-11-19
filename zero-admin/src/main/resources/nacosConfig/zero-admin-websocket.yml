@@ -6,6 +6,7 @@
 # 不依赖Nacos热更新：发布变更后须按部署流程重启admin节点，并核对实际生效值。
 # channel变更会同时切换消息频道和连接租约键前缀，须协调所有节点切换；混用期间消息可能漏达，连接配额分开计数。
 zero:
+  # 管理后台 WebSocket 通道及连接控制配置。
   websocket:
     # Redis发布订阅频道：同一环境的所有admin节点必须一致，不同环境必须不同。
     # 优先使用当前激活的profile，无profile时使用default；Redis不同DB不能隔离Pub/Sub频道。

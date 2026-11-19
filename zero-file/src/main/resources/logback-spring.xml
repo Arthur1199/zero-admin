@@ -1,18 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+    <!-- 应用名称用于构建日志子目录，缺省使用 zero-file。 -->
     <springProperty scope="context" name="app.name" source="spring.application.name" defaultValue="zero-file"/>
+    <!-- 从启动配置获取业务包名，缺省使用 com.zero。 -->
     <springProperty scope="context" name="package.name" source="zero.package.base-package" defaultValue="com.zero"/>
+    <!-- 日志目录相对于应用的工作目录解析。 -->
     <property name="log.path" value="logs/${app.name}"/>
+    <!-- 日志记录时间、线程、级别、类名、方法、行号和消息。 -->
     <property name="log.pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{20} - [%method,%line] - %msg%n"/>
+    <!-- 单个日志文件达到此大小后滚动归档。 -->
     <property name="log.maxFileSize" value="200MB"/>
+    <!-- 按天滚动时保留的归档天数。 -->
     <property name="log.maxHistory" value="60"/>
 
+    <!-- 输出到进程控制台，便于本地启动和容器采集。 -->
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>${log.pattern}</pattern>
         </encoder>
     </appender>
 
+    <!-- 单独保存 INFO 日志，按日期和文件大小滚动。 -->
     <appender name="file_info" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${log.path}/sys-info.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
@@ -30,6 +38,7 @@
         </filter>
     </appender>
 
+    <!-- 单独保存 ERROR 日志，按日期和文件大小滚动。 -->
     <appender name="file_error" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${log.path}/sys-error.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
@@ -47,9 +56,12 @@
         </filter>
     </appender>
 
+    <!-- 业务代码的最低日志级别。 -->
     <logger name="${package.name}" level="info"/>
+    <!-- Spring 框架的最低日志级别。 -->
     <logger name="org.springframework" level="warn"/>
 
+    <!-- 未单独配置的日志分类继承根日志级别，并输出到此处引用的目标。 -->
     <root level="info">
         <appender-ref ref="console"/>
         <appender-ref ref="file_info"/>

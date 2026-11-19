@@ -121,6 +121,12 @@ export const constantRoutes = [
     component: () => import('@/views/theme/dark-premium.vue'),
     hidden: true,
     meta: { title: '高端暗黑风预览' }
+  },
+  {
+    path: '/theme-preview-default',
+    component: () => import('@/views/theme/default.vue'),
+    hidden: true,
+    meta: { title: '原始风格预览' }
   }
 ]
 

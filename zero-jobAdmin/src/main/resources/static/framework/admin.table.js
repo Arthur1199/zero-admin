@@ -389,7 +389,7 @@
     }
 
     /**
-     * 保存期间保留表单快照，失败后恢复操作，成功后关闭并刷新列表。
+     * 校验后锁定表单快照，可选确认通过后再保存，取消或失败时恢复操作。
      */
     function initSaveModal(selector, options, action) {
         const modal = $(selector);
@@ -424,37 +424,67 @@
                     return;
                 }
                 const data = options.readFormData();
+                const confirmation = options.getSaveConfirmation?.(data);
                 const controls = modal.find(':input:enabled');
-                let saved = false;
                 saving = true;
                 controls.prop('disabled', true);
-                $.ajax({
-                    url: options.url,
-                    type: 'POST',
-                    data: data,
-                    dataType: 'json',
-                    timeout: saveTimeoutMs,
-                    success: function (response) {
-                        saved = !!response && response.code === 200;
-                        if (!saved) {
-                            layer.msg($('<span>').text((response && response.msg) || action + I18n.system_fail).html());
+                if (confirmation) {
+                    let confirmed = false;
+                    layer.confirm(confirmation, {
+                        icon: 3,
+                        title: I18n.system_tips,
+                        btn: [I18n.system_ok, I18n.system_cancel],
+                        end: function () {
+                            if (!confirmed) {
+                                unlock(controls);
+                            }
                         }
-                    },
-                    error: function () {
-                        layer.msg(I18n.system_save_unconfirmed);
-                    },
-                    complete: function () {
-                        saving = false;
-                        controls.prop('disabled', false);
-                        if (saved) {
-                            modal.modal('hide');
-                            layer.msg(action + I18n.system_success);
-                            $('#data_filter .searchBtn').click();
+                    }, function (index) {
+                        if (confirmed) {
+                            return;
                         }
-                    }
-                });
+                        confirmed = true;
+                        layer.close(index);
+                        save(data, controls);
+                    });
+                    return;
+                }
+                save(data, controls);
             }
         });
+
+        function unlock(controls) {
+            saving = false;
+            controls.prop('disabled', false);
+        }
+
+        function save(data, controls) {
+            let saved = false;
+            $.ajax({
+                url: options.url,
+                type: 'POST',
+                data: data,
+                dataType: 'json',
+                timeout: saveTimeoutMs,
+                success: function (response) {
+                    saved = !!response && response.code === 200;
+                    if (!saved) {
+                        layer.msg($('<span>').text((response && response.msg) || action + I18n.system_fail).html());
+                    }
+                },
+                error: function () {
+                    layer.msg(I18n.system_save_unconfirmed);
+                },
+                complete: function () {
+                    unlock(controls);
+                    if (saved) {
+                        modal.modal('hide');
+                        layer.msg(action + I18n.system_success);
+                        $('#data_filter .searchBtn').click();
+                    }
+                }
+            });
+        }
 
         return function (fillForm) {
             if (saving || modal.hasClass('in')) {

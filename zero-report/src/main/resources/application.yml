@@ -1,32 +1,47 @@
 # Spring
+# Spring Boot 及相关组件的配置。
 spring:
+  # Spring 应用标识配置。
   application:
     # 应用名称
     name: zero-report
+  # 应用环境配置选择。
   profiles:
     # 默认环境，可通过启动参数 --spring.profiles.active=test/prod 覆盖
     active: dev
+  # Spring Cloud 服务发现、配置导入及调用设置。
   cloud:
+    # OpenFeign 客户端配置。
     openfeign:
+      # Feign 客户端公共设置。
       client:
+        # 按客户端名称指定请求设置。
         config:
+          # 所有 Feign 客户端共享的默认请求设置。
           default:
+            # Feign 建立连接的超时时间，单位毫秒。
             connectTimeout: 5000
+            # Feign 等待响应的读取超时时间，单位毫秒。
             readTimeout: 30000
+            # Feign 请求日志详细程度。
             loggerLevel: basic
 ---
 # Tomcat
+# 应用 HTTP 服务及内嵌容器配置。
 server:
   # 服务端口
   port: 9101
+  # Servlet 容器配置。
   servlet:
     # 应用访问路径
     context-path: /
+  # 内嵌 Tomcat 的连接、线程和运行目录配置。
   tomcat:
     # URI编码
     uri-encoding: UTF-8
     # 连接数满后的排队数量
     accept-count: 1000
+    # 处理 HTTP 请求的 Tomcat 工作线程配置。
     threads:
       # 最大工作线程数
       max: 800
@@ -35,9 +50,13 @@ server:
 ---
 # 日志配置
 logging:
+  # Logback 配置文件位置，classpath 路径从应用资源目录加载。
   config: classpath:logback-spring.xml
+  # 按日志分类设置最低输出级别。
   level:
+    # 应用根日志级别，未单独配置的日志分类继承此级别。
     root: INFO
+    # Spring 框架日志分类的最低输出级别。
     org.springframework: warn
 ---
 # MyBatis-Plus配置
@@ -46,27 +65,43 @@ mybatis-plus:
   mapper-locations: classpath*:mapper/**/*Mapper.xml
   # 实体类型别名扫描路径
   type-aliases-package: ${zero.package.type-aliases-package:com.zero.**.domain}
+  # MyBatis 底层配置。
   configuration:
+    # 自动将下划线列名映射到 Java 驼峰属性。
     map-underscore-to-camel-case: true
+  # MyBatis-Plus 全局默认行为。
   global-config:
+    # 控制是否输出 MyBatis-Plus 启动横幅。
     banner: false
+    # MyBatis-Plus 针对数据库的全局默认配置。
     db-config:
+      # 全局主键生成策略，auto 表示由数据库自增生成。
       id-type: auto
 ---
 # PageHelper分页插件
 pagehelper:
+  # 分页 SQL 所用的数据库方言。
   helperDialect: mysql
+  # 控制分页参数合理化，开启后修正超出范围的页码。
   reasonable: false
+  # 允许 PageHelper 从 Mapper 方法参数中提取分页参数。
   supportMethodsArguments: true
+  # PageHelper 分页参数名的映射规则。
   params: count=countSql
 ---
 # 监控端点配置
 management:
+  # Actuator 端点的整体访问和暴露规则。
   endpoints:
+    # Actuator 通过 HTTP 提供端点的配置。
     web:
+      # 指定哪些 Actuator 端点可以通过 HTTP 访问。
       exposure:
         # 向Boot Admin开放全部可用监控端点，部署时须限制访问来源
         include: "*"
+  # 各 Actuator 端点的行为配置。
   endpoint:
+    # Actuator 健康端点配置。
     health:
+      # 控制健康端点展示组件详情的条件，always 表示始终展示详情。
       show-details: always

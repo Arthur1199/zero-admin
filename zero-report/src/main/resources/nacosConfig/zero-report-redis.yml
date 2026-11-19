@@ -1,14 +1,35 @@
+# zero-report 和 zero-task 共用的 Redisson 配置模板。按服务 Data ID 发布到对应 Nacos 分组。
 spring:
+  # Spring Data 组件配置。
   data:
+    # Spring Redis 连接与客户端参数。
     redis:
+      # Redis 服务地址和端口，按当前部署环境填写。
       host: 127.0.0.1
+      # Redis 服务监听端口。
       port: 6379
+      # Redis 逻辑库编号。共享业务字典缓存时，两服务使用同一 Redis 实例和库编号。
       database: 1
-      password:
+      #password:
+      # Redis 命令响应超时时间。认证开启时填写有效密码，无密码时保持 password 项为注释。
       timeout: 10s
-      lettuce:
-        pool:
-          min-idle: 0
-          max-idle: 8
-          max-active: 8
-          max-wait: -1ms
+# Zero 项目自身的业务和基础设施配置。
+zero:
+  # 报表与任务服务共用的 Redisson 连接池参数。
+  redis:
+    # 以下参数按每个服务实例计算，适用于 Redisson 单节点普通命令连接池。
+    # Nacos 中修改并发布本配置后，重启对应服务 使连接池参数生效。
+
+    # 最小空闲连接数，范围为 0 到 connection-pool-size。
+    # 设为 0 时按需建立普通连接，连接持续空闲后可以全部回收。
+    # 设为 2 时，连接池初始化会预建 2 条普通连接，空闲回收时会保留这个下限。
+    # 两服务均开启了延迟初始化，预建连接发生在首次访问 Redis 时。
+    connection-minimum-idle-size: 0
+
+    # 普通连接池最大连接数，至少为 1，包含正在使用和空闲的普通连接。
+    # 设为 8 时，单个实例的普通连接池最多建立 8 条连接，订阅连接由独立连接池管理。
+    connection-pool-size: 8
+
+    # 示例一（本地开发或访问较少）：connection-minimum-idle-size 设为 0，connection-pool-size 设为 8。
+    # 示例二（希望减少空闲后首次请求的建连耗时）：connection-minimum-idle-size 设为 2，connection-pool-size 设为 8。
+    # 示例二部署 3 个实例时，普通连接池合计预建 6 条连接，普通连接数上限合计为 24 条。

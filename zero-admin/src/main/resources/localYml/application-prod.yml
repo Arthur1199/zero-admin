@@ -1,20 +1,31 @@
+# 管理后台本地配置模板，当前主配置未导入此文件。
 # 数据源配置
 spring:
+    # JDBC 数据源及连接池设置。
     datasource:
+        # 数据源实现类。
         type: com.alibaba.druid.pool.DruidDataSource
+        # 用于建立 JDBC 连接的驱动类。
         driverClassName: com.mysql.cj.jdbc.Driver
+        # Druid 数据源和 SQL 监控设置。
         druid:
             # 主库数据源
             master:
+                # 该数据源的 JDBC 连接地址。
                 url: jdbc:mysql://127.0.0.1:3306/ry-vue?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8
+                # 该数据源的数据库账号。
                 username: root
+                # 该数据源的数据库密码。
                 password: 8!4hFfBDr7*R<Js79tJnk:BX9ljN
             # 从库数据源
             slave:
                 # 从数据源开关/默认关闭
                 enabled: false
+                # 该数据源的 JDBC 连接地址。
                 url: 
+                # 该数据源的数据库账号。
                 username: 
+                # 该数据源的数据库密码。
                 password: 
             # 初始连接数
             initialSize: 5
@@ -36,26 +47,43 @@ spring:
             maxEvictableIdleTimeMillis: 900000
             # 配置检测连接是否有效
             validationQuery: SELECT 1 FROM DUAL
+            # 空闲连接是否参与定期可用性检查。
             testWhileIdle: true
+            # 借出连接前是否做可用性检查。
             testOnBorrow: false
+            # 归还连接时是否做可用性检查。
             testOnReturn: false
+            # Druid Web 请求与 JDBC 关联统计过滤器配置。
             webStatFilter: 
+                # 控制是否启用 Druid Web 请求统计。
                 enabled: true
+            # Druid 监控页面入口与访问设置。
             statViewServlet:
+                # 控制是否启用 Druid 监控页面。
                 enabled: true
                 # 设置白名单，不填则允许所有访问
                 allow:
+                # Druid 监控页面的 Servlet URL 匹配规则。
                 url-pattern: /druid/*
                 # 控制台管理用户名和密码
                 login-username: zero
+                # Druid 监控页面的登录密码。
                 login-password: 123456
+            # Druid 连接池过滤器和 SQL 检查配置。
             filter:
+                # SQL 统计过滤器配置。
                 stat:
+                    # 控制是否启用 Druid SQL 统计过滤器。
                     enabled: true
                     # 慢SQL记录
                     log-slow-sql: true
+                    # 判定慢 SQL 的耗时阈值，单位毫秒。
                     slow-sql-millis: 1000
+                    # 是否将结构相同的 SQL 归并后统计。
                     merge-sql: true
+                # Druid SQL 防火墙过滤器配置。
                 wall:
+                    # 配置 SQL 防火墙的检查规则。
                     config:
+                        # 是否允许在一次执行中提交多条 SQL。
                         multi-statement-allow: true

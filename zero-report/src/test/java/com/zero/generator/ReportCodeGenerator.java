@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.generator.FastAutoGenerator;
 import com.baomidou.mybatisplus.generator.config.OutputFile;
 import com.baomidou.mybatisplus.generator.config.rules.DateType;
 import com.baomidou.mybatisplus.generator.engine.VelocityTemplateEngine;
-import com.zero.base.BaseService;
+import com.zero.base.ReportBaseService;
 import com.zero.packageconfig.PackageProperties;
 
 import java.nio.file.Files;
@@ -112,7 +112,7 @@ public class ReportCodeGenerator
                             .enableBaseResultMap()
                             .enableBaseColumnList();
                     var serviceBuilder = builder.serviceBuilder()
-                            .superServiceImplClass(BaseService.class)
+                            .superServiceImplClass(ReportBaseService.class)
                             .formatServiceFileName("I%sService")
                             .formatServiceImplFileName("%sServiceImpl");
                     var controllerBuilder = builder.controllerBuilder()

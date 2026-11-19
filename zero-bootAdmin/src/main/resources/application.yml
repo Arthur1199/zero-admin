@@ -1,48 +1,78 @@
 #运行环境配置
 spring:
+  # 应用环境配置选择。
   profiles:
+    # 启用的 Spring Profile，决定加载哪些环境配置。
     active:
       - dev
 ---
 # Tomcat
+# 应用 HTTP 服务及内嵌容器配置。
 server:
+  # 应用 HTTP 监听端口。
   port: 9100
+  # 内嵌 Tomcat 的连接、线程和运行目录配置。
   tomcat:
+    # 内嵌 Tomcat 工作目录。
     basedir: /data/apps/temp
+    # 处理 HTTP 请求的 Tomcat 工作线程配置。
     threads:
       max : 500
+      # Tomcat 线程池保持的最少工作线程数。
       min-spare: 100
+    # Tomcat 同一时间最大连接数。
     max-connections: 3000
+    # Tomcat 连接数达到上限时，请求连接可以排队的数量。
     accept-count: 500
 ---
 #bootadmin配置信息
 spring:
+  # Spring 应用标识配置。
   application:
+    # Spring 应用名称，用于服务标识及相关配置。
     name: ${zero.boot-admin.application-name:zero-boot-admin}
 ---
 #监控设置
 management:
+  # Actuator 端点的整体访问和暴露规则。
   endpoints:
+    # Actuator 通过 HTTP 提供端点的配置。
     web:
+      # 指定哪些 Actuator 端点可以通过 HTTP 访问。
       exposure:
+        # 通过 HTTP 暴露的 Actuator 端点，星号匹配全部已启用且未排除的端点。
         include: "*"
+  # 各 Actuator 端点的行为配置。
   endpoint:
+    # Actuator 健康端点配置。
     health:
+      # 控制健康端点展示组件详情的条件，always 表示始终展示详情。
       show-details: always
+# Spring Boot 及相关组件的配置。
 spring:
+  # Spring Boot 扩展组件配置。
   boot:
+    # Spring Boot Admin 监控服务配置。
     admin:
+      # 监控服务访问受监控实例时的请求参数。
       monitor:
+        # 监控请求的默认超时时间，纯数字按毫秒处理，可写为 30s。
         default-timeout: 30000
+        # 监控请求失败后的默认重试次数。
         default-retries:  3
 ---
 # 登录安全设置
 spring:
+  # Spring Security 配置。
   security:
+    # Spring Security 默认用户设置。
     user:
+      # Spring Security 默认用户的登录名。
       name: admin
+      # Spring Security 默认用户的登录密码。
       password: ArthurFishMqewy43fhTAxpQayz
 ---
 #日志
 logging:
+  # Logback 配置文件位置，classpath 路径从应用资源目录加载。
   config: classpath:logback.xml

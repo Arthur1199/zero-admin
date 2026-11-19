@@ -1,58 +1,109 @@
 # Spring
+# Spring Boot 及相关组件的配置。
 spring:
+  # Spring 应用标识配置。
   application:
+    # Spring 应用名称，用于服务标识及相关配置。
     name: zero-file
+  # 应用环境配置选择。
   profiles:
+    # 启用的 Spring Profile，决定加载哪些环境配置。
     active: dev
+  # Spring Cloud 服务发现、配置导入及调用设置。
   cloud:
+    # OpenFeign 客户端配置。
     openfeign:
+      # Feign 客户端公共设置。
       client:
+        # 按客户端名称指定请求设置。
         config:
+          # 所有 Feign 客户端共享的默认请求设置。
           default:
+            # Feign 建立连接的超时时间，单位毫秒。
             connectTimeout: 5000
+            # Feign 等待响应的读取超时时间，单位毫秒。
             readTimeout: 30000
+            # Feign 请求日志详细程度。
             loggerLevel: basic
+  # Servlet 请求处理配置。
   servlet:
+    # Multipart 文件上传配置。
     multipart:
+      # 控制是否启用 Multipart 文件上传解析。
       enabled: true
+      # 单个上传文件的最大体积。
       max-file-size: 30MB
+      # 一次 Multipart 请求的总大小上限。
       max-request-size: 300MB
+      # 是否在首次访问上传文件或参数时再解析 Multipart 请求。
       resolve-lazily: true
 ---
+# 应用 HTTP 服务及内嵌容器配置。
 server:
+  # 应用 HTTP 监听端口。
   port: 9103
+  # Servlet 容器配置。
   servlet:
+    # 部署应用时使用的 URL 上下文路径。
     context-path: /
+  # 内嵌 Tomcat 的连接、线程和运行目录配置。
   tomcat:
+    # 解析请求 URI 时使用的字符编码。
     uri-encoding: UTF-8
+    # Tomcat 连接数达到上限时，请求连接可以排队的数量。
     accept-count: 500
+    # Tomcat 同一时间最大连接数。
     max-connections: 3000
+    # 处理 HTTP 请求的 Tomcat 工作线程配置。
     threads:
+      # Tomcat 请求处理线程数上限。
       max: 500
+      # Tomcat 线程池保持的最少工作线程数。
       min-spare: 100
 ---
+# 应用日志配置。
 logging:
+  # Logback 配置文件位置，classpath 路径从应用资源目录加载。
   config: classpath:logback-spring.xml
+  # 按日志分类设置最低输出级别。
   level:
+    # 应用根日志级别，未单独配置的日志分类继承此级别。
     root: INFO
+    # Spring 框架日志分类的最低输出级别。
     org.springframework: warn
 ---
+# MyBatis-Plus Mapper 和全局配置。
 mybatis-plus:
+  # Mapper XML 的类路径扫描规则，匹配范围由通配符确定。
   mapper-locations: classpath*:mapper/**/*Mapper.xml
+  # 扫描实体类型别名的 Java 包路径。
   type-aliases-package: ${zero.package.type-aliases-package:com.zero.**.domain}
+  # MyBatis 底层配置。
   configuration:
+    # 自动将下划线列名映射到 Java 驼峰属性。
     map-underscore-to-camel-case: true
+  # MyBatis-Plus 全局默认行为。
   global-config:
+    # 控制是否输出 MyBatis-Plus 启动横幅。
     banner: false
+    # MyBatis-Plus 针对数据库的全局默认配置。
     db-config:
+      # 全局主键生成策略，auto 表示由数据库自增生成。
       id-type: auto
 ---
+# Spring Boot Actuator 管理和监控配置。
 management:
+  # Actuator 端点的整体访问和暴露规则。
   endpoints:
+    # Actuator 通过 HTTP 提供端点的配置。
     web:
+      # 指定哪些 Actuator 端点可以通过 HTTP 访问。
       exposure:
         # 向Boot Admin开放全部可用监控端点，部署时须限制访问来源
         include: "*"
+  # 各 Actuator 端点的行为配置。
   endpoint:
+    # Actuator 健康端点配置。
     health:
+      # 控制健康端点展示组件详情的条件，always 表示始终展示详情。
       show-details: always
