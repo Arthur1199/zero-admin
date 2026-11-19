@@ -25,4 +25,25 @@
         id, group_id, item_code, item_name, item_value, extra_json, item_sort, status, del_flag, remark, create_by, create_time, update_by, update_time
     </sql>
 
+    <!-- 分组与字典项同时满足启用和未删除条件。 -->
+    <sql id="Active_Items_By_Group">
+        SELECT i.id, i.group_id, i.item_code, i.item_name, i.item_value, i.extra_json, i.item_sort,
+               i.status, i.del_flag, i.remark, i.create_by, i.create_time, i.update_by, i.update_time
+        FROM biz_dict_group g
+        INNER JOIN biz_dict_item i ON i.group_id = g.id
+        WHERE g.group_code = #{groupCode}
+          AND g.status = '1' AND g.del_flag = '0'
+          AND i.status = '1' AND i.del_flag = '0'
+    </sql>
+
+    <select id="selectActiveByCodes" resultMap="BaseResultMap">
+        <include refid="Active_Items_By_Group"/>
+        AND i.item_code = #{itemCode}
+    </select>
+
+    <select id="selectActiveByGroupCode" resultMap="BaseResultMap">
+        <include refid="Active_Items_By_Group"/>
+        ORDER BY i.item_sort ASC, i.id ASC
+    </select>
+
 </mapper>

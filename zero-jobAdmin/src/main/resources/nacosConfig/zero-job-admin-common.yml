@@ -1,28 +1,51 @@
 # 邮件和调度参数统一在Nacos维护，发布到对应namespace及dev/test/prod分组。
 # 修改后重启服务生效；邮件凭据按环境填写，不提交真实凭据。
 spring:
+  # SMTP 邮件连接及发信配置。
   mail:
     # 保留JavaMailSender实例供官方告警组件注入；未配置有效邮件服务时不具备发信能力。
     host: localhost
+    # SMTP 服务端口。
     port: 25
+    # SMTP 登录账号。
     username: ''
+    # SMTP 登录密码或邮件服务授权码。
     password: ''
+    # 应用使用的邮件发件人配置。
     from: ''
+    # 传给 JavaMail 的附加属性。
     properties:
+      # SMTP 协议相关属性。
       mail.smtp:
+        # 是否要求 SMTP 登录认证。
         auth: true
+        # SMTP STARTTLS 配置。
         starttls:
+          # 支持 STARTTLS 时升级为加密传输。
           enable: true
+          # 要求服务器支持 STARTTLS，否则发信失败。
           required: true
+        # 建立 SMTP 连接的超时时间，单位毫秒。
         connectiontimeout: 5000
+        # 读取 SMTP 响应的超时时间，单位毫秒。
         timeout: 5000
+        # 写入 SMTP 请求的超时时间，单位毫秒。
         writetimeout: 5000
+# XXL-JOB 相关配置。
 xxl:
+  # XXL-JOB 调度中心或执行器业务配置。
   job:
+    # 调度中心调用执行器 HTTP 接口的超时时间，单位秒。
     timeout: 3
+    # 调度中心控制台的语言标识。
     i18n: zh_CN
+    # 调度触发线程池配置。
     triggerpool:
+      # 调度中心快速触发线程池的最大线程数。
       fast.max: 300
+      # 调度中心慢任务触发线程池的最大线程数。
       slow.max: 200
+    # 调度中心单次预读任务批次的大小。
     schedule.batchsize: 100
+    # 调度中心数据库中调度日志的保留天数。
     logretentiondays: 30

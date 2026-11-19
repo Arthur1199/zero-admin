@@ -61,6 +61,7 @@
     <!-- Spring日志级别控制，减少框架噪音日志 -->
     <logger name="org.springframework" level="warn"/>
 
+    <!-- 未单独配置的日志分类继承根日志级别，并输出到此处引用的目标。 -->
     <root level="info">
         <appender-ref ref="console"/>
         <appender-ref ref="file_info"/>

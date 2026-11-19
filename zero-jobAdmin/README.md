@@ -15,7 +15,7 @@ ZERO-JOB 是由 **Arthur** 维护的任务调度中心，当前项目版本为 *
 
 ## 初始化与启动
 
-1. 经数据库管理员确认后，在独立测试环境执行仓库的 `sql/zero_job.sql`。脚本包含建库、建表和官方初始数据，仅用于首次初始化，不能作为已有数据库升级脚本重复执行。应用不会自动执行 SQL。
+1. 经数据库管理员确认后，在独立测试环境执行仓库的 `sql/zero_job.sql`。每次执行都会删除并重建调度表，重新写入初始数据。新环境初始化或明确需要重置测试库时才执行，应用启动时不会执行该脚本。
 2. 初始化脚本保留官方示例账号、密码摘要和示例执行器配置。首次登录后修改密码；执行器管理中设置自己的 AccessToken，配置实际执行器地址，不使用官方示例凭据或示例任务进行生产调度。源码中的初始账号信息不应继续对外传播。
 3. 按下表在 YAML 中直接填写运行配置，数据库、邮件及 Nacos 账号密码暂留空。真实凭据不要提交到仓库或输出到日志。
 4. 如使用配置中心，将 `src/main/resources/nacosConfig/` 的两个 YAML 文件分别发布到对应 namespace 和配置分组。文件名即 Data ID；仅将文件保存在源码目录中不会自动发布。
@@ -45,6 +45,8 @@ java -jar zero-jobAdmin/target/zero-jobAdmin-1.0.0.jar
 | 环境文件的 `spring.config.import` | 两个Data ID的group使用 `${spring.profiles.active}`，与zero-admin一致 |
 
 namespace为空表示公共空间；需要和其它服务注册在同一空间时填写相同的namespace ID。配置导入的Data ID为 `zero-job-admin-mysql.yml` 和 `zero-job-admin-common.yml`。Nacos可覆盖本地值，启动参数可进一步覆盖。
+
+`spring.config.import` 使用 `optional:`，允许配置资源缺失。正常启动调度中心仍需可用的数据源和 `xxl.job` 参数。三个环境的 `spring.cloud.nacos.config.refresh-enabled` 均为 `false`，修改并发布后重启对应实例。
 
 数据库连接及Hikari参数仅在 `nacosConfig/zero-job-admin-mysql.yml` 定义，直接填写配置值，不使用占位符；须发布到Nacos才能加载，`application.yml` 不保留本地数据源兜底。邮件完整配置（包含SMTP认证、TLS和超时）以及 `xxl.job` 调度参数仅在 `nacosConfig/zero-job-admin-common.yml` 定义，直接填写配置值，不使用占位符；`application.yml` 不再重复定义，须发布到Nacos后加载。官方调度参数在启动时初始化，修改后统一重启生效。
 

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- 每 60 秒检查日志配置文件是否变化，关闭 Logback 内部调试输出。 -->
 <configuration scan="true" scanPeriod="60 seconds" debug="false">
+	<!-- 当前 Logback 上下文的名称。 -->
 	<contextName>logback</contextName>
 	<!--输出到控制台 -->
 	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">
@@ -11,8 +13,11 @@
 	<!--按天生成日志 -->
 	<appender name="logFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<!-- 按日期目录与滚动序号归档。未配置日志目录时使用 logs/zero-boot-admin。 -->
 			<FileNamePattern>${zero.boot-admin.log-path:-logs/zero-boot-admin}/%d{yyyy-MM-dd}/%d{yyyy-MM-dd}.%i.log </FileNamePattern>
+			<!-- 单份日志文件达到此大小后滚动。 -->
 			<maxFileSize>200MB</maxFileSize>
+			<!-- 按天滚动时保留的归档天数。 -->
 			<maxHistory>100</maxHistory>
 		</rollingPolicy>
 		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -20,8 +25,10 @@
 		</encoder>
 	</appender>
 
+	<!-- 业务包的最低日志级别。 -->
 	<logger name="${zero.package.base-package:-com.zero}" level="info" />
 
+	<!-- 未单独配置的日志分类继承根日志级别，并输出到此处引用的目标。 -->
 	<root level="info">
 		<appender-ref ref="console" />
 		<appender-ref ref="logFile" />

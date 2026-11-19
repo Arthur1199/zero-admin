@@ -1,8 +1,7 @@
 package com.zero;
 
 import com.zero.packageconfig.PackageProperties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -19,16 +18,12 @@ import java.util.TimeZone;
  * 时间: 2026/5/16 13:19
  * 说明: 零号报表服务启动入口，后续报表查询、统计和导出能力从该模块扩展
  */
+@Slf4j
 @EnableDiscoveryClient
 @EnableFeignClients(basePackages = PackageProperties.FEIGN_CLIENTS_BASE_PACKAGES)
 @MapperScan(PackageProperties.MAPPER_SCAN)
 @SpringBootApplication(scanBasePackages = PackageProperties.SCAN_BASE_PACKAGES)
 public class ZeroReportApplication {
-
-    /**
-     * logger字段
-     */
-    private static final Logger logger = LoggerFactory.getLogger(ZeroReportApplication.class);
 
     /**
      *
@@ -44,7 +39,7 @@ public class ZeroReportApplication {
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"));
         PackageProperties.applySystemProperties();
         ConfigurableApplicationContext context = SpringApplication.run(ZeroReportApplication.class, args);
-        logger.info("\n" +
+        log.info("\n" +
                 "  ______  ______  _____    ____  \n" +
                 " |___  / |  ____| |  __ \\  / __ \\ \n" +
                 "    / /  | |__    | |__) || |  | |\n" +
@@ -53,6 +48,6 @@ public class ZeroReportApplication {
                 " /_____| |______| |_|  \\_\\ \\____/ \n" +
                 " 启动成功  ");
         String[] property = context.getEnvironment().getActiveProfiles();
-        logger.info("当前应用启动环境："+ Arrays.asList(property).toString());
+        log.info("当前应用启动环境："+ Arrays.asList(property).toString());
     }
 }

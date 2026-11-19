@@ -22,6 +22,24 @@
 		#registryStatus {
 			margin: 8px 0 0;
 		}
+		.access-token-field {
+			display: flex;
+			align-items: flex-start;
+			gap: 8px;
+		}
+		.access-token-input {
+			flex: 1;
+			min-width: 0;
+		}
+		.access-token-cell {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 8px;
+		}
+		.access-token-value {
+			overflow-wrap: anywhere;
+		}
 	</style>
 	<!-- 1-style end -->
 
@@ -132,8 +150,15 @@
 								</div>
 							</div>
 							<div class="form-group">
-								<label for="lastname" class="col-sm-2 control-label">AccessToken<font color="red">*</font></label>
-								<div class="col-sm-9"><input type="text" class="form-control" name="accessToken" placeholder="${I18n.system_please_input}AccessToken" maxlength="50" ></div>
+								<label for="addAccessToken" class="col-sm-2 control-label">AccessToken<font color="red">*</font></label>
+								<div class="col-sm-9">
+									<div class="access-token-field">
+										<div class="access-token-input">
+											<input type="text" class="form-control" id="addAccessToken" name="accessToken" placeholder="${I18n.system_please_input}AccessToken" maxlength="50">
+										</div>
+										<button type="button" class="btn btn-default generate-access-token">${I18n.jobgroup_access_token_generate}</button>
+									</div>
+								</div>
 							</div>
 							<hr>
 							<div class="form-group">
@@ -180,8 +205,15 @@
 								</div>
 							</div>
 							<div class="form-group">
-								<label for="lastname" class="col-sm-2 control-label">AccessToken<font color="red">*</font></label>
-								<div class="col-sm-9"><input type="text" class="form-control" name="accessToken" placeholder="${I18n.system_please_input}AccessToken" maxlength="50" ></div>
+								<label for="updateAccessToken" class="col-sm-2 control-label">AccessToken<font color="red">*</font></label>
+								<div class="col-sm-9">
+									<div class="access-token-field">
+										<div class="access-token-input">
+											<input type="text" class="form-control" id="updateAccessToken" name="accessToken" placeholder="${I18n.system_please_input}AccessToken" maxlength="50">
+										</div>
+										<button type="button" class="btn btn-default generate-access-token">${I18n.jobgroup_access_token_generate}</button>
+									</div>
+								</div>
 							</div>
 							<hr>
 							<div class="form-group">
@@ -211,6 +243,9 @@
 <script src="${request.contextPath}/static/framework/admin.table.js"></script>
 <script>
 	$(function() {
+
+		var savedAccessToken = '';
+		var confirmedGeneratedAccessToken = null;
 
 		/**
 		 * init table
@@ -253,7 +288,18 @@
 					escape: true,
 					width: '20',
 					widthUnit: '%',
-					align: 'left'
+					align: 'left',
+					formatter: function(value, row) {
+						if (!row.accessToken) {
+							return I18n.system_empty;
+						}
+						return $('<div>', {class: 'access-token-cell'})
+							.append($('<span>', {class: 'access-token-value'}).text(row.accessToken))
+							.append($('<button>', {type: 'button', class: 'btn btn-default btn-xs copy-access-token'})
+								.text(I18n.system_opt_copy))
+							.prop('outerHTML');
+					},
+					events: {'click .copy-access-token': copyAccessToken}
 				},{
 					title: I18n.jobgroup_field_addressType,
 					field: 'addressType',
@@ -285,6 +331,35 @@
 				}
 			]
 		});
+
+		async function copyAccessToken(event, value, row) {
+			event.stopPropagation();
+			var tokenText = event.currentTarget.previousElementSibling;
+			try {
+				await navigator.clipboard.writeText(row.accessToken);
+			} catch (_) {
+				if (!tokenText.isConnected) {
+					return;
+				}
+				var selection = window.getSelection();
+				var range = document.createRange();
+				range.selectNodeContents(tokenText);
+				selection.removeAllRanges();
+				selection.addRange(range);
+				var copied = false;
+				try {
+					copied = document.execCommand('copy');
+				} catch (_) {
+					// 剪贴板权限受限时保留选区，可直接手动复制。
+				}
+				if (!copied) {
+					layer.msg(I18n.jobgroup_access_token_copy_manual);
+					return;
+				}
+				selection.removeAllRanges();
+			}
+			layer.msg(I18n.system_opt_copy + ' ' + I18n.system_success);
+		}
 
 		var registryModal = $('#showRegistryListModal');
 		var registryAddresses = $('#registryAddresses');
@@ -377,6 +452,37 @@
 			var valid = /^[a-z][a-z0-9_]*$/;
 			return this.optional(element) || valid.test(value);
 		}, I18n.jobgroup_field_accesstoken_limit );
+
+		$('.generate-access-token').on('click', function () {
+			if (!window.crypto || typeof window.crypto.getRandomValues !== 'function') {
+				layer.msg(I18n.jobgroup_access_token_generate_unavailable);
+				return;
+			}
+			var input = $(this).closest('form').find('input[name=accessToken]');
+			if (input.data('hasSavedToken')) {
+				layer.confirm(I18n.jobgroup_access_token_replace_confirm, {
+					icon: 3,
+					title: I18n.system_tips,
+					btn: [I18n.system_ok, I18n.system_cancel]
+				}, function (index) {
+					layer.close(index);
+					fillGeneratedAccessToken(input);
+					confirmedGeneratedAccessToken = input.val();
+				});
+				return;
+			}
+			fillGeneratedAccessToken(input);
+		});
+
+		function fillGeneratedAccessToken(input) {
+			// 24 字节随机数转为 48 位十六进制，固定字母前缀满足现有格式校验。
+			var randomBytes = window.crypto.getRandomValues(new Uint8Array(24));
+			var token = 't' + Array.from(randomBytes, function (byte) {
+				return byte.toString(16).padStart(2, '0');
+			}).join('');
+			input.val(token).valid();
+		}
+
 		$.adminTable.initAdd( {
 			url: base_url + "/jobgroup/insert",
 			rules : {
@@ -444,9 +550,20 @@
 					.prop('checked', true).trigger('change');
 				// 机器地址
 				$("#updateModal .form textarea[name='addressList']").val( row.addressList );
-				// accessToken
-				$("#updateModal .form input[name='accessToken']").val( row.accessToken );
+				// 根据已保存的凭据判断是否提示，即使输入框暂时被清空也要确认。
+				savedAccessToken = row.accessToken || '';
+				confirmedGeneratedAccessToken = null;
+				$('#updateAccessToken').val(savedAccessToken).data('hasSavedToken', savedAccessToken.trim() !== '');
 
+			},
+			getSaveConfirmation: function(data) {
+				var submittedToken = data.find(function(field) {
+					return field.name === 'accessToken';
+				})?.value;
+				if (savedAccessToken.trim() && submittedToken !== undefined
+						&& submittedToken !== savedAccessToken && submittedToken !== confirmedGeneratedAccessToken) {
+					return I18n.jobgroup_access_token_save_confirm;
+				}
 			},
 			rules : {
 				name : {

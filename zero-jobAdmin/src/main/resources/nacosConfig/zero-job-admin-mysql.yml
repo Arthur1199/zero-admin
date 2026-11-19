@@ -1,19 +1,35 @@
 # 数据源统一在Nacos维护，发布到对应namespace及dev/test/prod分组。
 # 账号密码按实际环境填写，不提交真实凭据。
 spring:
+  # JDBC 数据源及连接池设置。
   datasource:
+    # 数据源实现类。
     type: com.zaxxer.hikari.HikariDataSource
+    # 用于建立 JDBC 连接的驱动类。
     driver-class-name: com.mysql.cj.jdbc.Driver
+    # 数据库连接使用的 JDBC URL。
     url: jdbc:mysql://127.0.0.1:3306/zero_job?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    # 数据源连接所用的数据库账号。
     username: root
+    # 数据源连接所用的数据库密码。
     password: 8!4hFfBDr7*R<Js79tJnk:BX9ljN
+    # HikariCP 连接池参数。
     hikari:
+      # HikariCP 目标最小空闲连接数。
       minimum-idle: 10
+      # HikariCP 最大连接数，包含空闲和在用连接。
       maximum-pool-size: 30
+      # 控制 JDBC 连接是否默认自动提交，显式事务仍按事务管理器的设置执行。
       auto-commit: true
+      # HikariCP 空闲连接的回收时间，单位毫秒。
       idle-timeout: 30000
+      # 日志和监控中使用的 HikariCP 连接池名称。
       pool-name: ZeroJobHikariCP
+      # HikariCP 连接最长使用时间，单位毫秒。
       max-lifetime: 900000
+      # 从 HikariCP 借用连接的等待上限，单位毫秒。
       connection-timeout: 10000
+      # HikariCP 验证连接可用性时执行的 SQL。
       connection-test-query: SELECT 1
+      # HikariCP 验证连接的最长等待时间，单位毫秒。
       validation-timeout: 1000

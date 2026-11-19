@@ -2,12 +2,13 @@ package com.zero.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.zero.base.BaseService;
+import com.zero.base.ReportBaseService;
 import com.zero.domain.DictGroup;
 import com.zero.domain.DictItem;
 import com.zero.queryDto.DictItemQuery;
 import com.zero.mapper.DictGroupMapper;
 import com.zero.mapper.DictItemMapper;
+import com.zero.service.BizDictLookup;
 import com.zero.service.IDictItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ import java.util.Objects;
  * 说明: 业务字典项服务实现，负责 biz_dict_item 的分页查询、组内唯一性校验、审计字段维护、软删除和恢复控制
  */
 @Service
-public class DictItemServiceImpl extends BaseService<DictItemMapper, DictItem> implements IDictItemService
+public class DictItemServiceImpl extends ReportBaseService<DictItemMapper, DictItem> implements IDictItemService
 {
     /**
      * 正常状态：1
@@ -41,6 +42,10 @@ public class DictItemServiceImpl extends BaseService<DictItemMapper, DictItem> i
      * 已删除标志：1
      */
     private static final String DEL_FLAG_DELETE = "1";
+
+    /** 写入成功后统一刷新业务字典查询缓存。 */
+    @Autowired
+    private BizDictLookup bizDictLookup;
 
     /**
      * 字典组数据访问，用于校验字典项所属分组是否存在且未删除
@@ -101,8 +106,8 @@ public class DictItemServiceImpl extends BaseService<DictItemMapper, DictItem> i
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/6/28 04:35
-     * 说明: 新增业务字典项，写入前校验字典组存在、编码和值在组内唯一，并补齐审计字段
+     * 时间: 2026/11/19 15:28
+     * 说明: 新增业务字典项，写入前校验字典组存在、编码和值在组内唯一，并补齐审计字段。写入成功后使业务字典查询缓存失效。
      * @param dictItem 字典项信息
      * @return
      * 返回值: boolean
@@ -126,14 +131,14 @@ public class DictItemServiceImpl extends BaseService<DictItemMapper, DictItem> i
         }
         dictItem.setCreateBy(getAdminName());
         dictItem.setCreateTime(new Date());
-        return save(dictItem);
+        return bizDictLookup.invalidateAfterWrite(save(dictItem));
     }
 
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/6/28 04:35
-     * 说明: 修改业务字典项，写入前校验记录存在、字典组存在、编码和值在组内唯一，并补齐审计字段
+     * 时间: 2026/11/19 15:28
+     * 说明: 修改业务字典项，写入前校验记录存在、字典组存在、编码和值在组内唯一，并补齐审计字段。写入成功后使业务字典查询缓存失效。
      * @param dictItem 字典项信息
      * @return
      * 返回值: boolean
@@ -157,14 +162,14 @@ public class DictItemServiceImpl extends BaseService<DictItemMapper, DictItem> i
         dictItem.setDelFlag(DEL_FLAG_NORMAL);
         dictItem.setUpdateBy(getAdminName());
         dictItem.setUpdateTime(new Date());
-        return updateById(dictItem);
+        return bizDictLookup.invalidateAfterWrite(updateById(dictItem));
     }
 
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/6/28 04:35
-     * 说明: 批量软删除业务字典项，删除后仍可在业务参数设置页面查看并恢复
+     * 时间: 2026/11/19 15:28
+     * 说明: 批量软删除业务字典项，删除后仍可在业务参数设置页面查看并恢复。写入成功后使业务字典查询缓存失效。
      * @param ids 字典项ID集合
      * @return
      * 返回值: boolean
@@ -174,19 +179,19 @@ public class DictItemServiceImpl extends BaseService<DictItemMapper, DictItem> i
     public boolean deleteItemByIds(Long[] ids)
     {
         List<Long> idList = parseIds(ids, "请选择要删除的字典项");
-        return lambdaUpdate().in(DictItem::getId, idList)
+        return bizDictLookup.invalidateAfterWrite(lambdaUpdate().in(DictItem::getId, idList)
                 .eq(DictItem::getDelFlag, DEL_FLAG_NORMAL)
                 .set(DictItem::getDelFlag, DEL_FLAG_DELETE)
                 .set(DictItem::getUpdateBy, getAdminName())
                 .set(DictItem::getUpdateTime, new Date())
-                .update();
+                .update());
     }
 
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/6/28 06:42
-     * 说明: 批量恢复已软删除的业务字典项，恢复前校验所属字典组已经恢复，避免明细挂到删除分组下
+     * 时间: 2026/11/19 15:28
+     * 说明: 批量恢复已软删除的业务字典项，恢复前校验所属字典组已经恢复，避免明细挂到删除分组下。写入成功后使业务字典查询缓存失效。
      * @param ids 字典项ID集合
      * @return
      * 返回值: boolean
@@ -219,12 +224,12 @@ public class DictItemServiceImpl extends BaseService<DictItemMapper, DictItem> i
         {
             throw new IllegalArgumentException("所属字典组不存在或已删除，请先恢复字典组");
         }
-        return lambdaUpdate().in(DictItem::getId, idList)
+        return bizDictLookup.invalidateAfterWrite(lambdaUpdate().in(DictItem::getId, idList)
                 .eq(DictItem::getDelFlag, DEL_FLAG_DELETE)
                 .set(DictItem::getDelFlag, DEL_FLAG_NORMAL)
                 .set(DictItem::getUpdateBy, getAdminName())
                 .set(DictItem::getUpdateTime, new Date())
-                .update();
+                .update());
     }
 
     /**

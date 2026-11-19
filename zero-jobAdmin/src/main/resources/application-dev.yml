@@ -1,23 +1,44 @@
+# Spring Boot 及相关组件的配置。
 spring:
+  # Spring Boot 配置加载设置。
   config:
+    # 启动时导入的配置资源，optional 允许对应资源不存在。
     import:
+      # 导入 JDBC 数据源和连接池配置。
       - optional:nacos:zero-job-admin-mysql.yml?group=${spring.profiles.active}&refreshEnabled=false
+      # 导入调度中心业务和邮件参数。
       - optional:nacos:zero-job-admin-common.yml?group=${spring.profiles.active}&refreshEnabled=false
+  # Spring Cloud 服务发现、配置导入及调用设置。
   cloud:
+    # Nacos 注册发现和配置中心参数。
     nacos:
+      # Nacos 实例注册和服务发现配置。
       discovery:
+        # Nacos 服务发现地址。
         server-addr: 127.0.0.1:8848
+        # Nacos 服务注册和发现所用的命名空间 ID。
         namespace: d2785810-7346-4859-bcfa-f3bf929a628f
+        # 注册及发现服务时使用的 Nacos 认证账号。
         username: nacos
+        # 注册及发现服务时使用的 Nacos 认证密码。
         password: nacos
+        # 控制是否启用 Nacos 服务发现。
         enabled: true
+        # 控制注册为临时还是持久实例，临时实例随连接或心跳状态管理。
         ephemeral: true
+      # Nacos 配置中心连接与配置加载设置。
       config:
+        # Nacos 配置中心地址。
         server-addr: 127.0.0.1:8848
+        # Nacos 配置中心的命名空间 ID。
         namespace: d2785810-7346-4859-bcfa-f3bf929a628f
+        # 访问 Nacos 配置中心的认证账号。
         username: nacos
+        # 访问 Nacos 配置中心的认证密码。
         password: nacos
+        # 控制是否启用 Nacos 配置中心。
         enabled: true
+        # Nacos 配置文件的默认扩展名。
         file-extension: yml
         # 官方调度组件在启动时读取参数，修改后需重启，避免宣称支持动态重配。
         refresh-enabled: false

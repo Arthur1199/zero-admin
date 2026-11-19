@@ -1,23 +1,35 @@
 ﻿---
 #跨域配置
 spring:
+  # Spring Boot 扩展组件配置。
   boot:
+    # Spring Boot Admin 监控服务配置。
     admin:
+      # Spring Boot Admin 页面配置。
       ui:
+        # 外部访问监控页面的基础地址，反向代理部署时按实际入口填写。
         public-url: https://dev-coin-admin.test100.me/
 ---
 #nacos配置
 spring:
+  # Spring Boot 开发工具配置。
   devtools:
+    # 开发期应用自动重启配置。
     restart:
       # 热部署开关
       enabled: false
+  # Spring Cloud 服务发现、配置导入及调用设置。
   cloud:
     nacos: #注册中心
+      # Nacos 实例注册和服务发现配置。
       discovery:
+        # Nacos 服务发现地址。
         server-addr: 127.0.0.1:8848
+        # Nacos 服务注册和发现所用的命名空间 ID。
         namespace: d2785810-7346-4859-bcfa-f3bf929a628f
+        # 注册及发现服务时使用的 Nacos 认证账号。
         username: nacos
+        # 注册及发现服务时使用的 Nacos 认证密码。
         password: nacos
         enabled: true #是否启用服务发现，默认为true
         ephemeral: true # 是否临时实例

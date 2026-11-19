@@ -1,14 +1,28 @@
+# Spring Boot 及相关组件的配置。
 spring:
+  # Spring Data 组件配置。
   data:
+    # Spring Redis 连接与客户端参数。
     redis:
+      # Redis 服务主机地址。
       host: 127.0.0.1
+      # Redis 服务监听端口。
       port: 6379
+      # Redis 逻辑库编号。
       database: 0
+      # 连接 Redis 的认证密码，无密码服务省略此属性。
       password:
+      # Redis 命令响应超时时间。
       timeout: 10s
+      # Lettuce Redis 客户端配置。
       lettuce:
+        # Lettuce 普通连接池配置。
         pool:
+          # Lettuce 连接池目标最小空闲连接数。
           min-idle: 0
+          # Lettuce 连接池允许保留的最大空闲连接数。
           max-idle: 8
+          # Lettuce 连接池最大活跃连接数。
           max-active: 8
+          # 连接池耗尽时借用连接的最长等待时间，负值表示不限时。
           max-wait: -1ms

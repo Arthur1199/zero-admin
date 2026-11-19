@@ -27,6 +27,7 @@
         <module>zero-report</module>
         <module>zero-file</module>
         <module>zero-jobAdmin</module>
+        <module>zero-task</module>
     </modules>
 
     <properties>

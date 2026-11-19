@@ -15,6 +15,10 @@
     <packaging>jar</packaging>
     <description>零号报表服务</description>
 
+    <properties>
+        <report.redisson.version>4.6.1</report.redisson.version>
+    </properties>
+
     <dependencies>
         <!-- 报表服务基础工具包，跨服务常量、统一返回对象和通用工具从该模块复用 -->
         <dependency>
@@ -59,16 +63,26 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-        <!-- Redis 缓存能力，后续报表配置、统计结果缓存和幂等控制可复用 -->
+        <!-- Redis 统一使用 Redisson。Boot 3.5 使用 Spring Data Redis 3.5 适配模块。 -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson-spring-boot-starter</artifactId>
+            <version>${report.redisson.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.redisson</groupId>
+                    <artifactId>redisson-spring-data-41</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.lettuce</groupId>
+                    <artifactId>lettuce-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-
-        <!-- Redis 连接池，由 Spring Boot 统一管理版本 -->
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-pool2</artifactId>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson-spring-data-35</artifactId>
+            <version>${report.redisson.version}</version>
         </dependency>
 
         <!-- MySQL 官方驱动，版本由父工程统一管理 -->
@@ -120,6 +134,16 @@
         <dependency>
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity-engine-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
         <!-- SpringBoot Web 容器，后续报表查询接口从该模块提供 -->

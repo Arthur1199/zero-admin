@@ -2,11 +2,14 @@ package com.zero.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.zero.base.BaseService;
+import com.zero.base.ReportBaseService;
 import com.zero.domain.DictGroup;
-import com.zero.queryDto.DictGroupQuery;
 import com.zero.mapper.DictGroupMapper;
+import com.zero.queryDto.DictGroupQuery;
+import com.zero.service.BizDictLookup;
 import com.zero.service.IDictGroupService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -20,8 +23,9 @@ import java.util.List;
  * 时间: 2026/6/28 04:34
  * 说明: 业务字典组服务实现，负责 biz_dict_group 的分页查询、唯一性校验、审计字段维护、软删除和恢复控制
  */
+@Slf4j
 @Service
-public class DictGroupServiceImpl extends BaseService<DictGroupMapper, DictGroup> implements IDictGroupService
+public class DictGroupServiceImpl extends ReportBaseService<DictGroupMapper, DictGroup> implements IDictGroupService
 {
     /**
      * 正常状态：1
@@ -37,6 +41,10 @@ public class DictGroupServiceImpl extends BaseService<DictGroupMapper, DictGroup
      * 已删除标志：1
      */
     private static final String DEL_FLAG_DELETE = "1";
+
+    /** 写入成功后统一刷新业务字典查询缓存。 */
+    @Autowired
+    private BizDictLookup bizDictLookup;
 
     /**
      *
@@ -63,6 +71,7 @@ public class DictGroupServiceImpl extends BaseService<DictGroupMapper, DictGroup
                 .lt(safeQuery.hasEndTime(), DictGroup::getCreateTime, safeQuery.getEndExclusiveDateTime())
                 .orderByDesc(DictGroup::getCreateTime)
                 .orderByAsc(DictGroup::getId);
+        log.info("查询数据字典分组分页数据成功!");
         return page(safeQuery.toPage(), wrapper);
     }
 
@@ -108,8 +117,8 @@ public class DictGroupServiceImpl extends BaseService<DictGroupMapper, DictGroup
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/6/28 04:34
-     * 说明: 新增业务字典组，写入前校验编码唯一并补齐默认状态、删除标志和创建审计字段
+     * 时间: 2026/11/19 15:28
+     * 说明: 新增业务字典组，写入前校验编码唯一并补齐默认状态、删除标志和创建审计字段。写入成功后使业务字典查询缓存失效。
      * @param dictGroup 字典组信息
      * @return
      * 返回值: boolean
@@ -128,14 +137,14 @@ public class DictGroupServiceImpl extends BaseService<DictGroupMapper, DictGroup
         }
         dictGroup.setCreateBy(getAdminName());
         dictGroup.setCreateTime(new Date());
-        return save(dictGroup);
+        return bizDictLookup.invalidateAfterWrite(save(dictGroup));
     }
 
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/6/28 04:34
-     * 说明: 修改业务字典组，写入前校验记录存在和编码唯一并补齐更新审计字段
+     * 时间: 2026/11/19 15:28
+     * 说明: 修改业务字典组，写入前校验记录存在和编码唯一并补齐更新审计字段。写入成功后使业务字典查询缓存失效。
      * @param dictGroup 字典组信息
      * @return
      * 返回值: boolean
@@ -158,14 +167,14 @@ public class DictGroupServiceImpl extends BaseService<DictGroupMapper, DictGroup
         dictGroup.setDelFlag(DEL_FLAG_NORMAL);
         dictGroup.setUpdateBy(getAdminName());
         dictGroup.setUpdateTime(new Date());
-        return updateById(dictGroup);
+        return bizDictLookup.invalidateAfterWrite(updateById(dictGroup));
     }
 
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/6/28 04:34
-     * 说明: 批量软删除业务字典组，不再要求先删除字典项；删除后仍可在页面查看并恢复
+     * 时间: 2026/11/19 15:28
+     * 说明: 批量软删除业务字典组，不再要求先删除字典项；删除后仍可在页面查看并恢复。写入成功后使业务字典查询缓存失效。
      * @param ids 字典组ID集合
      * @return
      * 返回值: boolean
@@ -175,19 +184,19 @@ public class DictGroupServiceImpl extends BaseService<DictGroupMapper, DictGroup
     public boolean deleteGroupByIds(Long[] ids)
     {
         List<Long> idList = parseIds(ids, "请选择要删除的字典组");
-        return lambdaUpdate().in(DictGroup::getId, idList)
+        return bizDictLookup.invalidateAfterWrite(lambdaUpdate().in(DictGroup::getId, idList)
                 .eq(DictGroup::getDelFlag, DEL_FLAG_NORMAL)
                 .set(DictGroup::getDelFlag, DEL_FLAG_DELETE)
                 .set(DictGroup::getUpdateBy, getAdminName())
                 .set(DictGroup::getUpdateTime, new Date())
-                .update();
+                .update());
     }
 
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/6/28 06:42
-     * 说明: 批量恢复已软删除的业务字典组，恢复后允许继续维护该组下的字典项
+     * 时间: 2026/11/19 15:28
+     * 说明: 批量恢复已软删除的业务字典组，恢复后允许继续维护该组下的字典项。写入成功后使业务字典查询缓存失效。
      * @param ids 字典组ID集合
      * @return
      * 返回值: boolean
@@ -197,12 +206,12 @@ public class DictGroupServiceImpl extends BaseService<DictGroupMapper, DictGroup
     public boolean restoreGroupByIds(Long[] ids)
     {
         List<Long> idList = parseIds(ids, "请选择要恢复的字典组");
-        return lambdaUpdate().in(DictGroup::getId, idList)
+        return bizDictLookup.invalidateAfterWrite(lambdaUpdate().in(DictGroup::getId, idList)
                 .eq(DictGroup::getDelFlag, DEL_FLAG_DELETE)
                 .set(DictGroup::getDelFlag, DEL_FLAG_NORMAL)
                 .set(DictGroup::getUpdateBy, getAdminName())
                 .set(DictGroup::getUpdateTime, new Date())
-                .update();
+                .update());
     }
 
     /**
