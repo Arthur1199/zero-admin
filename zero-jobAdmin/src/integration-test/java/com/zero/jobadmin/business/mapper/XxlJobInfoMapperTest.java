@@ -1,5 +1,6 @@
 package com.zero.jobadmin.business.mapper;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.jobadmin.business.constant.TriggerStatus;
 import com.zero.jobadmin.business.model.XxlJobInfo;
 import com.zero.jobadmin.business.model.dto.JobScheduleUpdate;
@@ -10,18 +11,16 @@ import com.xxl.tool.core.CollectionTool;
 import com.xxl.tool.core.DateTool;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Date;
 import java.util.List;
 
+@Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 // 官方集成用例可能操作数据库或执行器，普通打包按标签排除。
 @org.junit.jupiter.api.Tag("job-integration")
 public class XxlJobInfoMapperTest {
-	private static Logger logger = LoggerFactory.getLogger(XxlJobInfoMapperTest.class);
 	
 	@Resource
 	private XxlJobInfoMapper xxlJobInfoMapper;
@@ -31,8 +30,8 @@ public class XxlJobInfoMapperTest {
 		List<XxlJobInfo> list = xxlJobInfoMapper.pageList(0, 20, 0, -1, null, null, null);
 		int list_count = xxlJobInfoMapper.pageListCount(0, 20, 0, -1, null, null, null);
 
-		logger.info("", list);
-		logger.info("", list_count);
+		log.info("", list);
+		log.info("", list_count);
 
 		List<XxlJobInfo> list2 = xxlJobInfoMapper.getJobsByGroup(1);
 	}
@@ -120,7 +119,7 @@ public class XxlJobInfoMapperTest {
 		List<List<JobScheduleUpdate>> scheduleListBatches = CollectionTool.split(updates, batchSize);
 		for (List<JobScheduleUpdate> scheduleListBatch : scheduleListBatches) {
 			int totalAffected = XxlJobAdminBootstrap.getInstance().getXxlJobInfoMapper().scheduleBatchUpdate(scheduleListBatch);
-			logger.info("scheduleBatchUpdate records:" + totalAffected);
+			log.info("scheduleBatchUpdate records:" + totalAffected);
 		}
 	}
 

@@ -1,5 +1,6 @@
 package com.zero.jobadmin.business.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.jobadmin.business.mapper.XxlJobInfoMapper;
 import com.zero.jobadmin.business.mapper.XxlJobLogGlueMapper;
 import com.zero.jobadmin.business.model.XxlJobInfo;
@@ -14,8 +15,6 @@ import com.xxl.tool.crypto.Sha256Tool;
 import com.xxl.tool.response.Response;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,10 +33,10 @@ import java.util.Objects;
  *
  * @author xuxueli 2015-12-19 16:13:16
  */
+@Slf4j
 @Controller
 @RequestMapping("/jobcode")
 public class JobCodeController {
-	private static final Logger logger = LoggerFactory.getLogger(JobCodeController.class);
 	
 	@Resource
 	private XxlJobInfoMapper xxlJobInfoMapper;
@@ -160,7 +159,7 @@ public class JobCodeController {
 		xxlJobLogGlueMapper.removeOld(existsJobInfo.getId(), 30);
 
 		// write operation log
-		logger.info(">>>>>>>>>>> xxl-job operation log: operator = {}, type = jobcode-update, jobId = {}",
+		log.info(">>>>>>>>>>> xxl-job operation log: operator = {}, type = jobcode-update, jobId = {}",
 				loginInfo.getUserName(), id);
 		return Response.ofSuccess();
 	}

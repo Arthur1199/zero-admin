@@ -50,7 +50,7 @@ public abstract class ReportBaseService<M extends BaseMapper<T>, T> extends Serv
      * 返回值: DictItem
      * 返回值说明: 完整字典项，格式非法或无有效记录时返回 null
      */
-    protected DictItem getBizDictItem(String dictKey) {
+    protected DictItem getDictItem(String dictKey) {
         if (dictKey == null) {
             return null;
         }
@@ -76,7 +76,7 @@ public abstract class ReportBaseService<M extends BaseMapper<T>, T> extends Serv
      * 返回值: List<DictItem>
      * 返回值说明: 按排序值和主键升序的字典项，分组编码为空或查无有效项时返回空集合
      */
-    protected List<DictItem> getBizDictItems(String groupCode) {
+    protected List<DictItem> getDictItems(String groupCode) {
         if (groupCode == null || groupCode.isBlank()) {
             return List.of();
         }
@@ -93,8 +93,8 @@ public abstract class ReportBaseService<M extends BaseMapper<T>, T> extends Serv
      * 返回值: String
      * 返回值说明: item_value 字段原值，格式非法或无有效记录时返回 null
      */
-    protected String getBizDictValue(String dictKey) {
-        DictItem item = getBizDictItem(dictKey);
+    protected String getDictValue(String dictKey) {
+        DictItem item = getDictItem(dictKey);
         return item == null ? null : item.getItemValue();
     }
 

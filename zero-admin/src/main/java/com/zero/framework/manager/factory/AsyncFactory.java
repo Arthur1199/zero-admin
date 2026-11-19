@@ -1,8 +1,7 @@
 package com.zero.framework.manager.factory;
 
+import lombok.extern.slf4j.Slf4j;
 import java.util.TimerTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.zero.common.constant.Constants;
 import com.zero.common.utils.LogUtils;
 import com.zero.common.utils.ServletUtils;
@@ -22,13 +21,12 @@ import eu.bitwalker.useragentutils.UserAgent;
  * 时间: 2026/5/14 00:58
  * 说明: 异步工厂（产生任务用）
  */
+@Slf4j(topic = "sys-user")
 public class AsyncFactory
 {
     /**
      * sys_user_logger字段
      */
-    private static final Logger sys_user_logger = LoggerFactory.getLogger("sys-user");
-
     /**
      * 记录登录信息
      *
@@ -65,7 +63,7 @@ public class AsyncFactory
                 s.append(LogUtils.getBlock(status));
                 s.append(LogUtils.getBlock(message));
                 // 打印信息到日志
-                sys_user_logger.info(s.toString(), args);
+                log.info(s.toString(), args);
                 // 获取客户端操作系统
                 String os = userAgent.getOperatingSystem().getName();
                 // 获取客户端浏览器

@@ -1,7 +1,6 @@
 package com.zero.framework.web.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -21,13 +20,13 @@ import com.zero.system.service.ISysUserService;
  * 时间: 2026/5/14 00:58
  * 说明: 用户验证处理
  */
+@Slf4j
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService
 {
     /**
      * log字段
      */
-    private static final Logger log = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
     /**
      * 用户服务字段
      */

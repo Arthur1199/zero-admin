@@ -1,5 +1,6 @@
 package com.zero.common.utils.file;
 
+import lombok.extern.slf4j.Slf4j;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -7,8 +8,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Arrays;
 import org.apache.poi.util.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.zero.common.config.ZeroConfig;
 import com.zero.common.constant.Constants;
 import com.zero.common.utils.StringUtils;
@@ -19,12 +18,12 @@ import com.zero.common.utils.StringUtils;
  * 时间: 2026/5/14 00:58
  * 说明: 图片处理工具类
  */
+@Slf4j
 public class ImageUtils
 {
     /**
      * log字段
      */
-    private static final Logger log = LoggerFactory.getLogger(ImageUtils.class);
     /**
      *
      * 作者: Arthur 亚瑟

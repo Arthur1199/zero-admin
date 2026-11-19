@@ -1,12 +1,11 @@
 package com.zero.jobadmin.framework.util;
 
+import lombok.extern.slf4j.Slf4j;
 import com.xxl.job.core.constant.ExecutorBlockStrategyEnum;
 import com.xxl.tool.core.PropTool;
 import com.xxl.tool.freemarker.FtlTool;
 import com.xxl.tool.json.GsonTool;
 import freemarker.template.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,10 +22,9 @@ import java.util.Properties;
  *
  * @author xuxueli 2018-01-17 20:39:06
  */
+@Slf4j
 @Component
 public class I18nUtil implements InitializingBean {
-    private static Logger logger = LoggerFactory.getLogger(I18nUtil.class);
-
     // ---------------------- for i18n config ----------------------
 
     /**
@@ -91,7 +89,7 @@ public class I18nUtil implements InitializingBean {
      */
     public static String getString(String key) {
         if (single==null) {
-            logger.debug(">>>>>>>>>>> xxl-job i18n fail, i18n not init.");
+            log.debug(">>>>>>>>>>> xxl-job i18n fail, i18n not init.");
             return null;
         }
 
@@ -107,7 +105,7 @@ public class I18nUtil implements InitializingBean {
      */
     public static String getMultString(String... keys) {
         if (single==null) {
-            logger.debug(">>>>>>>>>>> xxl-job i18n fail, i18n not init.");
+            log.debug(">>>>>>>>>>> xxl-job i18n fail, i18n not init.");
             return null;
         }
 

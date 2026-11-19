@@ -1,5 +1,6 @@
 package com.zero.platform;
 
+import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -9,8 +10,6 @@ import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.function.Consumer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ResourceUtils;
 
@@ -25,12 +24,11 @@ import lombok.Setter;
 /**
  * 本地文件存储。
  */
+@Slf4j
 @Getter
 @Setter
 public class LocalFileStorage implements FileStorage {
 	
-	private static final Logger logger = LoggerFactory.getLogger(LocalFileStorage.class);
-
     /* 本地存储路径*/
     private String basePath;
     /* 存储平台 */
@@ -43,7 +41,7 @@ public class LocalFileStorage implements FileStorage {
      */
     private boolean isLinux() {
     	String os = System.getProperties().getProperty("os.name");
-    	logger.info("osName{}:"+os);
+        log.info("osName{}:"+os);
     	if (os != null && os.toLowerCase().startsWith("linux")) {// Linux 系统
     	    return true;
     	}
@@ -55,7 +53,7 @@ public class LocalFileStorage implements FileStorage {
      */
     private boolean isWindows() {
     	String os = System.getProperties().getProperty("os.name");
-    	logger.info("osName{}:"+os);
+        log.info("osName{}:"+os);
     	if (os != null && os.toLowerCase().startsWith("windows")) {// Windows 系统
     	    return true;
     	}
@@ -68,13 +66,13 @@ public class LocalFileStorage implements FileStorage {
     	String localPath = "";
         String path = fileInfo.getPath();
         boolean linux = this.isLinux();
-        logger.info("isLinux:{}"+linux);
+        log.info("isLinux:{}"+linux);
         if(linux) {
         	if(!basePath.startsWith("/")) { // basePath 不是绝对路径时，按当前运行目录拼接
         		String jarPath = this.getPath();
         		localPath = jarPath + basePath;
         	}
-        	logger.info("当前运行环境为 Linux，localPath:{}", localPath);
+            log.info("当前运行环境为 Linux，localPath:{}", localPath);
         }
         boolean windows = this.isWindows();
         if(windows) {
@@ -85,9 +83,9 @@ public class LocalFileStorage implements FileStorage {
         	if(localPath.endsWith("/")) {
         		localPath = localPath.substring(0, localPath.length() -1) + File.separator;
         	}
-        	logger.info("当前运行环境为 Windows，localPath:{}", localPath);
+            log.info("当前运行环境为 Windows，localPath:{}", localPath);
         }
-        logger.info("上传文件磁盘路径：localPath:{}",localPath);
+        log.info("上传文件磁盘路径：localPath:{}",localPath);
         File newFile = FileUtil.touch(localPath + path,fileInfo.getFilename());
         fileInfo.setBasePath(localPath);
         fileInfo.setUrl(domain + path + fileInfo.getFilename());

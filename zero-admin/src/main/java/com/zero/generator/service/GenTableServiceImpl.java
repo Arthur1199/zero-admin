@@ -1,5 +1,6 @@
 package com.zero.generator.service;
 
+import lombok.extern.slf4j.Slf4j;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -16,8 +17,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,13 +41,13 @@ import com.zero.generator.util.VelocityUtils;
  * 时间: 2026/5/14 00:58
  * 说明: 业务 服务层实现
  */
+@Slf4j
 @Service
 public class GenTableServiceImpl implements IGenTableService
 {
     /**
      * log字段
      */
-    private static final Logger log = LoggerFactory.getLogger(GenTableServiceImpl.class);
     /**
      * 代码生成表数据访问字段
      */

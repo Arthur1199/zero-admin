@@ -1,8 +1,7 @@
 package com.zero.framework.web.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import jakarta.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -25,14 +24,13 @@ import com.zero.common.utils.html.EscapeUtil;
  * 时间: 2026/5/14 00:58
  * 说明: 全局异常处理器
  */
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler
 {
     /**
      * log字段
      */
-    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
-
     /**
      *
      * 作者: Arthur 亚瑟

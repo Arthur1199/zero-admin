@@ -1,5 +1,6 @@
 package com.zero.jobadmin.business.scheduler.complete;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.jobadmin.business.mapper.XxlJobInfoMapper;
 import com.zero.jobadmin.business.mapper.XxlJobLogMapper;
 import com.zero.jobadmin.business.model.XxlJobInfo;
@@ -10,8 +11,6 @@ import com.zero.jobadmin.framework.util.I18nUtil;
 import com.xxl.job.core.context.XxlJobContext;
 import com.xxl.tool.core.StringTool;
 import jakarta.annotation.Resource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.text.MessageFormat;
@@ -24,10 +23,9 @@ import java.util.Set;
  *
  * @author xuxueli 2020-10-30 20:43:10
  */
+@Slf4j
 @Component
 public class JobCompleter {
-    private static final Logger logger = LoggerFactory.getLogger(JobCompleter.class);
-
     /** UTF-8 下按字符保守限制备注长度，避免超出 TEXT 容量。 */
     private static final int MAX_HANDLE_MESSAGE_LENGTH = 15_000;
     /** 主任务备注过长时，子任务提交结果至少可使用的空间。 */
@@ -147,7 +145,7 @@ public class JobCompleter {
                     if (childJobId > 0) {
                         // valid
                         if (childJobId == xxlJobLog.getJobId()) {
-                            logger.debug(">>>>>>>>>>> xxl-job, XxlJobCompleter-finishJob ignore childJobId,  childJobId {} is self.", childJobId);
+                            log.debug(">>>>>>>>>>> xxl-job, XxlJobCompleter-finishJob ignore childJobId,  childJobId {} is self.", childJobId);
                             continue;
                         }
                         if (!dispatched.add(childJobId)) {
@@ -160,7 +158,7 @@ public class JobCompleter {
                             XxlJobAdminBootstrap.getInstance().getJobTriggerPoolHelper().trigger(childJobId, TriggerTypeEnum.PARENT, -1, null, null, null);
                         } catch (RuntimeException e) {
                             submitted = false;
-                            logger.error("Failed to submit child job, parentLogId={}, childJobId={}", xxlJobLog.getId(), childJobId, e);
+                            log.error("Failed to submit child job, parentLogId={}, childJobId={}", xxlJobLog.getId(), childJobId, e);
                         }
 
                         // add msg

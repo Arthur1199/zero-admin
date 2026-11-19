@@ -1,5 +1,6 @@
 package com.zero.jobadmin.business.scheduler.openapi;
 
+import lombok.extern.slf4j.Slf4j;
 import com.google.gson.JsonParseException;
 import com.zero.jobadmin.business.mapper.XxlJobGroupMapper;
 import com.zero.jobadmin.business.model.XxlJobGroup;
@@ -18,8 +19,6 @@ import com.xxl.tool.json.GsonTool;
 import com.xxl.tool.response.Response;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,10 +30,9 @@ import java.util.Arrays;
  * 时间: 2017/5/10
  * 说明: 按当前执行器组配置认证 OpenAPI，向业务操作传递已认证的组。
  */
+@Slf4j
 @Controller
 public class OpenApiController {
-    private static final Logger logger = LoggerFactory.getLogger(OpenApiController.class);
-
     @Resource
     private XxlJobGroupMapper xxlJobGroupMapper;
 
@@ -159,7 +157,7 @@ public class OpenApiController {
      * 返回值说明: 写入操作、组 ID、异常类型及堆栈位置
      */
     private void logOpenApiFailure(String action, Integer jobGroupId, RuntimeException error) {
-        logger.error("OpenAPI request failed, action={}, jobGroupId={}, errorType={}, stack={}",
+        log.error("OpenAPI request failed, action={}, jobGroupId={}, errorType={}, stack={}",
                 action, jobGroupId, error.getClass().getName(), Arrays.toString(error.getStackTrace()));
     }
 

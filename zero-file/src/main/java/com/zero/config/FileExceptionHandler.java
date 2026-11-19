@@ -1,10 +1,9 @@
 package com.zero.config;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.dto.TableDataInfo;
 import com.zero.model.AjaxResult;
 import jakarta.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -20,11 +19,10 @@ import java.util.stream.Collectors;
 /**
  * 文件服务统一异常处理。
  */
+@Slf4j
 @RestControllerAdvice
 public class FileExceptionHandler
 {
-    private static final Logger log = LoggerFactory.getLogger(FileExceptionHandler.class);
-
     @ExceptionHandler(IllegalArgumentException.class)
     public Object handleIllegalArgumentException(IllegalArgumentException e, HttpServletRequest request)
     {

@@ -1,5 +1,6 @@
 package com.zero.jobadmin.business.scheduler.trigger;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.jobadmin.business.mapper.XxlJobGroupMapper;
 import com.zero.jobadmin.business.mapper.XxlJobInfoMapper;
 import com.zero.jobadmin.business.mapper.XxlJobLogMapper;
@@ -20,8 +21,6 @@ import com.xxl.tool.crypto.Sha256Tool;
 import com.xxl.tool.http.IPTool;
 import com.xxl.tool.response.Response;
 import jakarta.annotation.Resource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.HtmlUtils;
 
@@ -34,10 +33,9 @@ import java.util.List;
  *
  * @author xuxueli 17/7/13.
  */
+@Slf4j
 @Component
 public class JobTrigger {
-    private static final Logger logger = LoggerFactory.getLogger(JobTrigger.class);
-
     /** 调度备注的 UTF-8 字节上限，给后续追加的重试备注预留 TEXT 容量。 */
     private static final int MAX_TRIGGER_MESSAGE_BYTES = 64_000;
     /** 标记备注中因容量限制省略的内容。 */
@@ -76,7 +74,7 @@ public class JobTrigger {
         // load data
         XxlJobInfo jobInfo = xxlJobInfoMapper.loadById(jobId);
         if (jobInfo == null) {
-            logger.warn(">>>>>>>>>>>> trigger fail, jobId invalid，jobId={}", jobId);
+            log.warn(">>>>>>>>>>>> trigger fail, jobId invalid，jobId={}", jobId);
             return;
         }
         String effectiveParam = executorParam == null ? jobInfo.getExecutorParam() : executorParam;
@@ -149,7 +147,7 @@ public class JobTrigger {
                                           String executorShardingParam, String executorParam, boolean cancelledAfterAccept) {
         XxlJobInfo job = xxlJobInfoMapper.loadById(jobId);
         if (job == null) {
-            logger.warn("Undispatched job could not be recorded because it no longer exists, jobId={}", jobId);
+            log.warn("Undispatched job could not be recorded because it no longer exists, jobId={}", jobId);
             return;
         }
 
@@ -247,10 +245,10 @@ public class JobTrigger {
         jobLog.setExecutorFailRetryCount(retryCount);
         xxlJobLogMapper.save(jobLog);
         if (jobLog.getId() <= 0) {
-            logger.error("Trigger log was not created, jobId={}", jobInfo.getId());
+            log.error("Trigger log was not created, jobId={}", jobInfo.getId());
             return;
         }
-        logger.debug(">>>>>>>>>>> xxl-job trigger start, jobId:{}", jobLog.getJobId());
+        log.debug(">>>>>>>>>>> xxl-job trigger start, jobId:{}", jobLog.getJobId());
 
         // 2、init trigger-param
         TriggerRequest triggerParam = new TriggerRequest();
@@ -288,7 +286,7 @@ public class JobTrigger {
                         address = routeAddressResult.getData();
                     }
                 } catch (RuntimeException e) {
-                    logger.error("Routing failed, jobId={}, logId={}", jobInfo.getId(), jobLog.getId(), e);
+                    log.error("Routing failed, jobId={}, logId={}", jobInfo.getId(), jobLog.getId(), e);
                 }
             }
         } else {
@@ -356,7 +354,7 @@ public class JobTrigger {
         jobLog.setTriggerMsg(fitTriggerMessage(triggerMsgSb.toString(), resultMessage.toString()));
         xxlJobLogMapper.updateTriggerInfo(jobLog);
 
-        logger.debug(">>>>>>>>>>> xxl-job trigger end, jobId:{}", jobLog.getJobId());
+        log.debug(">>>>>>>>>>> xxl-job trigger end, jobId:{}", jobLog.getJobId());
     }
 
     /**
@@ -464,7 +462,7 @@ public class JobTrigger {
         } catch (Exception e) {
             // HTTP 客户端异常详情可能包含通信凭据，使用日志 ID 和异常类型定位。
             String errorType = e.getClass().getSimpleName();
-            logger.warn("Executor dispatch failed, jobId={}, logId={}, type={}",
+            log.warn("Executor dispatch failed, jobId={}, logId={}, type={}",
                     triggerParam.getJobId(), triggerParam.getLogId(), errorType);
             return Response.of(XxlJobContext.HANDLE_CODE_FAIL,
                     I18nUtil.getString("jobconf_trigger_communication_error") + " (" + errorType + ")");

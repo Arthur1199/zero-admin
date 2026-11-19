@@ -1,12 +1,11 @@
 package com.zero.system.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.system.domain.SysConfig;
 import com.zero.system.mapper.SysConfigMapper;
 import com.zero.system.service.ISysConfigService;
 import com.zero.system.service.IStatisticsSwitchService;
 import java.util.concurrent.atomic.AtomicLong;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,11 +14,11 @@ import org.springframework.stereotype.Service;
  * 时间: 2026/11/16 21:34
  * 说明: 复用后台参数缓存读取统计开关，隔离配置存储故障，避免影响原业务及Redis失败时的事件回退。
  */
+@Slf4j
 @Service
 public class StatisticsSwitchServiceImpl implements IStatisticsSwitchService
 {
     /** 仅输出固定故障描述，不记录参数内容、连接信息或底层异常正文。 */
-    private static final Logger log = LoggerFactory.getLogger(StatisticsSwitchServiceImpl.class);
     /** 配置故障日志最短间隔，毫秒，避免每个请求重复刷日志。 */
     private static final long LOG_INTERVAL_MILLIS = 30000;
     /** 后台参数服务，后台修改和刷新缓存后，下一次读取可获取最新值。 */

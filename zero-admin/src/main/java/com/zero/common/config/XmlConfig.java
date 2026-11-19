@@ -1,8 +1,7 @@
 package com.zero.common.config;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.common.utils.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.w3c.dom.Document;
@@ -28,10 +27,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * 时间: 2026/5/16 07:16
  * 说明: XML配置文件读取工具，读取classpath下的configuration.xml，并按category.item形式提供配置值；配置文件可能包含机器人令牌等敏感内容，日志只记录加载状态和数量，不输出配置值
  */
+@Slf4j
 public class XmlConfig
 {
-    private static final Logger log = LoggerFactory.getLogger(XmlConfig.class);
-
     /**
      * 默认XML配置文件名，放在resources根目录。
      */

@@ -1,11 +1,10 @@
 package com.zero.jobadmin.business.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import com.xxl.sso.core.constant.Const;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.util.LinkedMultiValueMap;
@@ -14,10 +13,9 @@ import org.springframework.util.MultiValueMap;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 // 官方集成用例可能操作数据库或执行器，普通打包按标签排除。
+@Slf4j
 @org.junit.jupiter.api.Tag("job-integration")
 public class JobInfoControllerTest extends AbstractSpringMvcTest {
-  private static Logger logger = LoggerFactory.getLogger(JobInfoControllerTest.class);
-
   private Cookie cookie;
 
   @BeforeEach
@@ -45,7 +43,7 @@ public class JobInfoControllerTest extends AbstractSpringMvcTest {
             .cookie(cookie)
     ).andReturn();
 
-    logger.info(ret.getResponse().getContentAsString());
+    log.info(ret.getResponse().getContentAsString());
   }
 
 }

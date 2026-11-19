@@ -1,5 +1,6 @@
 package com.zero.jobadmin.business.scheduler.thread;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.jobadmin.business.mapper.XxlJobLogMapper;
 import com.zero.jobadmin.business.model.XxlJobLog;
 import com.zero.jobadmin.business.scheduler.config.XxlJobAdminBootstrap;
@@ -11,8 +12,6 @@ import com.xxl.job.core.openapi.admin.dto.CallbackData;
 import com.xxl.tool.concurrent.CyclicThread;
 import com.xxl.tool.core.DateTool;
 import com.xxl.tool.response.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.List;
@@ -24,9 +23,8 @@ import java.util.concurrent.TimeUnit;
  * 时间: 2015/9/1 18:05:56
  * 说明: 提交执行器回调结果，并监控长时间未回调且离线的任务。
  */
+@Slf4j
 public class JobCompleteHelper {
-	private static final Logger logger = LoggerFactory.getLogger(JobCompleteHelper.class);
-
 	/** 任务运行超过该时长后，才检查执行器心跳是否失效。 */
 	private static final int LOST_JOB_MINUTES = 10;
 	/** 单轮最多检查的待回调任务数。 */
@@ -84,7 +82,7 @@ public class JobCompleteHelper {
 			try {
 				logMapper.markLostJob(log, triggerBefore, registryGroup, heartbeatSince);
 			} catch (RuntimeException e) {
-				logger.error("Failed to mark lost job, logId={}", logId, e);
+				JobCompleteHelper.log.error("Failed to mark lost job, logId={}", logId, e);
 			}
 		}
 	}
@@ -135,7 +133,7 @@ public class JobCompleteHelper {
 				doCallback(jobGroupId, callbackRequest);
 			} catch (RuntimeException e) {
 				failed = true;
-				logger.error("Failed to process executor callback, logId={}", callbackRequest.getLogId(), e);
+				log.error("Failed to process executor callback, logId={}", callbackRequest.getLogId(), e);
 			}
 		}
 		return failed ? Response.ofFail("Failed to process callback. Retry the batch.") : Response.ofSuccess();

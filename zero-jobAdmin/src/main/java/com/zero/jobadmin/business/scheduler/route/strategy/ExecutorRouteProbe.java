@@ -1,12 +1,11 @@
 package com.zero.jobadmin.business.scheduler.route.strategy;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.jobadmin.business.model.XxlJobGroup;
 import com.zero.jobadmin.business.scheduler.config.XxlJobAdminBootstrap;
 import com.zero.jobadmin.framework.util.I18nUtil;
 import com.xxl.job.core.openapi.executor.ExecutorBiz;
 import com.xxl.tool.response.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.util.HtmlUtils;
 
 import java.util.List;
@@ -19,9 +18,8 @@ import java.util.function.Function;
  * 时间: 2026/11/18 22:54
  * 说明: 按组内顺序探测执行器，为故障转移和忙碌转移记录各节点的探测结果。
  */
+@Slf4j
 final class ExecutorRouteProbe {
-
-    private static final Logger logger = LoggerFactory.getLogger(ExecutorRouteProbe.class);
 
     private ExecutorRouteProbe() {
     }
@@ -54,7 +52,7 @@ final class ExecutorRouteProbe {
                 }
             } catch (Exception e) {
                 // 客户端异常详情可能含通信凭据，诊断仅记录异常类型。
-                logger.warn("Executor probe failed, groupId={}, probe={}, type={}",
+                log.warn("Executor probe failed, groupId={}, probe={}, type={}",
                         group.getId(), label, e.getClass().getSimpleName());
             }
             if (result == null) {

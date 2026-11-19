@@ -1,5 +1,6 @@
 package com.zero.jobadmin.business.scheduler.thread;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.jobadmin.business.constant.TriggerStatus;
 import com.zero.jobadmin.business.model.XxlJobInfo;
 import com.zero.jobadmin.business.model.dto.JobScheduleUpdate;
@@ -8,8 +9,6 @@ import com.zero.jobadmin.business.scheduler.misfire.MisfireStrategyEnum;
 import com.zero.jobadmin.business.scheduler.trigger.TriggerTypeEnum;
 import com.zero.jobadmin.business.scheduler.type.ScheduleTypeEnum;
 import com.xxl.tool.core.CollectionTool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -20,9 +19,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author xuxueli 2019-05-21
  */
+@Slf4j
 public class JobScheduleHelper {
-    private static final Logger logger = LoggerFactory.getLogger(JobScheduleHelper.class);
-
 
     /**
      * pre-read time for scheduler, increase efficiency
@@ -66,10 +64,10 @@ public class JobScheduleHelper {
                     TimeUnit.MILLISECONDS.sleep(5000 - System.currentTimeMillis()%1000 );
                 } catch (Throwable e) {
                     if (!scheduleThreadToStop) {
-                        logger.error(e.getMessage(), e);
+                        log.error(e.getMessage(), e);
                     }
                 }
-                logger.info(">>>>>>>>> init xxl-job admin scheduler success.");
+                log.info(">>>>>>>>> init xxl-job admin scheduler success.");
 
                 // pre-read count: treadpool-size * 10 (trigger-qps: 1000ms / 100ms each trigger cost)
                 int preReadCount = (XxlJobAdminBootstrap.getInstance().getTriggerPoolFastMax() + XxlJobAdminBootstrap.getInstance().getTriggerPoolSlowMax()) * 10;
@@ -85,10 +83,10 @@ public class JobScheduleHelper {
                     } catch (OptimisticLockingFailureException e) {
                         // 配置变动只影响本轮快照，继续按秒扫描，避免其余任务跨过过期窗口。
                         preReadSuc = true;
-                        logger.debug("Schedule changed during scan; retrying on the next tick", e);
+                        log.debug("Schedule changed during scan; retrying on the next tick", e);
                     } catch (Throwable e) {
                         if (!scheduleThreadToStop) {
-                            logger.error(">>>>>>>>>>> xxl-job, JobScheduleHelper#scheduleThread error:{}", e.getMessage(), e);
+                            log.error(">>>>>>>>>>> xxl-job, JobScheduleHelper#scheduleThread error:{}", e.getMessage(), e);
                         }
                     }
                     long cost = System.currentTimeMillis()-start;
@@ -101,14 +99,14 @@ public class JobScheduleHelper {
                             TimeUnit.MILLISECONDS.sleep((preReadSuc?1000:PRE_READ_MS) - System.currentTimeMillis()%1000);
                         } catch (Throwable e) {
                             if (!scheduleThreadToStop) {
-                                logger.error(e.getMessage(), e);
+                                log.error(e.getMessage(), e);
                             }
                         }
                     }
 
                 }
 
-                logger.info(">>>>>>>>>>> xxl-job, JobScheduleHelper#scheduleThread stop");
+                log.info(">>>>>>>>>>> xxl-job, JobScheduleHelper#scheduleThread stop");
             }
         });
         scheduleThread.setDaemon(true);
@@ -127,7 +125,7 @@ public class JobScheduleHelper {
                         TimeUnit.MILLISECONDS.sleep(1000 - System.currentTimeMillis() % 1000);
                     } catch (Throwable e) {
                         if (!ringThreadToStop) {
-                            logger.error(e.getMessage(), e);
+                            log.error(e.getMessage(), e);
                         }
                     }
 
@@ -138,16 +136,16 @@ public class JobScheduleHelper {
                                 XxlJobAdminBootstrap.getInstance().getJobTriggerPoolHelper()
                                         .trigger(jobId, TriggerTypeEnum.CRON, -1, null, null, null);
                             } catch (RuntimeException e) {
-                                logger.error("Failed to submit job from time ring, jobId={}", jobId, e);
+                                log.error("Failed to submit job from time ring, jobId={}", jobId, e);
                             }
                         }
                     } catch (Throwable e) {
                         if (!ringThreadToStop) {
-                            logger.error(">>>>>>>>>>> xxl-job, JobScheduleHelper#ringThread error:{}", e.getMessage(), e);
+                            log.error(">>>>>>>>>>> xxl-job, JobScheduleHelper#ringThread error:{}", e.getMessage(), e);
                         }
                     }
                 }
-                logger.info(">>>>>>>>>>> xxl-job, JobScheduleHelper#ringThread stop");
+                log.info(">>>>>>>>>>> xxl-job, JobScheduleHelper#ringThread stop");
             }
         });
         ringThread.setDaemon(true);
@@ -185,7 +183,7 @@ public class JobScheduleHelper {
                     throw new OptimisticLockingFailureException("Scheduler batch changed before update, expected="
                             + batch.size() + ", updated=" + affected);
                 }
-                logger.debug("Scheduler cursor batch updated, records={}", affected);
+                log.debug("Scheduler cursor batch updated, records={}", affected);
             }
             return true;
         });
@@ -193,7 +191,7 @@ public class JobScheduleHelper {
             try {
                 dispatch.run();
             } catch (RuntimeException e) {
-                logger.error("Failed to dispatch a job after scheduler commit", e);
+                log.error("Failed to dispatch a job after scheduler commit", e);
             }
         }
         return Boolean.TRUE.equals(updated);
@@ -212,7 +210,7 @@ public class JobScheduleHelper {
      */
     private List<XxlJobInfo> readScheduleBatch(XxlJobAdminBootstrap bootstrap, int preReadCount) {
         if (bootstrap.getXxlJobLockMapper().scheduleLock() == null) {
-            logger.warn("Scheduler scan skipped: xxl_job_lock is missing schedule_lock");
+            log.warn("Scheduler scan skipped: xxl_job_lock is missing schedule_lock");
             return Collections.emptyList();
         }
         return bootstrap.getXxlJobInfoMapper().scheduleJobQuery(System.currentTimeMillis() + PRE_READ_MS, preReadCount);
@@ -281,7 +279,7 @@ public class JobScheduleHelper {
                 jobInfo.setTriggerStatus(TriggerStatus.STOPPED.getValue());
                 jobInfo.setTriggerLastTime(0);
                 jobInfo.setTriggerNextTime(0);
-                logger.error(">>>>>>>>>>> xxl-job, refreshNextValidTime fail for job: jobId={}, scheduleType={}, scheduleConf={}",
+                log.error(">>>>>>>>>>> xxl-job, refreshNextValidTime fail for job: jobId={}, scheduleType={}, scheduleConf={}",
                         jobInfo.getId(), jobInfo.getScheduleType(), jobInfo.getScheduleConf());
             }
         } catch (Exception e) {
@@ -290,7 +288,7 @@ public class JobScheduleHelper {
             jobInfo.setTriggerLastTime(0);
             jobInfo.setTriggerNextTime(0);
 
-            logger.error(">>>>>>>>>>> xxl-job, refreshNextValidTime error for job: jobId={}, scheduleType={}, scheduleConf={}",
+            log.error(">>>>>>>>>>> xxl-job, refreshNextValidTime error for job: jobId={}, scheduleType={}, scheduleConf={}",
                     jobInfo.getId(), jobInfo.getScheduleType(), jobInfo.getScheduleConf(), e);
         }
         return false;
@@ -368,7 +366,7 @@ public class JobScheduleHelper {
                     XxlJobAdminBootstrap.getInstance().getJobTrigger()
                             .recordUndispatchedTrigger(jobId, TriggerTypeEnum.CRON, -1, null, null, true);
                 } catch (RuntimeException e) {
-                    logger.error("Failed to record time ring job cancelled at shutdown, jobId={}", jobId, e);
+                    log.error("Failed to record time ring job cancelled at shutdown, jobId={}", jobId, e);
                 }
             }
         } finally {
@@ -376,7 +374,7 @@ public class JobScheduleHelper {
                 Thread.currentThread().interrupt();
             }
         }
-        logger.info(">>>>>>>>>>> xxl-job, JobScheduleHelper stop");
+        log.info(">>>>>>>>>>> xxl-job, JobScheduleHelper stop");
     }
 
     /**

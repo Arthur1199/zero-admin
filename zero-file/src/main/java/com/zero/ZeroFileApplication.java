@@ -1,10 +1,9 @@
 package com.zero;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.config.EnableFileStorage;
 import com.zero.packageconfig.PackageProperties;
 import org.mybatis.spring.annotation.MapperScan;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -20,6 +19,7 @@ import java.util.TimeZone;
  * 时间: 2026/6/28 22:52
  * 说明: 启动程序
  */
+@Slf4j
 @EnableFileStorage
 @EnableDiscoveryClient
 @EnableFeignClients(basePackages = PackageProperties.FEIGN_CLIENTS_BASE_PACKAGES)
@@ -27,8 +27,6 @@ import java.util.TimeZone;
 @SpringBootApplication(scanBasePackages = PackageProperties.SCAN_BASE_PACKAGES)
 public class ZeroFileApplication
 {
-    private static final Logger log = LoggerFactory.getLogger(ZeroFileApplication.class);
-
     public static void main(String[] args)
     {
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"));

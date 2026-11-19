@@ -1,5 +1,6 @@
 package com.zero.common.utils.http;
 
+import lombok.extern.slf4j.Slf4j;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,8 +9,6 @@ import java.nio.charset.StandardCharsets;
 
 import jakarta.servlet.ServletRequest;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -17,12 +16,12 @@ import org.slf4j.LoggerFactory;
  * 时间: 2026/5/14 00:58
  * 说明: 通用http工具封装
  */
+@Slf4j
 public class HttpHelper
 {
     /**
      * LOGGER字段
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(HttpHelper.class);
     /**
      *
      * 作者: Arthur 亚瑟
@@ -49,7 +48,7 @@ public class HttpHelper
         }
         catch (IOException e)
         {
-            LOGGER.warn("getBodyString出现问题！");
+            log.warn("getBodyString出现问题！");
         }
         finally
         {
@@ -61,7 +60,7 @@ public class HttpHelper
                 }
                 catch (IOException e)
                 {
-                    LOGGER.error(ExceptionUtils.getMessage(e));
+                    log.error(ExceptionUtils.getMessage(e));
                 }
             }
         }

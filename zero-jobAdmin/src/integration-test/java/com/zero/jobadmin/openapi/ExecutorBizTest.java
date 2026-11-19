@@ -1,5 +1,6 @@
 package com.zero.jobadmin.openapi;
 
+import lombok.extern.slf4j.Slf4j;
 import com.xxl.job.core.constant.Const;
 import com.xxl.job.core.openapi.executor.ExecutorBiz;
 import com.xxl.job.core.openapi.executor.dto.*;
@@ -9,8 +10,6 @@ import com.xxl.tool.http.HttpTool;
 import com.xxl.tool.response.Response;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * executor api test
@@ -18,10 +17,9 @@ import org.slf4j.LoggerFactory;
  * Created by xuxueli on 17/5/12.
  */
 // 官方集成用例可能操作数据库或执行器，普通打包按标签排除。
+@Slf4j
 @org.junit.jupiter.api.Tag("job-integration")
 public class ExecutorBizTest {
-    private static final Logger logger = LoggerFactory.getLogger(ExecutorBizTest.class);
-
     private static String addressUrl = "http://127.0.0.1:9999/";
     private static String accessToken = "default_token";
     private static String appname = "xxl-job-executor-sample";
@@ -41,7 +39,7 @@ public class ExecutorBizTest {
         ExecutorBiz executorBiz = buildClient();
         // Act
         final Response<String> retval = executorBiz.beat();
-        logger.info("retval:{}", retval);
+        log.info("retval:{}", retval);
 
         // Assert result
         Assertions.assertNotNull(retval);

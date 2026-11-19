@@ -1,5 +1,6 @@
 package com.zero.jobadmin.business.scheduler.thread;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.jobadmin.business.model.XxlJobGroup;
 import com.zero.jobadmin.business.model.XxlJobRegistry;
 import com.zero.jobadmin.business.scheduler.config.XxlJobAdminBootstrap;
@@ -10,8 +11,6 @@ import com.xxl.job.core.openapi.admin.dto.RegistryRequest;
 import com.xxl.tool.concurrent.CyclicThread;
 import com.xxl.tool.core.StringTool;
 import com.xxl.tool.response.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 
 import java.util.*;
@@ -22,9 +21,8 @@ import java.util.*;
  * 时间: 2016/10/2 19:10:24
  * 说明: 写入执行器心跳和下线状态，定期维护在线地址。
  */
+@Slf4j
 public class JobRegistryHelper {
-	private static final Logger logger = LoggerFactory.getLogger(JobRegistryHelper.class);
-
 	/** 每轮最多清理的过期心跳数，限制 SQL 参数和删除事务规模。 */
 	private static final int REGISTRY_CLEANUP_BATCH_SIZE = 1000;
 
@@ -73,7 +71,7 @@ public class JobRegistryHelper {
 			}
 		} catch (DataAccessException e) {
 			// 在线地址查询自己会排除过期记录，本轮仍可继续刷新。
-			logger.warn("Failed to clean expired registry entries", e);
+			log.warn("Failed to clean expired registry entries", e);
 		}
 
 		var groupMapper = bootstrap.getXxlJobGroupMapper();
@@ -143,7 +141,7 @@ public class JobRegistryHelper {
 					registryParam.getRegistryGroup(), registryParam.getRegistryKey(), registryParam.getRegistryValue(), new Date());
 			return Response.ofSuccess();
 		} catch (RuntimeException e) {
-			logger.error("Failed to write executor heartbeat", e);
+			log.error("Failed to write executor heartbeat", e);
 			return Response.ofFail("Failed to save executor heartbeat.");
 		}
 	}
@@ -170,7 +168,7 @@ public class JobRegistryHelper {
 					registryParam.getRegistryGroup(), registryParam.getRegistryKey(), registryParam.getRegistryValue());
 			return Response.ofSuccess();
 		} catch (RuntimeException e) {
-			logger.error("Failed to remove executor registry", e);
+			log.error("Failed to remove executor registry", e);
 			return Response.ofFail("Failed to remove executor registry.");
 		}
 	}

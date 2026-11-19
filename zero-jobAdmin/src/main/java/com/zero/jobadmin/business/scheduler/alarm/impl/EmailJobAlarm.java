@@ -1,5 +1,6 @@
 package com.zero.jobadmin.business.scheduler.alarm.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.jobadmin.business.scheduler.alarm.JobAlarm;
 import com.zero.jobadmin.business.scheduler.config.XxlJobAdminBootstrap;
 import com.zero.jobadmin.business.model.XxlJobGroup;
@@ -8,8 +9,6 @@ import com.zero.jobadmin.business.model.XxlJobLog;
 import com.zero.jobadmin.framework.util.I18nUtil;
 import com.xxl.job.core.context.XxlJobContext;
 import jakarta.mail.internet.MimeMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.HtmlUtils;
@@ -27,10 +26,9 @@ import java.util.Set;
  *
  * @author xuxueli 2020-01-19
  */
+@Slf4j
 @Component
 public class EmailJobAlarm implements JobAlarm {
-    private static final Logger logger = LoggerFactory.getLogger(EmailJobAlarm.class);
-
     /**
      *
      * 作者: Arthur 亚瑟
@@ -58,7 +56,7 @@ public class EmailJobAlarm implements JobAlarm {
             }
         }
         if (recipients.isEmpty()) {
-            logger.warn("No valid recipients configured for job alarm, logId={}", jobLog.getId());
+            log.warn("No valid recipients configured for job alarm, logId={}", jobLog.getId());
             return false;
         }
 
@@ -94,7 +92,7 @@ public class EmailJobAlarm implements JobAlarm {
                 helper.setText(content, true);
                 messages.add(mimeMessage);
             } catch (Exception e) {
-                logger.error("Failed to prepare job alarm email, logId={}, errorType={}", jobLog.getId(),
+                log.error("Failed to prepare job alarm email, logId={}, errorType={}", jobLog.getId(),
                         e.getClass().getSimpleName());
                 alarmResult = false;
             }
@@ -103,7 +101,7 @@ public class EmailJobAlarm implements JobAlarm {
             try {
                 sender.send(messages.toArray(MimeMessage[]::new));
             } catch (org.springframework.mail.MailException e) {
-                logger.error("Failed to send job alarm email batch, logId={}, errorType={}", jobLog.getId(),
+                log.error("Failed to send job alarm email batch, logId={}, errorType={}", jobLog.getId(),
                         e.getClass().getSimpleName());
                 alarmResult = false;
             }

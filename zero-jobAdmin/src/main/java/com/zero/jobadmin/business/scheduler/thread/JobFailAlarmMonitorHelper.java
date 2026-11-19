@@ -1,5 +1,6 @@
 package com.zero.jobadmin.business.scheduler.thread;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.jobadmin.business.mapper.XxlJobLogMapper;
 import com.zero.jobadmin.business.model.XxlJobInfo;
 import com.zero.jobadmin.business.model.XxlJobLog;
@@ -8,8 +9,6 @@ import com.zero.jobadmin.business.scheduler.trigger.TriggerTypeEnum;
 import com.zero.jobadmin.framework.util.I18nUtil;
 import com.xxl.job.core.context.XxlJobContext;
 import com.xxl.tool.concurrent.CyclicThread;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -18,9 +17,8 @@ import java.util.List;
  *
  * @author xuxueli 2015-9-1 18:05:56
  */
+@Slf4j
 public class JobFailAlarmMonitorHelper {
-	private static final Logger logger = LoggerFactory.getLogger(JobFailAlarmMonitorHelper.class);
-
 	/** 等待失败重试与告警处理。 */
 	private static final int PENDING = 0;
 	/** 已由当前调度中心认领。 */
@@ -133,18 +131,18 @@ public class JobFailAlarmMonitorHelper {
 						log.setTriggerMsg((log.getTriggerMsg() == null ? "" : log.getTriggerMsg()) + retryMsg);
 					}
 				} catch (RuntimeException e) {
-					logger.error("Failed to submit or record job retry, logId={}", id, e);
+					JobFailAlarmMonitorHelper.log.error("Failed to submit or record job retry, logId={}", id, e);
 				}
 			}
 			status = bootstrap.getJobAlarmer().alarm(job, log) ? ALARM_SUCCESS : ALARM_FAILED;
 		} catch (RuntimeException e) {
-			logger.error("Failed to process failed job, logId={}", id, e);
+			log.error("Failed to process failed job, logId={}", id, e);
 		} finally {
 			if (claimed) {
 				try {
 					logMapper.updateAlarmStatus(id, PROCESSING, status);
 				} catch (RuntimeException e) {
-					logger.error("Failed to finalize alarm status, logId={}, status={}", id, status, e);
+					log.error("Failed to finalize alarm status, logId={}, status={}", id, status, e);
 				}
 			}
 		}

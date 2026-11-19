@@ -1,10 +1,9 @@
 package com.zero.web.controller.common;
 
+import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +23,7 @@ import com.zero.system.service.IAdminFileUploadService;
  * 时间: 2026/5/14 00:58
  * 说明: 通用请求处理
  */
+@Slf4j
 @RestController
 @RequestMapping("/common")
 public class CommonController
@@ -31,7 +31,6 @@ public class CommonController
     /**
      * log字段
      */
-    private static final Logger log = LoggerFactory.getLogger(CommonController.class);
     /**
      * 服务器参数配置字段
      */

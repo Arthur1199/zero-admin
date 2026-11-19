@@ -1,5 +1,6 @@
 package com.zero.framework.statistics;
 
+import lombok.extern.slf4j.Slf4j;
 import com.alibaba.fastjson2.JSON;
 import com.zero.common.constant.CacheConstants;
 import com.zero.common.core.domain.model.LoginUser;
@@ -11,8 +12,6 @@ import com.zero.system.service.impl.StatisticsStore;
 import com.zero.system.service.IStatisticsSwitchService;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.connection.stream.*;
 import org.springframework.data.redis.core.*;
@@ -30,11 +29,11 @@ import java.util.concurrent.atomic.*;
  * 时间: 2026/11/16 20:46
  * 说明: 可靠事件管道：同步投递、MySQL回退、消费确认与重启接管，不阻断原业务。
  */
+@Slf4j
 @Component
 public class StatisticsPipeline
 {
     /** 仅记录固定错误类别，不输出事件正文或凭证。 */
-    private static final Logger log = LoggerFactory.getLogger(StatisticsPipeline.class);
     /** 配置及数据库访问。 */
     private final StatisticsProperties properties;
     /** 字符串Redis连接，独立于登录缓存序列化格式。 */

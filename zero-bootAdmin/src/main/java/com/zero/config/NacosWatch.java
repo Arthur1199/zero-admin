@@ -1,5 +1,6 @@
 package com.zero.config;
 
+import lombok.extern.slf4j.Slf4j;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -9,8 +10,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.cloud.client.discovery.event.HeartbeatEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
@@ -22,7 +21,6 @@ import com.alibaba.cloud.nacos.NacosDiscoveryProperties;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.listener.EventListener;
 import com.alibaba.nacos.api.naming.pojo.ListView;
-import com.zero.listener.CustomNotifier;
 
 
 /**
@@ -31,9 +29,9 @@ import com.zero.listener.CustomNotifier;
  * 说明: 重写nacoswatch方法
  *
  */
+@Slf4j(topic = "com.zero.listener.CustomNotifier")
 public class NacosWatch implements ApplicationEventPublisherAware, SmartLifecycle {
 
-	private static final Logger log = LoggerFactory.getLogger(CustomNotifier.class);
 	
   /**
  * watch delay,duration to pull new service from nacos server.

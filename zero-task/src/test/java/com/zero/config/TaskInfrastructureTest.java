@@ -338,7 +338,7 @@ class TaskInfrastructureTest {
         @DS("zeroAdmin")
         @Transactional
         public String valueFromAdminTransaction() {
-            return getBizDictValue("task_status.paid");
+            return getDictValue("task_status.paid");
         }
 
         /**
@@ -352,7 +352,7 @@ class TaskInfrastructureTest {
          * 返回值说明: 匹配的有效字典项
          */
         public DictItem item(String key) {
-            return getBizDictItem(key);
+            return getDictItem(key);
         }
 
         /**
@@ -366,7 +366,7 @@ class TaskInfrastructureTest {
          * 返回值说明: 分组内所有有效字典项
          */
         public List<DictItem> items(String groupCode) {
-            return getBizDictItems(groupCode);
+            return getDictItems(groupCode);
         }
     }
 

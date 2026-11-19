@@ -1,5 +1,6 @@
 package com.zero.framework.websocket;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.common.constant.AdminWebSocketConstants;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +20,7 @@ import org.springframework.web.socket.server.standard.ServletServerContainerFact
  * 时间: 2026/11/16
  * 说明: 注册管理后台原生WebSocket及Redis广播订阅，不修改其它服务的通信和权限配置
  */
+@Slf4j
 @Configuration
 @EnableWebSocket
 @EnableConfigurationProperties(AdminWebSocketProperties.class)
@@ -131,7 +133,7 @@ public class AdminWebSocketConfig implements WebSocketConfigurer
         container.setConnectionFactory(factory);
         container.addMessageListener(service, new ChannelTopic(properties.channel()));
         // 禁止框架默认异常日志打印可能包含业务内容的Redis原始消息。
-        container.setErrorHandler(error -> org.slf4j.LoggerFactory.getLogger(AdminWebSocketConfig.class)
+        container.setErrorHandler(error -> log
                 .warn("WebSocket订阅异常，等待恢复"));
         return container;
     }

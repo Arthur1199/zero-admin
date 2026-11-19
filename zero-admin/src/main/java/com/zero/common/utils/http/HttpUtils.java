@@ -1,5 +1,6 @@
 package com.zero.common.utils.http;
 
+import lombok.extern.slf4j.Slf4j;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,8 +18,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.zero.common.constant.Constants;
 import com.zero.common.utils.StringUtils;
 import org.springframework.http.MediaType;
@@ -29,13 +28,12 @@ import org.springframework.http.MediaType;
  * 时间: 2026/5/14 00:58
  * 说明: 通用http发送方法
  */
+@Slf4j
 public class HttpUtils
 {
     /**
      * log字段
      */
-    private static final Logger log = LoggerFactory.getLogger(HttpUtils.class);
-
     /**
      *
      * 作者: Arthur 亚瑟

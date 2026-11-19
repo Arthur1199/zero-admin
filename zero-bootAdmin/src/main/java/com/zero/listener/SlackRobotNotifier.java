@@ -2,14 +2,13 @@ package com.zero.listener;
 
 
 
+import lombok.extern.slf4j.Slf4j;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.TimeZone;
 
 import com.zero.util.SlackRobotUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
@@ -29,10 +28,10 @@ import reactor.core.publisher.Mono;
  * 说明: telegram机器人通知，自定义监控
  *
  */
+@Slf4j
 @Component
 public class SlackRobotNotifier extends AbstractStatusChangeNotifier {
 
-   private static final Logger log = LoggerFactory.getLogger(SlackRobotNotifier.class);
 	
   private String[] ignoreChanges = new String[]{"UNKNOWN:UP","DOWN:UP","OFFLINE:UP"};
 

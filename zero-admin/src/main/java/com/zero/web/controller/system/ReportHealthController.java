@@ -1,10 +1,9 @@
 package com.zero.web.controller.system;
 
+import lombok.extern.slf4j.Slf4j;
 import com.zero.common.core.controller.BaseController;
 import com.zero.common.core.domain.AjaxResult;
 import com.zero.feign.RemoteReportHealthService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 时间: 2026/6/27 17:47
  * 说明: 报表服务调用探活接口，登录后的后台用户可通过该接口验证 admin 到 report 的跨服务链路
  */
+@Slf4j
 @RestController
 @RequestMapping("/system/report/health")
 public class ReportHealthController extends BaseController
@@ -22,8 +22,6 @@ public class ReportHealthController extends BaseController
     /**
      * 日志记录器，避免跨服务调用失败时吞掉关键排查信息
      */
-    private static final Logger log = LoggerFactory.getLogger(ReportHealthController.class);
-
     /**
      * 报表服务远程健康检查客户端
      */
