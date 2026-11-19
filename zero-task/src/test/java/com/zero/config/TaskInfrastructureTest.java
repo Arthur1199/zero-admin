@@ -6,14 +6,18 @@ import com.zero.ZeroTaskApplication;
 import com.zero.base.TaskBaseService;
 import com.zero.controller.TaskBizDictTestController;
 import com.zero.domain.DictItem;
+import com.zero.intercept.MybatisSqlLogInterceptor;
 import com.zero.mapper.TaskRoutingProbeMapper;
 import com.zero.model.AjaxResult;
 import com.zero.util.DictConfigUtil;
 import com.zero.util.RedissonUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.redisson.api.RedissonClient;
 import org.redisson.spring.data.connection.RedissonConnectionFactory;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -104,6 +108,7 @@ class TaskInfrastructureTest {
     void routesBothDataSourcesAndPaginatesXmlQuery() throws Exception {
         databaseRunner().run(context -> {
             assertThat(context).doesNotHaveBean(RedisConnectionFactory.class);
+            assertThat(context).hasSingleBean(MybatisSqlLogInterceptor.class);
             assertThat(context).hasSingleBean(DictConfigUtil.class);
             var mapper = context.getBean(TaskRoutingProbeMapper.class);
             var page = mapper.selectOrigin(new Page<>(2, 1));
@@ -113,6 +118,43 @@ class TaskInfrastructureTest {
             assertThat(reader.adminOrigin()).isEqualTo("admin-1");
             assertThat(mapper.selectOrigin(new Page<>(1, 1)).getRecords()).containsExactly("biz-1");
         });
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/19 23:15
+     * 说明: 验证开发环境记录数据源路由、分页 SQL、SQLID、实际参数、查询结果和耗时。
+     * @param output 测试期间捕获的日志输出
+     */
+    @Test
+    @ExtendWith(OutputCaptureExtension.class)
+    void logsExecutedSqlWithParametersAndResultsInDev(CapturedOutput output) throws Exception {
+        databaseRunner().withInitializer(context -> context.getEnvironment().setActiveProfiles("dev"))
+                .run(context -> {
+                    assertThat(context).hasSingleBean(MybatisSqlLogInterceptor.class);
+                    var mapper = context.getBean(TaskRoutingProbeMapper.class);
+                    var page = mapper.selectOrigin(new Page<>(2, 1));
+                    assertThat(page.getRecords()).containsExactly("biz-2");
+                    assertThat(page.getTotal()).isEqualTo(2);
+                    assertThat(context.getBean(DictConfigUtil.class).findActiveItem("task_status", "paid"))
+                            .isNotNull();
+                    assertThat(context.getBean(RoutingProbe.class).adminOrigin()).isEqualTo("admin-1");
+
+                    String sqlLog = output.getAll();
+                    assertThat(sqlLog)
+                            .contains("开始执行 SQL数据源 [zeroBiz]，SQLID [com.zero.mapper.TaskRoutingProbeMapper.selectOrigin]")
+                            .contains("开始执行 SQL数据源 [zeroAdmin]，SQLID [com.zero.mapper.TaskRoutingProbeMapper.selectOrigin]")
+                            .containsPattern("执行 SQL数据源 \\[zeroBiz\\]，SQLID \\[com\\.zero\\.mapper\\.TaskRoutingProbeMapper\\.selectOrigin\\]，耗时=\\d+ms")
+                            .containsPattern("(?i)LIMIT\\s+\\?\\s*,\\s*\\?")
+                            .contains("开始执行 SQL数据源 [zeroBiz]，SQLID [com.zero.mapper.TaskDictItemMapper.selectActiveByCodes]")
+                            .contains("g.group_code = ?", "i.item_code = ?")
+                            .contains("执行 SQL数据源 [zeroBiz]，SQLID [com.zero.mapper.TaskRoutingProbeMapper.selectOrigin]，执行参数=[1, 1]")
+                            .contains("执行 SQL数据源 [zeroAdmin]，SQLID [com.zero.mapper.TaskRoutingProbeMapper.selectOrigin]，查询结果=[admin-1]")
+                            .contains("selectActiveByCodes]，执行参数=[task_status, paid]", "itemCode=paid")
+                            .doesNotContain("Mapper 资源", "TaskRoutingProbeMapper.xml", "TaskDictItemMapper.xml",
+                                    "Parameters:");
+                });
     }
 
     /**

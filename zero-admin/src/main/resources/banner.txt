@@ -1,4 +1,4 @@
-Application Version: ${zero.version}
+Spring Application Name: ${spring.application.name}
 Spring Boot Version: ${spring-boot.version}
 ////////////////////////////////////////////////////////////////////
 //                          _ooOoo_                               //
