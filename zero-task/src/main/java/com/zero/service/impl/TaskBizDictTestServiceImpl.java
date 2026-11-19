@@ -17,8 +17,8 @@ import java.util.List;
 @Service
 public class TaskBizDictTestServiceImpl extends TaskBaseService<TaskDictItemMapper, DictItem> implements TaskBizDictTestService{
     @Override
-    public DictItem getActiveItem(String groupCode, String itemCode) {
-        return getDictItem(groupCode + "." + itemCode);
+    public DictItem getActiveItem(String dictKey) {
+        return getDictItem(dictKey);
     }
 
     @Override

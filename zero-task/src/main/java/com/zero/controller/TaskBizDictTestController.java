@@ -28,16 +28,31 @@ public class TaskBizDictTestController {
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/19
+     * 说明: 查询字典项的原始值。
+     * @param dictKey 分组编码.字典项编码
+     * @return 匹配的字典原值
+     * 返回值: String
+     * 返回值说明: 未匹配时为空
+     */
+    @GetMapping("/findBizDictValue")
+    public AjaxResult getBizDictValue(String dictKey) {
+        String bizDictValue = dictionaryService.findBizDictValue(dictKey);
+        return AjaxResult.success("查询成功",bizDictValue);
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/19
      * 说明: 查询指定字典项。
-     * @param groupCode 字典分组编码
-     * @param itemCode 字典项编码
+     * @param dictKey 字典分组编码.字典项编码
      * @return 匹配的有效字典项
      * 返回值: DictItem
      * 返回值说明: 未匹配时为空
      */
     @GetMapping("/getActiveItem")
-    public AjaxResult findActiveItem(String groupCode, String itemCode) {
-        DictItem activeItem = dictionaryService.getActiveItem(groupCode, itemCode);
+    public AjaxResult findActiveItem(String dictKey) {
+        DictItem activeItem = dictionaryService.getActiveItem(dictKey);
         return AjaxResult.success(activeItem);
     }
 
@@ -57,19 +72,5 @@ public class TaskBizDictTestController {
         return AjaxResult.success(activeItems);
     }
 
-    /**
-     *
-     * 作者: Arthur 亚瑟
-     * 时间: 2026/11/19
-     * 说明: 查询字典项的原始值。
-     * @param dictKey 分组编码.字典项编码
-     * @return 匹配的字典原值
-     * 返回值: String
-     * 返回值说明: 未匹配时为空
-     */
-    @GetMapping("/findBizDictValue")
-    public AjaxResult getBizDictValue(String dictKey) {
-        String bizDictValue = dictionaryService.findBizDictValue(dictKey);
-        return AjaxResult.success(bizDictValue);
-    }
+
 }
