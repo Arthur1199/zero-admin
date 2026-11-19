@@ -17,13 +17,12 @@ public interface TaskBizDictTestService {
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/19 19:20
      * 说明: 查询启用且未删除的字典项。
-     * @param groupCode 字典分组编码
-     * @param itemCode 字典项编码
+     * @param dictKey 字典分组.字典项
      * @return 字典项，无有效记录时为空
      * 返回值: DictItem
      * 返回值说明: 匹配的有效字典项
      */
-    DictItem getActiveItem(String groupCode, String itemCode);
+    DictItem getActiveItem(String dictKey);
 
     /**
      *
