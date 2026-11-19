@@ -36,13 +36,14 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 获取参数不为空值
+     * @param <T> 当前方法处理的值类型
      * @param value defaultValue 要判断的value
      * @param defaultValue default值参数
      * @return
-     * 返回值: value 返回值
-     * 返回值说明：获取参数不为空值
+     * 返回值: T
+     * 返回值说明: 获取参数不为空值
      */
     public static <T> T nvl(T value, T defaultValue)
     {
@@ -279,12 +280,12 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 截取字符串
      * @param str 字符串
      * @param start 开始
      * @return
-     * 返回值: 结果
+     * 返回值: String
      * 返回值说明：截取字符串
      */
     public static String substring(final String str, int start)
@@ -314,13 +315,13 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 截取字符串
      * @param str 字符串
      * @param start 开始
      * @param end 结束
      * @return
-     * 返回值: 结果
+     * 返回值: String
      * 返回值说明：截取字符串
      */
     public static String substring(final String str, int start, int end)
@@ -394,11 +395,11 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 判断是否为空，并且不是空白字符
      * @param str 要判断的value
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：判断是否为空，并且不是空白字符
      */
     public static boolean hasText(String str)
@@ -452,11 +453,11 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 是否为http(s)://开头
      * @param link 链接
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：是否为http(s)://开头
      */
     public static boolean ishttp(String link)
@@ -808,12 +809,13 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: cast
+     * @param <T> 当前方法处理的值类型
      * @param obj obj参数
      * @return
-     * 返回值: <T> T
-     * 返回值说明：cast
+     * 返回值: T
+     * 返回值说明: cast
      */
 
     @SuppressWarnings("unchecked")

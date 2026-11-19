@@ -45,13 +45,14 @@ public class ReflectUtils
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 调用Getter方法.支持多级，如：对象名.对象名.方法
+     * @param <E> 由调用方提供或期望的对象类型
      * @param obj obj参数
      * @param propertyName property名称参数
      * @return
-     * 返回值: <E> E
-     * 返回值说明：调用Getter方法.支持多级，如：对象名.对象名.方法
+     * 返回值: E
+     * 返回值说明: 调用Getter方法.支持多级，如：对象名.对象名.方法
      */
     @SuppressWarnings("unchecked")
     public static <E> E invokeGetter(Object obj, String propertyName)
@@ -68,14 +69,15 @@ public class ReflectUtils
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 调用Setter方法, 仅匹配方法名。支持多级，如：对象名.对象名.方法
-     * @param obj obj参数
-     * @param propertyName property名称参数
-     * @param value 值参数
+     * 时间: 2026/11/20 01:36
+     * 说明: 沿以点分隔的属性路径定位对象，并按方法名调用最终属性的 setter。
+     * @param <E> 待写入的值类型
+     * @param obj 属性路径的根对象
+     * @param propertyName 属性路径
+     * @param value 待写入的值
      * @return
-     * 返回值: <E> void
-     * 返回值说明：调用Setter方法, 仅匹配方法名。支持多级，如：对象名.对象名.方法
+     * 返回值: void
+     * 返回值说明: 找到匹配的 setter 时更新属性
      */
     public static <E> void invokeSetter(Object obj, String propertyName, E value)
     {
@@ -99,13 +101,14 @@ public class ReflectUtils
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 直接读取对象属性值, 无视private/protected修饰符, 不经过getter函数.
+     * @param <E> 由调用方提供或期望的对象类型
      * @param obj obj参数
      * @param fieldName field名称参数
      * @return
-     * 返回值: <E> E
-     * 返回值说明：直接读取对象属性值, 无视private/protected修饰符, 不经过getter函数.
+     * 返回值: E
+     * 返回值说明: 直接读取对象属性值, 无视private/protected修饰符, 不经过getter函数.
      */
     @SuppressWarnings("unchecked")
     public static <E> E getFieldValue(final Object obj, final String fieldName)
@@ -131,14 +134,15 @@ public class ReflectUtils
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 直接设置对象属性值, 无视private/protected修饰符, 不经过setter函数.
-     * @param obj obj参数
-     * @param fieldName field名称参数
-     * @param value 值参数
+     * 时间: 2026/11/20 01:36
+     * 说明: 沿类继承层级定位字段并直接赋值，绕过属性 setter。
+     * @param <E> 待写入的值类型
+     * @param obj 要修改的对象
+     * @param fieldName 字段名称
+     * @param value 待写入的值
      * @return
-     * 返回值: <E> void
-     * 返回值说明：直接设置对象属性值, 无视private/protected修饰符, 不经过setter函数.
+     * 返回值: void
+     * 返回值说明: 定位到字段后尝试写入
      */
     public static <E> void setFieldValue(final Object obj, final String fieldName, final E value)
     {
@@ -160,9 +164,18 @@ public class ReflectUtils
     }
 
     /**
-     * 直接调用对象方法, 无视private/protected修饰符.
-     * 用于一次性调用的情况，否则应使用getAccessibleMethod()函数获得Method后反复调用.
-     * 同时匹配方法名+参数类型，
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 按方法名及精确的形参类型定位目标方法，找到后通过反射调用。
+     * @param <E> 目标方法的结果类型
+     * @param obj 待调用方法的对象
+     * @param methodName 要调用的方法名
+     * @param parameterTypes 用于定位重载的形参类型数组
+     * @param args 调用时传入的实参
+     * @return
+     * 返回值: E
+     * 返回值说明: 目标方法的结果，目标或方法缺失时返回 null，调用异常向上传递
      */
     @SuppressWarnings("unchecked")
     public static <E> E invokeMethod(final Object obj, final String methodName, final Class<?>[] parameterTypes,
@@ -192,14 +205,15 @@ public class ReflectUtils
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 直接调用对象方法, 无视private/protected修饰符，用于一次性调用的情况，否则应使用getAccessibleMethodByName()函数获得Method后反复调用.只匹配函数名，如果有多个同名函数调用第一个。
+     * @param <E> 由调用方提供或期望的对象类型
      * @param obj obj参数
      * @param methodName 方法名称参数
      * @param args args参数
      * @return
-     * 返回值: <E> E
-     * 返回值说明：直接调用对象方法, 无视private/protected修饰符，用于一次性调用的情况，否则应使用getAccessibleMethodByName()函数获得Method后反复调用.只匹配函数名，如果有多个同名函数调用第一个。
+     * 返回值: E
+     * 返回值说明: 直接调用对象方法, 无视private/protected修饰符，用于一次性调用的情况，否则应使用getAccessibleMethodByName()函数获得Method后反复调用.只匹配函数名，如果有多个同名函数调用第一个。
      */
     @SuppressWarnings("unchecked")
     public static <E> E invokeMethodByName(final Object obj, final String methodName, final Object[] args)
@@ -305,10 +319,16 @@ public class ReflectUtils
     }
 
     /**
-     * 循环向上转型, 获取对象的DeclaredMethod,并强制设置为可访问.
-     * 如向上转型到Object仍无法找到, 返回null.
-     * 匹配函数名+参数类型。
-     * 用于方法需要被多次调用的情况. 先使用本函数先取得Method,然后调用Method.invoke(Object obj, Object... args)
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 沿父类逐级查找具有指定签名的方法，并设置反射可访问性。
+     * @param obj 要查找方法的对象
+     * @param methodName 要查找的方法名
+     * @param parameterTypes 方法声明的形参类型数组
+     * @return
+     * 返回值: Method
+     * 返回值说明: 找到的方法，无法定位时返回 null
      */
     public static Method getAccessibleMethod(final Object obj, final String methodName,
             final Class<?>... parameterTypes)
@@ -411,12 +431,13 @@ public class ReflectUtils
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 通过反射, 获得Class定义中声明的泛型参数的类型, 注意泛型必须定义在父类处如无法找到, 返回Object.class.
+     * @param <T> 当前方法处理的值类型
      * @param clazz clazz参数
      * @return
-     * 返回值: <T> Class<T>
-     * 返回值说明：通过反射, 获得Class定义中声明的泛型参数的类型, 注意泛型必须定义在父类处如无法找到, 返回Object.class.
+     * 返回值: Class<T>
+     * 返回值说明: 通过反射, 获得Class定义中声明的泛型参数的类型, 注意泛型必须定义在父类处如无法找到, 返回Object.class.
      */
     @SuppressWarnings("unchecked")
     public static <T> Class<T> getClassGenricType(final Class clazz)

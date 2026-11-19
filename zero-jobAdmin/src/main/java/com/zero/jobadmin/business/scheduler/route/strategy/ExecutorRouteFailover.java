@@ -9,16 +9,16 @@ import com.xxl.tool.response.Response;
 
 /**
  *
- * 作者: xuxueli
- * 时间: 2017/3/10
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
  * 说明: 按组内配置顺序选择第一个心跳正常的节点。
  */
 public class ExecutorRouteFailover extends ExecutorRouter {
 
     /**
      *
-     * 作者: xuxueli
-     * 时间: 2017/3/10
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
      * 说明: 按组内配置顺序选择第一个心跳正常的节点。
      * @param triggerParam 调度请求，心跳检测与具体任务无关
      * @param jobGroup 执行器组，提供节点列表和通信配置

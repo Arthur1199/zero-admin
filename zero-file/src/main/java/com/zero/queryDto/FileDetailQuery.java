@@ -5,7 +5,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 文件记录查询参数。
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 文件记录查询参数。
  */
 @Getter
 @Setter

@@ -1,15 +1,12 @@
-/**
- *
- * Copyright (c) 2004-2017 All Rights Reserved.
- */
 package com.zero.utils.mail;
 
 import java.io.File;
 
 /**
- * 发送附件用
- * @author jerry
- * @version $Id: AttachBean.java, v 0.1 2017年7月27日 上午11:03:59 jerry Exp $
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:42
+ * 说明: 保存邮件附件文件及其展示名称，供邮件工具构造附件部分。
  */
 public class AttachBean {
 

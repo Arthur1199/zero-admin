@@ -12,8 +12,8 @@ import java.util.stream.Stream;
 
 /**
  *
- * 作者: xuxueli
- * 时间: 2018/7/3 21:08:07
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
  * 说明: 管理快慢派发线程池，记录提交被拒绝或停机前未能开始的调度。
  */
 @Slf4j
@@ -29,8 +29,8 @@ public class JobTriggerPoolHelper {
 
     /**
      *
-     * 作者: xuxueli
-     * 时间: 2018/7/3 21:08:07
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
      * 说明: 初始化快慢派发线程池，队列满或线程池关闭时向提交方报告拒绝。
      * @return
      * 返回值: void
@@ -68,8 +68,8 @@ public class JobTriggerPoolHelper {
 
     /**
      *
-     * 作者: xuxueli
-     * 时间: 2018/7/3 21:08:07
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
      * 说明: 停止接收新派发，先等待已接收任务，再记录强制关闭时尚未开始的任务。
      * @return
      * 返回值: void
@@ -115,8 +115,8 @@ public class JobTriggerPoolHelper {
 
     /**
      *
-     * 作者: xuxueli
-     * 时间: 2018/7/3 21:08:07
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
      * 说明: 提交异步派发，被线程池拒绝时记失败日志并通知调用方。
      * @param jobId 任务 ID
      * @param triggerType 触发类型

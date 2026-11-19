@@ -38,11 +38,11 @@ public interface ISysOperLogService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 批量删除系统操作日志
      * @param operIds 需要删除的操作日志ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：批量删除系统操作日志
      */
     public int deleteOperLogByIds(Long[] operIds);

@@ -264,8 +264,9 @@ public class ReportRestService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/6/28 02:25
+     * 时间: 2026/11/20 01:36
      * 说明: 通用调用 report 接口，可指定返回类型以兼容 AjaxResult、TableDataInfo 或自定义 DTO
+     * @param <T> 当前方法处理的值类型
      * @param requestPath report 接口路径，必须以 / 开头
      * @param method HTTP 请求方法
      * @param requestBody POST/PUT 等请求体，GET 请求可为空
@@ -309,8 +310,9 @@ public class ReportRestService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/6/28 05:02
+     * 时间: 2026/11/20 01:36
      * 说明: 按调用方声明的返回类型构建统一失败结果，保证前端拦截器和列表页能按固定结构处理失败
+     * @param <T> 当前方法处理的值类型
      * @param responseType 调用方期望的返回类型
      * @param msg 失败提示，不包含下游异常堆栈或敏感信息
      * @return

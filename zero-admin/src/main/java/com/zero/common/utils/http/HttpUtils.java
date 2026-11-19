@@ -308,6 +308,12 @@ public class HttpUtils
         return result.toString();
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 供既有 HTTPS 兼容请求使用的信任管理器，未验证对端证书链。
+     */
     private static class TrustAnyTrustManager implements X509TrustManager
     {
         /**
@@ -358,18 +364,24 @@ public class HttpUtils
         }
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 供既有 HTTPS 兼容请求使用的验证器，固定接受连接的主机名。
+     */
     private static class TrustAnyHostnameVerifier implements HostnameVerifier
     {
         /**
          *
          * 作者: Arthur 亚瑟
-         * 时间: 2026/5/14 00:58
-         * 说明: verify
-         * @param hostname hostname参数
-         * @param session session参数
+         * 时间: 2026/11/20 01:36
+         * 说明: 既有兼容分支直接通过 HTTPS 主机名验证。
+         * @param hostname 连接使用的主机名
+         * @param session 当前 TLS 会话
          * @return
          * 返回值: boolean
-         * 返回值说明：verify
+         * 返回值说明: 固定返回 true
          */
         @Override
         public boolean verify(String hostname, SSLSession session)

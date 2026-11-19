@@ -14,8 +14,8 @@ import java.util.List;
 
 /**
  *
- * 作者: xuxueli
- * 时间: 2019/11/22
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
  * 说明: 定期维护历史运行报表汇总和调度日志保留周期。
  */
 @Slf4j
@@ -39,8 +39,8 @@ public class JobLogReportHelper {
 
     /**
      *
-     * 作者: xuxueli
-     * 时间: 2019/11/22
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
      * 说明: 启动报表刷新和日志清理线程。
      * @return
      * 返回值: void

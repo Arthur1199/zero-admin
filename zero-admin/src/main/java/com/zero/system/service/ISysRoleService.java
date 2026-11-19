@@ -98,11 +98,11 @@ public interface ISysRoleService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 校验角色名称是否唯一
      * @param role 角色信息
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：校验角色名称是否唯一
      */
     public boolean checkRoleNameUnique(SysRole role);
@@ -110,11 +110,11 @@ public interface ISysRoleService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 校验角色权限是否唯一
      * @param role 角色信息
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：校验角色权限是否唯一
      */
     public boolean checkRoleKeyUnique(SysRole role);
@@ -146,11 +146,11 @@ public interface ISysRoleService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 通过角色ID查询角色使用数量
      * @param roleId 角色ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：通过角色ID查询角色使用数量
      */
     public int countUserRoleByRoleId(Long roleId);
@@ -158,11 +158,11 @@ public interface ISysRoleService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 新增保存角色信息
      * @param role 角色信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：新增保存角色信息
      */
     public int insertRole(SysRole role);
@@ -170,11 +170,11 @@ public interface ISysRoleService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 修改保存角色信息
      * @param role 角色信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改保存角色信息
      */
     public int updateRole(SysRole role);
@@ -182,11 +182,11 @@ public interface ISysRoleService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 修改角色状态
      * @param role 角色信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改角色状态
      */
     public int updateRoleStatus(SysRole role);
@@ -194,11 +194,11 @@ public interface ISysRoleService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 修改数据权限信息
      * @param role 角色信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改数据权限信息
      */
     public int authDataScope(SysRole role);
@@ -206,11 +206,11 @@ public interface ISysRoleService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 通过角色ID删除角色
      * @param roleId 角色ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：通过角色ID删除角色
      */
     public int deleteRoleById(Long roleId);
@@ -218,11 +218,11 @@ public interface ISysRoleService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 批量删除角色信息
      * @param roleIds 需要删除的角色ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：批量删除角色信息
      */
     public int deleteRoleByIds(Long[] roleIds);
@@ -230,11 +230,11 @@ public interface ISysRoleService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 取消授权用户角色
      * @param userRole 用户和角色关联信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：取消授权用户角色
      */
     public int deleteAuthUser(SysUserRole userRole);
@@ -242,12 +242,12 @@ public interface ISysRoleService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 批量取消授权用户角色
      * @param roleId 角色ID
      * @param userIds 需要取消授权的用户数据ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：批量取消授权用户角色
      */
     public int deleteAuthUsers(Long roleId, Long[] userIds);
@@ -255,12 +255,12 @@ public interface ISysRoleService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 批量选择授权用户角色
      * @param roleId 角色ID
      * @param userIds 需要删除的用户数据ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：批量选择授权用户角色
      */
     public int insertAuthUsers(Long roleId, Long[] userIds);

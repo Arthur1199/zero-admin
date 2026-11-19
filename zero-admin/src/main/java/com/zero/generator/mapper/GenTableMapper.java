@@ -85,11 +85,11 @@ public interface GenTableMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 新增业务
      * @param genTable 业务信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：新增业务
      */
     public int insertGenTable(GenTable genTable);
@@ -97,11 +97,11 @@ public interface GenTableMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 修改业务
      * @param genTable 业务信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改业务
      */
     public int updateGenTable(GenTable genTable);
@@ -109,11 +109,11 @@ public interface GenTableMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 批量删除业务
      * @param ids 需要删除的数据ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：批量删除业务
      */
     public int deleteGenTableByIds(Long[] ids);
@@ -121,11 +121,11 @@ public interface GenTableMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 创建表
      * @param sql 表结构
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：创建表
      */
     public int createTable(String sql);

@@ -112,12 +112,15 @@ public class ApiGoogleAuthInterceptor implements HandlerInterceptor
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/6/27 04:49
-     * 说明: 判断当前请求路径是否命中启用的接口谷歌验证配置，路径按不带查询参数的URI精确匹配
-     * @param requestPath 当前请求路径，不包含contextPath和查询参数
+     * 时间: 2026/11/20 01:36
+     * 说明: 从已启用的配置中查找与当前请求相匹配的接口二次验证规则。
+     * @param permissions 当前接口声明的权限标识
+     * @param requestMethod 当前 HTTP 方法
+     * @param requestPath 当前实际请求路径
+     * @param matchedPattern Spring MVC 匹配到的路由模板
      * @return
      * 返回值: boolean
-     * 返回值说明: true-需要谷歌二次验证，false-不需要验证
+     * 返回值说明: 至少命中一条规则时返回 true
      */
     private boolean isNeedGoogleAuth(List<String> permissions, String requestMethod, String requestPath, String matchedPattern)
     {

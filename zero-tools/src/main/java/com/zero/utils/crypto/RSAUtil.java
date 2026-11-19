@@ -10,10 +10,10 @@ import java.util.Map;
 
 
 /**
- * 作者: Jack
- * 时间: 2024年9月14日15:29:49
- * 说明: RSA工具类
  *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 封装 RSA 密钥生成、加密解密和签名验签，供现有调用方沿用字符串及 Base64 数据格式。
  */
 public class RSAUtil {
 
@@ -28,9 +28,13 @@ public class RSAUtil {
     private static final int KEY_SIZE = 2048;
 
     /**
-     * 生成密钥对
      *
-     * @return 返回包含公私钥的map
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 生成密钥对
+     * @return
+     * 返回值: Map<String, String>
+     * 返回值说明: 返回包含公私钥的map
      */
     public static Map<String, String> generateKey() {
         KeyPairGenerator keygen;
@@ -59,11 +63,15 @@ public class RSAUtil {
     }
 
     /**
-     * 公钥加密(用于数据加密)
      *
-     * @param data         加密前的字符串
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 公钥加密(用于数据加密)
+     * @param data 加密前的字符串
      * @param publicKeyStr base64编码后的公钥
-     * @return base64编码后的字符串
+     * @return
+     * 返回值: String
+     * 返回值说明: base64编码后的字符串
      * @throws Exception
      */
     public static String encryptByPublicKey(String data, String publicKeyStr) throws Exception {
@@ -86,11 +94,15 @@ public class RSAUtil {
     }
 
     /**
-     * 私钥解密(用于数据解密)
      *
-     * @param data          解密前的字符串
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 私钥解密(用于数据解密)
+     * @param data 解密前的字符串
      * @param privateKeyStr 私钥
-     * @return 解密后的字符串
+     * @return
+     * 返回值: String
+     * 返回值说明: 解密后的字符串
      * @throws Exception
      */
     public static String decryptByPrivateKey(String data, String privateKeyStr) throws Exception {
@@ -113,11 +125,15 @@ public class RSAUtil {
     }
 
     /**
-     * 私钥加密(用于数据签名)
      *
-     * @param data          加密前的字符串
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 私钥加密(用于数据签名)
+     * @param data 加密前的字符串
      * @param privateKeyStr base64编码后的私钥
-     * @return base64编码后后的字符串
+     * @return
+     * 返回值: String
+     * 返回值说明: base64编码后后的字符串
      * @throws Exception
      */
     public static String encryptByPrivateKey(String data, String privateKeyStr) throws Exception {
@@ -140,11 +156,15 @@ public class RSAUtil {
     }
 
     /**
-     * 公钥解密(用于数据验签)
      *
-     * @param data         解密前的字符串
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 公钥解密(用于数据验签)
+     * @param data 解密前的字符串
      * @param publicKeyStr base64编码后的公钥
-     * @return 解密后的字符串
+     * @return
+     * 返回值: String
+     * 返回值说明: 解密后的字符串
      * @throws Exception
      */
     public static String decryptByPublicKey(String data, String publicKeyStr) throws Exception {
@@ -197,36 +217,30 @@ public class RSAUtil {
 //    }
 
     /**
-     * 作者:Jack
-     * 日期:2024年9月14日16:27:15
-     * @param sinStr 待签名数据
-     * @param priKey rsa私钥
-     * @param signType 签名类型 RSA 或者RSA2
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 对字符串按当前 JVM 默认字符集取字节，再用指定分支的 RSA 签名算法生成签名。
+     * @param sinStr 待签名文本
+     * @param priKey Base64 编码的 PKCS#8 私钥，禁止输出
+     * @param signType 为 RSA 时走兼容分支，其余取值使用 RSA2 分支
      * @return
-     * @throws Exception
-     * 返回值:String
-     * 返回值说明:
+     * 返回值: String
+     * 返回值说明: Base64 编码的签名
+     * @throws Exception 私钥无效或签名初始化、计算失败时抛出
      */
     public static String sign(String sinStr, String priKey, String signType) throws Exception {
     	byte [] data = sinStr.getBytes();
     	byte[] decode = Base64.getDecoder().decode(priKey);
-        //创建PKCS8编码密钥规范
         PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(decode);
-        //返回转换指定算法的KeyFactory对象
         KeyFactory keyFactory = KeyFactory.getInstance(RSA_KEY_ALGORITHM);
-        //根据PKCS8编码密钥规范产生私钥对象
         PrivateKey privateKey = keyFactory.generatePrivate(pkcs8KeySpec);
-        //标准签名算法名称(RSA还是RSA2)
+        // 沿用接入方的算法约定，只有显式传入 RSA 时选择兼容分支。
         String algorithm = RSA_KEY_ALGORITHM.equals(signType) ? RSA_SIGNATURE_ALGORITHM : RSA2_SIGNATURE_ALGORITHM;
-        //用指定算法产生签名对象Signature
         Signature signature = Signature.getInstance(algorithm);
-        //用私钥初始化签名对象Signature
         signature.initSign(privateKey);
-        //将待签名的数据传送给签名对象(须在初始化之后)
         signature.update(data);
-        //返回签名结果字节数组
         byte[] sign = signature.sign();
-        //返回Base64编码后的字符串
         return Base64.getEncoder().encodeToString(sign);
     }
     
@@ -259,12 +273,17 @@ public class RSAUtil {
 //    }
     
     /**
-     * RSA校验数字签名
      *
-     * @param sign     数字签名
-     * @param pubKey   公钥
-     * @param signType RSA或RSA2
-     * @return boolean 校验成功返回true，失败返回false
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 使用 RSA 公钥及指定的兼容签名算法校验文本签名。
+     * @param verifyStr 待校验的原始文本
+     * @param sign Base64 编码的签名
+     * @param pubKey Base64 编码的公钥
+     * @param signType 签名算法选择参数
+     * @return
+     * 返回值: boolean
+     * 返回值说明: 签名与原文、公钥匹配时返回 true
      */
     public static boolean verify(String verifyStr, String sign, String pubKey, String signType) throws Exception {
     	byte[] decodePublicKey = Base64.getDecoder().decode(pubKey);
@@ -289,11 +308,14 @@ public class RSAUtil {
     }
     
     /**
-     * 作者:Jack
-     * 日期:2024年9月14日15:42:21
-     * @throws Exception
-     * 返回值:void
-     * 返回值说明:RSA数据加密和解密
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 用临时密钥对演示公钥加密和私钥解密。
+     * @return
+     * 返回值: void
+     * 返回值说明: 向控制台输出演示密钥及往返处理结果，仅供本地调试
+     * @throws Exception 生成密钥或加解密失败时抛出
      */
     public void encryptAndDecrypt() throws Exception {
         Map<String, String> keyMap = RSAUtil.generateKey();
@@ -316,11 +338,14 @@ public class RSAUtil {
     
     
     /**
-     * 作者:Jack
-     * 日期:2024年9月14日15:42:36
-     * @throws Exception
-     * 返回值:void
-     * 返回值说明:RSA数据签名和验签
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 用临时密钥对演示私钥签名和公钥验签。
+     * @return
+     * 返回值: void
+     * 返回值说明: 向控制台输出演示密钥、签名和验签结果，仅供本地调试
+     * @throws Exception 生成密钥、签名或验签失败时抛出
      */
     public void signAndVerify() throws Exception {
         Map<String, String> keyMap = RSAUtil.generateKey();
@@ -339,12 +364,15 @@ public class RSAUtil {
     }
 
     /**
-     * 作者:Jack
-     * 日期:2024年9月14日15:43:28
-     * @param args
-     * @throws Exception
-     * 返回值:void
-     * 返回值说明:功能测试
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 依次运行 RSA 加解密和签名验签演示。
+     * @param args 命令行参数，演示流程不读取
+     * @return
+     * 返回值: void
+     * 返回值说明: 将两组演示结果输出到控制台
+     * @throws Exception 任一演示步骤失败时向上传递
      */
     public static void main(String[] args) throws Exception {
         RSAUtil rsaUtil = new RSAUtil();

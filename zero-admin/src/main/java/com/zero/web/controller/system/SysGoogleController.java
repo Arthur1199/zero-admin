@@ -22,7 +22,10 @@ import com.zero.system.service.ISysGoogleService;
 import com.zero.system.service.ISysUserService;
 
 /**
- * 用户谷歌动态码绑定
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 管理用户的谷歌动态码绑定，并提供登录页首次绑定所需接口。
  */
 @RestController
 public class SysGoogleController extends BaseController
@@ -34,7 +37,14 @@ public class SysGoogleController extends BaseController
     private ISysUserService userService;
 
     /**
-     * 查询谷歌绑定列表
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 具备谷歌绑定列表权限时，分页查询用户的绑定状态。
+     * @param sysGoogle 绑定列表的筛选条件
+     * @return
+     * 返回值: TableDataInfo
+     * 返回值说明: 谷歌动态码绑定列表及总数
      */
     @RequiresPermissions("system:google:list")
     @GetMapping("/system/google/list")
@@ -46,9 +56,14 @@ public class SysGoogleController extends BaseController
     }
 
     /**
-     * 查看谷歌密钥明文
      *
-     * 明文只允许具备专门权限的管理员查看，并且不记录响应内容到操作日志。
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 在校验密钥查看权限和用户数据权限后返回绑定密钥，操作日志关闭响应记录。
+     * @param userId 待查看密钥的用户 ID
+     * @return
+     * 返回值: AjaxResult
+     * 返回值说明: 成功时 data 为所查用户的绑定密钥
      */
     @RequiresPermissions("system:google:viewKey")
     @Log(title = "查看谷歌Key", businessType = BusinessType.OTHER, isSaveResponseData = false)
@@ -63,7 +78,14 @@ public class SysGoogleController extends BaseController
     }
 
     /**
-     * 解绑谷歌动态码
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 校验解绑权限及目标用户的数据权限后，解除其谷歌动态码绑定。
+     * @param sysGoogle 包含待解绑的用户 ID
+     * @return
+     * 返回值: AjaxResult
+     * 返回值说明: 解绑结果或参数错误
      */
     @RequiresPermissions("system:google:unbind")
     @Log(title = "谷歌绑定", businessType = BusinessType.UPDATE)
@@ -80,9 +102,15 @@ public class SysGoogleController extends BaseController
     }
 
     /**
-     * 生成登录绑定二维码
      *
-     * 该接口用于未登录用户首次绑定，安全校验放在 Service 中按用户名和绑定状态处理。
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 为登录页生成首次绑定用的 PNG 二维码，绑定资格由服务层校验。
+     * @param userName 待绑定的用户账号
+     * @param response 用于输出图片的 HTTP 响应
+     * @return
+     * 返回值: void
+     * 返回值说明: 向响应流写入二维码并设置禁止缓存的响应头
      */
     @GetMapping("/google/generateGaImage")
     public void generateGaImage(String userName, HttpServletResponse response) throws Exception
@@ -95,9 +123,14 @@ public class SysGoogleController extends BaseController
     }
 
     /**
-     * 登录页绑定谷歌动态码
      *
-     * 只把通过动态码验证的临时密钥写入绑定表，避免用户只打开二维码就完成绑定。
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 校验用户提交的动态码，验证通过后将临时密钥保存为正式绑定。
+     * @param bindBody 登录页提交的账号和六位动态码
+     * @return
+     * 返回值: AjaxResult
+     * 返回值说明: 绑定结果或验证失败原因
      */
     @PostMapping("/google/bind")
     public AjaxResult bind(@RequestBody GoogleBindBody bindBody)

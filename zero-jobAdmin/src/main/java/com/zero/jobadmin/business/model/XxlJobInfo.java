@@ -3,15 +3,17 @@ package com.zero.jobadmin.business.model;
 import java.util.Date;
 
 /**
- * xxl-job info
  *
- * @author xuxueli  2016-1-12 18:25:49
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 对应 xxl_job_info 的任务定义，包含调度类型、触发游标、执行方式和失败处理配置。
  */
 public class XxlJobInfo {
 	
 	private int id;				// 主键ID
 	
 	private int jobGroup;		// 执行器主键ID
+	/** 任务管理及调度日志展示的任务名称。 */
 	private String name;
 
 	private String author;		// 负责人
@@ -35,11 +37,16 @@ public class XxlJobInfo {
 
 	private String childJobId;		// 子任务ID，多个逗号分隔
 
-	private int triggerStatus;		// 调度状态：TriggerStatus
-	private long triggerLastTime;	// 上次调度时间
-	private long triggerNextTime;	// 下次调度时间
+	/** 调度状态，0 为停止、1 为运行，扫描批量更新时 -1 表示保留库内状态。 */
+	private int triggerStatus;
+	/** 上一次调度游标，单位为 Unix 时间戳毫秒。 */
+	private long triggerLastTime;
+	/** 下一次计划调度游标，单位为 Unix 时间戳毫秒。 */
+	private long triggerNextTime;
 
+	/** 任务配置创建时间。 */
 	private Date addTime;
+	/** 任务配置最近一次写入时间。 */
 	private Date updateTime;
 
 

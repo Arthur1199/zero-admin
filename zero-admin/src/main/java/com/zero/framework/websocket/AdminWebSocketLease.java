@@ -120,6 +120,7 @@ public class AdminWebSocketLease
      */
     private long leaseTtl()
     {
+        // 租期同时覆盖连接空闲窗口和三次会话检查间隔，给后台续租留出时间。
         return Math.max(properties.idleTimeout(), properties.sessionCheckInterval() * 3L);
     }
 

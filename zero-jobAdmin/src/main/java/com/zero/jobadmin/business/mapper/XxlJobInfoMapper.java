@@ -9,8 +9,10 @@ import java.util.List;
 
 
 /**
- * job info
- * @author xuxueli 2016-1-12 18:03:45
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 读写 xxl_job_info 的任务定义、启停状态与调度游标。
  */
 @Mapper
 public interface XxlJobInfoMapper {
@@ -38,6 +40,22 @@ public interface XxlJobInfoMapper {
 									 @Param("name") String name,
 									 @Param("executorHandler") String executorHandler,
 									 @Param("author") String author);
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 按任务列表的执行器、状态等条件统计总数。
+	 * @param offset 分页偏移量，从 0 开始
+	 * @param pagesize 每页最多记录数
+	 * @param jobGroup 执行器组 ID，小于等于 0 时不限
+	 * @param triggerStatus 触发状态，小于 0 时不限
+	 * @param name 任务名称筛选
+	 * @param executorHandler 执行器处理器筛选
+	 * @param author 任务负责人筛选
+	 * @return
+	 * 返回值: int
+	 * 返回值说明: 匹配任务数，统计不分页
+	 */
 	public int pageListCount(@Param("offset") int offset,
 							 @Param("pagesize") int pagesize,
 							 @Param("jobGroup") int jobGroup,
@@ -46,8 +64,28 @@ public interface XxlJobInfoMapper {
 							 @Param("executorHandler") String executorHandler,
 							 @Param("author") String author);
 	
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 新增任务配置并回填数据库生成的 ID。
+	 * @param info 待保存的任务配置
+	 * @return
+	 * 返回值: int
+	 * 返回值说明: 受影响的记录数
+	 */
 	public int save(XxlJobInfo info);
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 按主键读取任务定义及当前调度时间。
+	 * @param id 任务主键
+	 * @return
+	 * 返回值: XxlJobInfo
+	 * 返回值说明: 任务记录，未找到时返回 null
+	 */
 	public XxlJobInfo loadById(@Param("id") int id);
 
 	/**
@@ -89,6 +127,16 @@ public interface XxlJobInfoMapper {
 	int updateTriggerState(@Param("job") XxlJobInfo job, @Param("status") int status,
 			@Param("nextTriggerTime") long nextTriggerTime);
 	
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 按主键更新任务记录，供直接维护任务配置的调用方使用。
+	 * @param xxlJobInfo 携带任务主键和待保存的字段
+	 * @return
+	 * 返回值: int
+	 * 返回值说明: 受影响的记录数
+	 */
 	public int update(XxlJobInfo xxlJobInfo);
 
 	/**
@@ -106,6 +154,16 @@ public interface XxlJobInfoMapper {
 	int updateInGroup(@Param("job") XxlJobInfo job, @Param("originalGroup") int originalGroup,
 			@Param("refreshNextTime") boolean refreshNextTime);
 	
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 按主键物理删除任务定义。
+	 * @param id 任务主键
+	 * @return
+	 * 返回值: int
+	 * 返回值说明: 受影响的记录数
+	 */
 	public int delete(@Param("id") long id);
 
 	/**
@@ -120,32 +178,46 @@ public interface XxlJobInfoMapper {
 	 */
 	public List<XxlJobInfo> getJobsByGroup(@Param("jobGroup") int jobGroup);
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 统计任务表总数，供调度控制台概览使用。
+	 * @return
+	 * 返回值: int
+	 * 返回值说明: 任务总数
+	 */
 	public int findAllCount();
 
 	/**
-	 * find schedule job, limit "trigger_status = 1"
 	 *
-	 * @param maxNextTime
-	 * @param pagesize
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 预读已启用且下一次触发时间落在扫描上界以内的任务。
+	 * @param maxNextTime 扫描窗口上界，单位为 Unix 时间戳毫秒
+	 * @param pagesize 本批任务上限
 	 * @return
+	 * 返回值: List<XxlJobInfo>
+	 * 返回值说明: 本批次需要计算调度游标的任务列表
 	 */
 	public List<XxlJobInfo> scheduleJobQuery(@Param("maxNextTime") long maxNextTime, @Param("pagesize") int pagesize );
 
 	/**
-	 * update schedule job
 	 *
-	 * 	1、can only update "trigger_status = 1", Avoid stopping tasks from being opened
-	 * 	2、valid "triggerStatus gte 0", filter illegal state
-	 *
-	 * @param xxlJobInfo
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 在任务保持启用时更新触发游标，按传入状态决定是否更新触发状态。
+	 * @param xxlJobInfo 包含任务主键、触发游标和状态的内存对象
 	 * @return
+	 * 返回值: int
+	 * 返回值说明: 数据库更新的行数
 	 */
 	public int scheduleUpdate(XxlJobInfo xxlJobInfo);
 
 	/**
 	 *
-	 * 作者: xuxueli
-	 * 时间: 2016/1/12 18:03:45
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 批量推进仍启用且与预读计划一致的调度游标。
 	 * @param updates 包含旧计划和新游标的任务批次
 	 * @return

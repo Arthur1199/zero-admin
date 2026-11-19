@@ -11,7 +11,11 @@ import org.apache.commons.lang3.StringUtils;
 import com.zero.utils.common.DateHelper;
  
 /**
- * Twitter_Snowflake<br>
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: Twitter_Snowflake<br>
+ *
  * SnowFlake的结构如下(每部分用-分开):<br>
  * 0 - 0000000000 0000000000 0000000000 0000000000 0 - 00000 - 00000 - 000000000000 <br>
  * 1位标识，由于long基本类型在Java中是带符号的，最高位是符号位，正数是0，负数是1，所以id一般是正数，最高位是0<br>
@@ -75,7 +79,10 @@ public class IdWorker {
  
     //==============================Constructors=====================================
     /**
-     * 构造函数
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 构造函数
      * @param workerId 工作ID (0~31)
      * @param dataCenterId 数据中心ID (0~31)
      */
@@ -92,8 +99,13 @@ public class IdWorker {
  
     // ==============================Methods==========================================
     /**
-     * 获得下一个ID (该方法是线程安全的)
-     * @return SnowflakeId
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 获得下一个ID (该方法是线程安全的)
+     * @return
+     * 返回值: long
+     * 返回值说明: SnowflakeId
      */
     public synchronized long nextId() {
         long timestamp = timeGen();
@@ -129,9 +141,14 @@ public class IdWorker {
     }
  
     /**
-     * 阻塞到下一个毫秒，直到获得新的时间戳
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 阻塞到下一个毫秒，直到获得新的时间戳
      * @param lastTimestamp 上次生成ID的时间截
-     * @return 当前时间戳
+     * @return
+     * 返回值: long
+     * 返回值说明: 当前时间戳
      */
     protected long tilNextMillis(long lastTimestamp) {
         long timestamp = timeGen();
@@ -142,13 +159,27 @@ public class IdWorker {
     }
  
     /**
-     * 返回以毫秒为单位的当前时间
-     * @return 当前时间(毫秒)
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 返回以毫秒为单位的当前时间
+     * @return
+     * 返回值: long
+     * 返回值说明: 当前时间(毫秒)
      */
     protected long timeGen() {
         return System.currentTimeMillis();
     }
  
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 将本机地址字符码点求和后对 32 取余，得到默认工作节点编号。
+     * @return
+     * 返回值: Long
+     * 返回值说明: 节点编号，无法解析本机地址时从 0 至 30 随机选取
+     */
     private static Long getWorkId(){
         try {
             String hostAddress = Inet4Address.getLocalHost().getHostAddress();
@@ -164,6 +195,15 @@ public class IdWorker {
         }
     }
  
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 将机器名称字符码点求和后对 32 取余，得到默认数据中心编号。
+     * @return
+     * 返回值: Long
+     * 返回值说明: 数据中心编号，无法解析主机名时从 0 至 30 随机选取
+     */
     private static Long getDataCenterId(){
         try {
             String hostName = InetAddress.getLocalHost().getHostName();
@@ -180,9 +220,13 @@ public class IdWorker {
  
  
     /**
-     * 静态工具类
      *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 同步调用当前 ID 生成器获取一个编号。
      * @return
+     * 返回值: String
+     * 返回值说明: 编号的十进制字符串形式
      */
     public static synchronized String generateId(){
         long id = idWorker.nextId();
@@ -191,7 +235,16 @@ public class IdWorker {
     }
  
     //==============================Test=============================================
-    /** 测试 */
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 在控制台演示多次生成 ID。
+     * @param args 命令行参数，演示流程不读取
+     * @return
+     * 返回值: void
+     * 返回值说明: 输出生成的编号及字符串长度
+     */
     public static void main(String[] args) {
     	Date date = new Date(1288834974657L);
     	System.out.println(DateHelper.getTime(date));

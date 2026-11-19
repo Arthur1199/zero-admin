@@ -6,7 +6,8 @@
 ///**
 // * local cache tool
 // *
-// * @author xuxueli 2018-01-22 21:37:34
+// * 作者: Arthur 亚瑟
+// * 时间: 2026/11/20 01:36
 // */
 //public class LocalCacheUtil {
 //

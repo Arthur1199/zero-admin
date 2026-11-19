@@ -6,9 +6,9 @@ import org.springframework.core.env.Environment;
 
 /**
  *
- * 作者: Jack
- * 时间: 2022年5月25日下午5:44:11
- * 说明: 管理后台运行环境判断，支持多个激活profile；无激活项时使用Spring默认profile
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 读取管理后台当前 Spring Profile，供环境显示和按环境执行的逻辑使用。显式激活项优先，缺少激活项时读取默认项。
  */
 public final class EnvironmentUtil {
 
@@ -22,10 +22,11 @@ public final class EnvironmentUtil {
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/11/18 14:45
+     * 时间: 2026/11/20 01:36
+     * 说明: 获取运行时候的中文运行环境
      * @return
-     * 返回值:String
-     * 返回值说明：获取运行时候的中文运行环境
+     * 返回值: String
+     * 返回值说明: 获取运行时候的中文运行环境
      */
     public static String  getEnvZhName(){
         if (isDev()){
@@ -43,10 +44,11 @@ public final class EnvironmentUtil {
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/11/18 14:46
+     * 时间: 2026/11/20 01:36
+     * 说明: 获取运行时候的英文运行环境
      * @return
-     * 返回值:String
-     * 返回值说明：获取运行时候的英文运行环境
+     * 返回值: String
+     * 返回值说明: 获取运行时候的英文运行环境
      */
     public static String  getEnvEnName(){
         if (isDev()){
@@ -63,21 +65,21 @@ public final class EnvironmentUtil {
 
 	/**
 	 *
-	 * 作者: Jack
-	 * 时间: 2026/11/18
-	 * 说明: 仅提供静态环境判断方法，不允许实例化
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 私有构造方法，用于限制环境工具的使用方式。
 	 */
 	private EnvironmentUtil() {
 	}
 
 	/**
 	 *
-	 * 作者:Jack
-	 * 时间:2022年5月25日下午5:47:30
-	 * 说明: 判断有效profile中是否包含dev，不要求它是唯一激活项
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 判断开发 Profile 是否参与当前部署配置。
 	 * @return
-	 * 返回值:boolean
-	 * 返回值说明:包含dev时为true，上下文未就绪或已关闭时为false
+	 * 返回值: boolean
+	 * 返回值说明: 有效 Profile 中包含 dev 时返回 true，忽略大小写
 	 */
 	public static boolean isDev() {
 		return hasProfile(DEV);
@@ -85,12 +87,12 @@ public final class EnvironmentUtil {
 
 	/**
 	 *
-	 * 作者:Jack
-	 * 时间:2022年5月25日下午5:47:30
-	 * 说明: 判断有效profile中是否包含test，不要求它是唯一激活项
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 判断测试 Profile 是否参与当前部署配置。
 	 * @return
-	 * 返回值:boolean
-	 * 返回值说明:包含test时为true，上下文未就绪或已关闭时为false
+	 * 返回值: boolean
+	 * 返回值说明: 有效 Profile 中包含 test 时返回 true，忽略大小写
 	 */
 	public static boolean isTest() {
 		return hasProfile(TEST);
@@ -98,12 +100,12 @@ public final class EnvironmentUtil {
 
 	/**
 	 *
-	 * 作者:Jack
-	 * 时间:2022年5月25日下午5:47:30
-	 * 说明: 判断有效profile中是否包含prod，不要求它是唯一激活项
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 判断生产 Profile 是否参与当前部署配置。
 	 * @return
-	 * 返回值:boolean
-	 * 返回值说明:包含prod时为true，上下文未就绪或已关闭时为false
+	 * 返回值: boolean
+	 * 返回值说明: 有效 Profile 中包含 prod 时返回 true，忽略大小写
 	 */
 	public static boolean isProd() {
 		return hasProfile(PROD);
@@ -111,13 +113,13 @@ public final class EnvironmentUtil {
 
 	/**
 	 *
-	 * 作者: Jack
-	 * 时间: 2026/11/18
-	 * 说明: 每次读取当前环境，避免缓存旧profile；多个profile可分别匹配不同判断方法，不做环境优先级推断
-	 * @param profile 待匹配的环境名称，由本类常量提供
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 每次调用都重新读取有效 Profile，允许多个 Profile 分别匹配。
+	 * @param profile 当前方法需要判断的部署环境名称
 	 * @return
 	 * 返回值: boolean
-	 * 返回值说明: 任一有效profile忽略大小写匹配即返回true，无匹配或上下文不可用时返回false
+	 * 返回值说明: 找到匹配项时返回 true，容器未就绪、已关闭或环境缺失时返回 false
 	 */
 	private static boolean hasProfile(String profile) {
 		ApplicationContext context = SpringContextUtils.getApplicationContext();

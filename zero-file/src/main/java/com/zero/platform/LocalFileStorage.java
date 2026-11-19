@@ -22,7 +22,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 本地文件存储。
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 本地文件存储。
  */
 @Slf4j
 @Getter
@@ -37,7 +40,13 @@ public class LocalFileStorage implements FileStorage {
     private String domain;
 
     /**
-     * 判断当前系统是否为 Linux。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 判断当前系统是否为 Linux。
+     * @return
+     * 返回值: boolean
+     * 返回值说明: 符合上述判断条件时返回 true
      */
     private boolean isLinux() {
     	String os = System.getProperties().getProperty("os.name");
@@ -49,7 +58,13 @@ public class LocalFileStorage implements FileStorage {
     }
     
     /**
-     * 判断当前系统是否为 Windows。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 判断当前系统是否为 Windows。
+     * @return
+     * 返回值: boolean
+     * 返回值说明: 符合上述判断条件时返回 true
      */
     private boolean isWindows() {
     	String os = System.getProperties().getProperty("os.name");
@@ -60,6 +75,17 @@ public class LocalFileStorage implements FileStorage {
     	return false;
     }
     
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 通过 本地磁盘 存储原文件及可选的缩略图，并更新文件信息中的存储位置。
+     * @param fileInfo 用于回填存储位置的文件信息
+     * @param pre 含原文件内容及可选缩略图的预处理结果
+     * @return
+     * 返回值: boolean
+     * 返回值说明: 当前平台的保存结果
+     */
     @Override
     public boolean save(FileInfo fileInfo,UploadPretreatment pre) {
     	// 本地磁盘路径
@@ -105,6 +131,16 @@ public class LocalFileStorage implements FileStorage {
         }
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 按历史记录中的存储路径删除 本地磁盘 的对象及关联缩略图。
+     * @param fileInfo 携带原文件及缩略图路径信息的文件记录
+     * @return
+     * 返回值: boolean
+     * 返回值说明: 当前平台的删除结果
+     */
     @Override
     public boolean delete(FileInfo fileInfo) {
         if (fileInfo.getThFilename() != null) {   // 删除缩略图
@@ -114,11 +150,32 @@ public class LocalFileStorage implements FileStorage {
     }
 
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 检查 本地磁盘 是否仍可找到文件记录指向的原文件。
+     * @param fileInfo 包含原文件位置的文件信息
+     * @return
+     * 返回值: boolean
+     * 返回值说明: 原文件存在时返回 true
+     */
     @Override
     public boolean exists(FileInfo fileInfo) {
         return new File(fileInfo.getBasePath() + fileInfo.getPath(),fileInfo.getFilename()).exists();
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 从 本地磁盘 读取文件记录指向的原文件。
+     * @param fileInfo 包含原文件位置的文件信息
+     * @param consumer 用于读取输入流的回调
+     * @return
+     * 返回值: void
+     * 返回值说明: 在输入流有效期间调用消费回调
+     */
     @Override
     public void download(FileInfo fileInfo,Consumer<InputStream> consumer) {
         try (InputStream in = FileUtil.getInputStream(fileInfo.getBasePath() + fileInfo.getPath() + fileInfo.getFilename())) {
@@ -128,6 +185,17 @@ public class LocalFileStorage implements FileStorage {
         }
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 检查缩略图位置，并从 本地磁盘 读取缩略图。
+     * @param fileInfo 包含缩略图位置的文件信息
+     * @param consumer 用于读取缩略图输入流的回调
+     * @return
+     * 返回值: void
+     * 返回值说明: 读取后在输入流有效期间调用消费回调
+     */
     @Override
     public void downloadTh(FileInfo fileInfo,Consumer<InputStream> consumer) {
         if (StrUtil.isBlank(fileInfo.getThFilename())) {
@@ -141,13 +209,29 @@ public class LocalFileStorage implements FileStorage {
     }
     
     /**
-     * 获取当前运行目录。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 获取当前运行目录。
+     * @return
+     * 返回值: String
+     * 返回值说明: 按上述规则读取或解析得到的文本
      */
     private String getPath(){  
     	String path = System.getProperty("user.dir");
     	return path + File.separator;
     }  
     
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 对比本地存储使用的运行目录、类路径位置和 JVM 工作目录。
+     * @param args 命令行参数，示例不读取
+     * @return
+     * 返回值: void
+     * 返回值说明: 向控制台打印各目录的位置
+     */
     public static void main(String[] args) throws URISyntaxException, FileNotFoundException, UnsupportedEncodingException {
     	String path = new LocalFileStorage().getPath();
         System.out.println(path);

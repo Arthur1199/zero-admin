@@ -17,8 +17,8 @@ import java.util.*;
 
 /**
  *
- * 作者: xuxueli
- * 时间: 2016/10/2 19:10:24
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
  * 说明: 写入执行器心跳和下线状态，定期维护在线地址。
  */
 @Slf4j
@@ -36,8 +36,8 @@ public class JobRegistryHelper {
 
 	/**
 	 *
-	 * 作者: xuxueli
-	 * 时间: 2016/10/2 19:10
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 接收注册请求并启动周期监控，按心跳维护在线地址，过期快照留待下一轮刷新。
 	 * @return
 	 * 返回值: void
@@ -102,8 +102,8 @@ public class JobRegistryHelper {
 
 	/**
 	 *
-	 * 作者: xuxueli
-	 * 时间: 2016/10/2 19:10:24
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 拒绝新的注册写入并停止周期监控。
 	 * @return
 	 * 返回值: void
@@ -121,8 +121,8 @@ public class JobRegistryHelper {
 
 	/**
 	 *
-	 * 作者: xuxueli
-	 * 时间: 2016/10/2 19:10:24
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 写入当前执行器的注册或心跳后确认成功。
 	 * @param registryParam 已认证应用的执行器注册信息
 	 * @return
@@ -148,8 +148,8 @@ public class JobRegistryHelper {
 
 	/**
 	 *
-	 * 作者: xuxueli
-	 * 时间: 2016/10/2 19:10:24
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 删除指定执行器的注册状态后确认下线。
 	 * @param registryParam 已认证应用的执行器注册信息
 	 * @return

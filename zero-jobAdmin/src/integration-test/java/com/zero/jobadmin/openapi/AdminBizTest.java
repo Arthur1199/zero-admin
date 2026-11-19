@@ -17,9 +17,10 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * admin api test
  *
- * @author xuxueli 2017-07-28 22:14:52
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 演示执行器向调度中心提交执行回调、注册和注销的接口，运行依赖调度中心测试环境。
  */
 // 官方集成用例可能操作数据库或执行器，普通打包按标签排除。
 @Slf4j
@@ -56,8 +57,13 @@ public class AdminBizTest {
     }
 
     /**
-     * registry executor
      *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 向测试调度中心提交执行器注册地址。
+     * @return
+     * 返回值: void
+     * 返回值说明: 输出注册接口响应
      * @throws Exception
      */
     @Test
@@ -71,8 +77,13 @@ public class AdminBizTest {
     }
 
     /**
-     * registry executor remove
      *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 向测试调度中心注销执行器地址。
+     * @return
+     * 返回值: void
+     * 返回值说明: 输出注销接口响应
      * @throws Exception
      */
     @Test

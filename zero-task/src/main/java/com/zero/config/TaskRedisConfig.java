@@ -38,6 +38,7 @@ public class TaskRedisConfig {
     @Bean
     static BeanFactoryPostProcessor validateTaskRedis(Environment environment) {
         return beanFactory -> {
+            // 在实例化连接工厂前校验目标，避免启用 Redis 后静默连接默认地址。
             if (!StringUtils.hasText(environment.getProperty("spring.data.redis.host"))) {
                 throw new IllegalStateException("启用 zero-task Redis 后必须配置 spring.data.redis.host");
             }

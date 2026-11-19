@@ -15,9 +15,10 @@ import com.zero.quartz.domain.SysJobLog;
 import com.zero.quartz.service.ISysJobLogService;
 
 /**
- * 抽象quartz调用
  *
- * @author zero
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 抽象quartz调用
  */
 @Slf4j
 public abstract class AbstractQuartzJob implements Job
@@ -120,13 +121,13 @@ public abstract class AbstractQuartzJob implements Job
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 执行方法，由子类重载
-     * @param context 工作执行上下文对象
-     * @param sysJob 系统计划任务
+     * 时间: 2026/11/20 01:36
+     * 说明: 由具体执行器实现同一 Quartz 任务的调用过程。
+     * @param context Quartz 当前任务执行上下文
+     * @param sysJob 本次调用的后台任务定义
      * @return
-     * 返回值: abstract void
-     * 返回值说明：执行方法，由子类重载
+     * 返回值: void
+     * 返回值说明: 执行已配置的任务方法
      */
     protected abstract void doExecute(JobExecutionContext context, SysJob sysJob) throws Exception;
 }

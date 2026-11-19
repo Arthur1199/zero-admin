@@ -9,20 +9,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 /**
- * 程序注解配置
- *
- * @author zero
- */
-@Configuration
-// 表示通过aop框架暴露该代理对象,AopContext能够访问
-@EnableAspectJAutoProxy(exposeProxy = true)
-// 指定要扫描的Mapper类的包的路径
-/**
  *
  * 作者: Arthur 亚瑟
- * 时间: 2026/5/14 00:58
- * 说明: Application参数配置类Application参数配置
+ * 时间: 2026/11/20 01:36
+ * 说明: 装配管理后台的 Spring AOP、MyBatis Mapper 扫描以及 JSON 序列化配置。
  */
+@Configuration
+// 暴露当前 AOP 代理，供使用 AopContext 的内部调用继续经过切面。
+@EnableAspectJAutoProxy(exposeProxy = true)
 @MapperScan(PackageProperties.MAPPER_SCAN)
 public class ApplicationConfig
 {

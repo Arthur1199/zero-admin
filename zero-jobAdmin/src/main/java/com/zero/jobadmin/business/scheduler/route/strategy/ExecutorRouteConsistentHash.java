@@ -13,21 +13,28 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 基于执行器地址构造一致性哈希环并按任务 ID 路由，地址集稳定时同一任务选择同一节点。
+ *
  * 分组下机器地址相同，不同JOB均匀散列在不同机器上，保证分组下机器分配JOB平均；且每个JOB固定调度其中一台机器；
  *      a、virtual node：解决不均衡问题
  *      b、hash method replace hashCode：String的hashCode可能重复，需要进一步扩大hashCode的取值范围
- *
- * Created by xuxueli on 17/3/10.
  */
 public class ExecutorRouteConsistentHash extends ExecutorRouter {
 
     private static final int VIRTUAL_NODE_NUM = 100;
 
     /**
-     * get hash code on 2^32 ring (md5散列的方式计算hash值)
      *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: get hash code on 2^32 ring (md5散列的方式计算hash值)
      * @param key key
-     * @return hash code
+     * @return
+     * 返回值: long
+     * 返回值说明: hash code
      */
     private static long hash(String key) {
 
@@ -55,11 +62,15 @@ public class ExecutorRouteConsistentHash extends ExecutorRouter {
     }
 
     /**
-     * get address by jobId
      *
-     * @param jobId         job id
-     * @param addressList   address list
-     * @return address
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: get address by jobId
+     * @param jobId job id
+     * @param addressList address list
+     * @return
+     * 返回值: String
+     * 返回值说明: address
      */
     public String hashJob(int jobId, List<String> addressList) {
 
@@ -91,6 +102,17 @@ public class ExecutorRouteConsistentHash extends ExecutorRouter {
         return addressRing.firstEntry().getValue();
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 基于任务 ID 和可用地址构造的哈希环选择执行器。
+     * @param triggerParam 当前调度触发参数
+     * @param jobGroup 用于提供候选执行器地址的组
+     * @return
+     * 返回值: Response<String>
+     * 返回值说明: 本次派发使用的执行器地址
+     */
     @Override
     public Response<String> route(TriggerRequest triggerParam, XxlJobGroup jobGroup) {
         List<String> addressList = jobGroup.getRegistryList();

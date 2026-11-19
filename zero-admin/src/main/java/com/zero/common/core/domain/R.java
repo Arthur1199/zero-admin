@@ -40,11 +40,12 @@ public class R<T> implements Serializable
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: ok
+     * @param <T> 当前方法处理的值类型
      * @return
-     * 返回值: <T> R<T>
-     * 返回值说明：ok
+     * 返回值: R<T>
+     * 返回值说明: ok
      */
 
     public static <T> R<T> ok()
@@ -54,12 +55,13 @@ public class R<T> implements Serializable
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: ok
+     * @param <T> 当前方法处理的值类型
      * @param data 数据参数
      * @return
-     * 返回值: <T> R<T>
-     * 返回值说明：ok
+     * 返回值: R<T>
+     * 返回值说明: ok
      */
 
     public static <T> R<T> ok(T data)
@@ -69,13 +71,14 @@ public class R<T> implements Serializable
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: ok
+     * @param <T> 当前方法处理的值类型
      * @param data 数据参数
      * @param msg msg参数
      * @return
-     * 返回值: <T> R<T>
-     * 返回值说明：ok
+     * 返回值: R<T>
+     * 返回值说明: ok
      */
 
     public static <T> R<T> ok(T data, String msg)
@@ -85,11 +88,12 @@ public class R<T> implements Serializable
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: fail
+     * @param <T> 当前方法处理的值类型
      * @return
-     * 返回值: <T> R<T>
-     * 返回值说明：fail
+     * 返回值: R<T>
+     * 返回值说明: fail
      */
 
     public static <T> R<T> fail()
@@ -99,12 +103,13 @@ public class R<T> implements Serializable
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: fail
+     * @param <T> 当前方法处理的值类型
      * @param msg msg参数
      * @return
-     * 返回值: <T> R<T>
-     * 返回值说明：fail
+     * 返回值: R<T>
+     * 返回值说明: fail
      */
 
     public static <T> R<T> fail(String msg)
@@ -114,12 +119,13 @@ public class R<T> implements Serializable
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: fail
+     * @param <T> 当前方法处理的值类型
      * @param data 数据参数
      * @return
-     * 返回值: <T> R<T>
-     * 返回值说明：fail
+     * 返回值: R<T>
+     * 返回值说明: fail
      */
 
     public static <T> R<T> fail(T data)
@@ -129,13 +135,14 @@ public class R<T> implements Serializable
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: fail
+     * @param <T> 当前方法处理的值类型
      * @param data 数据参数
      * @param msg msg参数
      * @return
-     * 返回值: <T> R<T>
-     * 返回值说明：fail
+     * 返回值: R<T>
+     * 返回值说明: fail
      */
 
     public static <T> R<T> fail(T data, String msg)
@@ -145,13 +152,14 @@ public class R<T> implements Serializable
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: fail
+     * @param <T> 当前方法处理的值类型
      * @param code 编码参数
      * @param msg msg参数
      * @return
-     * 返回值: <T> R<T>
-     * 返回值说明：fail
+     * 返回值: R<T>
+     * 返回值说明: fail
      */
 
     public static <T> R<T> fail(int code, String msg)
@@ -161,14 +169,15 @@ public class R<T> implements Serializable
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: rest结果
+     * @param <T> 当前方法处理的值类型
      * @param data 数据参数
      * @param code 编码参数
      * @param msg msg参数
      * @return
-     * 返回值: <T> R<T>
-     * 返回值说明：rest结果
+     * 返回值: R<T>
+     * 返回值说明: rest结果
      */
 
     private static <T> R<T> restResult(T data, int code, String msg)
@@ -269,12 +278,13 @@ public class R<T> implements Serializable
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 判断Error
+     * @param <T> 当前方法处理的值类型
      * @param ret ret参数
      * @return
-     * 返回值: <T> Boolean
-     * 返回值说明：判断Error
+     * 返回值: Boolean
+     * 返回值说明: 判断Error
      */
 
     public static <T> Boolean isError(R<T> ret)
@@ -284,12 +294,13 @@ public class R<T> implements Serializable
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 判断Success
+     * @param <T> 当前方法处理的值类型
      * @param ret ret参数
      * @return
-     * 返回值: <T> Boolean
-     * 返回值说明：判断Success
+     * 返回值: Boolean
+     * 返回值说明: 判断Success
      */
 
     public static <T> Boolean isSuccess(R<T> ret)

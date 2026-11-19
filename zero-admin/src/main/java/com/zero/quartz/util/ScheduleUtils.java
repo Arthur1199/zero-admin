@@ -158,11 +158,11 @@ public class ScheduleUtils
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 检查包名是否为白名单配置
      * @param invokeTarget 目标字符串
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：检查包名是否为白名单配置
      */
     public static boolean whiteList(String invokeTarget)

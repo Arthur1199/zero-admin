@@ -98,11 +98,11 @@ public class SysPostServiceImpl implements ISysPostService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 校验岗位名称是否唯一
      * @param post 岗位信息
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：校验岗位名称是否唯一
      */
     @Override
@@ -120,11 +120,11 @@ public class SysPostServiceImpl implements ISysPostService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 校验岗位编码是否唯一
      * @param post 岗位信息
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：校验岗位编码是否唯一
      */
     @Override
@@ -142,11 +142,11 @@ public class SysPostServiceImpl implements ISysPostService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 通过岗位ID查询岗位使用数量
      * @param postId 岗位ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：通过岗位ID查询岗位使用数量
      */
     @Override
@@ -158,11 +158,11 @@ public class SysPostServiceImpl implements ISysPostService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 删除岗位信息
      * @param postId 岗位ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：删除岗位信息
      */
     @Override
@@ -174,11 +174,11 @@ public class SysPostServiceImpl implements ISysPostService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 批量删除岗位信息
      * @param postIds 需要删除的岗位ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：批量删除岗位信息
      */
     @Override
@@ -198,11 +198,11 @@ public class SysPostServiceImpl implements ISysPostService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 新增保存岗位信息
      * @param post 岗位信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：新增保存岗位信息
      */
     @Override
@@ -214,11 +214,11 @@ public class SysPostServiceImpl implements ISysPostService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 修改保存岗位信息
      * @param post 岗位信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改保存岗位信息
      */
     @Override

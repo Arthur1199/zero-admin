@@ -168,12 +168,12 @@ public class SysJobServiceImpl implements ISysJobService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 批量删除调度信息
-     * @param jobIds 需要删除的任务ID
+     * 时间: 2026/11/20 01:36
+     * 说明: 逐个读取任务并调用相同的删除流程，数据库写入使用当前事务。
+     * @param jobIds 待删除的调度任务主键
      * @return
-     * 返回值: 结果
-     * 返回值说明：批量删除调度信息
+     * 返回值: void
+     * 返回值说明: 删除任务记录并通知 Quartz 删除调度项
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -316,11 +316,11 @@ public class SysJobServiceImpl implements ISysJobService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 校验cron表达式是否有效
      * @param cronExpression 表达式
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：校验cron表达式是否有效
      */
     @Override

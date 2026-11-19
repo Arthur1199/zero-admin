@@ -38,11 +38,11 @@ public interface SysLogininforMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 批量删除系统登录日志
      * @param infoIds 需要删除的登录日志ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：批量删除系统登录日志
      */
     public int deleteLogininforByIds(Long[] infoIds);
@@ -50,10 +50,10 @@ public interface SysLogininforMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 清空系统登录日志
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：清空系统登录日志
      */
     public int cleanLogininfor();

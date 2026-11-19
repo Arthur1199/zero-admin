@@ -222,11 +222,11 @@ public class SysUserServiceImpl implements ISysUserService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 查询用户所属角色组
      * @param userName 用户名
      * @return
-     * 返回值: 结果
+     * 返回值: String
      * 返回值说明：查询用户所属角色组
      */
     @Override
@@ -243,11 +243,11 @@ public class SysUserServiceImpl implements ISysUserService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 查询用户所属岗位组
      * @param userName 用户名
      * @return
-     * 返回值: 结果
+     * 返回值: String
      * 返回值说明：查询用户所属岗位组
      */
     @Override
@@ -264,11 +264,11 @@ public class SysUserServiceImpl implements ISysUserService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 校验用户名称是否唯一
      * @param user 用户信息
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：校验用户名称是否唯一
      */
     @Override
@@ -374,11 +374,11 @@ public class SysUserServiceImpl implements ISysUserService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 新增保存用户信息
      * @param user 用户信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：新增保存用户信息
      */
     @Override
@@ -460,11 +460,11 @@ public class SysUserServiceImpl implements ISysUserService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 修改用户状态，禁用成功提交后撤销其全部会话并通知浏览器退出
      * @param user 用户信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改用户状态
      */
     @Override
@@ -482,11 +482,11 @@ public class SysUserServiceImpl implements ISysUserService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 修改用户基本信息
      * @param user 用户信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改用户基本信息
      */
     @Override
@@ -498,12 +498,12 @@ public class SysUserServiceImpl implements ISysUserService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 修改用户头像
      * @param userId 用户ID
      * @param avatar 头像地址
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：修改用户头像
      */
     @Override
@@ -515,11 +515,11 @@ public class SysUserServiceImpl implements ISysUserService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 重置用户密码
      * @param user 用户信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：重置用户密码
      */
     @Override
@@ -531,12 +531,12 @@ public class SysUserServiceImpl implements ISysUserService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 重置用户密码
      * @param userId 用户ID
      * @param password 密码
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：重置用户密码
      */
     @Override
@@ -637,11 +637,11 @@ public class SysUserServiceImpl implements ISysUserService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 通过用户ID删除用户，提交后撤销其全部会话并通知浏览器退出
      * @param userId 用户ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：通过用户ID删除用户
      */
     @Override
@@ -660,11 +660,11 @@ public class SysUserServiceImpl implements ISysUserService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 批量删除用户信息，提交后撤销目标账号全部会话并通知浏览器退出
      * @param userIds 需要删除的用户ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：批量删除用户信息
      */
     @Override
@@ -736,13 +736,13 @@ public class SysUserServiceImpl implements ISysUserService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 导入用户数据
      * @param userList 用户数据列表
      * @param isUpdateSupport 是否更新支持，如果已存在，则进行更新数据
      * @param operName 操作用户
      * @return
-     * 返回值: 结果
+     * 返回值: String
      * 返回值说明：导入用户数据
      */
     @Override

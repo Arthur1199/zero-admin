@@ -63,8 +63,9 @@ public class ReflectHelper {
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/5/16 23:45
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 根据Class类型创建对象实例
+	 * @param <T> 当前方法处理的值类型
 	 * @param clazz 目标类型，不能为空
 	 * @return
 	 * 返回值: T
@@ -84,8 +85,9 @@ public class ReflectHelper {
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/5/16 23:45
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 根据类全限定名创建指定类型对象实例
+	 * @param <T> 当前方法处理的值类型
 	 * @param name 类全限定名，不能为空
 	 * @param targetType 目标类型，不能为空
 	 * @return

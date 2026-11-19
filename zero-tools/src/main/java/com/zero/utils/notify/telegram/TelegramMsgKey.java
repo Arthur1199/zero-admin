@@ -7,15 +7,23 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 作者: Jack
- * 时间: 2025年3月5日17:18:56
- * 说明: tele机器人发送消息注解
  *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 标注需要出现在 Telegram 消息中的字段，并提供其显示名称，供组装器在运行时读取。
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface TelegramMsgKey {
-	//需要被转换的key的参数列表下表,下标从0开始
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 指定消息文本中显示在字段值之前的名称。
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 通知组装时使用的字段展示名称
+	 */
 	String keyName();
 }

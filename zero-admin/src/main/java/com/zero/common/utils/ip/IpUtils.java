@@ -97,11 +97,11 @@ public class IpUtils
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 检查是否为内部IP地址
      * @param ip IP地址
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：检查是否为内部IP地址
      */
     public static boolean internalIp(String ip)
@@ -113,11 +113,11 @@ public class IpUtils
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 检查是否为内部IP地址
      * @param addr byte地址
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：检查是否为内部IP地址
      */
     private static boolean internalIp(byte[] addr)

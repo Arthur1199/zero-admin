@@ -10,7 +10,8 @@
 ///**
 // * ftl util
 // *
-// * @author xuxueli 2018-01-17 20:37:48
+// * 作者: Arthur 亚瑟
+// * 时间: 2026/11/20 01:36
 // */
 //public class FtlUtil {
 //    private static Logger logger = LoggerFactory.getLogger(FtlUtil.class);

@@ -32,12 +32,13 @@ public class DomainCheckUtil {
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2025/7/21 00:10
+     * 时间: 2026/11/20 01:36
+     * 说明: 域名是否存活，数据来源参考 https://tool.chinaz.com/dns
      * @param doMainName 域名
      * @param survivalRatio 存活比例
      * @return
-     * 返回值:boolean
-     * 返回值说明：域名是否存活，数据来源参考 https://tool.chinaz.com/dns
+     * 返回值: boolean
+     * 返回值说明: 域名是否存活，数据来源参考 https://tool.chinaz.com/dns
      */
     public static boolean isSurvivalDoMain(String doMainName,Double survivalRatio){
         long startTime = System.currentTimeMillis();
@@ -154,6 +155,16 @@ public class DomainCheckUtil {
         }
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 用内置示例域名演示存活检测。
+     * @param args 命令行参数，示例不读取
+     * @return
+     * 返回值: void
+     * 返回值说明: 向控制台输出示例检测结果
+     */
     public static void main(String[] args) {
         boolean survivalDoMain = DomainCheckUtil.isSurvivalDoMain("www.kbx67.com", 0.2d);
         System.out.println("当前域名是否存活：" + (survivalDoMain ? "是" : "否"));

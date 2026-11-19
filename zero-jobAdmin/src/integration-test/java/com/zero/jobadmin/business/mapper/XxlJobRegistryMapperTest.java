@@ -14,6 +14,12 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 检查执行器注册和过期清理，覆盖删除前收到新心跳时保留记录的场景。
+ */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 // 官方集成用例可能操作数据库或执行器，普通打包按标签排除。
 @org.junit.jupiter.api.Tag("job-integration")

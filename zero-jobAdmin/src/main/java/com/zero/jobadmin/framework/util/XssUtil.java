@@ -2,6 +2,12 @@ package com.zero.jobadmin.framework.util;
 
 import java.util.regex.Pattern;
 
+/**
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 为调度控制台处理文本中的常见危险模式。过滤结果由调用方按输出场景使用。
+ */
 public class XssUtil {
 
     /**
@@ -26,10 +32,14 @@ public class XssUtil {
     };
 
     /**
-     * check XSS attack patterns in a string
      *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: check XSS attack patterns in a string
      * @param value original string
-     * @return true if XSS attack detected, false otherwise
+     * @return
+     * 返回值: boolean
+     * 返回值说明: true if XSS attack detected, false otherwise
      */
     public static boolean hasXss(String value) {
         if (value == null || value.isEmpty()) {
@@ -47,10 +57,14 @@ public class XssUtil {
     }
 
     /**
-     * 清洗字符串，移除潜在的 XSS 攻击代码
      *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 清洗字符串，移除潜在的 XSS 攻击代码
      * @param value original string
-     * @return cleaned string
+     * @return
+     * 返回值: String
+     * 返回值说明: cleaned string
      */
     public static String cleanXss(String value) {
         if (value == null || value.isEmpty()) {
@@ -71,7 +85,14 @@ public class XssUtil {
     }
 
     /**
-     * 基础 HTML 字符转义
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 对输出到 HTML 的基础特殊字符进行转义。
+     * @param input 待转义的原始文本
+     * @return
+     * 返回值: String
+     * 返回值说明: 转义后的文本，传入 null 时返回 null
      */
     private static String escapeHtml(String input) {
         if (input == null) {

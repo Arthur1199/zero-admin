@@ -10,7 +10,10 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * @author xuxueli 2018-11-15
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 装配调度控制台的 XXL-SSO 登录组件、会话存储和请求拦截。
  */
 @Configuration
 public class XxlSsoConfig implements WebMvcConfigurer {
@@ -34,7 +37,13 @@ public class XxlSsoConfig implements WebMvcConfigurer {
 
 
     /**
-     * 1、配置 XxlSsoBootstrap
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 配置 XXL-SSO 启动组件的登录存储、令牌配置和有效期。
+     * @return
+     * 返回值: XxlSsoBootstrap
+     * 返回值说明: 用于调度控制台的 SSO 启动组件
      */
     @Bean(initMethod = "start", destroyMethod = "stop")
     public XxlSsoBootstrap xxlSsoBootstrap() {
@@ -47,7 +56,14 @@ public class XxlSsoConfig implements WebMvcConfigurer {
     }
 
     /**
-     * 2、配置 XxlSso 拦截器
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 为调度控制台注册 SSO 拦截器，沿用配置中的排除路径。
+     * @param registry Spring MVC 拦截器注册表
+     * @return
+     * 返回值: void
+     * 返回值说明: 添加用于处理控制台请求的 SSO 拦截器
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

@@ -73,13 +73,13 @@ public class DataScopeAspect
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: doBefore
-     * @param point point参数
-     * @param controllerDataScope 控制器数据Scope参数
+     * 时间: 2026/11/20 01:36
+     * 说明: 清除查询参数里的旧数据范围，再根据当前登录角色添加本次查询的数据条件。
+     * @param point 使用 DataScope 的查询方法切点
+     * @param controllerDataScope 声明部门别名、用户别名及关联权限的注解
      * @return
      * 返回值: void
-     * 返回值说明：doBefore
+     * 返回值说明: 通过参数中的受控条件约束下游 Mapper 查询
      */
 
     @Before("@annotation(controllerDataScope)")
@@ -91,13 +91,13 @@ public class DataScopeAspect
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 按登录角色过滤数据，部门范围使用当前账号的最新部门，不改写登录缓存或角色授权
-     * @param joinPoint joinPoint参数
-     * @param controllerDataScope 控制器数据Scope参数
+     * 时间: 2026/11/20 01:36
+     * 说明: 从当前登录会话取得身份，用于按角色生成查询范围，超级管理员直接查询。
+     * @param joinPoint 使用 DataScope 的查询方法切点
+     * @param controllerDataScope 数据范围约束及 SQL 别名
      * @return
      * 返回值: void
-     * 返回值说明：处理数据Scope
+     * 返回值说明: 需要限制时把查询范围附加在请求实体上
      */
 
     protected void handleDataScope(final JoinPoint joinPoint, DataScope controllerDataScope)
@@ -262,7 +262,7 @@ public class DataScopeAspect
             conditions.add(dataScope);
         }
 
-        // 角色都不包含传递过来的权限字符，这个时候sqlString也会为空，所以要限制一下,不查询任何数据
+        // 没有角色生成可用的数据范围时，追加部门 ID 兜底条件，避免空范围放开查询。
         if (StringUtils.isEmpty(conditions))
         {
             sqlString.append(StringUtils.format(" OR {}.dept_id = 0 ", deptAlias));

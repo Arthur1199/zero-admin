@@ -632,34 +632,34 @@ public class FileHelper {
 	}
 
 	
-	@SuppressWarnings("rawtypes")
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/5/16 23:18
-	 * 说明: 按行读取文本文件
-	 * @param file 文件对象或文件路径
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 按 GBK 编码逐行读取本地文本文件。
+	 * @param file 要读取的本地文件路径
 	 * @return
 	 * 返回值: List
-	 * 返回值说明: 文本行列表，读取失败时返回null
+	 * 返回值说明: 文件的文本行列表，读取失败时返回 null
 	 */
+	@SuppressWarnings("rawtypes")
 	public static List readLines(String file) {
 		return readLines(file, "GBK");
 	}
 
 	
-	@SuppressWarnings("rawtypes")
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/5/16 23:18
-	 * 说明: 按行读取文本文件
-	 * @param file 文件对象或文件路径
-	 * @param encoding 文件编码，空值时使用GBK
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 按指定字符集逐行读取本地文本文件。
+	 * @param file 要读取的本地文件路径
+	 * @param encoding 文件的字符集名称，空值时使用 GBK
 	 * @return
 	 * 返回值: List
-	 * 返回值说明: 文本行列表，读取失败时返回null
+	 * 返回值说明: 文件的文本行列表，读取失败时返回 null
 	 */
+	@SuppressWarnings("rawtypes")
 	public static List readLines(String file, String encoding) {
 
 		try {

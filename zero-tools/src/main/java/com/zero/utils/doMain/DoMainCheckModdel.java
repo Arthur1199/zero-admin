@@ -1,17 +1,18 @@
 package com.zero.utils.doMain;
 
 /**
+ *
  * 作者: Arthur 亚瑟
- * 时间: 2025/7/21 00:28
- * 说明:
+ * 时间: 2026/11/20 01:36
+ * 说明: 保存一次 DNS 查询节点的地区、响应耗时和记录 TTL。
  */
 public class DoMainCheckModdel {
 
-    //地区
+    /** DNS 查询节点的地区及网络标识。 */
     private String location;
-    //响应时间
+    /** 查询节点返回 DNS 结果的耗时，单位毫秒。 */
     private long responseTime;
-    //ttl时间
+    /** DNS 查询结果报告的记录 TTL。 */
     private long ttl;
 
     public String getLocation() {

@@ -87,7 +87,7 @@ public class SysLoginService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 登录验证
      * @param username 用户名
      * @param password 密码
@@ -95,7 +95,7 @@ public class SysLoginService
      * @param uuid 唯一标识
      * @param googleCode 谷歌动态码
      * @return
-     * 返回值: 结果
+     * 返回值: String
      * 返回值说明：登录验证
      */
     public String login(String username, String password, String code, String uuid, String googleCode)
@@ -166,10 +166,15 @@ public class SysLoginService
     }
 
     /**
-     * 校验谷歌动态码
      *
-     * @param loginUser 登录用户
-     * @param googleCode 谷歌动态码
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 读取登录二次验证开关，开启时验证当前账号提交的谷歌动态码。
+     * @param loginUser 已通过密码验证的登录身份
+     * @param googleCode 用户提交的动态码
+     * @return
+     * 返回值: void
+     * 返回值说明: 需要验证且未通过时由动态码服务中止登录
      */
     public void validateGoogleCode(LoginUser loginUser, String googleCode)
     {
@@ -184,14 +189,14 @@ public class SysLoginService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 校验验证码
-     * @param username 用户名
-     * @param code 验证码
-     * @param uuid 唯一标识
+     * 时间: 2026/11/20 01:36
+     * 说明: 验证码开关开启时比对本次输入，并在核验时消费缓存中的验证码。
+     * @param username 登录账号，用于记录登录失败
+     * @param code 用户输入的验证码
+     * @param uuid 标识本次验证码的请求编号
      * @return
-     * 返回值: 结果
-     * 返回值说明：校验验证码
+     * 返回值: void
+     * 返回值说明: 未找到验证码或验证码错误时中断登录
      */
     public void validateCaptcha(String username, String code, String uuid)
     {

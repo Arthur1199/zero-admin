@@ -18,17 +18,35 @@ import java.lang.annotation.Target;
 public @interface DataScope
 {
     /**
-     * 部门表的别名
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 部门表的别名
+     * @return
+     * 返回值: String
+     * 返回值说明: 部门表的别名
      */
     public String deptAlias() default "";
 
     /**
-     * 用户表的别名
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 用户表的别名
+     * @return
+     * 返回值: String
+     * 返回值说明: 用户表的别名
      */
     public String userAlias() default "";
 
     /**
-     * 权限字符（用于多个角色匹配符合要求的权限）默认根据权限注解@ss获取，多个权限用逗号分隔开来
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 权限字符（用于多个角色匹配符合要求的权限）默认根据权限注解@ss获取，多个权限用逗号分隔开来
+     * @return
+     * 返回值: String
+     * 返回值说明: 权限字符（用于多个角色匹配符合要求的权限）默认根据权限注解@ss获取，多个权限用逗号分隔开来
      */
     public String permission() default "";
 }

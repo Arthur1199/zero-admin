@@ -47,9 +47,13 @@ public interface ISysConfigService
     public boolean selectCaptchaEnabled();
 
     /**
-     * 获取登录锁定保护开关
      *
-     * @return true开启，false关闭
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 获取登录锁定保护开关
+     * @return
+     * 返回值: boolean
+     * 返回值说明: true开启，false关闭
      */
     public boolean selectLoginLockEnabled();
 
@@ -68,11 +72,11 @@ public interface ISysConfigService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 新增参数配置
      * @param config 参数配置信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：新增参数配置
      */
     public int insertConfig(SysConfig config);
@@ -80,11 +84,11 @@ public interface ISysConfigService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 修改参数配置
      * @param config 参数配置信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改参数配置
      */
     public int updateConfig(SysConfig config);
@@ -137,11 +141,11 @@ public interface ISysConfigService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 校验参数键名是否唯一
      * @param config 参数信息
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：校验参数键名是否唯一
      */
     public boolean checkConfigKeyUnique(SysConfig config);

@@ -3,35 +3,52 @@ package com.zero.jobadmin.business.model;
 import java.util.Date;
 
 /**
- * xxl-job log, used to track trigger process
- * @author xuxueli  2015-12-19 23:19:09
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 对应 xxl_job_log 的单次调度日志，记录触发、执行和告警状态。
  */
 public class XxlJobLog {
 	
+	/** 单次调度记录的主键。 */
 	private long id;
 	
 	// job info
+	/** 关联的执行器组主键。 */
 	private int jobGroup;
+	/** 关联的调度任务主键。 */
 	private int jobId;
 
 	// execute info
+	/** 本次任务路由选择的执行器地址。 */
 	private String executorAddress;
+	/** 本次执行使用的任务处理器名称。 */
 	private String executorHandler;
+	/** 本次调度实际发送的运行参数。 */
 	private String executorParam;
+	/** 本次调度携带的分片参数。 */
 	private String executorShardingParam;
+	/** 生成本次记录时配置的剩余重试次数。 */
 	private int executorFailRetryCount;
 	
 	// trigger info
+	/** 调度中心发起本次触发的时间。 */
 	private Date triggerTime;
+	/** 执行器返回的触发结果码，用于判断触发阶段是否成功。 */
 	private int triggerCode;
+	/** 调度中心记录的触发过程和结果说明。 */
 	private String triggerMsg;
 	
 	// handle info
+	/** 执行结果回调或收尾处理的记录时间。 */
 	private Date handleTime;
+	/** 任务执行结果码，未结束时使用初始值。 */
 	private int handleCode;
+	/** 任务执行结果或异常处理说明。 */
 	private String handleMsg;
 
 	// alarm info
+	/** 任务失败的监控处理和告警状态。 */
 	private int alarmStatus;
 
 	public long getId() {

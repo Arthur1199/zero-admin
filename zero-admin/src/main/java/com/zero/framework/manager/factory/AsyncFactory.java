@@ -28,13 +28,17 @@ public class AsyncFactory
      * sys_user_logger字段
      */
     /**
-     * 记录登录信息
      *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 记录登录信息
      * @param username 用户名
      * @param status 状态
      * @param message 消息
      * @param args 列表
-     * @return 任务task
+     * @return
+     * 返回值: TimerTask
+     * 返回值说明: 任务task
      */
     public static TimerTask recordLogininfor(final String username, final String status, final String message,
             final Object... args)

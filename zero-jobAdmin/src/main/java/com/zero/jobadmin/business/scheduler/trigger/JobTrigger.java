@@ -29,9 +29,10 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * xxl-job trigger
  *
- * @author xuxueli 17/7/13.
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 将调度触发转换为执行器请求，处理路由、分片和触发结果记录。
  */
 @Slf4j
 @Component
@@ -51,8 +52,8 @@ public class JobTrigger {
 
     /**
      *
-     * 作者: xuxueli
-     * 时间: 2017/7/13
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
      * 说明: 读取任务配置并触发执行，临时覆盖仅用于本次任务派发，配置异常写入调度日志。
      * @param jobId 任务 ID
      * @param triggerType 触发类型
@@ -433,8 +434,8 @@ public class JobTrigger {
 
     /**
      *
-     * 作者: xuxueli
-     * 时间: 2017/7/13
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
      * 说明: 向选中的节点提交任务，将空响应和通信异常转换成调度失败。
      * @param triggerParam 调度参数，包含任务和日志 ID
      * @param address 选中的执行器地址

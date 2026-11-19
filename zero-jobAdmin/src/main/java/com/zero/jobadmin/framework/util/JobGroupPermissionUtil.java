@@ -12,8 +12,8 @@ import java.util.List;
 
 /**
  *
- * 作者: xuxueli
- * 时间: 2025/8/24
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
  * 说明: 统一判断当前登录人可操作和查看的执行器组
  */
 public class JobGroupPermissionUtil {
@@ -78,7 +78,14 @@ public class JobGroupPermissionUtil {
     }
 
     /**
-     * 从登录信息中解析普通用户已授权的执行器组，空配置视为无权限。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 从普通用户的登录扩展信息读取执行器组权限。
+     * @param loginInfo 当前调度控制台的登录信息
+     * @return
+     * 返回值: List<String>
+     * 返回值说明: 授权的执行器组 ID 列表，配置为空时返回空列表
      */
     private static List<String> allowedJobGroups(LoginInfo loginInfo) {
         String groupIds = loginInfo.getExtraInfo() == null ? null : loginInfo.getExtraInfo().get("jobGroups");

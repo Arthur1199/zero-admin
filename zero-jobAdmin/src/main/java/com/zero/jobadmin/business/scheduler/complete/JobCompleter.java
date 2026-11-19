@@ -19,9 +19,10 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * xxl-job job log complete
  *
- * @author xuxueli 2020-10-30 20:43:10
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 负责调度任务执行后的收尾处理，包括更新任务日志和触发关联任务。
  */
 @Slf4j
 @Component

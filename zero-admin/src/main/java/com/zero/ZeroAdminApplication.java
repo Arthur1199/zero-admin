@@ -27,12 +27,12 @@ public class ZeroAdminApplication
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: main
-     * @param args args参数
+     * 时间: 2026/11/20 01:36
+     * 说明: 启动管理后台服务，先将 JVM 默认时区设置为 Asia/Shanghai。
+     * @param args 应用启动参数
      * @return
      * 返回值: void
-     * 返回值说明：main
+     * 返回值说明: 进入 Spring Boot 启动流程
      */
 
     public static void main(String[] args)

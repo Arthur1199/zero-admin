@@ -1,8 +1,5 @@
 package com.zero.jobadmin.business.scheduler.cron;
 /*
- * All content copyright Terracotta, Inc., unless otherwise indicated. All rights reserved.
- * Copyright IBM Corp. 2024, 2025
- *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy
  * of the License at
@@ -14,8 +11,6 @@ package com.zero.jobadmin.business.scheduler.cron;
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
  * License for the specific language governing permissions and limitations
  * under the License.
- *
- * Borrowed from quartz v2.5.2
  */
 
 import java.io.Serializable;
@@ -33,6 +28,11 @@ import java.util.TimeZone;
 import java.util.TreeSet;
 
 /**
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 解析和计算调度任务的 Cron 表达式，支持按时区查找下一次触发时间。
+ *
  * Provides a parser and evaluator for unix-like cron expressions. Cron
  * expressions provide the ability to specify complex time combinations such as
  * &quot;At 8:00am every Monday through Friday&quot; or &quot;At 1:30am every
@@ -199,11 +199,6 @@ import java.util.TreeSet;
  * interpretation CronExpression chooses. An example would be
  * "0 0 14-6 ? * FRI-MON". </li>
  * </ul>
- *
- *
- * @author Sharada Jambula, James House
- * @author Contributions from Mads Henderson
- * @author Refactoring from CronTrigger to CronExpression by Aaron Craven
  */
 public final class CronExpression implements Serializable, Cloneable {
 
@@ -267,11 +262,13 @@ public final class CronExpression implements Serializable, Cloneable {
     public static final int MAX_YEAR = Calendar.getInstance().get(Calendar.YEAR) + 100;
 
     /**
-     * Constructs a new <CODE>CronExpression</CODE> based on the specified
-     * parameter.
      *
-     * @param cronExpression String representation of the cron expression the
-     *                       new object should represent
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: Constructs a new <CODE>CronExpression</CODE> based on the specified
+     *
+     * parameter.
+     * @param cronExpression String representation of the cron expression the                       new object should represent
      * @throws java.text.ParseException
      *         if the string expression cannot be parsed into a valid
      *         <CODE>CronExpression</CODE>
@@ -287,11 +284,13 @@ public final class CronExpression implements Serializable, Cloneable {
     }
 
     /**
-     * Constructs a new {@code CronExpression} as a copy of an existing
-     * instance.
      *
-     * @param expression
-     *            The existing cron expression to be copied
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: Constructs a new {@code CronExpression} as a copy of an existing
+     *
+     * instance.
+     * @param expression The existing cron expression to be copied
      */
     public CronExpression(CronExpression expression) {
         /*
@@ -311,13 +310,17 @@ public final class CronExpression implements Serializable, Cloneable {
     }
 
     /**
-     * Indicates whether the given date satisfies the cron expression. Note that
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: Indicates whether the given date satisfies the cron expression. Note that
+     *
      * milliseconds are ignored, so two Dates falling on different milliseconds
      * of the same second will always have the same result here.
-     *
      * @param date the date to evaluate
-     * @return a boolean indicating whether the given date satisfies the cron
-     *         expression
+     * @return
+     * 返回值: boolean
+     * 返回值说明: a boolean indicating whether the given date satisfies the cron
      */
     public boolean isSatisfiedBy(Date date) {
         Calendar testDateCal = Calendar.getInstance(getTimeZone());
@@ -333,24 +336,32 @@ public final class CronExpression implements Serializable, Cloneable {
     }
 
     /**
-     * Returns the next date/time <I>after</I> the given date/time which
-     * satisfies the cron expression.
      *
-     * @param date the date/time at which to begin the search for the next valid
-     *             date/time
-     * @return the next valid date/time
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: Returns the next date/time <I>after</I> the given date/time which
+     *
+     * satisfies the cron expression.
+     * @param date the date/time at which to begin the search for the next valid             date/time
+     * @return
+     * 返回值: Date
+     * 返回值说明: the next valid date/time
      */
     public Date getNextValidTimeAfter(Date date) {
         return getTimeAfter(date);
     }
 
     /**
-     * Returns the next date/time <I>after</I> the given date/time which does
-     * <I>not</I> satisfy the expression
      *
-     * @param date the date/time at which to begin the search for the next
-     *             invalid date/time
-     * @return the next valid date/time
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: Returns the next date/time <I>after</I> the given date/time which does
+     *
+     * <I>not</I> satisfy the expression
+     * @param date the date/time at which to begin the search for the next             invalid date/time
+     * @return
+     * 返回值: Date
+     * 返回值说明: the next valid date/time
      */
     public Date getNextInvalidTimeAfter(Date date) {
         long difference = 1000;
@@ -384,8 +395,13 @@ public final class CronExpression implements Serializable, Cloneable {
     }
 
     /**
-     * Returns the time zone for which this <code>CronExpression</code>
-     * will be resolved.
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 读取 Cron 表达式计算使用的时区。
+     * @return
+     * 返回值: TimeZone
+     * 返回值说明: 表达式已有时区，未设置时取 JVM 默认时区
      */
     public TimeZone getTimeZone() {
         if (timeZone == null) {
@@ -396,17 +412,27 @@ public final class CronExpression implements Serializable, Cloneable {
     }
 
     /**
-     * Sets the time zone for which  this <code>CronExpression</code>
-     * will be resolved.
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 设定以后计算触发时间使用的时区。
+     * @param timeZone 计算触发时间使用的时区
+     * @return
+     * 返回值: void
+     * 返回值说明: 更新当前 Cron 表达式对象的时区
      */
     public void setTimeZone(TimeZone timeZone) {
         this.timeZone = timeZone;
     }
 
     /**
-     * Returns the string representation of the <CODE>CronExpression</CODE>
      *
-     * @return a string representation of the <CODE>CronExpression</CODE>
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: Returns the string representation of the <CODE>CronExpression</CODE>
+     * @return
+     * 返回值: String
+     * 返回值说明: a string representation of the <CODE>CronExpression</CODE>
      */
     @Override
     public String toString() {
@@ -414,12 +440,16 @@ public final class CronExpression implements Serializable, Cloneable {
     }
 
     /**
-     * Indicates whether the specified cron expression can be parsed into a
-     * valid cron expression
      *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: Indicates whether the specified cron expression can be parsed into a
+     *
+     * valid cron expression
      * @param cronExpression the expression to evaluate
-     * @return a boolean indicating whether the given expression is a valid cron
-     *         expression
+     * @return
+     * 返回值: boolean
+     * 返回值说明: a boolean indicating whether the given expression is a valid cron
      */
     public static boolean isValidExpression(String cronExpression) {
 
@@ -432,6 +462,16 @@ public final class CronExpression implements Serializable, Cloneable {
         return true;
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 尝试构造 Cron 表达式，语法非法时由解析器报告错误。
+     * @param cronExpression 待检查的 Cron 文本
+     * @return
+     * 返回值: void
+     * 返回值说明: 仅校验语法
+     */
     public static void validateExpression(String cronExpression) throws ParseException {
 
         new CronExpression(cronExpression);
@@ -875,6 +915,15 @@ public final class CronExpression implements Serializable, Cloneable {
         return cronExpression;
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 汇总 Cron 表达式中各时间字段解析后的取值范围。
+     * @return
+     * 返回值: String
+     * 返回值说明: 供诊断使用的逐字段摘要
+     */
     public String getExpressionSummary() {
         StringBuilder buf = new StringBuilder();
 
@@ -1182,6 +1231,16 @@ public final class CronExpression implements Serializable, Cloneable {
     //
     ////////////////////////////////////////////////////////////////////////////
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 按表达式的时区从给定时刻之后查找触发时间，计算粒度为秒。
+     * @param afterTime 查找后续触发时间的起点
+     * @return
+     * 返回值: Date
+     * 返回值说明: 下一次匹配的触发时间，范围内无匹配时返回 null
+     */
     public Date getTimeAfter(Date afterTime) {
 
         // Computation is based on Gregorian year only.
@@ -1535,11 +1594,15 @@ public final class CronExpression implements Serializable, Cloneable {
     }
 
     /**
-     * Advance the calendar to the particular hour paying particular attention
-     * to daylight saving problems.
      *
-     * @param cal the calendar to operate on
-     * @param hour the hour to set
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 设置日历的目标小时。夏令时跳过目标小时且目标值不是 24 时，尝试推进一小时。
+     * @param cal 用于计算触发时间的日历
+     * @param hour 计划设置的小时
+     * @return
+     * 返回值: void
+     * 返回值说明: 调整传入日历的小时
      */
     protected void setCalendarHour(Calendar cal, int hour) {
         cal.set(java.util.Calendar.HOUR_OF_DAY, hour);
@@ -1549,13 +1612,16 @@ public final class CronExpression implements Serializable, Cloneable {
     }
 
     /**
-     * Returns the time before the given time
-     * that the <code>CronExpression</code> matches.
      *
-     * @param endTime a time for which the previous
-     *        matching time is returned
-     * @return the previous matching time before the given end time,
-     *         or null if there are no previous matching times
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: Returns the time before the given time
+     *
+     * that the <code>CronExpression</code> matches.
+     * @param endTime a time for which the previous        matching time is returned
+     * @return
+     * 返回值: Date
+     * 返回值说明: the previous matching time before the given end time,
      */
     public Date getTimeBefore(Date endTime) {
         // the current implementation is not a direct calculation, but rather
@@ -1599,8 +1665,13 @@ public final class CronExpression implements Serializable, Cloneable {
     }
 
     /**
-     * NOT YET IMPLEMENTED: Returns the final time that the
-     * <code>CronExpression</code> will match.
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 为最终触发时间保留查询入口，当前实现尚未计算该值。
+     * @return
+     * 返回值: Date
+     * 返回值说明: 固定返回 null
      */
     public Date getFinalFireTime() {
         // FUTURE_TODO: implement QUARTZ-423
@@ -1680,6 +1751,15 @@ public final class CronExpression implements Serializable, Cloneable {
         } // never happens
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 按照当前表达式及其时区创建副本。
+     * @return
+     * 返回值: Object
+     * 返回值说明: 与当前调度配置相同的新 CronExpression 实例
+     */
     @Override
     @Deprecated
     public Object clone() {
@@ -1687,6 +1767,12 @@ public final class CronExpression implements Serializable, Cloneable {
     }
 }
 
+/**
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 解析 Cron 字段时保存得到的数值及后续解析位置。
+ */
 class ValueSet {
     public int value;
 

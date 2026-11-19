@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 
 /**
  *
- * 作者: xuxueli
- * 时间: 2017/7/27 21:54
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
  * 说明: 执行器回调及心跳请求的服务端实现。
  */
 @Service

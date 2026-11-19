@@ -6,7 +6,7 @@
 - 下载地址：https://github.com/xuxueli/xxl-job/archive/refs/tags/3.5.0.zip
 - 下载日期：2026-11-18（Asia/Shanghai）
 - 下载ZIP的SHA-256：`49aebb7d4eb0b1f94c8d12bc3d0058b389128399d5a4c30c047c9a21aa8d078f`
-- 迁入范围：官方 `xxl-job-admin/src`；保留官方 `LICENSE`（GPL-3.0）及 `NOTICE`，保留原作者说明。发行和再分发时遵守上游许可证。
+- 迁入范围：官方 `xxl-job-admin/src`，保留官方 `LICENSE`（GPL-3.0）及 `NOTICE`。发行和再分发时遵守上游许可证。
 
 ## 差异
 
@@ -16,7 +16,7 @@
 4. `WebErrorPageRegistrar` 改用 Boot 3 的 `org.springframework.boot.web.server` API，官方错误处理业务不变。
 5. 官方 `application.properties` 改为 YAML 和环境配置；Boot 4 的错误页配置改用 `server.error.whitelabel.enabled`。凭据外置，数据库改为独立 `zero_job`，监控与report/file一致暴露全部已启用Actuator端点并显示健康详情，供Boot Admin及管理后台采集；监控路径排除控制台登录拦截，部署时须限制内部访问来源。官方 `logback.xml` 替换为项目风格的独立日志配置。
 6. 添加 Nacos discovery/config；排除 Nacos 配置依赖传递引入的旧版 Druid starter，保留官方 Hikari。调度配置采用启动时加载，修改后需重启。
-7. 官方测试放入显式 profile 管理的集成测试目录，并添加 `job-integration` 标签，普通打包始终排除，即使此前编译过官方用例也不会误运行。新增隔离Web兼容性测试；未批量重写第三方源码的原始注释和业务逻辑。
+7. 官方测试放入显式 profile 管理的集成测试目录，并添加 `job-integration` 标签，普通打包始终排除，即使此前编译过官方用例也不会误运行。新增隔离 Web 兼容性测试。
 8. `tables_xxl_job-3.5.0.sql` 是上游原件。仓库 `sql/zero_job.sql` 用于初始化 `zero_job`，每次执行都会重建 8 张调度表并重新写入初始数据。已有实例升级应使用对应版本的迁移脚本。
 9. 从 `XxlJobGroup.toString()` 移除AccessToken，防止官方缓存日志记录执行器凭据；保留getter/setter及实际通信认证逻辑。
 

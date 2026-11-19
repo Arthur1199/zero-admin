@@ -153,8 +153,10 @@ public class DictConfigUtil {
         }
 
         List<com.zero.domain.DictItem> result = query.get();
+        // 按报表服务的失效约定，只为与库中原始编码一致的有效结果回填缓存。
         if (bucket != null && !result.isEmpty() && matchesStoredCodes.test(result.get(0))) {
             try {
+                // 只补充尚无缓存的键，保留并发请求先写入的结果。
                 bucket.setIfAbsent(result);
             } catch (RedisException ex) {
                 log.debug("业务字典缓存回填失败，异常类型 {}", ex.getClass().getSimpleName());

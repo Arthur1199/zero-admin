@@ -12,9 +12,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
- * executor api test
  *
- * Created by xuxueli on 17/5/12.
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 演示调度中心对执行器进行探活、派发和停止任务的协议调用。
  */
 // 官方集成用例可能操作数据库或执行器，普通打包按标签排除。
 @Slf4j

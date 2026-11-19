@@ -13,9 +13,10 @@ import com.zero.common.core.domain.AjaxResult;
 import com.zero.common.utils.ServletUtils;
 
 /**
- * 防止重复提交拦截器
  *
- * @author zero
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 防止重复提交拦截器
  */
 @Component
 public abstract class RepeatSubmitInterceptor implements HandlerInterceptor
@@ -60,12 +61,12 @@ public abstract class RepeatSubmitInterceptor implements HandlerInterceptor
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 验证是否重复提交由子类实现具体的防重复提交的规则
      * @param request 请求信息
      * @param annotation 防重复注解参数
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：验证是否重复提交由子类实现具体的防重复提交的规则
      */
     public abstract boolean isRepeatSubmit(HttpServletRequest request, RepeatSubmit annotation);

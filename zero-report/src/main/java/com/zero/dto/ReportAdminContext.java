@@ -275,6 +275,15 @@ public class ReportAdminContext
         }
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 将管理员上下文中的首个角色 ID 转成字符串。
+     * @return
+     * 返回值: String
+     * 返回值说明: 首个角色 ID，无角色时返回空字符串
+     */
     public String getFirstAdminRoleId()
     {
         return adminRoleIds == null || adminRoleIds.isEmpty() ? "" : String.valueOf(adminRoleIds.get(0));

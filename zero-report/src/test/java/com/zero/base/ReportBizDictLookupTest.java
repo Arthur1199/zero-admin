@@ -376,10 +376,12 @@ class ReportBizDictLookupTest {
         /**
          *
          * 作者: Arthur 亚瑟
-         * 时间: 2026/11/19 14:34
+         * 时间: 2026/11/20 01:36
          * 说明: 读取完整字典项。
          * @param key 分组编码.字典项编码
-         * @return 完整字典项，无记录时为空
+         * @return
+         * 返回值: DictItem
+         * 返回值说明: 完整字典项，无记录时为空
          */
         DictItem item(String key) {
             return getDictItem(key);
@@ -402,10 +404,12 @@ class ReportBizDictLookupTest {
         /**
          *
          * 作者: Arthur 亚瑟
-         * 时间: 2026/11/19 14:34
+         * 时间: 2026/11/20 01:36
          * 说明: 读取业务字典的字符串值。
          * @param key 分组编码.字典项编码
-         * @return 原始字符串值，无记录时为空
+         * @return
+         * 返回值: String
+         * 返回值说明: 原始字符串值，无记录时为空
          */
         String value(String key) {
             return getDictValue(key);
@@ -414,9 +418,11 @@ class ReportBizDictLookupTest {
         /**
          *
          * 作者: Arthur 亚瑟
-         * 时间: 2026/11/19 14:34
+         * 时间: 2026/11/20 01:36
          * 说明: 在后台库事务中访问业务字典，调用完成后恢复后台库事务。
-         * @return 业务库中的字典值
+         * @return
+         * 返回值: String
+         * 返回值说明: 业务库中的字典值
          */
         @DS(ReportDataSourceConstants.ADMIN)
         @Transactional

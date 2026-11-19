@@ -6,7 +6,8 @@
 ///**
 // * single thread pool, for async trigger
 // *
-// * @author xuxueli 2019-03-06
+// * 作者: Arthur 亚瑟
+// * 时间: 2026/11/20 01:36
 // */
 //public class XxlJobThreadPool implements ThreadPool {
 //

@@ -99,11 +99,11 @@ public interface ISysDeptService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 是否存在部门子节点
      * @param deptId 部门ID
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：是否存在部门子节点
      */
     public boolean hasChildByDeptId(Long deptId);
@@ -123,11 +123,11 @@ public interface ISysDeptService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 校验部门名称是否唯一
      * @param dept 部门信息
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：校验部门名称是否唯一
      */
     public boolean checkDeptNameUnique(SysDept dept);
@@ -147,11 +147,11 @@ public interface ISysDeptService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 新增保存部门信息
      * @param dept 部门信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：新增保存部门信息
      */
     public int insertDept(SysDept dept);
@@ -159,11 +159,11 @@ public interface ISysDeptService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 修改保存部门信息
      * @param dept 部门信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改保存部门信息
      */
     public int updateDept(SysDept dept);
@@ -171,11 +171,11 @@ public interface ISysDeptService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 删除部门管理信息
      * @param deptId 部门ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：删除部门管理信息
      */
     public int deleteDeptById(Long deptId);

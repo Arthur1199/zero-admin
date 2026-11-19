@@ -1,22 +1,13 @@
-/**
- *
- * Copyright (c) 2004-2017 All Rights Reserved.
- */
 package com.zero.utils.mail;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 表示邮件类，你需要设置：账户名和密码、收件人、抄送(可选)、暗送(可选)、主题、内容，以及附件(可选)
- * 
- * 在创建了Mail对象之后
- * 可以调用它的setSubject()、setContent()，设置主题和正文
- * 也可以调用setFrom()和　addToAddress()，设置发件人，和添加收件人。
- * 也可以调用addAttch()添加附件
- * 创建AttachBean：new AttachBean(new File("..."), "fileName");
- * @author jerry
- * @version $Id: Mail.java, v 0.1 2017年7月27日 上午11:02:33 jerry Exp $
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:42
+ * 说明: 保存邮件发件人、收件人、主题、正文和可选附件，供邮件工具组装发送内容。
  */
 public class Mail {
 
@@ -49,11 +40,14 @@ public class Mail {
     }
 
     /**
-     * 
-     * @param from
-     * @param to  收件人
-     * @param subject 主题
-     * @param content 正文
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 用发件人、收件人、主题和正文创建邮件对象。
+     * @param from 发件人地址
+     * @param to 收件人地址
+     * @param subject 邮件主题
+     * @param content 邮件正文
      */
     public Mail(String from, String to, String subject, String content) {
         this.from = from;
@@ -63,77 +57,134 @@ public class Mail {
     }
 
     /**
-     * 返回发件人
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 更新邮件使用的发件人地址。
+     * @param from 发件人地址
      * @return
+     * 返回值: void
+     * 返回值说明: 保存传入的发件人地址
      */
     public void setFrom(String from) {
         this.from = from;
     }
 
     /**
-     * 返回发件人
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 返回发件人
      * @return
+     * 返回值: String
+     * 返回值说明: 按上述规则读取或解析得到的文本
      */
     public String getFrom() {
         return from;
     }
 
     /**
-     * 返回主题
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 返回主题
+     * @return
+     * 返回值: String
+     * 返回值说明: 按上述规则读取或解析得到的文本
      */
     public String getSubject() {
         return subject;
     }
 
     /**
-     * 设置主题
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 设置主题
+     * @param subject 邮件主题
+     * @return
+     * 返回值: void
+     * 返回值说明: 设置主题
      */
     public void setSubject(String subject) {
         this.subject = subject;
     }
 
     /**
-     * 获取主题内容
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 获取主题内容
+     * @return
+     * 返回值: String
+     * 返回值说明: 按上述规则读取或解析得到的文本
      */
     public String getContent() {
         return content;
     }
 
     /**
-     * 设置主题内容
-     * @param content
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 设置主题内容
+     * @param content 待处理的正文
+     * @return
+     * 返回值: void
+     * 返回值说明: 设置主题内容
      */
     public void setContent(String content) {
         this.content = content;
     }
 
     /**
-     * 获取收件人
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 获取收件人
      * @return
+     * 返回值: String
+     * 返回值说明: 按上述规则读取或解析得到的文本
      */
     public String getToAddress() {
         return toAddress.toString();
     }
 
     /**
-     * 获取抄送
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 获取抄送
      * @return
+     * 返回值: String
+     * 返回值说明: 按上述规则读取或解析得到的文本
      */
     public String getCcAddress() {
         return ccAddress.toString();
     }
 
     /**
-     * 获取暗送
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 获取暗送
      * @return
+     * 返回值: String
+     * 返回值说明: 按上述规则读取或解析得到的文本
      */
     public String getBccAddress() {
         return bccAddress.toString();
     }
 
     /**
-     * 添加收件人,可以是多个收件人
-     * @param to
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 添加收件人,可以是多个收件人
+     * @param to 收件人地址或地址集合
+     * @return
+     * 返回值: void
+     * 返回值说明: 添加收件人,可以是多个收件人
      */
     public void addToAddress(String to) {
         if (this.toAddress.length() > 0) {
@@ -143,8 +194,14 @@ public class Mail {
     }
 
     /**
-     * 添加抄送人，可以是多个抄送人
-     * @param cc
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 添加抄送人，可以是多个抄送人
+     * @param cc 抄送地址或地址集合
+     * @return
+     * 返回值: void
+     * 返回值说明: 添加抄送人，可以是多个抄送人
      */
     public void addCcAddress(String cc) {
         if (this.ccAddress.length() > 0) {
@@ -154,8 +211,14 @@ public class Mail {
     }
 
     /**
-     * 添加暗送人，可以是多个暗送人
-     * @param bcc
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 添加暗送人，可以是多个暗送人
+     * @param bcc 暗送地址或地址集合
+     * @return
+     * 返回值: void
+     * 返回值说明: 添加暗送人，可以是多个暗送人
      */
     public void addBccAddress(String bcc) {
         if (this.bccAddress.length() > 0) {
@@ -165,16 +228,27 @@ public class Mail {
     }
 
     /**
-     * 添加附件，可以添加多个附件
-     * @param attachBean
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 添加附件，可以添加多个附件
+     * @param attachBean 待添加的邮件附件
+     * @return
+     * 返回值: void
+     * 返回值说明: 添加附件，可以添加多个附件
      */
     public void addAttach(AttachBean attachBean) {
         this.attachList.add(attachBean);
     }
 
     /**
-     * 获取所有附件
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 获取所有附件
      * @return
+     * 返回值: List<AttachBean>
+     * 返回值说明: 符合上述查询条件的记录或值集合
      */
     public List<AttachBean> getAttachs() {
         return this.attachList;

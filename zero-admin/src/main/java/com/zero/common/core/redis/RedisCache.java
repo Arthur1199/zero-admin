@@ -32,13 +32,14 @@ public class RedisCache
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 缓存基本的对象，Integer、String、实体类等
-     * @param key 缓存的键值
-     * @param value 缓存的值
+     * 时间: 2026/11/20 01:36
+     * 说明: 将对象写入 Redis，当前重载不显式设置过期时间。
+     * @param <T> 缓存对象类型
+     * @param key Redis 缓存键
+     * @param value 待写入的值
      * @return
-     * 返回值: <T> void
-     * 返回值说明：缓存基本的对象，Integer、String、实体类等
+     * 返回值: void
+     * 返回值说明: 写入指定键
      */
     public <T> void setCacheObject(final String key, final T value)
     {
@@ -48,15 +49,16 @@ public class RedisCache
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 缓存基本的对象，Integer、String、实体类等
-     * @param key 缓存的键值
-     * @param value 缓存的值
-     * @param timeout 时间
-     * @param timeUnit 时间颗粒度
+     * 时间: 2026/11/20 01:36
+     * 说明: 将对象和对应的有效期写入 Redis。
+     * @param <T> 缓存对象类型
+     * @param key Redis 缓存键
+     * @param value 待写入的值
+     * @param timeout 缓存有效时长
+     * @param timeUnit 有效时长的单位
      * @return
-     * 返回值: <T> void
-     * 返回值说明：缓存基本的对象，Integer、String、实体类等
+     * 返回值: void
+     * 返回值说明: 写入缓存及其过期时间
      */
     public <T> void setCacheObject(final String key, final T value, final Integer timeout, final TimeUnit timeUnit)
     {
@@ -129,12 +131,13 @@ public class RedisCache
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 获得缓存的基本对象。
+     * @param <T> 当前方法处理的值类型
      * @param key 缓存键值
      * @return
-     * 返回值: 缓存键值对应的数据
-     * 返回值说明：获得缓存的基本对象。
+     * 返回值: T
+     * 返回值说明: 获得缓存的基本对象。
      */
     public <T> T getCacheObject(final String key)
     {
@@ -143,10 +146,14 @@ public class RedisCache
     }
 
     /**
-     * 递增缓存数字
      *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 递增缓存数字
      * @param key 缓存键
-     * @return 递增后的值
+     * @return
+     * 返回值: Long
+     * 返回值说明: 递增后的值
      */
     public Long incrementCacheObject(final String key)
     {
@@ -186,13 +193,14 @@ public class RedisCache
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 缓存List数据
+     * @param <T> 当前方法处理的值类型
      * @param key 缓存的键值
      * @param dataList 待缓存的List数据
      * @return
-     * 返回值: 缓存的对象
-     * 返回值说明：缓存List数据
+     * 返回值: long
+     * 返回值说明: 缓存List数据
      */
     public <T> long setCacheList(final String key, final List<T> dataList)
     {
@@ -203,12 +211,13 @@ public class RedisCache
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 获得缓存的list对象
+     * @param <T> 当前方法处理的值类型
      * @param key 缓存的键值
      * @return
-     * 返回值: 缓存键值对应的数据
-     * 返回值说明：获得缓存的list对象
+     * 返回值: List<T>
+     * 返回值说明: 获得缓存的list对象
      */
     public <T> List<T> getCacheList(final String key)
     {
@@ -218,13 +227,14 @@ public class RedisCache
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 缓存Set
+     * @param <T> 当前方法处理的值类型
      * @param key 缓存键值
      * @param dataSet 缓存的数据
      * @return
-     * 返回值: 缓存数据的对象
-     * 返回值说明：缓存Set
+     * 返回值: BoundSetOperations<String, T>
+     * 返回值说明: 缓存Set
      */
     public <T> BoundSetOperations<String, T> setCacheSet(final String key, final Set<T> dataSet)
     {
@@ -240,12 +250,13 @@ public class RedisCache
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 获得缓存的set
+     * @param <T> 当前方法处理的值类型
      * @param key 键名参数
      * @return
-     * 返回值: <T> Set<T>
-     * 返回值说明：获得缓存的set
+     * 返回值: Set<T>
+     * 返回值说明: 获得缓存的set
      */
     public <T> Set<T> getCacheSet(final String key)
     {
@@ -255,13 +266,14 @@ public class RedisCache
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 缓存Map
-     * @param key 键名参数
-     * @param dataMap 数据映射参数
+     * 时间: 2026/11/20 01:36
+     * 说明: 将给定映射批量写入 Redis Hash。
+     * @param <T> Hash 字段值类型
+     * @param key Redis Hash 键
+     * @param dataMap 待写入的字段和值
      * @return
-     * 返回值: <T> void
-     * 返回值说明：缓存Map
+     * 返回值: void
+     * 返回值说明: 合并写入提供的字段
      */
     public <T> void setCacheMap(final String key, final Map<String, T> dataMap)
     {
@@ -273,12 +285,13 @@ public class RedisCache
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 获得缓存的Map
+     * @param <T> 当前方法处理的值类型
      * @param key 键名参数
      * @return
-     * 返回值: <T> Map<String, T>
-     * 返回值说明：获得缓存的Map
+     * 返回值: Map<String, T>
+     * 返回值说明: 获得缓存的Map
      */
     public <T> Map<String, T> getCacheMap(final String key)
     {
@@ -288,14 +301,15 @@ public class RedisCache
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 往Hash中存入数据
-     * @param key Redis键
-     * @param hKey Hash键
-     * @param value 值
+     * 时间: 2026/11/20 01:36
+     * 说明: 设置 Redis Hash 中的单个字段。
+     * @param <T> Hash 字段值类型
+     * @param key Redis Hash 键
+     * @param hKey Hash 字段名
+     * @param value 待写入的字段值
      * @return
-     * 返回值: <T> void
-     * 返回值说明：往Hash中存入数据
+     * 返回值: void
+     * 返回值说明: 写入或替换指定字段
      */
     public <T> void setCacheMapValue(final String key, final String hKey, final T value)
     {
@@ -305,13 +319,14 @@ public class RedisCache
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 获取Hash中的数据
+     * @param <T> 当前方法处理的值类型
      * @param key Redis键
      * @param hKey Hash键
      * @return
-     * 返回值: Hash中的对象
-     * 返回值说明：获取Hash中的数据
+     * 返回值: T
+     * 返回值说明: 获取Hash中的数据
      */
     public <T> T getCacheMapValue(final String key, final String hKey)
     {
@@ -322,13 +337,14 @@ public class RedisCache
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 获取多个Hash中的数据
+     * @param <T> 当前方法处理的值类型
      * @param key Redis键
      * @param hKeys Hash键集合
      * @return
-     * 返回值: Hash对象集合
-     * 返回值说明：获取多个Hash中的数据
+     * 返回值: List<T>
+     * 返回值说明: 获取多个Hash中的数据
      */
     public <T> List<T> getMultiCacheMapValue(final String key, final Collection<Object> hKeys)
     {

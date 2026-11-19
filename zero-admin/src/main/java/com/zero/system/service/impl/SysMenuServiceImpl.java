@@ -329,11 +329,11 @@ public class SysMenuServiceImpl implements ISysMenuService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 是否存在菜单子节点
      * @param menuId 菜单ID
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：是否存在菜单子节点
      */
     @Override
@@ -346,11 +346,11 @@ public class SysMenuServiceImpl implements ISysMenuService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 查询菜单使用数量
      * @param menuId 菜单ID
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：查询菜单使用数量
      */
     @Override
@@ -363,11 +363,11 @@ public class SysMenuServiceImpl implements ISysMenuService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 新增保存菜单信息
      * @param menu 菜单信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：新增保存菜单信息
      */
     @Override
@@ -379,11 +379,11 @@ public class SysMenuServiceImpl implements ISysMenuService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 修改保存菜单信息
      * @param menu 菜单信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改保存菜单信息
      */
     @Override
@@ -395,11 +395,11 @@ public class SysMenuServiceImpl implements ISysMenuService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 删除菜单管理信息
      * @param menuId 菜单ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：删除菜单管理信息
      */
     @Override
@@ -411,11 +411,11 @@ public class SysMenuServiceImpl implements ISysMenuService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 校验菜单名称是否唯一
      * @param menu 菜单信息
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：校验菜单名称是否唯一
      */
     @Override
@@ -530,11 +530,11 @@ public class SysMenuServiceImpl implements ISysMenuService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 是否为菜单内部跳转
      * @param menu 菜单信息
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：是否为菜单内部跳转
      */
     public boolean isMenuFrame(SysMenu menu)
@@ -546,11 +546,11 @@ public class SysMenuServiceImpl implements ISysMenuService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 是否为内链组件
      * @param menu 菜单信息
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：是否为内链组件
      */
     public boolean isInnerLink(SysMenu menu)
@@ -561,11 +561,11 @@ public class SysMenuServiceImpl implements ISysMenuService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 是否为parent_view组件
      * @param menu 菜单信息
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：是否为parent_view组件
      */
     public boolean isParentView(SysMenu menu)
@@ -576,13 +576,13 @@ public class SysMenuServiceImpl implements ISysMenuService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 根据父节点的ID获取所有子节点
-     * @param list 分类表
-     * @param parentId 传入的父节点ID
+     * 时间: 2026/11/20 01:36
+     * 说明: 从扁平菜单集合找出指定父节点的直接子菜单，并递归装配它们的后代。
+     * @param list 作为搜索范围的扁平菜单集合
+     * @param parentId 父菜单 ID
      * @return
-     * 返回值: String
-     * 返回值说明：根据父节点的ID获取所有子节点
+     * 返回值: List<SysMenu>
+     * 返回值说明: 组装完子树的直接子菜单集合
      */
     public List<SysMenu> getChildPerms(List<SysMenu> list, int parentId)
     {

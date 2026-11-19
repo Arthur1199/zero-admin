@@ -11,6 +11,12 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+/**
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 启动多个线程争用数据库调度行锁，通过日志观察事务间的等待及释放顺序。
+ */
 @Slf4j
 @SpringBootTest
 // 官方集成用例可能操作数据库或执行器，普通打包按标签排除。
@@ -30,6 +36,16 @@ public class JobScheduleTest {
         TimeUnit.MINUTES.sleep(10);
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 在独立事务内竞争同一数据库行锁，持锁一段时间并记录取得与释放的时间。
+     * @param threadName 用于区分并发调用的日志标识
+     * @return
+     * 返回值: void
+     * 返回值说明: 提交当前事务并释放调度锁
+     */
     private void lockTest(String threadName) {
 
         TransactionStatus transactionStatus = XxlJobAdminBootstrap.getInstance().getTransactionManager().getTransaction(new DefaultTransactionDefinition());

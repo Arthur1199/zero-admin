@@ -10,9 +10,10 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * xxl-job alarmer
  *
- * @author xuxueli 17/7/13.
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 调度中心统一的告警入口，调用已装配的告警实现处理失败任务。
  */
 @Slf4j
 @Component
@@ -21,7 +22,15 @@ public class JobAlarmer {
     private List<JobAlarm> jobAlarmList;
 
     /**
-     * job alarm
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 对失败任务逐一调用配置的告警实现。
+     * @param info 包含告警配置的任务
+     * @param jobLog 失败的调度日志
+     * @return
+     * 返回值: boolean
+     * 返回值说明: 至少有一个告警实现且全部成功时返回 true
      */
     public boolean alarm(XxlJobInfo info, XxlJobLog jobLog) {
 

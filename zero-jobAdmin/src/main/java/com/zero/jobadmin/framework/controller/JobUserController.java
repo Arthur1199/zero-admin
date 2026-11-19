@@ -29,9 +29,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.List;
 
 /**
- * job user controller
  *
- * @author xuxueli 2019-05-04 16:39:50
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 提供调度控制台的用户和执行器组授权管理入口。
  */
 @Controller
 @RequestMapping("/user")
@@ -42,6 +43,16 @@ public class JobUserController {
     @Resource
     private XxlJobGroupMapper xxlJobGroupMapper;
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 为调度管理员打开用户页，并加载用户授权表单使用的执行器组列表。
+     * @param model 用于提供执行器组列表的视图模型
+     * @return
+     * 返回值: String
+     * 返回值说明: 用户管理页的视图名
+     */
     @RequestMapping
     @XxlSso(role = Consts.ADMIN_ROLE)
     public String index(Model model) {
@@ -198,6 +209,17 @@ public class JobUserController {
                 ? Response.ofSuccess() : Response.ofFail(I18nUtil.getString("system_opt_fail"));
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 由调度管理员删除一个目标用户，禁止删除当前登录账号。
+     * @param request 携带当前调度登录信息的请求
+     * @param ids 待删除的用户 ID 列表，只接受一项
+     * @return
+     * 返回值: Response<String>
+     * 返回值说明: 删除结果或无法删除的原因
+     */
     @RequestMapping("/delete")
     @ResponseBody
     @XxlSso(role = Consts.ADMIN_ROLE)

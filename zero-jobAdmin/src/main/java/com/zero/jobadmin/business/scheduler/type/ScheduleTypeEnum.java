@@ -11,8 +11,8 @@ import java.text.MessageFormat;
 
 /**
  *
- * 作者: xuxueli
- * 时间: 2020/10/29 21:11:23
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
  * 说明: 定义调度类型及其配置校验规则。
  */
 public enum ScheduleTypeEnum {
@@ -87,11 +87,15 @@ public enum ScheduleTypeEnum {
     }
 
     /**
-     * match by name
      *
-     * @param name          name of ScheduleTypeEnum
-     * @param defaultItem   default item
-     * @return ScheduleTypeEnum
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: match by name
+     * @param name name of ScheduleTypeEnum
+     * @param defaultItem default item
+     * @return
+     * 返回值: ScheduleTypeEnum
+     * 返回值说明: ScheduleTypeEnum
      */
     public static ScheduleTypeEnum match(String name, ScheduleTypeEnum defaultItem){
         for (ScheduleTypeEnum item: ScheduleTypeEnum.values()) {

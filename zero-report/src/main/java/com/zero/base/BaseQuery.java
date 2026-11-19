@@ -128,12 +128,13 @@ public class BaseQuery
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/6/28 05:39
-     * 说明: 创建 MyBatis-Plus 分页对象，统一完成页码、每页条数和业务最大条数兜底
-     * @param maxPageSize 当前业务允许的最大每页条数
+     * 时间: 2026/11/20 01:36
+     * 说明: 创建分页对象，修正页码并按传入上限约束每页条数。
+     * @param <T> 分页记录类型
+     * @param maxPageSize 允许的最大每页条数
      * @return
      * 返回值: Page<T>
-     * 返回值说明: 可直接传入 MyBatis-Plus page 方法的分页对象
+     * 返回值说明: 用于 MyBatis-Plus 查询的分页对象
      */
     public <T> Page<T> toPage(long maxPageSize)
     {
@@ -143,11 +144,12 @@ public class BaseQuery
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/6/28 05:43
-     * 说明: 创建 MyBatis-Plus 分页对象，使用当前查询对象自身的最大每页条数
+     * 时间: 2026/11/20 01:36
+     * 说明: 使用当前查询对象配置的每页条数上限创建分页对象。
+     * @param <T> 分页记录类型
      * @return
      * 返回值: Page<T>
-     * 返回值说明: 可直接传入 MyBatis-Plus page 方法的分页对象
+     * 返回值说明: 用于 MyBatis-Plus 查询的分页对象
      */
     public <T> Page<T> toPage()
     {

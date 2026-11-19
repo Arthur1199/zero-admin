@@ -14,11 +14,11 @@ public interface SysRoleMenuMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 查询菜单使用数量
      * @param menuId 菜单ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：查询菜单使用数量
      */
     public int checkMenuExistRole(Long menuId);
@@ -26,11 +26,11 @@ public interface SysRoleMenuMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 通过角色ID删除角色和菜单关联
      * @param roleId 角色ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：通过角色ID删除角色和菜单关联
      */
     public int deleteRoleMenuByRoleId(Long roleId);
@@ -38,11 +38,11 @@ public interface SysRoleMenuMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 批量删除角色菜单关联信息
      * @param ids 需要删除的数据ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：批量删除角色菜单关联信息
      */
     public int deleteRoleMenu(Long[] ids);
@@ -50,11 +50,11 @@ public interface SysRoleMenuMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 批量新增角色菜单信息
      * @param roleMenuList 角色菜单列表
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：批量新增角色菜单信息
      */
     public int batchRoleMenu(List<SysRoleMenu> roleMenuList);

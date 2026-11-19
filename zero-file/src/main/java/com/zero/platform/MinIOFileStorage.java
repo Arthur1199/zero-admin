@@ -24,7 +24,10 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
- * MinIO 存储。
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: MinIO 存储。
  */
 @Slf4j
 @Getter
@@ -39,6 +42,15 @@ public class MinIOFileStorage implements FileStorage {
     private String domain;
     private String basePath;
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 使用当前 MinIO 终端及认证配置创建客户端。
+     * @return
+     * 返回值: MinioClient
+     * 返回值说明: 对象操作客户端，无效终端或端口会转换为存储异常
+     */
     public MinioClient getClient() {
         try {
             return new MinioClient(endPoint,accessKey,secretKey);
@@ -47,6 +59,17 @@ public class MinIOFileStorage implements FileStorage {
         }
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 通过 MinIO 存储原文件及可选的缩略图，并更新文件信息中的存储位置。
+     * @param fileInfo 用于回填存储位置的文件信息
+     * @param pre 含原文件内容及可选缩略图的预处理结果
+     * @return
+     * 返回值: boolean
+     * 返回值说明: 当前平台的保存结果
+     */
     @Override
     public boolean save(FileInfo fileInfo,UploadPretreatment pre) {
         String newFileKey = basePath + fileInfo.getPath() + fileInfo.getFilename();
@@ -87,6 +110,16 @@ public class MinIOFileStorage implements FileStorage {
         }
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 按历史记录中的存储路径删除 MinIO 的对象及关联缩略图。
+     * @param fileInfo 携带原文件及缩略图路径信息的文件记录
+     * @return
+     * 返回值: boolean
+     * 返回值说明: 当前平台的删除结果
+     */
     @Override
     public boolean delete(FileInfo fileInfo) {
         MinioClient client = getClient();
@@ -102,6 +135,16 @@ public class MinIOFileStorage implements FileStorage {
     }
 
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 检查 MinIO 是否仍可找到文件记录指向的原文件。
+     * @param fileInfo 包含原文件位置的文件信息
+     * @return
+     * 返回值: boolean
+     * 返回值说明: 原文件存在时返回 true
+     */
     @Override
     public boolean exists(FileInfo fileInfo) {
         MinioClient client = getClient();
@@ -119,6 +162,17 @@ public class MinIOFileStorage implements FileStorage {
         }
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 从 MinIO 读取文件记录指向的原文件。
+     * @param fileInfo 包含原文件位置的文件信息
+     * @param consumer 用于读取输入流的回调
+     * @return
+     * 返回值: void
+     * 返回值说明: 在输入流有效期间调用消费回调
+     */
     @Override
     public void download(FileInfo fileInfo,Consumer<InputStream> consumer) {
         MinioClient client = getClient();
@@ -129,6 +183,17 @@ public class MinIOFileStorage implements FileStorage {
         }
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 检查缩略图位置，并从 MinIO 读取缩略图。
+     * @param fileInfo 包含缩略图位置的文件信息
+     * @param consumer 用于读取缩略图输入流的回调
+     * @return
+     * 返回值: void
+     * 返回值说明: 读取后在输入流有效期间调用消费回调
+     */
     @Override
     public void downloadTh(FileInfo fileInfo,Consumer<InputStream> consumer) {
         if (StrUtil.isBlank(fileInfo.getThFilename())) {

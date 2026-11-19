@@ -19,8 +19,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  *
- * 作者: xuxueli
- * 时间: 2015/9/1 18:05:56
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
  * 说明: 提交执行器回调结果，并监控长时间未回调且离线的任务。
  */
 @Slf4j
@@ -38,8 +38,8 @@ public class JobCompleteHelper {
 
 	/**
 	 *
-	 * 作者: xuxueli
-	 * 时间: 2015/9/1 18:05
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 接收执行器回调，并启动执行结果丢失监控。
 	 * @return
 	 * 返回值: void
@@ -89,8 +89,8 @@ public class JobCompleteHelper {
 
 	/**
 	 *
-	 * 作者: xuxueli
-	 * 时间: 2015/9/1 18:05:56
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 拒绝新回调，停止待回调任务的离线检查。
 	 * @return
 	 * 返回值: void

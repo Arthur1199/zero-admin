@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 /**
  *
- * 作者: xuxueli
- * 时间: 2026/11/18 15:50
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
  * 说明: 使用Spring Boot 3错误页接口，将容器错误转入官方控制台错误页面
  */
 @Component
@@ -16,8 +16,8 @@ public class WebErrorPageRegistrar implements ErrorPageRegistrar {
 
     /**
      *
-     * 作者: xuxueli
-     * 时间: 2026/11/18 15:50
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
      * 说明: 保留官方错误页路由，兼容当前Boot 3容器
      * @param registry 当前Web容器的错误页注册器
      * @return

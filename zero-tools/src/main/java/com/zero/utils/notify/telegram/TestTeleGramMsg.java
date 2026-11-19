@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 作者: Jack
- * 时间: 2025年3月5日17:41:24
- * 说明: 测试工具
  *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 提供基础值、映射和集合字段，用于演示 Telegram 消息组装后的文本结构。
  */
 public class TestTeleGramMsg {
 	

@@ -22,9 +22,13 @@ public class GoogleAuthenticatorUtils
     }
 
     /**
-     * 生成谷歌动态码密钥
      *
-     * @return Base32 格式密钥
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 生成谷歌动态码密钥
+     * @return
+     * 返回值: String
+     * 返回值说明: Base32 格式密钥
      */
     public static String createSecretKey()
     {
@@ -35,11 +39,15 @@ public class GoogleAuthenticatorUtils
     }
 
     /**
-     * 校验 6 位谷歌动态码
      *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 校验 6 位谷歌动态码
      * @param secretKey 谷歌密钥
      * @param code 用户输入动态码
-     * @return true 校验通过，false 校验失败
+     * @return
+     * 返回值: boolean
+     * 返回值说明: true 校验通过，false 校验失败
      */
     public static boolean verify(String secretKey, String code)
     {
@@ -60,11 +68,15 @@ public class GoogleAuthenticatorUtils
     }
 
     /**
-     * 根据指定时间窗口生成动态码
      *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 根据指定时间窗口生成动态码
      * @param secretKey 谷歌密钥
      * @param time 30 秒时间窗口
-     * @return 6 位动态码
+     * @return
+     * 返回值: String
+     * 返回值说明: 6 位动态码
      */
     public static String getTOTP(String secretKey, long time)
     {
@@ -75,12 +87,16 @@ public class GoogleAuthenticatorUtils
     }
 
     /**
-     * 生成绑定二维码内容
      *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 生成绑定二维码内容
      * @param secret 谷歌密钥
      * @param account 账号
      * @param issuer 签发方
-     * @return otpauth URI
+     * @return
+     * 返回值: String
+     * 返回值说明: otpauth URI
      */
     public static String createGoogleAuthQRCodeData(String secret, String account, String issuer)
     {

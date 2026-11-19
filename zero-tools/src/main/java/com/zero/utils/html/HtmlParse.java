@@ -12,32 +12,32 @@ import java.util.Map;
 /**
  *
  * 作者: Arthur 亚瑟
- * 时间: 2026/5/16 22:15
- * 说明: html工具类
+ * 时间: 2026/11/20 01:36
+ * 说明: 使用 dom4j 解析符合 XML 格式的表单文本，也提供将指定标签改为自闭合形式的辅助方法。
  */
 public class HtmlParse {
 
     /**
-     * 读取html 标签属性参数
-     * eg:<body onLoad="document.actform.submit()"> 读取 onLoad 值为 document.actform.submit()
-     * @param htmlStr
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 解析根元素下的 form，读取它的 action 属性及直接子 input 的 name、value 属性。
+     * @param htmlStr 可按 XML 解析且根元素包含 form 子元素的表单文本
      * @return
+     * 返回值: Map<String, Object>
+     * 返回值说明: 以 action 和各输入名称为键的映射，同名输入保留后出现的值
+     * @throws Exception XML 文本解析失败时向上传递
      */
     @SuppressWarnings("rawtypes")
 	public static Map<String,Object> readAttributeMap(String htmlStr) throws Exception {
         Map<String,Object> resultMap=new HashMap<>();
 
-        //解析XML形式的文本,得到document对象
         Document document= DocumentHelper.parseText(htmlStr);
-        //获取文档的根节点
         Element eleRoot = document.getRootElement();
-        //取得某节点的单个子节点
         Element fromElement=eleRoot.element("form");
 
-        //读取 地址 请求方式
+        // 单独保存表单提交地址，输入项以各自的 name 作为键。
         resultMap.put("action",fromElement.attributeValue("action"));
-//        resultMap.put("method",fromElement.attributeValue("method"));
-        //取得某节点下指定名称的所有节点并进行遍历
         List nodes = fromElement.elements("input");
         for (Iterator it = nodes.iterator(); it.hasNext();) {
             Element elm = (Element) it.next();
@@ -48,25 +48,26 @@ public class HtmlParse {
     }
 
     /**
-     * 读取html 节点参数
-     * eg:<input name="key" type="hidden">123</input> 读取input标签下 123
-     * @param htmlStr
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 读取根元素下 form 的文本及根元素的 name 子元素文本。现有实现仅演示读取步骤。
+     * @param htmlStr 可按 XML 解析且根元素包含 form 子元素的表单文本
      * @return
+     * 返回值: Map<String, Object>
+     * 返回值说明: 空映射，读取到的文本没有写入返回值
+     * @throws Exception XML 文本解析失败时向上传递
      */
     @SuppressWarnings("unused")
 	public static Map<String,Object> readNodeMap(String htmlStr) throws Exception {
         Map<String,Object> resultMap=new HashMap<>();
 
-        //解析XML形式的文本,得到document对象
         Document document= DocumentHelper.parseText(htmlStr);
-        //获取文档的根节点
         Element eleRoot = document.getRootElement();
-        //取得某节点的单个子节点
         Element fromElement=eleRoot.element("form");
 
-        //取得节点下的值
+        // 当前实现只读取两处节点的文本，结果映射保持为空。
         String text2=fromElement.getText();
-        //这个是取得根节点下的name字节点的文字
         String text1=eleRoot.elementText("name");
 
         return resultMap;
@@ -74,11 +75,15 @@ public class HtmlParse {
 
 
     /**
-     * 闭合指定标签 例如闭合input
-     * eg:<input> 闭合为 <input />
-     * @param str
-     * @param node
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 给匹配到的指定标签补上自闭合斜杠，供后续解析使用。
+     * @param str 含完整起始标签的 HTML 文本
+     * @param node 待处理的标签名，例如 input
      * @return
+     * 返回值: String
+     * 返回值说明: 补全指定标签后的原文本
      */
     public static String closeHTML(String str,String node) {
         for (int j = 0; j < str.length(); ) {

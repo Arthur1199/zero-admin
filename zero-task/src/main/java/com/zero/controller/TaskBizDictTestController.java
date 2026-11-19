@@ -29,12 +29,12 @@ public class TaskBizDictTestController {
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/11/19
-     * 说明: 查询字典项的原始值。
-     * @param dictKey 分组编码.字典项编码
-     * @return 匹配的字典原值
-     * 返回值: String
-     * 返回值说明: 未匹配时为空
+     * 时间: 2026/11/20 01:36
+     * 说明: 读取指定业务字典项的原始值。
+     * @param dictKey 以点分隔的字典分组和字典项编码
+     * @return
+     * 返回值: AjaxResult
+     * 返回值说明: 成功响应的 data 保存字典值，无匹配项时为空
      */
     @GetMapping("/findBizDictValue")
     public AjaxResult getBizDictValue(String dictKey) {
@@ -45,12 +45,12 @@ public class TaskBizDictTestController {
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/11/19
-     * 说明: 查询指定字典项。
-     * @param dictKey 字典分组编码.字典项编码
-     * @return 匹配的有效字典项
-     * 返回值: DictItem
-     * 返回值说明: 未匹配时为空
+     * 时间: 2026/11/20 01:36
+     * 说明: 读取指定的有效业务字典项及其完整字段。
+     * @param dictKey 以点分隔的字典分组和字典项编码
+     * @return
+     * 返回值: AjaxResult
+     * 返回值说明: 成功响应的 data 保存字典项，无匹配项时为空
      */
     @GetMapping("/getActiveItem")
     public AjaxResult findActiveItem(String dictKey) {
@@ -61,12 +61,12 @@ public class TaskBizDictTestController {
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/11/19
-     * 说明: 查询分组下的有效字典项。
+     * 时间: 2026/11/20 01:36
+     * 说明: 按字典分组查询全部有效字典项。
      * @param groupCode 字典分组编码
-     * @return 匹配的有效字典项列表
-     * 返回值: List<DictItem>
-     * 返回值说明: 未匹配时为空列表
+     * @return
+     * 返回值: AjaxResult
+     * 返回值说明: 成功响应的 data 保存字典项列表，没有匹配项时为空列表
      */
     @GetMapping("/getActiveItems")
     public AjaxResult findActiveItems(String groupCode) {

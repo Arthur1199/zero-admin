@@ -8,6 +8,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.Date;
 import java.util.List;
 
+/**
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 演练执行器组查询、新增、修改和删除，对集成测试数据库有写操作。
+ */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 // 官方集成用例可能操作数据库或执行器，普通打包按标签排除。
 @org.junit.jupiter.api.Tag("job-integration")

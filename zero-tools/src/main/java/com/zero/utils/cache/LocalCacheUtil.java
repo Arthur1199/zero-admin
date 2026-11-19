@@ -89,8 +89,9 @@ public class LocalCacheUtil {
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/16 23:55
+     * 时间: 2026/11/20 01:36
      * 说明: 根据key读取缓存值并转换为指定类型
+     * @param <T> 当前方法处理的值类型
      * @param key 缓存键
      * @param clazz 目标类型
      * @return

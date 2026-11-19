@@ -16,6 +16,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.Date;
 import java.util.List;
 
+/**
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 演练任务配置分页、读写和调度游标批量更新，对集成测试数据库有写操作。
+ */
 @Slf4j
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 // 官方集成用例可能操作数据库或执行器，普通打包按标签排除。
@@ -91,8 +97,8 @@ public class XxlJobInfoMapperTest {
 
 	/**
 	 *
-	 * 作者: xuxueli
-	 * 时间: 2016/1/12
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 使用初始任务快照验证调度批量游标写入和停止状态。
 	 * @return
 	 * 返回值: void

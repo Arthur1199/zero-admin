@@ -5,7 +5,10 @@ import com.zero.jobadmin.business.scheduler.misfire.strategy.MisfireFireOnceNow;
 import com.zero.jobadmin.framework.util.I18nUtil;
 
 /**
- * @author xuxueli 2020-10-29 21:11:23
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 定义调度过期策略及其处理器，供任务配置和调度扫描选择。
  */
 public enum MisfireStrategyEnum {
 
@@ -36,11 +39,15 @@ public enum MisfireStrategyEnum {
     }
 
     /**
-     * match misfire strategy
      *
-     * @param name          name of misfire strategy
-     * @param defaultItem   default misfire strategy
-     * @return misfire strategy
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: match misfire strategy
+     * @param name name of misfire strategy
+     * @param defaultItem default misfire strategy
+     * @return
+     * 返回值: MisfireStrategyEnum
+     * 返回值说明: misfire strategy
      */
     public static MisfireStrategyEnum match(String name, MisfireStrategyEnum defaultItem){
         for (MisfireStrategyEnum item: MisfireStrategyEnum.values()) {

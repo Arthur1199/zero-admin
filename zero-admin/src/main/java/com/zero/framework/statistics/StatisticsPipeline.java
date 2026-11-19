@@ -277,6 +277,7 @@ public class StatisticsPipeline
             {
                 StatEvent event=JSON.parseObject(String.valueOf(record.getValue().get("payload")),StatEvent.class);
                 store.accept(event);
+                // 持久化成功后再确认消息，失败时保留记录供重新投递。
                 redis.opsForStream().acknowledge(properties.getStreamKey(),properties.getGroup(),record.getId());
             }
             catch (Exception e) { healthy=false; problem("事件消费未完成，保留待确认记录"); }

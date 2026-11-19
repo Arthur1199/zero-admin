@@ -25,6 +25,16 @@ public class SecuritySecureConfig {
         this.adminContextPath = adminServerProperties.getContextPath();
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 配置监控控制台的登录和访问边界，静态资源、登录页和监控端点按路径放行。
+     * @param http Spring 提供的 HTTP 安全配置器
+     * @return
+     * 返回值: SecurityFilterChain
+     * 返回值说明: Boot Admin 使用的 Spring Security 过滤器链
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();

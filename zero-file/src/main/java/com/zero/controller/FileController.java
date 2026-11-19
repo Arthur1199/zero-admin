@@ -30,18 +30,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 文件上传与记录查询接口。
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 提供文件服务内部的文件上传、分页、详情、记录编辑和删除接口。
  */
 @RestController
 @RequestMapping("/file")
 public class FileController
 {
+    /** 调用方未指定业务对象时记录的 ID。 */
     private static final String DEFAULT_OBJECT_ID = "0";
 
+    /** 调用方未指定文件业务类型时使用的值。 */
     private static final String DEFAULT_OBJECT_TYPE = "0";
 
+    /** 浏览器上传 Blob 时的默认原始文件名。 */
     private static final String BLOB_NAME = "blob";
 
+    /** 按年、月、日生成上传文件的存储子目录。 */
     private static final DateTimeFormatter PATH_FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 
     @Autowired
@@ -50,6 +57,19 @@ public class FileController
     @Autowired
     private IFileDetailService fileDetailService;
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 按业务归属和所选平台上传文件，返回已保存的文件信息。
+     * @param file 非空的 multipart 文件
+     * @param platform 可选存储平台，空白时使用默认平台
+     * @param objectId 业务对象 ID，空白时使用默认值
+     * @param objectType 业务类型，空白时使用默认值
+     * @return
+     * 返回值: AjaxResult
+     * 返回值说明: 成功时 data 为文件信息，存储返回空结果时返回错误
+     */
     @PostMapping("/upload")
     public AjaxResult upload(@RequestParam("file") MultipartFile file,
                              @RequestParam(required = false) String platform,
@@ -60,6 +80,19 @@ public class FileController
         return fileInfo == null ? AjaxResult.error("上传文件失败") : AjaxResult.success(fileInfo);
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 按输入顺序分别上传文件，单项空结果会跳过，上传异常交给全局处理。
+     * @param files 非空的 multipart 文件列表
+     * @param platform 可选存储平台，空白时使用默认平台
+     * @param objectId 业务对象 ID，空白时使用默认值
+     * @param objectType 业务类型，空白时使用默认值
+     * @return
+     * 返回值: AjaxResult
+     * 返回值说明: 至少一项成功时 data 为成功文件列表，否则返回上传失败
+     */
     @PostMapping("/uploadFiles")
     public AjaxResult uploadFiles(@RequestParam("files") List<MultipartFile> files,
                                   @RequestParam(required = false) String platform,
@@ -79,6 +112,19 @@ public class FileController
         return result.isEmpty() ? AjaxResult.error("上传文件失败") : AjaxResult.success(result);
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 将图片缩放到 1000 × 1000 范围内，同时生成 200 × 200 范围内的缩略图。
+     * @param file 非空的 multipart 文件
+     * @param platform 可选存储平台，空白时使用默认平台
+     * @param objectId 业务对象 ID，空白时使用默认值
+     * @param objectType 业务类型，空白时使用默认值
+     * @return
+     * 返回值: AjaxResult
+     * 返回值说明: 成功时 data 为原图及缩略图文件信息
+     */
     @PostMapping("/upload-image")
     public AjaxResult uploadImage(@RequestParam("file") MultipartFile file,
                                   @RequestParam(required = false) String platform,
@@ -92,6 +138,19 @@ public class FileController
         return fileInfo == null ? AjaxResult.error("上传图片失败") : AjaxResult.success(fileInfo);
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 依次处理图片缩放和缩略图生成，跳过上传返回空结果的图片。
+     * @param files 非空的 multipart 图片列表
+     * @param platform 可选存储平台，空白时使用默认平台
+     * @param objectId 业务对象 ID，空白时使用默认值
+     * @param objectType 业务类型，空白时使用默认值
+     * @return
+     * 返回值: AjaxResult
+     * 返回值说明: 成功时 data 为上传成功的图片列表，列表为空时返回错误
+     */
     @PostMapping("/upload-images")
     public AjaxResult uploadImages(@RequestParam("files") List<MultipartFile> files,
                                    @RequestParam(required = false) String platform,
@@ -114,6 +173,16 @@ public class FileController
         return result.isEmpty() ? AjaxResult.error("上传图片失败") : AjaxResult.success(result);
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 按文件信息、业务归属及创建日期查询文件记录。
+     * @param query 文件筛选、时间范围及分页参数
+     * @return
+     * 返回值: TableDataInfo
+     * 返回值说明: 分页记录列表及总数
+     */
     @GetMapping("/list")
     public TableDataInfo list(FileDetailQuery query)
     {
@@ -121,6 +190,16 @@ public class FileController
         return TableDataInfo.success(page.getRecords(), page.getTotal());
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 根据主键查询单条文件记录。
+     * @param id 文件记录主键
+     * @return
+     * 返回值: AjaxResult
+     * 返回值说明: 成功时 data 为文件记录，找不到记录时返回错误
+     */
     @GetMapping("/{id}")
     public AjaxResult getInfo(@PathVariable Integer id)
     {
@@ -128,6 +207,17 @@ public class FileController
         return fileDetail == null ? AjaxResult.error("文件记录不存在") : AjaxResult.success(fileDetail);
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 修改已存在文件的原始文件名和业务归属。
+     * @param id 文件记录主键
+     * @param fileDetail 待修改的记录字段
+     * @return
+     * 返回值: AjaxResult
+     * 返回值说明: 记录修改结果
+     */
     @PutMapping("/{id}")
     public AjaxResult edit(@PathVariable Integer id, @RequestBody FileDetail fileDetail)
     {
@@ -135,12 +225,35 @@ public class FileController
                 : AjaxResult.error("修改文件记录失败");
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 调用文件服务删除存储对象及其文件记录。
+     * @param id 文件记录主键
+     * @return
+     * 返回值: AjaxResult
+     * 返回值说明: 文件删除结果
+     */
     @DeleteMapping("/{id}")
     public AjaxResult remove(@PathVariable Integer id)
     {
         return fileDetailService.deleteFileById(id) ? AjaxResult.success() : AjaxResult.error("删除文件失败");
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 采用应用当前日期划分存储子目录，允许调用方覆盖默认存储平台。
+     * @param file 非空的 multipart 文件
+     * @param platform 可选存储平台，空白时使用默认平台
+     * @param objectId 业务对象 ID，空白时使用默认值
+     * @param objectType 业务类型，空白时使用默认值
+     * @return
+     * 返回值: UploadPretreatment
+     * 返回值说明: 已设置路径和业务归属的上传预处理对象
+     */
     private UploadPretreatment buildPretreatment(MultipartFile file, String platform, String objectId, String objectType) throws IOException
     {
         MultipartFile safeFile = normalizeFile(file);
@@ -155,12 +268,23 @@ public class FileController
         return pretreatment;
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 拒绝空文件。浏览器提交默认文件名 blob 时补上 .jpg 扩展名，以便后续图片流程识别。
+     * @param file 原始上传文件
+     * @return
+     * 返回值: MultipartFile
+     * 返回值说明: 文件内容保持原样的 multipart 对象
+     */
     private MultipartFile normalizeFile(MultipartFile file) throws IOException
     {
         if (file == null || file.isEmpty())
         {
             throw new IllegalArgumentException("上传文件不能为空");
         }
+        // 浏览器上传默认 Blob 名称时补齐扩展名，只重建文件包装，保留原始内容。
         if (BLOB_NAME.equals(file.getOriginalFilename()))
         {
             return new MockMultipartFile(file.getName(), BLOB_NAME + ".jpg", file.getContentType(), file.getInputStream());
@@ -168,6 +292,16 @@ public class FileController
         return file;
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 校验批量上传请求至少包含一个文件，单项内容由预处理逐个校验。
+     * @param files 批量文件列表
+     * @return
+     * 返回值: void
+     * 返回值说明: 列表为空时抛出参数异常
+     */
     private void validateFiles(List<MultipartFile> files)
     {
         if (files == null || files.isEmpty())

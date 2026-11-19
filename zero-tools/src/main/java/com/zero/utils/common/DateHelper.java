@@ -1049,6 +1049,16 @@ public class DateHelper {
 	}
 
 	
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 根据给定时间与当前时刻的差值生成相对时间文案。
+	 * @param time 时间戳，单位毫秒
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 刚刚、分钟、小时、天或很久以前的显示文字
+	 */
 	static String simpleRangeTime(Long time) {
 		Long cTime = new Date().getTime() - time;
 		if (cTime < 60000L)
@@ -1064,6 +1074,16 @@ public class DateHelper {
 	}
 
 	
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 比较当前时刻减去给定时间的差值是否小于 48 小时。
+	 * @param time 时间戳，单位毫秒
+	 * @return
+	 * 返回值: Boolean
+	 * 返回值说明: 差值小于 48 小时返回 true，未来时间也满足该条件
+	 */
 	static Boolean beforeTime48h(Long time) {
 		Long cTime = new Date().getTime() - time;
 		return cTime < 172800000L;
@@ -2537,18 +2557,17 @@ public class DateHelper {
 	}
 
 	
-	@SuppressWarnings("deprecation")
-	
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/5/16 23:12
-	 * 说明: 日期工具方法formateTimeBySecond，用于日期时间格式化、解析、比较或计算
-	 * @param begin 日期字符串
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 将传入日期的时、分、秒用于当天日期，毫秒沿用当前时刻。
+	 * @param begin 提供时、分、秒的日期对象
 	 * @return
 	 * 返回值: Date
-	 * 返回值说明: 日期对象，解析失败时按原方法语义返回null或抛出异常
+	 * 返回值说明: 当前日期与指定时、分、秒组合后的日期对象
 	 */
+	@SuppressWarnings("deprecation")
 	public static Date formateTimeBySecond(Date begin) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(new Date());

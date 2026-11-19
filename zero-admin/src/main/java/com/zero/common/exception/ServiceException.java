@@ -1,9 +1,10 @@
 package com.zero.common.exception;
 
 /**
- * 业务异常
  *
- * @author zero
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 业务异常
  */
 public final class ServiceException extends RuntimeException
 {

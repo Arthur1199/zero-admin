@@ -9,7 +9,8 @@
 ///**
 // * 定时任务配置（单机部署建议删除此类和qrtz数据库表，默认走内存会最高效）
 // *
-// * @author zero
+// * 作者: Arthur 亚瑟
+// * 时间: 2026/11/20 01:36
 // */
 //@Configuration
 //public class ScheduleConfig
