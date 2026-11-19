@@ -224,11 +224,11 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 新增保存字典类型信息
      * @param dict 字典类型信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：新增保存字典类型信息
      */
     @Override
@@ -245,11 +245,11 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 修改保存字典类型信息
      * @param dict 字典类型信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改保存字典类型信息
      */
     @Override
@@ -270,11 +270,11 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 校验字典类型称是否唯一
      * @param dict 字典类型
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：校验字典类型称是否唯一
      */
     @Override

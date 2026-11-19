@@ -1,7 +1,10 @@
 package com.zero.common.constant;
 
 /**
- * 谷歌动态码常量
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 谷歌动态码常量
  */
 public class GoogleAuthConstants
 {

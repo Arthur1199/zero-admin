@@ -77,13 +77,13 @@ public class RateLimiterAspect
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: doBefore
-     * @param point point参数
-     * @param rateLimiter rateLimiter参数
+     * 时间: 2026/11/20 01:36
+     * 说明: 使用 Redis 脚本按接口及限流维度计数，超限或无法取得计数时中断请求。
+     * @param point 配置限流的接口切点
+     * @param rateLimiter 定义统计周期、允许次数和限流维度的注解
      * @return
      * 返回值: void
-     * 返回值说明：doBefore
+     * 返回值说明: 未超过限制时继续执行接口
      */
 
     @Before("@annotation(rateLimiter)")
@@ -115,13 +115,13 @@ public class RateLimiterAspect
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 获取Combine键名
-     * @param rateLimiter rateLimiter参数
-     * @param point point参数
+     * 时间: 2026/11/20 01:36
+     * 说明: 用限流前缀、声明类和方法名构造计数键，按 IP 限流时追加客户端地址。
+     * @param rateLimiter 定义限流维度和键前缀的注解
+     * @param point 配置限流的接口切点
      * @return
      * 返回值: String
-     * 返回值说明：获取Combine键名
+     * 返回值说明: 当前限流维度对应的 Redis 键
      */
 
     public String getCombineKey(RateLimiter rateLimiter, JoinPoint point)

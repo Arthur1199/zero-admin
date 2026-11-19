@@ -84,6 +84,12 @@ public class InvalidExtensionException extends FileUploadException
         return filename;
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 表示上传的图片扩展名不在允许列表中。
+     */
     public static class InvalidImageExtensionException extends InvalidExtensionException
     {
         private static final long serialVersionUID = 1L;
@@ -106,6 +112,12 @@ public class InvalidExtensionException extends FileUploadException
         }
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 表示上传的 Flash 文件扩展名不在允许列表中。
+     */
     public static class InvalidFlashExtensionException extends InvalidExtensionException
     {
         private static final long serialVersionUID = 1L;
@@ -128,6 +140,12 @@ public class InvalidExtensionException extends FileUploadException
         }
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 表示上传的媒体文件扩展名不在允许列表中。
+     */
     public static class InvalidMediaExtensionException extends InvalidExtensionException
     {
         private static final long serialVersionUID = 1L;
@@ -150,6 +168,12 @@ public class InvalidExtensionException extends FileUploadException
         }
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 表示上传的视频文件扩展名不在允许列表中。
+     */
     public static class InvalidVideoExtensionException extends InvalidExtensionException
     {
         private static final long serialVersionUID = 1L;

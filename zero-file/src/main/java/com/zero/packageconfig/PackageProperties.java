@@ -1,7 +1,10 @@
 package com.zero.packageconfig;
 
 /**
- * 文件服务包扫描配置。
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 文件服务包扫描配置。
  */
 public class PackageProperties
 {
@@ -19,6 +22,15 @@ public class PackageProperties
 
     public static final String TYPE_ALIASES_PACKAGE_PROPERTY = "zero.package.type-aliases-package";
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 在文件服务启动阶段写入包扫描相关系统属性。
+     * @return
+     * 返回值: void
+     * 返回值说明: 设置后续扫描所需的系统属性
+     */
     public static void applySystemProperties()
     {
         setPropertyIfAbsent(BASE_PACKAGE_PROPERTY, BASE_PACKAGE);

@@ -3,16 +3,24 @@ package com.zero.jobadmin.business.model;
 import java.util.Date;
 
 /**
- * Created by xuxueli on 16/9/30.
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 对应 xxl_job_registry 的注册记录，保存执行器分组、地址和最近心跳。
  */
 public class XxlJobRegistry {
 
+    /** 执行器注册记录的主键。 */
     private long id;
 
+    /** 执行器注册协议中的注册分组。 */
     private String registryGroup;
+    /** 注册执行器组的应用名。 */
     private String registryKey;
+    /** 执行器上报的可访问地址。 */
     private String registryValue;
 
+    /** 最近一次注册或心跳刷新时间，用于计算记录是否过期。 */
     private Date updateTime;
 
     public long getId() {

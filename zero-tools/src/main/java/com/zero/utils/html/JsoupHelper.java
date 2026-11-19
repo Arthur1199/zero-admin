@@ -21,11 +21,12 @@ public class JsoupHelper {
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/5/17 00:10
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 发送不带参数的get请求，并且抓取网络数据，将抓取回来的数据转换成Document对象。
 	 * @param httpUrl 网络地址
 	 * @return
-	 * 返回值:Document
-	 * 返回值说明：发送不带参数的get请求，并且抓取网络数据，将抓取回来的数据转换成Document对象。
+	 * 返回值: Document
+	 * 返回值说明: 发送不带参数的get请求，并且抓取网络数据，将抓取回来的数据转换成Document对象。
 	 */
 	public static Document getDocumentByGet(String httpUrl) {
 		String responseContent = HttpClientHelper.sendHttpGet(httpUrl);
@@ -36,13 +37,15 @@ public class JsoupHelper {
 	}
 
 	/**
-	 * Author:Jack Time:2017年9月27日上午10:49:57
 	 *
-	 * @param httpUrl
-	 * @param maps
-	 *            如果不需要传入数据，传入null即可
-	 * @return Return:Document
-	 *         Description:发送get请求，并且抓取网络数据，将抓取回来的数据转换成Document对象。
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 将 URL 和查询参数交给 HTTP 客户端，并解析返回的非空 HTML。
+	 * @param httpUrl 要加载的 HTTP 页面地址
+	 * @param maps 可选的查询参数，缺省时传 null
+	 * @return
+	 * 返回值: Document
+	 * 返回值说明: Jsoup 文档，响应为空白时返回 null
 	 */
 	public static Document getDocumentByGet(String httpUrl, Map<String, String> maps) {
 		String responseContent = HttpClientHelper.sendHttpGet(httpUrl, maps);
@@ -55,11 +58,12 @@ public class JsoupHelper {
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/5/17 00:11
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 发送不带参数的Post请求，并且抓取网络数据，将抓取回来的数据转换成Document对象。
 	 * @param httpUrl 请求地址
 	 * @return
-	 * 返回值:Document
-	 * 返回值说明：发送不带参数的Post请求，并且抓取网络数据，将抓取回来的数据转换成Document对象。
+	 * 返回值: Document
+	 * 返回值说明: 发送不带参数的Post请求，并且抓取网络数据，将抓取回来的数据转换成Document对象。
 	 */
 	public static Document getDocumentByPost(String httpUrl) {
 		String responseContent = HttpClientHelper.sendHttpPost(httpUrl);
@@ -72,12 +76,13 @@ public class JsoupHelper {
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/5/17 00:11
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 发送带参数的Post请求，并且抓取网络数据，将抓取回来的数据转换成Document对象。
 	 * @param httpUrl 请求地址
 	 * @param maps 请求参数
 	 * @return
-	 * 返回值:Document
-	 * 返回值说明：发送带参数的Post请求，并且抓取网络数据，将抓取回来的数据转换成Document对象。
+	 * 返回值: Document
+	 * 返回值说明: 发送带参数的Post请求，并且抓取网络数据，将抓取回来的数据转换成Document对象。
 	 */
 	public static Document getDocumentByPost(String httpUrl, Map<String, String> maps) {
 		String responseContent = HttpClientHelper.sendHttpPost(httpUrl, maps);
@@ -90,12 +95,13 @@ public class JsoupHelper {
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/5/17 00:12
+	 * 时间: 2026/11/20 01:36
+	 * 说明: :发送带参数并且参数是Json格式数据的Post请求，并且抓取网络数据，将抓取回来的数据转换成Document对象。
 	 * @param httpUrl 请求地址
 	 * @param maps 请求参数
 	 * @return
-	 * 返回值:Document
-	 * 返回值说明：:发送带参数并且参数是Json格式数据的Post请求，并且抓取网络数据，将抓取回来的数据转换成Document对象。
+	 * 返回值: Document
+	 * 返回值说明: :发送带参数并且参数是Json格式数据的Post请求，并且抓取网络数据，将抓取回来的数据转换成Document对象。
 	 */
 	public static Document getDocumentByPostJson(String httpUrl, Map<String, String> maps) {
 		String responseContent = HttpClientHelper.sendHttpPostJson(httpUrl,
@@ -109,12 +115,13 @@ public class JsoupHelper {
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/5/17 00:12
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 从本地路径中读取xml文件，并且转换成Document对象
 	 * @param filePath 文件路径
 	 * @param charset 字符集
 	 * @return
-	 * 返回值:Document
-	 * 返回值说明：从本地路径中读取xml文件，并且转换成Document对象
+	 * 返回值: Document
+	 * 返回值说明: 从本地路径中读取xml文件，并且转换成Document对象
 	 */
 	public static Document getDocumentFromXmlFile(String filePath, String charset) {
 		File xmlFile = new File(filePath);
@@ -129,12 +136,13 @@ public class JsoupHelper {
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/5/17 00:12
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 从本地文件中读取xml文件，并且转换成Document对象
 	 * @param xmlFile 文件路径
 	 * @param charset 字符集
 	 * @return
-	 * 返回值:Document
-	 * 返回值说明：从本地文件中读取xml文件，并且转换成Document对象
+	 * 返回值: Document
+	 * 返回值说明: 从本地文件中读取xml文件，并且转换成Document对象
 	 */
 	public static Document getDocumentFromXmlFile(File xmlFile, String charset) {
 		try {

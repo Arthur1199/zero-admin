@@ -120,11 +120,11 @@ public interface SysRoleMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 修改角色信息
      * @param role 角色信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改角色信息
      */
     public int updateRole(SysRole role);
@@ -144,11 +144,11 @@ public interface SysRoleMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 新增角色信息
      * @param role 角色信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：新增角色信息
      */
     public int insertRole(SysRole role);
@@ -156,11 +156,11 @@ public interface SysRoleMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 通过角色ID删除角色
      * @param roleId 角色ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：通过角色ID删除角色
      */
     public int deleteRoleById(Long roleId);
@@ -168,11 +168,11 @@ public interface SysRoleMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 批量删除角色信息
      * @param roleIds 需要删除的角色ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：批量删除角色信息
      */
     public int deleteRoleByIds(Long[] roleIds);

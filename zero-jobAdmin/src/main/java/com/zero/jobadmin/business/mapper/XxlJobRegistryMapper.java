@@ -8,7 +8,10 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Created by xuxueli on 16/9/30.
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 读写 xxl_job_registry 中执行器注册地址及心跳时间。
  */
 @Mapper
 public interface XxlJobRegistryMapper {
@@ -41,6 +44,17 @@ public interface XxlJobRegistryMapper {
      */
     int removeDead(@Param("ids") List<Long> ids, @Param("timeout") int timeout, @Param("nowTime") Date nowTime);
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 查询心跳未超过指定超时时长的注册记录。
+     * @param timeout 超时阈值，单位秒
+     * @param nowTime 判断心跳是否有效的基准时间
+     * @return
+     * 返回值: List<XxlJobRegistry>
+     * 返回值说明: 最后心跳处于有效窗口的注册记录
+     */
     public List<XxlJobRegistry> findAll(@Param("timeout") int timeout,
                                         @Param("nowTime") Date nowTime);
 
@@ -62,6 +76,19 @@ public interface XxlJobRegistryMapper {
                                                @Param("timeout") int timeout,
                                                @Param("nowTime") Date nowTime);
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 按注册类型、应用名和地址写入注册记录，已注册时刷新心跳。
+     * @param registryGroup 注册分组
+     * @param registryKey 注册应用名
+     * @param registryValue 执行器地址
+     * @param updateTime 心跳时间
+     * @return
+     * 返回值: int
+     * 返回值说明: 数据库返回的影响行数
+     */
     public int registrySaveOrUpdate(@Param("registryGroup") String registryGroup,
                             @Param("registryKey") String registryKey,
                             @Param("registryValue") String registryValue,
@@ -77,10 +104,33 @@ public interface XxlJobRegistryMapper {
                             @Param("registryValue") String registryValue,
                             @Param("updateTime") Date updateTime);*/
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 精确删除主动下线的单个执行器注册地址。
+     * @param registryGroup 注册分组
+     * @param registryKey 注册应用名
+     * @param registryValue 执行器地址
+     * @return
+     * 返回值: int
+     * 返回值说明: 删除行数
+     */
     public int registryDelete(@Param("registryGroup") String registryGroup,
                           @Param("registryKey") String registryKey,
                           @Param("registryValue") String registryValue);
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 删除指定注册分组和应用名称下的全部地址。
+     * @param registryGroup 注册分组
+     * @param registryKey 注册应用名
+     * @return
+     * 返回值: int
+     * 返回值说明: 删除行数
+     */
     public int removeByRegistryGroupAndKey(@Param("registryGroup") String registryGroup,
                                            @Param("registryKey") String registryKey);
 

@@ -49,11 +49,11 @@ public interface SysJobLogMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 新增任务日志
      * @param jobLog 调度日志信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：新增任务日志
      */
     public int insertJobLog(SysJobLog jobLog);
@@ -61,11 +61,11 @@ public interface SysJobLogMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 批量删除调度日志信息
      * @param logIds 需要删除的数据ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：批量删除调度日志信息
      */
     public int deleteJobLogByIds(Long[] logIds);
@@ -73,11 +73,11 @@ public interface SysJobLogMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 删除任务日志
      * @param jobId 调度日志ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：删除任务日志
      */
     public int deleteJobLogById(Long jobId);

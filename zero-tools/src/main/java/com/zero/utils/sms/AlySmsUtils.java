@@ -23,9 +23,9 @@ import com.alibaba.fastjson2.JSONObject;
 
 /**
  *
- * 作者: Jack
- * 时间: 2022年10月15日下午3:33:26
- * 说明: 阿里云短信发送工具类，使用JDK17内置HTTP客户端直连短信OpenAPI，避免引入阿里云SDK传递依赖
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 使用 JDK HTTP 客户端提交阿里云验证码短信，并根据供应商的响应记录发送结果或提示限流。
  */
 public class AlySmsUtils {
 
@@ -74,17 +74,19 @@ public class AlySmsUtils {
             .build();
 
     /**
-	 *
-	 * 作者: Jack
-	 * 时间: 2022年10月15日下午3:45:01
-	 * 说明: 发送阿里云验证码短信
-	 *
-	 * @param telephone    接收短信的手机号
-	 * @param code         验证码，写入短信模板变量code
-	 * @param signName     阿里云短信签名名称
-	 * @param templateCode 阿里云短信模板编码
-	 * @throws Exception 配置缺失、签名失败、请求异常或触发限流时抛出
-	 */
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 读取阿里云短信配置，提交签名后的验证码消息请求并处理业务响应。
+     * @param telephone 接收短信的手机号
+     * @param code 写入模板变量 code 的验证码
+     * @param signName 已配置的短信发送签名
+     * @param templateCode 验证码对应的短信模板编码
+     * @return
+     * 返回值: void
+     * 返回值说明: 将结果写到控制台，返回类型为 void
+     * @throws Exception 配置或签名错误、网络调用失败、响应解析失败或遇到小时级限流时向上传递
+     */
     public static void sendSms(String telephone, String code, String signName, String templateCode) throws Exception {
         try {
             String accessKeyId = AlySmsConfig.getAccessKeyId();
@@ -107,17 +109,17 @@ public class AlySmsUtils {
 
     /**
      *
-     * 作者: Jack
-     * 时间: 2026/5/16 23:59
-     * 说明: 构建阿里云短信OpenAPI请求参数
-     * @param accessKeyId 阿里云AccessKeyId
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 组装签名前的参数，包含本次请求的时间、随机标识和验证码模板参数。
+     * @param accessKeyId 短信接口的访问账号标识
      * @param telephone 接收短信的手机号
-     * @param code 验证码，写入短信模板变量code
-     * @param signName 阿里云短信签名名称
-     * @param templateCode 阿里云短信模板编码
+     * @param code 写入模板变量的验证码
+     * @param signName 已配置的短信签名
+     * @param templateCode 待使用的模板编码
      * @return
      * 返回值: Map<String, String>
-     * 返回值说明: 已包含公共参数和业务参数的有序参数集合
+     * 返回值说明: 按键排序且尚未包含签名的请求参数
      */
     private static Map<String, String> buildRequestParams(String accessKeyId, String telephone, String code,
                                                           String signName, String templateCode) {
@@ -140,14 +142,14 @@ public class AlySmsUtils {
 
     /**
      *
-     * 作者: Jack
-     * 时间: 2026/5/16 23:59
-     * 说明: 生成阿里云OpenAPI签名
-     * @param accessKeySecret 阿里云AccessKeySecret，调用方不得写入日志
-     * @param params 参与签名的请求参数，不包含Signature参数
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 将规范化后的参数交给阿里云签名流程，生成可附加到请求的签名值。
+     * @param accessKeySecret 阿里云请求签名密钥，禁止记录或展示
+     * @param params 已按名称排序的不含签名的请求参数
      * @return
      * 返回值: String
-     * 返回值说明: Base64编码后的HMAC-SHA1签名
+     * 返回值说明: Base64 编码的请求签名
      * @throws Exception 签名算法初始化或计算失败时抛出
      */
     private static String sign(String accessKeySecret, Map<String, String> params) throws Exception {
@@ -160,13 +162,13 @@ public class AlySmsUtils {
 
     /**
      *
-     * 作者: Jack
-     * 时间: 2026/5/16 23:59
-     * 说明: 构建OpenAPI查询字符串
-     * @param params 请求参数
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 按参数映射的迭代顺序编码并拼接查询项，调用方提供的有序映射用于保持签名和请求参数顺序一致。
+     * @param params 待拼接的请求参数，按调用方决定的顺序遍历
      * @return
      * 返回值: String
-     * 返回值说明: 按参数名排序并完成URL编码的查询字符串
+     * 返回值说明: 不含前缀问号的查询字符串
      */
     private static String buildQueryString(Map<String, String> params) {
         StringBuilder builder = new StringBuilder();
@@ -181,13 +183,13 @@ public class AlySmsUtils {
 
     /**
      *
-     * 作者: Jack
-     * 时间: 2026/5/16 23:59
-     * 说明: 按阿里云OpenAPI要求进行URL编码
-     * @param value 待编码字符串
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 按阿里云查询签名约定编码字符串，修正表单编码对空格、星号和波浪号的处理。
+     * @param value 待编码的参数名或参数值
      * @return
      * 返回值: String
-     * 返回值说明: 符合RFC3986要求的编码结果
+     * 返回值说明: 用于签名和查询的参数文本，null 按空字符串编码
      */
     private static String percentEncode(String value) {
         return URLEncoder.encode(value == null ? "" : value, StandardCharsets.UTF_8)
@@ -197,14 +199,16 @@ public class AlySmsUtils {
     }
 
     /**
-	 *
-	 * 作者: Jack
-	 * 时间: 2026/5/16 23:59
-	 * 说明: 解析阿里云短信响应并转换为布尔结果
-	 *
-	 * @param responseBody 阿里云响应JSON
-	 * @throws Exception 触发阿里云限流或响应解析失败时抛出
-	 */
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 解读供应商响应，区分成功、小时级限流和其他结果。
+     * @param responseBody 阿里云短信接口提供的 JSON 响应文本
+     * @return
+     * 返回值: void
+     * 返回值说明: 输出对应提示，普通失败或空响应处理后直接返回
+     * @throws Exception 小时级限流或 JSON 解析异常时向上传递
+     */
     private static void handleResponse(String responseBody) throws Exception {
         if (responseBody == null || responseBody.trim().isEmpty()) {
             System.out.println("短信发送失败，阿里云短信未响应数据");
@@ -226,14 +230,14 @@ public class AlySmsUtils {
 
     /**
      *
-     * 作者: Jack
-     * 时间: 2026/5/16 23:59
-     * 说明: 从JSON对象中安全获取字符串字段
-     * @param body 响应JSON对象
-     * @param key 字段名称
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 按字段名读取已解析的短信响应。
+     * @param body 已解析的短信响应，可为空
+     * @param key 响应字段名
      * @return
      * 返回值: String
-     * 返回值说明: 字段不存在或为空时返回null
+     * 返回值说明: 字段值的字符串表示，响应对象或字段缺失时返回 null
      */
     private static String getString(JSONObject body, String key) {
         if (body == null || !body.containsKey(key)) {
@@ -244,14 +248,15 @@ public class AlySmsUtils {
 
     /**
      *
-     * 作者: Jack
-     * 时间: 2022年10月15日下午3:41:29
-     * 说明: 发送测试短信，调用前需要确认配置文件中已存在有效阿里云AccessKey
-     * @param telephone 接收短信的手机号
-     * @param code 验证码
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 使用类内示例签名和模板提交一条验证码短信。
+     * @param telephone 测试短信接收号码
+     * @param code 测试模板中使用的验证码
+     * @return
      * 返回值: void
-     * 返回值说明: 测试短信发送失败时抛出异常
-     * @throws Exception 阿里云短信发送失败时抛出
+     * 返回值说明: 调用配置指向的阿里云短信服务
+     * @throws Exception 请求或响应处理失败时向上传递
      */
     public static void smsToTest(String telephone, String code) throws Exception {
         String templateCode = "SMS_123456789";
@@ -261,12 +266,13 @@ public class AlySmsUtils {
 
     /**
      *
-     * 作者: Jack
-     * 时间: 2022年10月15日下午3:41:29
-     * 说明: 本地测试入口，生产环境不要通过main方法发送短信
-     * @param args 启动参数，当前未使用
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 执行本地短信演示流程，运行时可能向供应商提交发送请求。
+     * @param args 命令行参数，演示流程不读取
+     * @return
      * 返回值: void
-     * 返回值说明: 控制台输出测试发送结果
+     * 返回值说明: 打印发送提示或异常
      */
     public static void main(String[] args) {
         try {

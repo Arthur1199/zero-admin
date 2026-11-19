@@ -89,12 +89,12 @@ public class SecurityConfig
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: anyRequest          |   匹配所有请求路径access              |   SpringEl表达式结果为true时可以访问anonymous           |   匿名可以访问denyAll             |   用户不能访问fullyAuthenticated  |   用户完全认证可以访问（非remember-me下自动登录）hasAnyAuthority     |   如果有参数，参数表示权限，则其中任何一个权限可以访问hasAnyRole          |   如果有参数，参数表示角色，则其中任何一个角色可以访问hasAuthority        |   如果有参数，参数表示权限，则其权限可以访问hasIpAddress        |   如果有参数，参数表示IP地址，如果用户IP和参数匹配，则可以访问hasRole             |   如果有参数，参数表示角色，则其角色可以访问permitAll           |   用户可以任意访问rememberMe          |   允许通过remember-me登录的用户访问authenticated       |   用户登录后可访问
-     * @param httpSecurity http安全参数
+     * 时间: 2026/11/20 01:36
+     * 说明: 配置管理后台的无状态 JWT 安全链路，按路由和 HTTP 方法放行登录、资源、接口文档及 WebSocket 握手。
+     * @param httpSecurity Spring 提供的 HTTP 安全配置器
      * @return
      * 返回值: SecurityFilterChain
-     * 返回值说明：anyRequest          |   匹配所有请求路径access              |   SpringEl表达式结果为true时可以访问anonymous           |   匿名可以访问denyAll             |   用户不能访问fullyAuthenticated  |   用户完全认证可以访问（非remember-me下自动登录）hasAnyAuthority     |   如果有参数，参数表示权限，则其中任何一个权限可以访问hasAnyRole          |   如果有参数，参数表示角色，则其中任何一个角色可以访问hasAuthority        |   如果有参数，参数表示权限，则其权限可以访问hasIpAddress        |   如果有参数，参数表示IP地址，如果用户IP和参数匹配，则可以访问hasRole             |   如果有参数，参数表示角色，则其角色可以访问permitAll           |   用户可以任意访问rememberMe          |   允许通过remember-me登录的用户访问authenticated       |   用户登录后可访问
+     * 返回值说明: 用于管理后台请求的安全过滤器链
      */
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception
@@ -102,7 +102,7 @@ public class SecurityConfig
         return httpSecurity
             // CSRF禁用，因为不使用session
             .csrf(csrf -> csrf.disable())
-            // 禁用HTTP响应标头
+            // 关闭安全过滤器自动添加的缓存控制头，框架嵌入仍限同源。
             .headers((headersCustomizer) -> {
                 headersCustomizer.cacheControl(cache -> cache.disable()).frameOptions(options -> options.sameOrigin());
             })

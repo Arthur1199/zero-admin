@@ -39,11 +39,12 @@ public interface TaskBizDictTestService {
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/11/19 19:41
-     * @param dictKey
+     * 时间: 2026/11/20 01:36
+     * 说明: 通过完整字典键读取业务字典项配置值。
+     * @param dictKey 以点分隔的分组编码和字典项编码
      * @return
-     * 返回值:String
-     * 返回值说明：
+     * 返回值: String
+     * 返回值说明: 字典项的字符串值，查不到时返回 null
      */
      String findBizDictValue(String dictKey);
 }

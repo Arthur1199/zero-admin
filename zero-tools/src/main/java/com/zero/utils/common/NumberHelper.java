@@ -654,12 +654,13 @@ public class NumberHelper {
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/16 22:05
-     * 说明: 按缩放比例转换并格式化数字
-     * @param num 原始数字
-     * @param scale 缩放比例
+     * 时间: 2026/11/20 01:36
+     * 说明: 对数值按比例缩放，比例为 1 时保留 4 位小数，其他比例保留 2 位。
+     * @param num 待缩放数值
+     * @param scale 除数
+     * @return
      * 返回值: double
-     * 返回值说明: 缩放后的数字，比例为1时保留4位，否则保留2位
+     * 返回值说明: 把格式化结果重新解析得到的数值
      */
     public static double scaleNumber(double num, double scale) {
         DecimalFormat df;
@@ -692,11 +693,12 @@ public class NumberHelper {
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/16 22:05
-     * 说明: 将数字缩放1万倍
-     * @param number 原始数字
+     * 时间: 2026/11/20 01:36
+     * 说明: 把数值换算为以万为单位，保留正负号。
+     * @param number 原始数值
+     * @return
      * 返回值: double
-     * 返回值说明: 缩放后的数字，保留正负号
+     * 返回值说明: 按万换算后的数值
      */
     public static double changeTo(double number) {
         boolean flag = number < 0;

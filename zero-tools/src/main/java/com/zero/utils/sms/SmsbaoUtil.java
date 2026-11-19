@@ -12,9 +12,9 @@ import java.util.Map;
 
 /**
  *
- * 作者: Jack
- * 时间: 2022年10月17日上午12:06:01
- * 说明: 国内短信宝发送平台工具类，负责组装账号、密钥、手机号和短信内容后调用发送接口
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 读取短信宝账号配置、组装请求，并将供应商的数字状态码转换为发送结果。
  */
 public class SmsbaoUtil {
 
@@ -33,14 +33,14 @@ public class SmsbaoUtil {
 
     /**
      *
-     * 作者: Jack
-     * 时间: 2022年10月17日上午12:08:22
-     * 说明: 发送短信宝短信，接口返回0视为成功，其它响应码视为失败
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 校验号码、正文和账号配置后提交短信宝请求。
      * @param phoneNum 接收短信的手机号
-     * @param content 短信内容
+     * @param content 要发送的短信正文
      * @return
      * 返回值: boolean
-     * 返回值说明: true-短信宝返回成功，false-配置缺失、接口异常或返回失败码
+     * 返回值说明: 响应去除首尾空白后解析为 0 时返回 true，参数、配置或响应不符合要求时返回 false
      */
     public static boolean sendSms(String phoneNum, String content) {
         if (StringHelper.isEmpty(phoneNum) || StringHelper.isEmpty(content)) {

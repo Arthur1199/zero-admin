@@ -25,11 +25,12 @@ public class IpMacUtil {
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/5/16 23:17
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 隐藏IP的最后一段
 	 * @param ip ip地址
 	 * @return
-	 * 返回值:String
-	 * 返回值说明：隐藏IP的最后一段
+	 * 返回值: String
+	 * 返回值说明: 隐藏IP的最后一段
 	 */
 	public static String hideIp(String ip) {
 		if (StringHelper.isEmpty(ip)) {
@@ -48,11 +49,12 @@ public class IpMacUtil {
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/5/16 23:17
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 获取IP地址.
 	 * @param request 请求
 	 * @return
-	 * 返回值:String
-	 * 返回值说明：获取IP地址.
+	 * 返回值: String
+	 * 返回值说明: 获取IP地址.
 	 */
 	public static String getIpAddr(HttpServletRequest request) {
 		String ip = request.getHeader("x-forwarded-for");
@@ -71,6 +73,15 @@ public class IpMacUtil {
 		return ip;
 	}
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 通过 InetAddress 读取本机主机名对应的地址。
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 解析得到的主机地址，失败时返回 null
+	 */
 	public static String getLocalhostIp() {
 		try {
 			return InetAddress.getLocalHost().getHostAddress();
@@ -81,10 +92,14 @@ public class IpMacUtil {
 	}
 
 	/**
-	 * 判断该字串是否为IP
-	 * 
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 判断该字串是否为IP
 	 * @param ipStr IP字串
 	 * @return
+	 * 返回值: boolean
+	 * 返回值说明: 符合上述判断条件时返回 true
 	 */
 	public static boolean isIP(String ipStr) {
 //		String ip = "(25[0-5]|2[0-4]\\d|1\\d\\d|\\d\\d|\\d)";
@@ -97,11 +112,12 @@ public class IpMacUtil {
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/5/16 23:17
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 获取客户端Mac
 	 * @param ip ip
 	 * @return
-	 * 返回值:String
-	 * 返回值说明： 获取客户端Mac
+	 * 返回值: String
+	 * 返回值说明: 获取客户端Mac
 	 */
 	public static String getMACAddress(String ip) {
 		String str = "";
@@ -128,11 +144,12 @@ public class IpMacUtil {
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2025/6/29 20:00
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 判断ip是否是内网ip
 	 * @param ipAddress ip地址
 	 * @return
-	 * 返回值:boolean
-	 * 返回值说明：判断ip是否是内网ip
+	 * 返回值: boolean
+	 * 返回值说明: 判断ip是否是内网ip
 	 */
 	public static boolean isInternalIP(String ipAddress) {
 		try {
@@ -170,11 +187,12 @@ public class IpMacUtil {
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/5/16 23:16
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 是否ipV4
 	 * @param bytes 字节
 	 * @return
-	 * 返回值:boolean
-	 * 返回值说明：是否ipV4
+	 * 返回值: boolean
+	 * 返回值说明: 是否ipV4
 	 */
 	private static boolean isPrivateIPv4(byte[] bytes) {
 		int firstByte = bytes[0] & 0xFF;
@@ -203,6 +221,16 @@ public class IpMacUtil {
 		return false;
 	}
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 使用内置样例演示 IP 文本校验和内网地址判断。
+	 * @param args 命令行参数，示例不读取
+	 * @return
+	 * 返回值: void
+	 * 返回值说明: 向控制台输出对应判断值
+	 */
 	public static void main(String[] args) {
 		boolean ip = IpMacUtil.isIP("1.0.1.0");
 		System.out.println(ip);

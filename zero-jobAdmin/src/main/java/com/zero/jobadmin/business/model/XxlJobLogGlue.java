@@ -3,17 +3,26 @@ package com.zero.jobadmin.business.model;
 import java.util.Date;
 
 /**
- * xxl-job log for glue, used to track job code process
- * @author xuxueli 2016-5-19 17:57:46
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 对应 xxl_job_logglue 的 GLUE 脚本历史记录，保存脚本内容和版本信息。
  */
 public class XxlJobLogGlue {
 	
+	/** 脚本历史版本的主键。 */
 	private int id;
-	private int jobId;				// 任务主键ID
-	private String glueType;		// GLUE类型	#com.xxl.job.core.glue.GlueTypeEnum
+	/** 脚本所属任务的主键。 */
+	private int jobId;
+	/** 脚本处理类型，对应 GlueTypeEnum。 */
+	private String glueType;
+	/** 该版本保存的完整脚本内容。 */
 	private String glueSource;
+	/** 维护脚本时填写的版本说明。 */
 	private String glueRemark;
+	/** 脚本历史版本创建时间。 */
 	private Date addTime;
+	/** 脚本历史版本最近更新时间。 */
 	private Date updateTime;
 
 	public int getId() {

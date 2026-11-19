@@ -15,9 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * admin job api test
  *
- * @author xuxueli
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 演示通过调度中心 OpenAPI 维护任务定义及触发任务，运行依赖调度中心测试环境。
  */
 // 官方集成用例可能操作数据库或执行器，普通打包按标签排除。
 @Slf4j

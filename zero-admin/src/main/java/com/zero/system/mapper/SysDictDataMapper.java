@@ -76,11 +76,11 @@ public interface SysDictDataMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 通过字典ID删除字典数据信息
      * @param dictCode 字典数据ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：通过字典ID删除字典数据信息
      */
     public int deleteDictDataById(Long dictCode);
@@ -88,11 +88,11 @@ public interface SysDictDataMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 批量删除字典数据信息
      * @param dictCodes 需要删除的字典数据ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：批量删除字典数据信息
      */
     public int deleteDictDataByIds(Long[] dictCodes);
@@ -100,11 +100,11 @@ public interface SysDictDataMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 新增字典数据信息
      * @param dictData 字典数据信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：新增字典数据信息
      */
     public int insertDictData(SysDictData dictData);
@@ -112,11 +112,11 @@ public interface SysDictDataMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 修改字典数据信息
      * @param dictData 字典数据信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改字典数据信息
      */
     public int updateDictData(SysDictData dictData);
@@ -124,12 +124,12 @@ public interface SysDictDataMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 同步修改字典类型
      * @param oldDictType 旧字典类型
      * @param newDictType 新旧字典类型
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：同步修改字典类型
      */
     public int updateDictDataType(@Param("oldDictType") String oldDictType, @Param("newDictType") String newDictType);

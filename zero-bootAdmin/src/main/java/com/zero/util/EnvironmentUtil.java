@@ -3,10 +3,10 @@ package com.zero.util;
 import com.zero.config.SpringContextHolder;
 
 /**
- * 作者: Jack
- * 时间: 2022年5月25日下午5:44:11
- * 说明: 微服务运行环境工具类
  *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 按唯一激活的 Spring Profile 判断 Boot Admin 所处部署环境，供监控消息选择环境文案。
  */
 public class EnvironmentUtil {
 	
@@ -18,11 +18,13 @@ public class EnvironmentUtil {
 	private static final String PROD = "prod";
 	
 	/**
-	 * 作者:Jack
-	 * 日期:2022年5月25日下午5:47:30
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 按完整 Profile 名称识别 Boot Admin 的开发环境。
 	 * @return
-	 * 返回值:boolean
-	 * 返回值说明:本地环境
+	 * 返回值: boolean
+	 * 返回值说明: 仅有一个激活项且忽略大小写后等于 dev 时返回 true
 	 */
 	public static boolean isDev() {
 		String[] activeProfiles = SpringContextHolder.getApplicationContext().getEnvironment().getActiveProfiles();
@@ -38,11 +40,13 @@ public class EnvironmentUtil {
 	}
 	
 	/**
-	 * 作者:Jack
-	 * 日期:2022年5月25日下午5:47:30
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 按完整 Profile 名称识别 Boot Admin 的测试环境。
 	 * @return
-	 * 返回值:boolean
-	 * 返回值说明:测试环境
+	 * 返回值: boolean
+	 * 返回值说明: 仅有一个激活项且忽略大小写后等于 test 时返回 true
 	 */
 	public static boolean isTest() {
 		String[] activeProfiles = SpringContextHolder.getApplicationContext().getEnvironment().getActiveProfiles();
@@ -58,11 +62,13 @@ public class EnvironmentUtil {
 	}
 	
 	/**
-	 * 作者:Jack
-	 * 日期:2022年5月25日下午5:47:30
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 按 Profile 中的 prod 片段识别 Boot Admin 的生产环境。
 	 * @return
-	 * 返回值:boolean
-	 * 返回值说明:生产环境
+	 * 返回值: boolean
+	 * 返回值说明: 仅有一个激活项且包含小写 prod 时返回 true
 	 */
 	public static boolean isProd() {
 		String[] activeProfiles = SpringContextHolder.getApplicationContext().getEnvironment().getActiveProfiles();

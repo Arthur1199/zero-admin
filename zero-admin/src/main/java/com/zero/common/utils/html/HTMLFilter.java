@@ -11,9 +11,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * HTML过滤器，用于去除XSS漏洞隐患。
  *
- * @author zero
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 按允许的标签和属性规则过滤 HTML 片段，供管理后台已有的文本处理链使用。
  */
 public final class HTMLFilter
 {

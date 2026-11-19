@@ -295,7 +295,14 @@ public class SysUserController extends BaseController
     }
 
     /**
-     * 解锁登录
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 校验用户操作权限和数据范围后，清理该账号的登录失败记录。
+     * @param user 携带待解锁用户 ID 的请求数据
+     * @return
+     * 返回值: AjaxResult
+     * 返回值说明: 解锁结果，目标用户不存在时返回错误
      */
     @RequiresPermissions("system:user:unlockLogin")
     @Log(title = "用户管理", businessType = BusinessType.UPDATE)

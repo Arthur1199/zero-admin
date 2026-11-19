@@ -51,18 +51,30 @@ public class QRCodeUtils {
     }
 
     /**
-     * 返回一个 BufferedImage 对象
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 用默认尺寸生成二维码图片。
      * @param content 二维码内容
+     * @return
+     * 返回值: BufferedImage
+     * 返回值说明: 可供后续输出或保存的二维码图像
      */
     public static BufferedImage toBufferedImage(String content) throws WriterException, IOException {
         return toBufferedImage(content, width, height);
     }
 
     /**
-     * 返回一个 BufferedImage 对象
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 用指定宽度和高度生成二维码图片。
      * @param content 二维码内容
-     * @param width   宽
-     * @param height  高
+     * @param width 图片宽度，单位为像素
+     * @param height 图片高度，单位为像素
+     * @return
+     * 返回值: BufferedImage
+     * 返回值说明: 二维码图像
      */
     public static BufferedImage toBufferedImage(String content, int width, int height) throws WriterException, IOException {
         BitMatrix bitMatrix = new MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, width, height, hints);
@@ -70,20 +82,32 @@ public class QRCodeUtils {
     }
 
     /**
-     * 将二维码图片输出到一个流中
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 将默认尺寸的二维码输出到给定的流。
      * @param content 二维码内容
-     * @param stream  输出流
+     * @param stream 接收二维码图像的输出流
+     * @return
+     * 返回值: void
+     * 返回值说明: 把编码后的二维码图像写入指定流
      */
     public static void writeToStream(String content, OutputStream stream) throws WriterException, IOException {
         writeToStream(content, stream, width, height);
     }
 
     /**
-     * 将二维码图片输出到一个流中
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 生成指定尺寸的二维码并输出到给定的流。
      * @param content 二维码内容
-     * @param stream  输出流
-     * @param width   宽
-     * @param height  高
+     * @param stream 接收二维码图像的输出流
+     * @param width 图片宽度，单位为像素
+     * @param height 图片高度，单位为像素
+     * @return
+     * 返回值: void
+     * 返回值说明: 把编码后的二维码图像写入指定流
      */
     public static void writeToStream(String content, OutputStream stream, int width, int height) throws WriterException, IOException {
         BitMatrix bitMatrix = new MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, width, height, hints);
@@ -91,20 +115,32 @@ public class QRCodeUtils {
     }
 
     /**
-     * 生成二维码图片
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 将默认尺寸的二维码图片保存到指定路径。
      * @param content 二维码内容
-     * @param path    文件保存路径
+     * @param path 用于保存二维码图片的文件路径
+     * @return
+     * 返回值: void
+     * 返回值说明: 写入目标文件
      */
     public static void createQRCode(String content, String path) throws WriterException, IOException {
         createQRCode(content, path, width, height);
     }
 
     /**
-     * 生成二维码图片
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 将指定尺寸的二维码图片保存到目标路径。
      * @param content 二维码内容
-     * @param path    文件保存路径
-     * @param width   宽
-     * @param height  高
+     * @param path 用于保存二维码图片的文件路径
+     * @param width 图片宽度，单位为像素
+     * @param height 图片高度，单位为像素
+     * @return
+     * 返回值: void
+     * 返回值说明: 写入目标文件
      */
     public static void createQRCode(String content, String path, int width, int height) throws WriterException, IOException {
         BitMatrix bitMatrix = new MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, width, height, hints);
@@ -112,7 +148,14 @@ public class QRCodeUtils {
     }
 
     /**
-     * 读二维码并输出携带的信息
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 读二维码并输出携带的信息
+     * @param inputStream 输入流
+     * @return
+     * 返回值: String
+     * 返回值说明: 按上述规则读取或解析得到的文本
      */
     public static String readQrCode(InputStream inputStream) throws IOException {
         //从输入流中获取字符串信息
@@ -134,7 +177,14 @@ public class QRCodeUtils {
     }
 
     /**
-     * 读base64并输出携带的信息
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 从 Base64 表示的二维码图片读取其中的文本。
+     * @param base64 Base64 编码的二维码图片文本
+     * @return
+     * 返回值: String
+     * 返回值说明: 解码得到的文本
      */
     public static String readQrCode(String base64) throws IOException {
 //        byte[] bytes = new BASE64Decoder().decodeBuffer(base64); //将字符串转换为byte数组
@@ -146,7 +196,14 @@ public class QRCodeUtils {
     }
 
     /**
-     * 读图片输出携带的信息
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 解码 Base64 图片并交给输入流读取逻辑，可移除 data URL 的 Base64 前缀。
+     * @param base64 Base64 编码的二维码图片文本
+     * @return
+     * 返回值: String
+     * 返回值说明: 通过图片读取的二维码文本
      */
     public static String readQrCodeByPicture(String base64) throws IOException {
 
@@ -161,11 +218,15 @@ public class QRCodeUtils {
     }
 
     /**
-     * 将文件转成base64 字符串
      *
-     * @param
-     * @return *
-     * @throws Exception
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 读取文件字节并转换为 Base64 文本。
+     * @param path 待编码的本地文件路径
+     * @return
+     * 返回值: String
+     * 返回值说明: 对应文件字节的 Base64 文本
+     * @throws Exception 打开或读取文件失败时向上传递
      */
     public static String encodeBase64File(String path) throws Exception {
         File file = new File(path);
@@ -181,11 +242,12 @@ public class QRCodeUtils {
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/16 23:19
+     * 时间: 2026/11/20 01:36
+     * 说明: 二维码生成器
      * @param url 链接
      * @return
-     * 返回值:String
-     * 返回值说明：二维码生成器
+     * 返回值: String
+     * 返回值说明: 二维码生成器
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
 	public static String generalQRCode(String url) {
@@ -222,6 +284,16 @@ public class QRCodeUtils {
     }
 
     // 其他调用方法
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 将二维码矩阵转成可编码输出的图像。
+     * @param matrix 待转换的黑白位矩阵
+     * @return
+     * 返回值: BufferedImage
+     * 返回值说明: 由矩阵像素生成的图像
+     */
     public static BufferedImage toBufferedImage(BitMatrix matrix) {
         int width = matrix.getWidth();
         int height = matrix.getHeight();
@@ -234,6 +306,16 @@ public class QRCodeUtils {
         return image;
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 用固定样例演示生成二维码图像字符串。
+     * @param args 命令行参数，示例不读取
+     * @return
+     * 返回值: void
+     * 返回值说明: 将演示内容或异常输出到控制台
+     */
     public static void main(String[] args) {
         try {
 //			String encodeBase64File = encodeBase64File("C:\\Users\\Administrator\\Pictures\\核心硬件评测.png");

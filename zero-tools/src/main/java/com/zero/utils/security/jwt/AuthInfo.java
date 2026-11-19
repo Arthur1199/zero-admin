@@ -3,37 +3,27 @@ package com.zero.utils.security.jwt;
 import java.io.Serializable;
 
 /**
- * 作者: Jack
- * 时间: 2021年10月21日上午10:50:52
- * 说明: 授权对象
  *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 传递共享 JWT 工具使用的系统标识、用户登录信息和令牌有效期。
  */
 public class AuthInfo implements Serializable{
-	/**
-	 * 
-	 */
+	/** 兼容已有 Java 序列化数据的版本号。 */
 	private static final long serialVersionUID = -1223205393429854614L;
-//	//授权被调用的用户
-//	private String authUser;
-//	//授权被调用的用户密码
-//	private String authPass;
-//	//调用方的ip地址
-//	private String authIp;
-//---------------------	用来授权的对象-----------------
-	//系统名称
+	/** JWT 中标记调用方所属系统的名称。 */
 	private String systemName;
-	//用户id
+	/** JWT 对应的用户标识。 */
 	private String userId;
-	//用户名称
+	/** JWT 携带的登录用户名称。 */
 	private String userName;
-	//登录ip
+	/** 创建登录信息时记录的客户端 IP。 */
 	private String loginIp;
-	//登录时间 毫秒
+	/** 从令牌读取的登录时间，单位为 Unix 时间戳毫秒。 */
 	private Long loginTime;
-	//超时时间 //分钟
+	/** 令牌有效时长，单位为分钟。 */
 	private Integer expiresMinute;
 	
-	//无参构造
 	public AuthInfo() {}
 
 	public String getSystemName() {

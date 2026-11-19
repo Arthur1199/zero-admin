@@ -22,9 +22,10 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * job alarm by email
  *
- * @author xuxueli 2020-01-19
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 根据任务的配置生成告警邮件并发送给指定收件人。
  */
 @Slf4j
 @Component
@@ -126,8 +127,8 @@ public class EmailJobAlarm implements JobAlarm {
 
     /**
      *
-     * 作者: xuxueli
-     * 时间: 2020/1/19
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
      * 说明: 生成带本地化表头的告警邮件模板。
      * @return
      * 返回值: String

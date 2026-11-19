@@ -1,9 +1,10 @@
 package com.zero.common.utils.sign;
 
 /**
- * Base64工具类
  *
- * @author zero
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: Base64工具类
  */
 public final class Base64
 {

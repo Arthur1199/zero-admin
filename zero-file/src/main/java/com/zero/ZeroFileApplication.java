@@ -27,6 +27,16 @@ import java.util.TimeZone;
 @SpringBootApplication(scanBasePackages = PackageProperties.SCAN_BASE_PACKAGES)
 public class ZeroFileApplication
 {
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 启动文件存储服务，初始化时区及包扫描相关配置。
+     * @param args 应用的启动参数
+     * @return
+     * 返回值: void
+     * 返回值说明: 进入 Spring Boot 启动流程
+     */
     public static void main(String[] args)
     {
         TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"));

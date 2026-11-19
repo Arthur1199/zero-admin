@@ -1,7 +1,10 @@
 package com.zero.jobadmin.business.scheduler.exception;
 
 /**
- * @author xuxueli 2019-05-04 23:19:29
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 表示调度中心业务处理失败的运行时异常。
  */
 public class XxlJobException extends RuntimeException {
 

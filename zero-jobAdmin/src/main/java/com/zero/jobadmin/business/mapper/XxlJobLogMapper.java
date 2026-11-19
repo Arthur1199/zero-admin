@@ -9,16 +9,18 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * job log
- * @author xuxueli 2016-1-12 18:03:06
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 管理 xxl_job_log 中的调度触发、执行回调、失败状态和清理记录。
  */
 @Mapper
 public interface XxlJobLogMapper {
 
 	/**
 	 *
-	 * 作者: xuxueli
-	 * 时间: 2016/1/12 18:03:06
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 查询指定执行器组的调度日志，按日志 ID 倒序分页。
 	 * @param offset 跳过的记录数
 	 * @param pagesize 每页条数
@@ -41,8 +43,8 @@ public interface XxlJobLogMapper {
 
 	/**
 	 *
-	 * 作者: xuxueli
-	 * 时间: 2016/1/12 18:03:06
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 统计与分页列表匹配的总记录数。
 	 * @param offset 调用方的分页偏移量，计数时不使用
 	 * @param pagesize 调用方的分页条数，计数时不使用
@@ -63,8 +65,28 @@ public interface XxlJobLogMapper {
 							 @Param("triggerTimeEndExclusive") Date triggerTimeEndExclusive,
 							 @Param("logStatus") int logStatus);
 	
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 按主键读取一次调度的触发和处理结果。
+	 * @param id 调度日志主键
+	 * @return
+	 * 返回值: XxlJobLog
+	 * 返回值说明: 调度日志，未找到时返回 null
+	 */
 	public XxlJobLog load(@Param("id") long id);
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 插入调度日志并在原对象上回填日志主键。
+	 * @param xxlJobLog 待写入的调度记录
+	 * @return
+	 * 返回值: long
+	 * 返回值说明: 插入影响行数
+	 */
 	public long save(XxlJobLog xxlJobLog);
 
 	/**
@@ -129,12 +151,22 @@ public interface XxlJobLogMapper {
 	 */
 	int updateHandleMessage(@Param("id") long id, @Param("handleMsg") String handleMsg);
 	
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 删除指定任务的全部调度日志。
+	 * @param jobId 任务主键
+	 * @return
+	 * 返回值: int
+	 * 返回值说明: 删除行数
+	 */
 	public int delete(@Param("jobId") int jobId);
 
 	/**
 	 *
-	 * 作者: xuxueli
-	 * 时间: 2016/1/12 18:03:06
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 按调度时间统计运行中、成功及失败记录，沿用历史报表口径。
 	 * @param from 开始时间，包含该时刻
 	 * @param to 结束时间，不包含该时刻
@@ -159,8 +191,8 @@ public interface XxlJobLogMapper {
 
 	/**
 	 *
-	 * 作者: xuxueli
-	 * 时间: 2016/1/12 18:03:06
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 按日志 ID 升序读取本轮仍需清理的一批记录。
 	 * @param jobGroup 执行器组 ID，0 表示全部
 	 * @param jobId 任务 ID，0 表示全部
@@ -180,8 +212,28 @@ public interface XxlJobLogMapper {
 									  @Param("pagesize") int pagesize,
 									  @Param("afterId") long afterId,
 									  @Param("maxId") long maxId);
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 按已筛选出的主键分批删除调度日志。
+	 * @param logIds 非空的日志主键批次
+	 * @return
+	 * 返回值: int
+	 * 返回值说明: 本批次删除行数
+	 */
 	public int clearLog(@Param("logIds") List<Long> logIds);
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 按主键升序挑选尚未认领且符合重试或告警处理条件的失败日志。
+	 * @param pagesize 本次扫描的最大数量
+	 * @return
+	 * 返回值: List<Long>
+	 * 返回值说明: 供失败监控线程处理的日志主键列表
+	 */
 	public List<Long> findFailJobLogIds(@Param("pagesize") int pagesize);
 
 	/**

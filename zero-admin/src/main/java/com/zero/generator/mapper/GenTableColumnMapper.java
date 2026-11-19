@@ -38,11 +38,11 @@ public interface GenTableColumnMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 新增业务字段
      * @param genTableColumn 业务字段信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：新增业务字段
      */
     public int insertGenTableColumn(GenTableColumn genTableColumn);
@@ -50,11 +50,11 @@ public interface GenTableColumnMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 修改业务字段
      * @param genTableColumn 业务字段信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改业务字段
      */
     public int updateGenTableColumn(GenTableColumn genTableColumn);
@@ -62,11 +62,11 @@ public interface GenTableColumnMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 删除业务字段
      * @param genTableColumns 列数据
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：删除业务字段
      */
     public int deleteGenTableColumns(List<GenTableColumn> genTableColumns);
@@ -74,11 +74,11 @@ public interface GenTableColumnMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 批量删除业务字段
      * @param ids 需要删除的数据ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：批量删除业务字段
      */
     public int deleteGenTableColumnByIds(Long[] ids);

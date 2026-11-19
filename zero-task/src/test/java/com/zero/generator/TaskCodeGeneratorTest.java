@@ -47,6 +47,7 @@ class TaskCodeGeneratorTest {
             assertThat(javaDir.resolve("service/ITaskSampleService.java")).exists();
             assertThat(javaDir.resolve("controller")).doesNotExist();
             assertThat(Files.readString(mapperXml)).contains("com.zero.mapper.TaskSampleMapper", "BaseResultMap");
+            // 加入生成器不会输出的标记，才能识别二次执行是否覆盖已有源码。
             String marker = Files.readString(service) + "\n// 保留已有业务代码\n";
             Files.writeString(service, marker);
             TaskCodeGenerator.generate(output, url, "sa", "", List.of("biz_task_sample"));

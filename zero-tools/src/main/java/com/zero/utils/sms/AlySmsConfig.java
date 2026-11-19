@@ -4,10 +4,10 @@ import com.zero.utils.common.StringHelper;
 import com.zero.utils.xml.config.XmlConfig;
 
 /**
- * 作者: Jack
- * 时间: 2022年10月25日下午4:25:34
- * 说明: 阿里云配置加载工具
  *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 从 XML 配置读取阿里云短信凭据及注册、找回密码场景使用的签名和模板。
  */
 public class AlySmsConfig {
 
@@ -35,11 +35,13 @@ public class AlySmsConfig {
 	private static final String FORGETPWDTEMPLATECODE = "forgetPwdTemplateCode";
 	
 	/**
-	 * 作者:Jack
-	 * 日期:2022年10月25日下午4:32:29
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 读取阿里云短信请求使用的账号标识。
 	 * @return
-	 * 返回值:String
-	 * 返回值说明:获取accessKeyId
+	 * 返回值: String
+	 * 返回值说明: 配置中的 AccessKey ID，缺失时返回 null
 	 */
 	public static final String getAccessKeyId() {
 		String accessKeyId = XmlConfig.getString(ALYSMSCONFIG + COMMA + ACCESSKEYID);
@@ -51,11 +53,13 @@ public class AlySmsConfig {
 	}
 	
 	/**
-	 * 作者:Jack
-	 * 日期:2022年10月25日下午4:37:22
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 读取阿里云短信签名使用的凭据。
 	 * @return
-	 * 返回值:String
-	 * 返回值说明:accessKeySecre
+	 * 返回值: String
+	 * 返回值说明: 配置中的 AccessKey Secret，缺失时返回 null，禁止输出凭据
 	 */
 	public static final String getAccessKeySecret() {
 		String accessKeySecret = XmlConfig.getString(ALYSMSCONFIG + COMMA + ACCESSKEYSECRET);
@@ -67,11 +71,13 @@ public class AlySmsConfig {
 	}
 	
 	/**
-	 * 作者:Jack
-	 * 日期:2022年10月25日下午4:33:31
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 查找注册验证码短信的发送签名。
 	 * @return
-	 * 返回值:String
-	 * 返回值说明:获取registSignName
+	 * 返回值: String
+	 * 返回值说明: 注册场景的短信签名，未配置时返回 null
 	 */
 	public static final String getRegistSignName() {
 		String registSignName = XmlConfig.getString(ALYSMSCONFIG + COMMA + REGISTSIGNNAME);
@@ -83,11 +89,13 @@ public class AlySmsConfig {
 	}
 	
 	/**
-	 * 作者:Jack
-	 * 日期:2022年10月25日下午4:35:57
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 查找注册验证码短信使用的模板。
 	 * @return
-	 * 返回值:String
-	 * 返回值说明:获取registTemplateCode
+	 * 返回值: String
+	 * 返回值说明: 注册场景的模板编码，未配置时返回 null
 	 */
 	public static final String getRegistTemplateCode() {
 		String registTemplateCode = XmlConfig.getString(ALYSMSCONFIG + COMMA + REGISTTEMPLATECODE);
@@ -99,11 +107,13 @@ public class AlySmsConfig {
 	}
 	
 	/**
-	 * 作者:Jack
-	 * 日期:2022年10月25日下午4:36:27
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 查找找回密码短信的发送签名。
 	 * @return
-	 * 返回值:String
-	 * 返回值说明:获取forgetPwdSignName
+	 * 返回值: String
+	 * 返回值说明: 找回密码场景的短信签名，未配置时返回 null
 	 */
 	public static final String getForgetPwdSignName() {
 		String forgetPwdSignName = XmlConfig.getString(ALYSMSCONFIG + COMMA + FORGETPWDSIGNNAME);
@@ -115,11 +125,13 @@ public class AlySmsConfig {
 	}
 	
 	/**
-	 * 作者:Jack
-	 * 日期:2022年10月25日下午4:37:19
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 查找找回密码短信使用的模板。
 	 * @return
-	 * 返回值:String
-	 * 返回值说明:
+	 * 返回值: String
+	 * 返回值说明: 找回密码场景的模板编码，未配置时返回 null
 	 */
 	public static final String getForgetPwdTemplateCode() {
 		String forgetPwdTemplateCode = XmlConfig.getString(ALYSMSCONFIG + COMMA + FORGETPWDTEMPLATECODE);

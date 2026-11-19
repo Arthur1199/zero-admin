@@ -84,11 +84,14 @@ public class PermitAllUrlProperties implements InitializingBean, ApplicationCont
     }
 
     /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
      * 说明: 收集匿名访问路径，兼容Spring MVC旧版PatternsCondition和新版PathPatternsCondition
      * @param info 请求映射信息，来源于Spring MVC启动后的HandlerMapping
      * @return
      * 返回值: void
-     * 返回值说明：路径变量会替换为*后加入匿名访问列表
+     * 返回值说明: 路径变量会替换为*后加入匿名访问列表
      */
     private void addPermitAllUrl(RequestMappingInfo info)
     {
@@ -96,11 +99,14 @@ public class PermitAllUrlProperties implements InitializingBean, ApplicationCont
     }
 
     /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
      * 说明: 获取请求路径集合，避免Spring Boot 3默认PathPatternParser模式下getPatternsCondition为空导致启动失败
      * @param info 请求映射信息
      * @return
      * 返回值: Set<String>
-     * 返回值说明：可用于Spring Security匹配的请求路径集合，无法识别时返回空集合
+     * 返回值说明: 可用于Spring Security匹配的请求路径集合，无法识别时返回空集合
      */
     private Set<String> getPatterns(RequestMappingInfo info)
     {

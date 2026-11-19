@@ -13,8 +13,8 @@ import java.util.List;
 
 /**
  *
- * 作者: xuxueli
- * 时间: 2017/3/10
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
  * 说明: 按任务选取距离上次使用最久的执行器节点。
  */
 public class ExecutorRouteLRU extends ExecutorRouter {

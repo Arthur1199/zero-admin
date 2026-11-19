@@ -1,42 +1,18 @@
 package com.zero.utils.sms;
 
 /**
- * 作者: Jack
- * 时间: 2022年10月25日下午4:53:33
- * 说明: PaaSoo发送单条短信的返回结果
  *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 承载 PaaSoo 单条短信接口返回的状态和消息标识，发送入口据此判断受理结果。
  */
 public class PaaSooSmsSingleResult {
 
-	//状态码为"0"，成功，其他为失败
-//	0 - success：成功
-//
-//	2 - Missing parameters：缺少必要参数
-//
-//	3 - Invalid parameters：参数格式错误
-//
-//	4 - Invalid credentials：Key或Secret错误
-//
-//	5 - Unauthorized IP：IP限制
-//
-//	6 - Invalid phone number：号码格式错误
-//
-//	7 - Invalid sender id：from参数格式错误
-//
-//	8 - Message bombing detected: 3秒内重复请求
-//
-//	9 - Quota exceeded：欠费或信用额度不足
-//
-//	10 - Throttling error：超过限速
-//
-//	11 - System error：系统错误
-//
-//	19 -Invalid peid / Invalid templateid
-	
+	/** 供应商返回的业务状态，发送入口只将数值 0 视为受理成功。 */
 	private String status;
-	//消息id 示例 015bd4-d6dfa7-58w
+	/** 供应商返回的消息标识，用于后续查询发送记录。 */
 	private String messageid;
-    //状态描述 示例 Missing parameters
+	/** 供应商返回的状态说明，例如缺少必填参数。 */
 	private String status_code;
 	
 	public String getStatus() {

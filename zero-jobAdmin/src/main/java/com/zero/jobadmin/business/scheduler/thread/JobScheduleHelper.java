@@ -17,7 +17,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author xuxueli 2019-05-21
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 按预读窗口扫描调度任务，提交调度游标后派发到期任务或放入时间轮。
  */
 @Slf4j
 public class JobScheduleHelper {
@@ -41,8 +44,8 @@ public class JobScheduleHelper {
 
     /**
      *
-     * 作者: xuxueli
-     * 时间: 2019/5/21
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
      * 说明: 启动调度扫描和时间轮线程，游标事务提交后才派发任务。
      * @return
      * 返回值: void
@@ -59,7 +62,7 @@ public class JobScheduleHelper {
             @Override
             public void run() {
 
-                // align time
+                // 启动时延后到整秒边界，之后按秒判断预读窗口。
                 try {
                     TimeUnit.MILLISECONDS.sleep(5000 - System.currentTimeMillis()%1000 );
                 } catch (Throwable e) {
@@ -69,7 +72,7 @@ public class JobScheduleHelper {
                 }
                 log.info(">>>>>>>>> init xxl-job admin scheduler success.");
 
-                // pre-read count: treadpool-size * 10 (trigger-qps: 1000ms / 100ms each trigger cost)
+                // 按快慢触发池的合计容量估算一轮预读上限，每个线程预留约 10 次派发。
                 int preReadCount = (XxlJobAdminBootstrap.getInstance().getTriggerPoolFastMax() + XxlJobAdminBootstrap.getInstance().getTriggerPoolSlowMax()) * 10;
 
                 // do schedule
@@ -92,10 +95,10 @@ public class JobScheduleHelper {
                     long cost = System.currentTimeMillis()-start;
 
 
-                    // Wait seconds, align second
-                    if (cost < 1000) {  // scan-overtime, not wait
+                    // 扫描未占满一秒才等待下一个对齐时点，耗时较长时直接进入下一轮。
+                    if (cost < 1000) {
                         try {
-                            // pre-read period: success > scan each second; fail > skip this period;
+                            // 推进过游标时按秒扫描，其余情况按预读窗口降低查库频率。
                             TimeUnit.MILLISECONDS.sleep((preReadSuc?1000:PRE_READ_MS) - System.currentTimeMillis()%1000);
                         } catch (Throwable e) {
                             if (!scheduleThreadToStop) {
@@ -120,7 +123,7 @@ public class JobScheduleHelper {
 
                 while (!ringThreadToStop) {
 
-                    // align second
+                    // 按绝对秒取出已到期的槽位，吞吐受阻时也能补取更早的槽位。
                     try {
                         TimeUnit.MILLISECONDS.sleep(1000 - System.currentTimeMillis() % 1000);
                     } catch (Throwable e) {
@@ -179,6 +182,7 @@ public class JobScheduleHelper {
             }
             for (List<JobScheduleUpdate> batch : CollectionTool.split(updates, bootstrap.getScheduleBatchSize())) {
                 int affected = bootstrap.getXxlJobInfoMapper().scheduleBatchUpdate(batch);
+                // 游标快照已变化时回滚本轮，防止对未成功推进游标的任务派发。
                 if (affected != batch.size()) {
                     throw new OptimisticLockingFailureException("Scheduler batch changed before update, expected="
                             + batch.size() + ", updated=" + affected);
@@ -187,6 +191,7 @@ public class JobScheduleHelper {
             }
             return true;
         });
+        // 游标事务提交后才派发，避免回滚后同一触发时间再次被扫描并重复派发。
         for (Runnable dispatch : dispatches) {
             try {
                 dispatch.run();
@@ -263,19 +268,17 @@ public class JobScheduleHelper {
      */
     private boolean refreshNextTriggerTime(XxlJobInfo jobInfo, Date fromTime) {
         try {
-            // generate next trigger time
             ScheduleTypeEnum scheduleTypeEnum = ScheduleTypeEnum.match(jobInfo.getScheduleType(), ScheduleTypeEnum.NONE);
             Date nextTriggerTime = scheduleTypeEnum.getScheduleType().generateNextTriggerTime(jobInfo, fromTime);
 
-            // refresh next trigger-time + status
             if (nextTriggerTime != null && nextTriggerTime.after(fromTime)) {
-                // generate success
-                jobInfo.setTriggerStatus(-1);                               // pass, may be Inaccurate
+                // -1 仅表示批量写游标时保留库中的触发状态，避免把哨兵值写入状态列。
+                jobInfo.setTriggerStatus(-1);
                 jobInfo.setTriggerLastTime(jobInfo.getTriggerNextTime());
                 jobInfo.setTriggerNextTime(nextTriggerTime.getTime());
                 return true;
             } else {
-                // generate fail, stop job
+                // 无严格晚于起点的触发时间时停止调度，避免同一游标被反复扫描。
                 jobInfo.setTriggerStatus(TriggerStatus.STOPPED.getValue());
                 jobInfo.setTriggerLastTime(0);
                 jobInfo.setTriggerNextTime(0);
@@ -283,7 +286,7 @@ public class JobScheduleHelper {
                         jobInfo.getId(), jobInfo.getScheduleType(), jobInfo.getScheduleConf());
             }
         } catch (Exception e) {
-            // generate error, stop job
+            // 配置解析失败时清空调度游标，由任务维护者修正后重新启用。
             jobInfo.setTriggerStatus(TriggerStatus.STOPPED.getValue());
             jobInfo.setTriggerLastTime(0);
             jobInfo.setTriggerNextTime(0);
@@ -337,8 +340,8 @@ public class JobScheduleHelper {
 
     /**
      *
-     * 作者: xuxueli
-     * 时间: 2019/5/21
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
      * 说明: 停止调度扫描，在宽限时间内派发已预读任务，再关闭时间轮并记录未派发任务。
      * @return
      * 返回值: void

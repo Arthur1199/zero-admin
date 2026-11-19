@@ -13,26 +13,32 @@ import com.zero.utils.common.StringHelper;
 import com.zero.utils.common.DateHelper;
 
 /**
- * 作者: Jack 时间: 2025年3月5日17:24:14 说明: telegram消息组装工具类
  *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 把普通值或带 TelegramMsgKey 标记的对象字段转换成通知文本，供调用方决定是否发送。
  */
 public class TeleGramMsgHelper {
 
-	// * 号最大个数
+	/** 标题与消息内容之间的分隔线字符数。 */
 	private static final Integer MAX_START = 54;
 
-	// 换行符
+	/** 消息文本使用的行分隔符。 */
 	private static final String LINE = "\r\n";
 	
-	//分隔符
+	/** 标题分隔线使用的字符。 */
 	private static final String SPLIT = "*";
 
 	/**
-	 * 作者:Jack 日期:2025年3月5日17:31:56
-	 * 
-	 * @param title
-	 * @param objet
-	 * @return 返回值:String 返回值说明:生成消息
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 按对象类型组装标题、字段和系统时间。普通值直接展示，复杂字段按注解名称输出，嵌套值按 JSON 展示。
+	 * @param title 可选的消息标题
+	 * @param objet 待格式化的值或带消息字段注解的对象
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 生成的消息文本，待展示对象为 null 时返回空字符串
 	 */
 	public static String generateMsg(String title, Object objet) {
 		StringBuffer sb = new StringBuffer();
@@ -47,8 +53,8 @@ public class TeleGramMsgHelper {
 			}
 			sb.append(LINE);
 		}
-		// 获取对象的类信息
 		Class<?> clazz = objet.getClass();
+		// 字符串和基础值可直接展示，只对复杂对象按字段注解取值。
 		boolean primitiveObject = isPrimitiveOrWrapper(objet);
 		if(primitiveObject) {
 			sb.append(objet.toString()).append(LINE);
@@ -56,20 +62,14 @@ public class TeleGramMsgHelper {
 			sb.append("系统时间：" + sysTimeStr);
 			return sb.toString();
 		}
-//		System.out.println("对象类型：" + clazz.getName());
-		// 获取类的所有字段（包括私有字段）
+		// 仅遍历当前类声明的字段，消息内容由字段上的注解决定。
 		Field[] fields = clazz.getDeclaredFields();
-		// 遍历字段并打印字段名和值
 		for (Field field : fields) {
 			try {
-				// 设置私有字段可访问
 				field.setAccessible(true);
-				// 获取字段名和字段值
 				TelegramMsgKey annotation = field.getAnnotation(TelegramMsgKey.class);
 				if (annotation != null) {
 					String keyName = annotation.keyName();
-//                	System.out.println("keyName" + keyName);
-//                	String fieldName = field.getName();
 					Object fieldValue = field.get(objet);
 					boolean primitiveOrWrapper = isPrimitiveOrWrapper(fieldValue);
 					if (primitiveOrWrapper) {
@@ -77,20 +77,13 @@ public class TeleGramMsgHelper {
 							sb.append(keyName).append("：");
 							sb.append(fieldValue != null ? fieldValue.toString() : "").append(LINE);
 						}
-						// 打印字段信息
-//                    	System.out.println("字段名：" + fieldName + ", 字段值：" + fieldValue);
 					} else {
-//						sb.append(keyName).append("：");
+						// 集合或嵌套对象单独换行，保留格式化后的 JSON 结构。
 						if(fieldValue != null) {
 							sb.append(keyName).append("：");
 							sb.append(LINE);
 							sb.append(fieldValue != null ? JSON.toJSONString(fieldValue,JSONWriter.Feature.PrettyFormat) : "").append(LINE);
 						}
-//						else {
-//							sb.append(LINE);
-//						}
-						// 打印字段信息
-//                    	System.out.println("字段名：" + fieldName + ", 字段JSON值：" + (fieldValue != null ? JSON.toJSONString(fieldValue):""));
 					}
 				}
 			} catch (IllegalAccessException e) {
@@ -104,10 +97,14 @@ public class TeleGramMsgHelper {
 	}
 
 	/**
-	 * 判断对象是否是基本数据类型或其包装类
-	 * 
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 判断对象是否是基本数据类型或其包装类
 	 * @param obj 要判断的对象
-	 * @return 如果是基本数据类型或包装类，返回 true；否则返回 false
+	 * @return
+	 * 返回值: boolean
+	 * 返回值说明: 如果是基本数据类型或包装类，返回 true；否则返回 false
 	 */
 	public static boolean isPrimitiveOrWrapper(Object obj) {
 		if (obj == null) {
@@ -133,11 +130,14 @@ public class TeleGramMsgHelper {
 	}
 
 	/**
-	 * 作者:Jack
-	 * 日期:2025年3月5日18:27:03
-	 * @param args
-	 * 返回值:void
-	 * 返回值说明:测试方法
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 用包含普通字段、集合和映射的样例对象演示 Telegram 消息格式。
+	 * @param args 命令行参数，示例不读取
+	 * @return
+	 * 返回值: void
+	 * 返回值说明: 只在控制台打印生成的消息文本
 	 */
 	public static void main(String[] args) {
 		Map<String, Object> userInfoMap = new HashMap<>();

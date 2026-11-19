@@ -30,12 +30,12 @@ public class StrFormatter
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 格式化字符串<br>此方法只是简单将占位符 {} 按照顺序替换为参数<br>如果想输出 {} 使用 \\转义 { 即可，如果想输出 {} 之前的 \ 使用双转义符 \\\\ 即可<br>例：<br>通常使用：format("this is {} for {}", "a", "b") -> this is a for b<br>转义{}： format("this is \\{} for {}", "a", "b") -> this is \{} for a<br>转义\： format("this is \\\\{} for {}", "a", "b") -> this is \a for b<br>
      * @param strPattern 字符串模板
      * @param argArray 参数列表
      * @return
-     * 返回值: 结果
+     * 返回值: String
      * 返回值说明：格式化字符串<br>此方法只是简单将占位符 {} 按照顺序替换为参数<br>如果想输出 {} 使用 \\转义 { 即可，如果想输出 {} 之前的 \ 使用双转义符 \\\\ 即可<br>例：<br>通常使用：format("this is {} for {}", "a", "b") -> this is a for b<br>转义{}： format("this is \\{} for {}", "a", "b") -> this is \{} for a<br>转义\： format("this is \\\\{} for {}", "a", "b") -> this is \a for b<br>
      */
     public static String format(final String strPattern, final Object... argArray)

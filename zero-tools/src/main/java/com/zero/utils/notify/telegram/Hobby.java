@@ -1,9 +1,9 @@
 package com.zero.utils.notify.telegram;
 /**
- * 作者: Jack
- * 时间: 2025年3月5日17:47:43
- * 说明: 爱好
  *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 承载 Telegram 消息组装演示中的单项兴趣和描述。
  */
 public class Hobby{
 	

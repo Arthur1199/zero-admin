@@ -32,9 +32,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.*;
 
 /**
- * job group controller
  *
- * @author xuxueli 2016-10-02 20:52:56
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 提供调度中心执行器组的分页、维护及删除入口。
  */
 @Controller
 @RequestMapping("/jobgroup")
@@ -52,6 +53,16 @@ public class JobGroupController {
 	@Resource
 	private XxlJobRegistryMapper xxlJobRegistryMapper;
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 为调度控制台执行器管理页填充渲染所需的数据。
+	 * @param model 视图渲染模型
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 执行器管理页的视图名
+	 */
 	@RequestMapping
 	@XxlSso(role = Consts.ADMIN_ROLE)
 	public String index(Model model) {
@@ -248,6 +259,16 @@ public class JobGroupController {
 		}
 	}
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 由调度管理员发起单组删除，校验执行器组是否仍被任务引用。
+	 * @param ids 待删除的执行器组 ID 列表，只接受一项
+	 * @return
+	 * 返回值: Response<String>
+	 * 返回值说明: 删除结果或不能删除的原因
+	 */
 	@RequestMapping("/delete")
 	@ResponseBody
 	@XxlSso(role = Consts.ADMIN_ROLE)

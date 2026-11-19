@@ -6,6 +6,12 @@ import com.xxl.tool.core.DateTool;
 
 import java.util.Date;
 
+/**
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 按配置的固定秒数间隔计算下一次任务触发。
+ */
 public class FixRateScheduleType extends ScheduleType {
 
     /**

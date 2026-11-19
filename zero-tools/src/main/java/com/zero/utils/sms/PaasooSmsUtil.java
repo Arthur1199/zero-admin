@@ -16,9 +16,9 @@ import com.zero.utils.common.StringHelper;
 
 /**
  *
- * 作者: Jack
- * 时间: 2022年10月15日下午3:50:26
- * 说明: Paasoo短信HTTP接口工具类，基于JDK17内置HttpClient发送短信、查询发送记录、查询余额和校验号码状态
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 封装 PaaSoo 的短信发送、记录查询、账户余额和号码状态接口，集中处理查询参数编码及 HTTP 响应。
  */
 public class PaasooSmsUtil {
 
@@ -56,15 +56,15 @@ public class PaasooSmsUtil {
 
     /**
      *
-     * 作者: Jack
-     * 时间: 2022年10月15日下午3:50:26
-     * 说明: 从本地配置读取Paasoo账号并发送短信
-     * @param to 接收手机号，需包含国家区号，例如英国号码格式为447883196637
-     * @param text 短信内容
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 使用本地配置提交一条短信，并读取第一条返回记录的业务状态。
+     * @param to 含国家区号的收件号码
+     * @param text 要发送的短信正文
      * @return
      * 返回值: boolean
-     * 返回值说明: true-发送成功，false-接口未返回成功状态
-     * @throws Exception 配置读取、HTTP请求或响应解析失败时抛出
+     * 返回值说明: 仅当第一条响应记录的状态可解析为 0 时返回 true，空响应或无记录时返回 false
+     * @throws Exception 配置读取、HTTP 请求失败或响应无法解析时向上传递
      */
     public static boolean sendSms(String to, String text) throws Exception {
         Map<String, String> params = new HashMap<>();
@@ -87,18 +87,18 @@ public class PaasooSmsUtil {
 
     /**
      *
-     * 作者: Jack
-     * 时间: 2022年10月15日下午3:50:26
-     * 说明: 调用Paasoo短信发送接口
-     * @param key API账号
-     * @param secret API密码，调用方不得写入日志
-     * @param from SenderID
-     * @param to 接收手机号，需包含国家区号
-     * @param text 短信内容
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 使用调用方提供的账号和发送方信息提交短信。
+     * @param key PaaSoo API 账号
+     * @param secret PaaSoo API 凭据，禁止记录或展示
+     * @param from 供应商识别的发送方标识
+     * @param to 含国家区号的接收号码
+     * @param text 短信正文
      * @return
      * 返回值: String
-     * 返回值说明: Paasoo返回的JSON字符串
-     * @throws Exception HTTP请求失败时抛出
+     * 返回值说明: HTTP 请求成功后的原始响应正文
+     * @throws Exception HTTP 请求失败或供应商返回非成功 HTTP 状态时向上传递
      */
     public static String getSendSms(String key, String secret, String from, String to, String text) throws Exception {
         Map<String, String> params = new HashMap<>();
@@ -112,16 +112,16 @@ public class PaasooSmsUtil {
 
     /**
      *
-     * 作者: Jack
-     * 时间: 2022年10月15日下午3:50:26
-     * 说明: 查询Paasoo短信发送记录
-     * @param key API账号
-     * @param secret API密码，调用方不得写入日志
-     * @param messageid 发送记录消息ID
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 按供应商消息 ID 查询指定短信的发送记录。
+     * @param key PaaSoo API 账号
+     * @param secret PaaSoo API 凭据，禁止记录或展示
+     * @param messageid 供应商返回的消息标识
      * @return
      * 返回值: String
-     * 返回值说明: Paasoo返回的JSON字符串
-     * @throws Exception HTTP请求失败时抛出
+     * 返回值说明: 包含发送记录的原始响应正文
+     * @throws Exception HTTP 请求失败或供应商返回非成功 HTTP 状态时向上传递
      */
     public static String getSendRecord(String key, String secret, String messageid) throws Exception {
         Map<String, String> params = new HashMap<>();
@@ -133,15 +133,15 @@ public class PaasooSmsUtil {
 
     /**
      *
-     * 作者: Jack
-     * 时间: 2022年10月15日下午3:50:26
-     * 说明: 查询Paasoo账户余额
-     * @param key API账号
-     * @param secret API密码，调用方不得写入日志
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 查询指定 PaaSoo 账号的可用余额。
+     * @param key PaaSoo API 账号
+     * @param secret PaaSoo API 凭据，禁止记录或展示
      * @return
      * 返回值: String
-     * 返回值说明: Paasoo返回的JSON字符串
-     * @throws Exception HTTP请求失败时抛出
+     * 返回值说明: 余额接口的原始响应正文
+     * @throws Exception HTTP 请求失败或供应商返回非成功 HTTP 状态时向上传递
      */
     public static String getUserBalance(String key, String secret) throws Exception {
         Map<String, String> params = new HashMap<>();
@@ -152,17 +152,17 @@ public class PaasooSmsUtil {
 
     /**
      *
-     * 作者: Jack
-     * 时间: 2022年10月15日下午3:50:26
-     * 说明: 查询Paasoo号码状态
-     * @param key API账号
-     * @param secret API密码，调用方不得写入日志
-     * @param countryCode 待查询手机号所属国家区号
-     * @param nationalNumber 待校验手机号，不包含国家区号
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 提交国家区号和本地号码，查询号码状态。
+     * @param key PaaSoo API 账号
+     * @param secret PaaSoo API 凭据，禁止记录或展示
+     * @param countryCode 号码所在国家或地区的区号
+     * @param nationalNumber 不带国家区号的本地号码
      * @return
      * 返回值: String
-     * 返回值说明: Paasoo返回的JSON字符串
-     * @throws Exception HTTP请求失败时抛出
+     * 返回值说明: 号码状态接口的原始响应正文
+     * @throws Exception HTTP 请求失败或供应商返回非成功 HTTP 状态时向上传递
      */
     public static String getValidNumber(String key, String secret, String countryCode, String nationalNumber)
             throws Exception {
@@ -176,16 +176,16 @@ public class PaasooSmsUtil {
 
     /**
      *
-     * 作者: Jack
-     * 时间: 2026/5/17 00:15
-     * 说明: 基于JDK17 HttpClient执行通用GET请求
-     * @param url 请求地址
-     * @param paramsMap 查询参数Map
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 构造带查询参数的 GET 请求，按已配置的超时时间等待响应。
+     * @param url PaaSoo 接口地址
+     * @param paramsMap 待附加的查询参数，可为空
      * @return
      * 返回值: String
-     * 返回值说明: HTTP 2xx时返回响应内容
-     * @throws IOException HTTP状态码非2xx或读取响应失败时抛出
-     * @throws InterruptedException 请求线程被中断时抛出
+     * 返回值说明: HTTP 2xx 响应的正文
+     * @throws IOException 请求读取失败或 HTTP 状态码非 2xx 时抛出
+     * @throws InterruptedException 调用线程等待响应时被中断
      */
     public static String get(String url, Map<String, String> paramsMap) throws IOException, InterruptedException {
         String queryString = buildQueryString(paramsMap);
@@ -206,13 +206,13 @@ public class PaasooSmsUtil {
 
     /**
      *
-     * 作者: Jack
-     * 时间: 2026/5/17 00:15
-     * 说明: 构建URL查询字符串
-     * @param paramsMap 查询参数Map，value为空时按空字符串处理
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 逐项对查询参数名和值编码，并用分隔符拼接。
+     * @param paramsMap 查询参数，参数值为 null 时按空字符串拼接
      * @return
      * 返回值: String
-     * 返回值说明: 已按UTF-8编码的查询字符串
+     * 返回值说明: 不带问号的查询字符串，缺少参数时返回空字符串
      */
     private static String buildQueryString(Map<String, String> paramsMap) {
         if (paramsMap == null || paramsMap.isEmpty()) {
@@ -230,13 +230,13 @@ public class PaasooSmsUtil {
 
     /**
      *
-     * 作者: Jack
-     * 时间: 2026/5/17 00:15
-     * 说明: 对查询参数进行UTF-8编码
-     * @param value 参数值
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 使用 UTF-8 对查询参数名或值进行表单 URL 编码。
+     * @param value 待编码的参数名或值
      * @return
      * 返回值: String
-     * 返回值说明: URL安全的参数值
+     * 返回值说明: 编码后的参数片段，null 按空字符串处理
      */
     private static String encode(String value) {
         return URLEncoder.encode(value == null ? "" : value, StandardCharsets.UTF_8);
@@ -244,13 +244,13 @@ public class PaasooSmsUtil {
 
     /**
      *
-     * 作者: Jack
-     * 时间: 2022年10月15日下午3:50:26
-     * 说明: 本地测试入口，生产环境不要通过main方法发送短信或查询账号信息
-     * @param args 启动参数，当前未使用
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 演示 PaaSoo 的短信发送、记录、余额和号码查询。运行时可向供应商发出实际请求。
+     * @param args 命令行参数，示例未读取
      * @return
      * 返回值: void
-     * 返回值说明: 控制台输出测试调用结果
+     * 返回值说明: 向控制台输出示例调用结果
      */
     public static void main(String[] args) {
         try {

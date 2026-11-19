@@ -26,10 +26,14 @@ public class Base32Utils
     }
 
     /**
-     * 将字节数组编码为 Base32 字符串
      *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 将字节数组编码为 Base32 字符串
      * @param data 原始字节
-     * @return Base32 字符串
+     * @return
+     * 返回值: String
+     * 返回值说明: Base32 字符串
      */
     public static String encode(byte[] data)
     {
@@ -54,10 +58,14 @@ public class Base32Utils
     }
 
     /**
-     * 将 Base32 字符串解码为字节数组
      *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 将 Base32 字符串解码为字节数组
      * @param value Base32 字符串
-     * @return 原始字节
+     * @return
+     * 返回值: byte[]
+     * 返回值说明: 原始字节
      */
     public static byte[] decode(String value)
     {

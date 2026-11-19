@@ -20,22 +20,46 @@ import com.zero.common.enums.LimitType;
 public @interface RateLimiter
 {
     /**
-     * 限流key
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 限流key
+     * @return
+     * 返回值: String
+     * 返回值说明: 限流key
      */
     public String key() default CacheConstants.RATE_LIMIT_KEY;
 
     /**
-     * 限流时间,单位秒
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 限流时间,单位秒
+     * @return
+     * 返回值: int
+     * 返回值说明: 限流时间,单位秒
      */
     public int time() default 60;
 
     /**
-     * 限流次数
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 限流次数
+     * @return
+     * 返回值: int
+     * 返回值说明: 限流次数
      */
     public int count() default 100;
 
     /**
-     * 限流类型
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 限流类型
+     * @return
+     * 返回值: LimitType
+     * 返回值说明: 限流类型
      */
     public LimitType limitType() default LimitType.DEFAULT;
 }

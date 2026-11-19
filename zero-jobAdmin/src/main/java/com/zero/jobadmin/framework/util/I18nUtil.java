@@ -18,9 +18,10 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * i18n util
  *
- * @author xuxueli 2018-01-17 20:39:06
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 读取调度控制台的国际化资源，供页面和接口生成本地化提示。
  */
 @Slf4j
 @Component
@@ -39,6 +40,15 @@ public class I18nUtil implements InitializingBean {
     @Autowired
     private Configuration configuration;
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 在 Spring 完成配置后记录当前国际化工具实例。
+     * @return
+     * 返回值: void
+     * 返回值说明: 初始化静态查找入口
+     */
     @Override
     public void afterPropertiesSet() throws Exception {
         // init freemarker shared variable
@@ -51,7 +61,13 @@ public class I18nUtil implements InitializingBean {
     }
 
     /**
-     * get i18n
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: get i18n
+     * @return
+     * 返回值: String
+     * 返回值说明: 按上述规则读取或解析得到的文本
      */
     public String getI18n() {
         if (!Arrays.asList("zh_CN", "zh_TC", "en").contains(i18n)) {
@@ -68,6 +84,15 @@ public class I18nUtil implements InitializingBean {
     // ---------------------- tool ----------------------
 
     private static Properties prop = null;
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 从国际化资源读取当前语言配置。
+     * @return
+     * 返回值: Properties
+     * 返回值说明: 当前语言的键值配置
+     */
     public static Properties loadI18nProp(){
         if (prop != null) {
             return prop;
@@ -82,10 +107,14 @@ public class I18nUtil implements InitializingBean {
     }
 
     /**
-     * get val of i18n key
      *
-     * @param key
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: get val of i18n key
+     * @param key 用于查找的键
      * @return
+     * 返回值: String
+     * 返回值说明: 按上述规则读取或解析得到的文本
      */
     public static String getString(String key) {
         if (single==null) {
@@ -98,10 +127,14 @@ public class I18nUtil implements InitializingBean {
     }
 
     /**
-     * get mult val of i18n mult key, as json
      *
-     * @param keys
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 一次读取多个国际化文案，未指定键时读取全部。
+     * @param keys 要读取的国际化键，可省略
      * @return
+     * 返回值: String
+     * 返回值说明: 国际化文案映射的 JSON 字符串，组件未初始化时返回 null
      */
     public static String getMultString(String... keys) {
         if (single==null) {
@@ -130,7 +163,13 @@ public class I18nUtil implements InitializingBean {
     // ---------------------- init I18n-enum ----------------------
 
     /**
-     * init i18n-enum
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 将执行器阻塞策略的展示标题替换为当前语言的文案。
+     * @return
+     * 返回值: void
+     * 返回值说明: 更新相关阻塞策略枚举的显示标题
      */
     private void initI18nEnum(){
         for (ExecutorBlockStrategyEnum item : ExecutorBlockStrategyEnum.values()) {

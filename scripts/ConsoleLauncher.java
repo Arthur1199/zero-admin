@@ -18,12 +18,12 @@ public final class ConsoleLauncher
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/11/16 23:05
+     * 时间: 2026/11/20 01:36
      * 说明: 启动独立Java进程并转发所有输出，包括JVM启动期和绕过System.out的描述符写入；退出码沿用子进程。
      * @param args 新输出文件、--、Java可执行程序及其原始参数，不经shell拼接
-     * @return 转发至子进程退出
+     * @return
      * 返回值: void
-     * 返回值说明: 不输出命令参数，防止启动参数中的敏感信息进入日志
+     * 返回值说明: 父进程使用子进程的退出码结束，转发时不打印命令参数
      */
     public static void main(String[] args) throws Exception
     {
@@ -39,6 +39,7 @@ public final class ConsoleLauncher
         command.add("-Dfile.encoding=UTF-8");
         command.add("-Dsun.stdout.encoding=UTF-8");
         command.add("-Dsun.stderr.encoding=UTF-8");
+        // 后续 JVM 参数可能覆盖前面的编码设置，拒绝冲突值以保证日志可按 UTF-8 读取。
         for (String argument : Arrays.asList(args).subList(3, args.length))
         {
             if ((argument.startsWith("-Dfile.encoding=") || argument.startsWith("-Dsun.stdout.encoding=")

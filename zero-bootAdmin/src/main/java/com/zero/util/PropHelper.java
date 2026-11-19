@@ -11,14 +11,26 @@ import org.springframework.core.io.Resource;
 
 
 
+/**
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 按类加载器和本地目录查找监控服务使用的配置文件。
+ */
 @Slf4j
 public class PropHelper
 {
 	/**
-	*guessPropFile:
-	*@param cls:和要寻找的属性文件处于相同的包中的任意的类
-	*@param propFile:要寻找的属性文件名
-	*/
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 依次从类路径根目录、指定类所在包、本地工作目录和类路径目录寻找配置，最后尝试直接读取类路径资源。
+	 * @param cls 用于定位类加载器及搜索包目录的类
+	 * @param propFile 要查找的配置文件名
+	 * @return
+	 * 返回值: InputStream
+	 * 返回值说明: 找到时返回配置输入流，由调用方关闭，未读到时返回 null
+	 */
 	public static InputStream guessPropFile(Class<?> cls, String propFile)
 	{
 		InputStream inputStream = null;

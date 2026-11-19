@@ -73,11 +73,11 @@ public class SysJobLogServiceImpl implements ISysJobLogService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 批量删除调度日志信息
      * @param logIds 需要删除的数据ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：批量删除调度日志信息
      */
     @Override

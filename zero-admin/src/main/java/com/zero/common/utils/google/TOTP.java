@@ -30,12 +30,16 @@ public class TOTP
     }
 
     /**
-     * 生成 TOTP 动态码，默认使用 HmacSHA1
      *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 生成 TOTP 动态码，默认使用 HmacSHA1
      * @param key 十六进制密钥
      * @param time 十六进制时间窗口
      * @param returnDigits 返回位数
-     * @return 动态码
+     * @return
+     * 返回值: String
+     * 返回值说明: 动态码
      */
     public static String generateTOTP(String key, String time, String returnDigits)
     {
@@ -43,13 +47,17 @@ public class TOTP
     }
 
     /**
-     * 生成指定摘要算法的 TOTP 动态码
      *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 生成指定摘要算法的 TOTP 动态码
      * @param key 十六进制密钥
      * @param time 十六进制时间窗口
      * @param returnDigits 返回位数
      * @param crypto HMAC 摘要算法
-     * @return 动态码
+     * @return
+     * 返回值: String
+     * 返回值说明: 动态码
      */
     public static String generateTOTP(String key, String time, String returnDigits, String crypto)
     {

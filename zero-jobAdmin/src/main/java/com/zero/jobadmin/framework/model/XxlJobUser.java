@@ -1,9 +1,10 @@
 package com.zero.jobadmin.framework.model;
 
 /**
- * xxl job user
  *
- * @author xuxueli 2019-05-04 16:43:12
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 对应 xxl_job_user 的账号记录，承载角色、执行器组权限和会话数据。
  */
 public class XxlJobUser {
 	

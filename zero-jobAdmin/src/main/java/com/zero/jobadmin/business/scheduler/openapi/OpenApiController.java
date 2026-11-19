@@ -26,8 +26,8 @@ import java.util.Arrays;
 
 /**
  *
- * 作者: xuxueli
- * 时间: 2017/5/10
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
  * 说明: 按当前执行器组配置认证 OpenAPI，向业务操作传递已认证的组。
  */
 @Slf4j
@@ -44,8 +44,8 @@ public class OpenApiController {
 
     /**
      *
-     * 作者: xuxueli
-     * 时间: 2017/5/10
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
      * 说明: 使用数据库中的当前执行器组配置认证请求，凭据更新后下一次请求使用新配置。
      * @param request 当前请求
      * @param uri OpenAPI 操作名称

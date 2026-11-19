@@ -13,8 +13,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
- * 作者: xuxueli
- * 时间: 2017/3/10
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
  * 说明: 按任务轮询选取执行器节点。
  */
 public class ExecutorRouteRound extends ExecutorRouter {

@@ -34,6 +34,18 @@ public class SlackRobotUtil {
     private static SlackRobotUtil slackRobotUtil;
 
     // 初始化配置
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 初始化 Slack 通知所需的请求地址、频道和认证信息。
+     * @param requestApi Slack 请求地址
+     * @param channel 接收消息的频道
+     * @param authorization Slack 请求使用的授权信息
+     * @return
+     * 返回值: void
+     * 返回值说明: 后续通知从已初始化的实例读取发送配置
+     */
     public static void initConfig(String requestApi, String channel, String authorization) {
         if (slackRobotUtil == null) {
             slackRobotUtil = new SlackRobotUtil();
@@ -68,7 +80,14 @@ public class SlackRobotUtil {
     }
 
     /**
-     * 发送消息
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 等待发送配置初始化后，向 Slack 发送指定文本。
+     * @param text 发送给已配置频道的通知文本
+     * @return
+     * 返回值: void
+     * 返回值说明: 发送异常记录日志，等待配置时被中断则抛出异常
      */
     public static void sendMsg(String text) {
         while(slackRobotUtil == null){
@@ -107,14 +126,13 @@ public class SlackRobotUtil {
                 HttpEntity responseEntity = response.getEntity();
                 String responseBody = EntityUtils.toString(responseEntity, "UTF-8");
                 log.info("发送消息成功，响应内容：{}", responseBody);
-                EntityUtils.consume(responseEntity); // 确保实体内容被完全消费
+                EntityUtils.consume(responseEntity); // 当前仅在 HTTP 200 分支显式消费响应实体
             } else {
                 log.error("HTTP 请求失败，状态码：{}", statusCode);
             }
         } catch (Exception e) {
             log.error("发送消息失败，系统异常：", e);
         } finally {
-            // HttpClient 4.x 不需要显式释放连接，由连接管理器自动处理
         }
     }
 }

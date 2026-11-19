@@ -13,7 +13,10 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 文件记录实体。
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 文件记录实体。
  */
 @Getter
 @Setter

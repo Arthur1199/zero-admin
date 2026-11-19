@@ -75,11 +75,11 @@ public class SysLoginController
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 登录方法
      * @param loginBody 登录信息
      * @return
-     * 返回值: 结果
+     * 返回值: AjaxResult
      * 返回值说明：登录方法
      */
     @PostMapping("/login")

@@ -13,9 +13,10 @@ import com.xxl.tool.concurrent.CyclicThread;
 import java.util.List;
 
 /**
- * job fail-monitor helper
  *
- * @author xuxueli 2015-9-1 18:05:56
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 扫描尚待处理的失败调度日志，按任务配置处理重试和告警。
  */
 @Slf4j
 public class JobFailAlarmMonitorHelper {
@@ -45,8 +46,8 @@ public class JobFailAlarmMonitorHelper {
 
 	/**
 	 *
-	 * 作者: xuxueli
-	 * 时间: 2015/9/1 18:05
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 启动失败重试及告警的周期扫描。
 	 * @return
 	 * 返回值: void

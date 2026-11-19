@@ -1,7 +1,10 @@
 package com.zero.exception;
 
 /**
- * FileStorage 运行时异常。
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: FileStorage 运行时异常。
  */
 @SuppressWarnings("serial")
 public class FileStorageRuntimeException extends RuntimeException {

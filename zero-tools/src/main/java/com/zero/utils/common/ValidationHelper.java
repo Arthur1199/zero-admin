@@ -672,11 +672,12 @@ public final class ValidationHelper {
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/16 22:12
-     * 说明: 校验手机号，保留历史isPhoneNum方法名
-     * @param phoneNum 手机号
+     * 时间: 2026/11/20 01:36
+     * 说明: 使用已有号段表达式核验 11 位手机号格式。
+     * @param phoneNum 待校验号码
+     * @return
      * 返回值: boolean
-     * 返回值说明: true-格式正确，false-格式错误或为空
+     * 返回值说明: 是否符合当前表达式
      */
     public static boolean isPhoneNum(String phoneNum) {
         String pattern = "^((13[0-9])|(15[^4,\\D])|(17[0-9])|(18[0-9]))\\d{8}$";

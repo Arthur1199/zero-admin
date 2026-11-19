@@ -33,6 +33,12 @@ import com.zero.recorder.FileRecorder;
 import com.zero.vo.FileStorageService;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 按启用开关和 SDK 可用性装配存储平台、文件访问映射及文件存储服务。
+ */
 @Slf4j
 @Configuration
 @ConditionalOnMissingBean(FileStorageService.class)
@@ -45,7 +51,14 @@ public class FileStorageAutoConfiguration implements WebMvcConfigurer {
 
 
     /**
-     * 配置本地存储的访问地址。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 为启用了访问映射的本地平台注册 HTTP 资源路径。
+     * @param registry Spring MVC 资源处理器注册表
+     * @return
+     * 返回值: void
+     * 返回值说明: 添加路径模式与本地资源位置的映射
      */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -57,7 +70,13 @@ public class FileStorageAutoConfiguration implements WebMvcConfigurer {
     }
 
     /**
-     * 本地存储 Bean。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 读取 本地磁盘 配置并初始化已启用的存储实例。
+     * @return
+     * 返回值: List<LocalFileStorage>
+     * 返回值说明: 当前配置中启用的 本地磁盘 存储实例列表
      */
     @Bean
     public List<LocalFileStorage> localFileStorageList() {
@@ -73,7 +92,13 @@ public class FileStorageAutoConfiguration implements WebMvcConfigurer {
     }
 
     /**
-     * 华为云 OBS 存储 Bean。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 读取 华为云 OBS 配置并初始化已启用的存储实例。
+     * @return
+     * 返回值: List<HuaweiObsFileStorage>
+     * 返回值说明: 当前配置中启用的 华为云 OBS 存储实例列表
      */
     @Bean
     @ConditionalOnClass(name = "com.obs.services.ObsClient")
@@ -94,7 +119,13 @@ public class FileStorageAutoConfiguration implements WebMvcConfigurer {
     }
 
     /**
-     * 阿里云 OSS 存储 Bean。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 读取 阿里云 OSS 配置并初始化已启用的存储实例。
+     * @return
+     * 返回值: List<AliyunOssFileStorage>
+     * 返回值说明: 当前配置中启用的 阿里云 OSS 存储实例列表
      */
     @Bean
     @ConditionalOnClass(name = "com.aliyun.oss.OSS")
@@ -115,7 +146,13 @@ public class FileStorageAutoConfiguration implements WebMvcConfigurer {
     }
 
     /**
-     * 七牛云 Kodo 存储 Bean。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 读取 七牛云 Kodo 配置并初始化已启用的存储实例。
+     * @return
+     * 返回值: List<QiniuKodoFileStorage>
+     * 返回值说明: 当前配置中启用的 七牛云 Kodo 存储实例列表
      */
     @Bean
     @ConditionalOnClass(name = "com.qiniu.storage.UploadManager")
@@ -135,7 +172,13 @@ public class FileStorageAutoConfiguration implements WebMvcConfigurer {
     }
 
     /**
-     * 腾讯云 COS 存储 Bean。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 读取 腾讯云 COS 配置并初始化已启用的存储实例。
+     * @return
+     * 返回值: List<TencentCosFileStorage>
+     * 返回值说明: 当前配置中启用的 腾讯云 COS 存储实例列表
      */
     @Bean
     @ConditionalOnClass(name = "com.qcloud.cos.COSClient")
@@ -156,7 +199,13 @@ public class FileStorageAutoConfiguration implements WebMvcConfigurer {
     }
 
     /**
-     * 百度云 BOS 存储 Bean。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 读取 百度云 BOS 配置并初始化已启用的存储实例。
+     * @return
+     * 返回值: List<BaiduBosFileStorage>
+     * 返回值说明: 当前配置中启用的 百度云 BOS 存储实例列表
      */
     @Bean
     @ConditionalOnClass(name = "com.baidubce.services.bos.BosClient")
@@ -177,7 +226,13 @@ public class FileStorageAutoConfiguration implements WebMvcConfigurer {
     }
 
     /**
-     * 又拍云 USS 存储 Bean。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 读取 又拍云 USS 配置并初始化已启用的存储实例。
+     * @return
+     * 返回值: List<UpyunUssFileStorage>
+     * 返回值说明: 当前配置中启用的 又拍云 USS 存储实例列表
      */
     @Bean
     @ConditionalOnClass(name = "com.upyun.RestManager")
@@ -197,7 +252,13 @@ public class FileStorageAutoConfiguration implements WebMvcConfigurer {
     }
 
     /**
-     * MinIO 存储 Bean。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 读取 MinIO 配置并初始化已启用的存储实例。
+     * @return
+     * 返回值: List<MinIOFileStorage>
+     * 返回值说明: 当前配置中启用的 MinIO 存储实例列表
      */
     @Bean
     @ConditionalOnClass(name = "io.minio.MinioClient")
@@ -218,7 +279,13 @@ public class FileStorageAutoConfiguration implements WebMvcConfigurer {
     }
 
     /**
-     * AWS S3 存储 Bean。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 读取 AWS S3 配置并初始化已启用的存储实例。
+     * @return
+     * 返回值: List<AwsS3FileStorage>
+     * 返回值说明: 当前配置中启用的 AWS S3 存储实例列表
      */
     @Bean
     @ConditionalOnClass(name = "com.amazonaws.services.s3.AmazonS3")
@@ -240,7 +307,13 @@ public class FileStorageAutoConfiguration implements WebMvcConfigurer {
     }
 
     /**
-     * 没有 FileRecorder 实现时使用默认记录器。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 缺少其他记录器时，使用可脱离数据库运行的默认实现。
+     * @return
+     * 返回值: FileRecorder
+     * 返回值说明: 不持久化文件信息的默认记录器
      */
     @Bean
     @ConditionalOnMissingBean(FileRecorder.class)
@@ -250,7 +323,16 @@ public class FileStorageAutoConfiguration implements WebMvcConfigurer {
     }
 
     /**
-     * 文件存储服务。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 合并启用的存储平台并装配切面链和文件记录回调。
+     * @param fileRecorder 持久化或兜底记录器
+     * @param fileStorageLists 各平台已启用的存储实例列表
+     * @param aspectList 注册的文件操作切面
+     * @return
+     * 返回值: FileStorageService
+     * 返回值说明: 供文件管理和上传使用的服务
      */
     @Bean
     public FileStorageService fileStorageService(FileRecorder fileRecorder,
@@ -267,7 +349,13 @@ public class FileStorageAutoConfiguration implements WebMvcConfigurer {
     }
 
     /**
-     * 将 FileStorageService 代理对象注入到自身，确保切面方法生效。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 在 Spring 上下文刷新时找出文件存储服务 Bean 并记录其自引用。
+     * @return
+     * 返回值: void
+     * 返回值说明: 后续创建上传预处理时可继续调用 Spring 管理的服务实例
      */
     @EventListener(ContextRefreshedEvent.class)
     public void onContextRefreshedEvent() {
@@ -275,6 +363,15 @@ public class FileStorageAutoConfiguration implements WebMvcConfigurer {
         service.setSelf(service);
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 检查已经配置的云存储类型是否缺少对应 SDK。
+     * @return
+     * 返回值: void
+     * 返回值说明: 对缺少依赖的平台记录启动告警
+     */
     public void initDetect() {
         String template = "检测到{}配置，但没有找到对应依赖，无法加载该存储平台";
         if (CollUtil.isNotEmpty(properties.getHuaweiObs()) && doesNotExistClass("com.obs.services.ObsClient")) {
@@ -303,7 +400,14 @@ public class FileStorageAutoConfiguration implements WebMvcConfigurer {
         }
     }
     /**
-     * 判断是否不存在指定 Class
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 检查存储集成所需的指定类能否加载。
+     * @param name SDK 类型的完整类名
+     * @return
+     * 返回值: boolean
+     * 返回值说明: 仅在抛出 ClassNotFoundException 时返回 true
      */
     public static boolean doesNotExistClass(String name) {
         try {

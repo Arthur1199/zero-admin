@@ -27,9 +27,10 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * xxl-job config
  *
- * @author xuxueli 2017-04-28
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 装配调度中心的任务扫描、注册、派发、回调及监控组件，并协调其启动和停止。
  */
 
 @Slf4j
@@ -38,6 +39,15 @@ public class XxlJobAdminBootstrap implements InitializingBean, DisposableBean {
     // ---------------------- instance ----------------------
 
     private static final AtomicReference<XxlJobAdminBootstrap> adminConfig = new AtomicReference<>();
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 通过当前全局引用取得已经发布的调度中心组件。
+     * @return
+     * 返回值: XxlJobAdminBootstrap
+     * 返回值说明: 当前调度中心启动对象，尚未发布时返回 null
+     */
     public static XxlJobAdminBootstrap getInstance() {
         return adminConfig.get();
     }
@@ -102,8 +112,8 @@ public class XxlJobAdminBootstrap implements InitializingBean, DisposableBean {
 
     /**
      *
-     * 作者: xuxueli
-     * 时间: 2017/4/28
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
      * 说明: 按依赖顺序启动组件，先登记关闭动作，再启动工作线程。
      * @return
      * 返回值: void
@@ -145,9 +155,10 @@ public class XxlJobAdminBootstrap implements InitializingBean, DisposableBean {
 
     /**
      *
-     * 作者: xuxueli
-     * 时间: 2017/4/28
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
      * 说明: 在正常关停或启动回滚时关闭组件，某个组件失败仍继续清理其依赖。
+     *
      * 关闭期间暂存调用线程的中断标志，避免后续组件在等待工作线程退出时提前返回。
      * @param startupFailure 启动失败的原始异常，正常关停时为空
      * @return
@@ -192,8 +203,8 @@ public class XxlJobAdminBootstrap implements InitializingBean, DisposableBean {
 
     /**
      *
-     * 作者: xuxueli
-     * 时间: 2017/4/28
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
      * 说明: 按地址和应用复用执行器客户端，令牌或超时配置变化时替换旧客户端。
      * @param address 执行器 HTTP 地址
      * @param xxlJobGroup 当前执行器组配置
@@ -300,6 +311,15 @@ public class XxlJobAdminBootstrap implements InitializingBean, DisposableBean {
     private JobCompleter jobCompleter;
 
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 将控制台语言配置限制为已有语言资源。
+     * @return
+     * 返回值: String
+     * 返回值说明: 支持的语言标识，不受支持时返回 zh_CN
+     */
     public String getI18n() {
         if (!Arrays.asList("zh_CN", "zh_TC", "en").contains(i18n)) {
             return "zh_CN";
@@ -336,6 +356,15 @@ public class XxlJobAdminBootstrap implements InitializingBean, DisposableBean {
         return scheduleBatchSize;
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 确定调度日志清理保留天数。
+     * @return
+     * 返回值: int
+     * 返回值说明: 配置大于等于 3 时返回天数，其余情况返回 -1 表示关闭
+     */
     public int getLogretentiondays() {
         if (logretentiondays < 3) {
             return -1;  // Limit greater than or equal to 3, otherwise close

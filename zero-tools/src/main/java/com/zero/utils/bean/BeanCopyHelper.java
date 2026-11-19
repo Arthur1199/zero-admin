@@ -42,8 +42,9 @@ public class BeanCopyHelper {
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/16 23:16
+     * 时间: 2026/11/20 01:36
      * 说明: 使用Spring BeanUtils复制属性并创建目标对象
+     * @param <T> 当前方法处理的值类型
      * @param source 源对象，不能为空
      * @param targetClass 目标类型，必须有可实例化构造方式
      * @return
@@ -60,8 +61,9 @@ public class BeanCopyHelper {
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/16 23:16
+     * 时间: 2026/11/20 01:36
      * 说明: 使用Spring BeanUtils批量复制集合元素
+     * @param <T> 当前方法处理的值类型
      * @param sourceList 源对象集合，可为空
      * @param targetClass 目标类型，必须有可实例化构造方式
      * @return
@@ -102,8 +104,9 @@ public class BeanCopyHelper {
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/16 23:16
+     * 时间: 2026/11/20 01:36
      * 说明: 使用Hutool BeanUtil复制属性并创建目标对象
+     * @param <T> 当前方法处理的值类型
      * @param source 源对象，不能为空
      * @param targetClass 目标类型，必须有可实例化构造方式
      * @return
@@ -123,8 +126,9 @@ public class BeanCopyHelper {
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/16 23:16
+     * 时间: 2026/11/20 01:36
      * 说明: 使用Hutool BeanUtil批量复制集合元素
+     * @param <T> 当前方法处理的值类型
      * @param sourceList 源对象集合，可为空
      * @param targetClass 目标类型，必须有可实例化构造方式
      * @return

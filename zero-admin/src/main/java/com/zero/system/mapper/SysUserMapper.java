@@ -99,11 +99,11 @@ public interface SysUserMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 新增用户信息
      * @param user 用户信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：新增用户信息
      */
     public int insertUser(SysUser user);
@@ -111,11 +111,11 @@ public interface SysUserMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 修改用户信息
      * @param user 用户信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改用户信息
      */
     public int updateUser(SysUser user);
@@ -123,12 +123,12 @@ public interface SysUserMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 修改用户头像
      * @param userId 用户ID
      * @param avatar 头像地址
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改用户头像
      */
     public int updateUserAvatar(@Param("userId") Long userId, @Param("avatar") String avatar);
@@ -136,34 +136,38 @@ public interface SysUserMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 重置用户密码
      * @param userId 用户ID
      * @param password 密码
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：重置用户密码
      */
     public int resetUserPwd(@Param("userId") Long userId, @Param("password") String password);
 
     /**
-     * 修改用户登录锁定状态
      *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 修改用户登录锁定状态
      * @param userId 用户ID
      * @param loginLock 登录锁定状态
      * @param updateBy 更新者
-     * @return 结果
+     * @return
+     * 返回值: int
+     * 返回值说明: 登录锁定状态更新的用户记录数
      */
     public int updateUserLoginLock(@Param("userId") Long userId, @Param("loginLock") Integer loginLock, @Param("updateBy") String updateBy);
 
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 通过用户ID删除用户
      * @param userId 用户ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：通过用户ID删除用户
      */
     public int deleteUserById(Long userId);
@@ -171,11 +175,11 @@ public interface SysUserMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 批量删除用户信息
      * @param userIds 需要删除的用户ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：批量删除用户信息
      */
     public int deleteUserByIds(Long[] userIds);
@@ -195,11 +199,11 @@ public interface SysUserMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 校验用户名称是否唯一
      * @param userName 用户名称
      * @return
-     * 返回值: 结果
+     * 返回值: SysUser
      * 返回值说明：校验用户名称是否唯一
      */
     public SysUser checkUserNameUnique(String userName);
@@ -207,11 +211,11 @@ public interface SysUserMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 校验手机号码是否唯一
      * @param phonenumber 手机号码
      * @return
-     * 返回值: 结果
+     * 返回值: SysUser
      * 返回值说明：校验手机号码是否唯一
      */
     public SysUser checkPhoneUnique(String phonenumber);
@@ -219,11 +223,11 @@ public interface SysUserMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 校验email是否唯一
      * @param email 用户邮箱
      * @return
-     * 返回值: 结果
+     * 返回值: SysUser
      * 返回值说明：校验email是否唯一
      */
     public SysUser checkEmailUnique(String email);

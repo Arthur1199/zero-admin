@@ -122,11 +122,11 @@ public interface SysMenuMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 是否存在菜单子节点
      * @param menuId 菜单ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：是否存在菜单子节点
      */
     public int hasChildByMenuId(Long menuId);
@@ -134,11 +134,11 @@ public interface SysMenuMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 新增菜单信息
      * @param menu 菜单信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：新增菜单信息
      */
     public int insertMenu(SysMenu menu);
@@ -146,11 +146,11 @@ public interface SysMenuMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 修改菜单信息
      * @param menu 菜单信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改菜单信息
      */
     public int updateMenu(SysMenu menu);
@@ -158,11 +158,11 @@ public interface SysMenuMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 删除菜单管理信息
      * @param menuId 菜单ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：删除菜单管理信息
      */
     public int deleteMenuById(Long menuId);
@@ -170,12 +170,12 @@ public interface SysMenuMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 校验菜单名称是否唯一
      * @param menuName 菜单名称
      * @param parentId 父菜单ID
      * @return
-     * 返回值: 结果
+     * 返回值: SysMenu
      * 返回值说明：校验菜单名称是否唯一
      */
     public SysMenu checkMenuNameUnique(@Param("menuName") String menuName, @Param("parentId") Long parentId);

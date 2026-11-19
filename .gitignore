@@ -13,3 +13,4 @@ fileLocal/
 
 # IDE 本地配置与编译缓存
 .idea/
+/.playwright-cli/

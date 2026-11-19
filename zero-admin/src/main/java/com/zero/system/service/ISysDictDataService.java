@@ -63,11 +63,11 @@ public interface ISysDictDataService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 新增保存字典数据信息
      * @param dictData 字典数据信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：新增保存字典数据信息
      */
     public int insertDictData(SysDictData dictData);
@@ -75,11 +75,11 @@ public interface ISysDictDataService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 修改保存字典数据信息
      * @param dictData 字典数据信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改保存字典数据信息
      */
     public int updateDictData(SysDictData dictData);

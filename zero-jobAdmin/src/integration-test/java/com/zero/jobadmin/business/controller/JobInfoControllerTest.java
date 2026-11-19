@@ -13,6 +13,12 @@ import org.springframework.util.MultiValueMap;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 // 官方集成用例可能操作数据库或执行器，普通打包按标签排除。
+/**
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 通过 MockMvc 登录调度控制台，并使用登录会话调用新增任务接口。运行时会访问集成测试配置的数据源。
+ */
 @Slf4j
 @org.junit.jupiter.api.Tag("job-integration")
 public class JobInfoControllerTest extends AbstractSpringMvcTest {

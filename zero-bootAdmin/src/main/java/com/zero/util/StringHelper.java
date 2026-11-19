@@ -11,19 +11,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- *   
- * 
- * @Title: StringHelper.java
- * @Package com.jarvis.base.utils
- * @Description:
- * @author Jack 
- * @date 2017年9月2日 下午2:23:51
- * @version V1.0   字符串处理工具类。
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 提供监控模块使用的字符串判空、转换、文本处理及旧编码兼容方法。
+ * @version V1.0
  */
 public final class StringHelper {
 
 	/**
-	 * 描述： 构造方法
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 构造方法
 	 */
 	private StringHelper() {
 	}
@@ -89,13 +89,15 @@ public final class StringHelper {
 	public static final int HEX_FF = 0xff;
 
 	/**
-	 * 把字符数组，转化为一个字符
 	 *
-	 * @param seperator
-	 *            字符分隔符
-	 * @param strings
-	 *            数组对象
-	 * @return 字符串
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 把字符数组，转化为一个字符
+	 * @param seperator 字符分隔符
+	 * @param strings 数组对象
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 字符串
 	 */
 	public static String join(String seperator, String[] strings) {
 		int length = strings.length;
@@ -110,13 +112,15 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 把迭代对象转化为一个字符串
 	 *
-	 * @param seperator
-	 *            分隔符
-	 * @param objects
-	 *            迭代器对象
-	 * @return 字符串
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 把迭代对象转化为一个字符串
+	 * @param seperator 分隔符
+	 * @param objects 迭代器对象
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 字符串
 	 */
 	public static String join(String seperator, Iterator<?> objects) {
 		StringBuffer buf = new StringBuffer();
@@ -130,15 +134,16 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 把两个字符串数组的元素用分隔符连接，生成新的数组，生成的数组以第一个字符串数组为参照，与其长度相同。
 	 *
-	 * @param x
-	 *            字符串数组
-	 * @param seperator
-	 *            分隔符
-	 * @param y
-	 *            字符串数组
-	 * @return 组合后的字符串数组
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 把两个字符串数组的元素用分隔符连接，生成新的数组，生成的数组以第一个字符串数组为参照，与其长度相同。
+	 * @param x 字符串数组
+	 * @param seperator 分隔符
+	 * @param y 字符串数组
+	 * @return
+	 * 返回值: String[]
+	 * 返回值说明: 组合后的字符串数组
 	 */
 	public static String[] add(String[] x, String seperator, String[] y) {
 		String[] result = new String[x.length];
@@ -149,13 +154,15 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 生成一个重复的字符串，如需要重复*10次，则生成：**********。
 	 *
-	 * @param string
-	 *            重复元素
-	 * @param times
-	 *            重复次数
-	 * @return 生成后的字符串
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 生成一个重复的字符串，如需要重复*10次，则生成：**********。
+	 * @param string 重复元素
+	 * @param times 重复次数
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 生成后的字符串
 	 */
 	public static String repeat(String string, int times) {
 		StringBuffer buf = new StringBuffer(string.length() * times);
@@ -166,15 +173,16 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 字符串替换处理，把旧的字符串替换为新的字符串，主要是通过字符串查找进行处理
 	 *
-	 * @param source
-	 *            需要进行替换的字符串
-	 * @param old
-	 *            需要进行替换的字符串
-	 * @param replace
-	 *            替换成的字符串
-	 * @return 替换处理后的字符串
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 字符串替换处理，把旧的字符串替换为新的字符串，主要是通过字符串查找进行处理
+	 * @param source 需要进行替换的字符串
+	 * @param old 需要进行替换的字符串
+	 * @param replace 替换成的字符串
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 替换处理后的字符串
 	 */
 	public static String replace(String source, String old, String replace) {
 		StringBuffer output = new StringBuffer();
@@ -202,17 +210,17 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 替换字符，如果指定进行全替换，必须设wholeWords=true，否则只替换最后出现的字符。
 	 *
-	 * @param template
-	 *            字符模板
-	 * @param placeholder
-	 *            需要替换的字符
-	 * @param replacement
-	 *            新的字符
-	 * @param wholeWords
-	 *            是否需要全替换，true为需要，false为不需要。如果不需要，则只替换最后出现的字符。
-	 * @return 替换后的新字符
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 替换字符，如果指定进行全替换，必须设wholeWords=true，否则只替换最后出现的字符。
+	 * @param template 字符模板
+	 * @param placeholder 需要替换的字符
+	 * @param replacement 新的字符
+	 * @param wholeWords 是否需要全替换，true为需要，false为不需要。如果不需要，则只替换最后出现的字符。
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 替换后的新字符
 	 */
 	public static String replace(String template, String placeholder, String replacement, boolean wholeWords) {
 		int loc = template.indexOf(placeholder);
@@ -229,15 +237,16 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 替换字符，只替换第一次出现的字符串。
 	 *
-	 * @param template
-	 *            字符模板
-	 * @param placeholder
-	 *            需要替换的字符串
-	 * @param replacement
-	 *            新字符串
-	 * @return 替换后的字符串
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 替换字符，只替换第一次出现的字符串。
+	 * @param template 字符模板
+	 * @param placeholder 需要替换的字符串
+	 * @param replacement 新字符串
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 替换后的字符串
 	 */
 	public static String replaceOnce(String template, String placeholder, String replacement) {
 		int loc = template.indexOf(placeholder);
@@ -250,28 +259,31 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 把字符串，按指字的分隔符分隔为字符串数组
 	 *
-	 * @param seperators
-	 *            分隔符
-	 * @param list
-	 *            字符串
-	 * @return 字符串数组
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 把字符串，按指字的分隔符分隔为字符串数组
+	 * @param list 字符串
+	 * @param seperators 分隔符
+	 * @return
+	 * 返回值: String[]
+	 * 返回值说明: 字符串数组
 	 */
 	public static String[] split(String list, String seperators) {
 		return split(list, seperators, false);
 	}
 
 	/**
-	 * 把字符串，按指字的分隔符分隔为字符串数组
 	 *
-	 * @param seperators
-	 *            分隔符
-	 * @param list
-	 *            字符串
-	 * @param include
-	 *            是否需要把分隔符也返回
-	 * @return 字符串数组
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 把字符串，按指字的分隔符分隔为字符串数组
+	 * @param list 字符串
+	 * @param seperators 分隔符
+	 * @param include 是否需要把分隔符也返回
+	 * @return
+	 * 返回值: String[]
+	 * 返回值说明: 字符串数组
 	 */
 	public static String[] split(String list, String seperators, boolean include) {
 		StringTokenizer tokens = new StringTokenizer(list, seperators, include);
@@ -284,35 +296,43 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 提取字符串中，以.为分隔符后的所有字符，如string.exe，将返回exe。
 	 *
-	 * @param qualifiedName
-	 *            字符串
-	 * @return 提取后的字符串
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 提取字符串中，以.为分隔符后的所有字符，如string.exe，将返回exe。
+	 * @param qualifiedName 字符串
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 提取后的字符串
 	 */
 	public static String unqualify(String qualifiedName) {
 		return unqualify(qualifiedName, ".");
 	}
 
 	/**
-	 * 提取字符串中，以指定分隔符后的所有字符，如string.exe，将返回exe。
 	 *
-	 * @param qualifiedName
-	 *            字符串
-	 * @param seperator
-	 *            分隔符
-	 * @return 提取后的字符串
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 提取字符串中，以指定分隔符后的所有字符，如string.exe，将返回exe。
+	 * @param qualifiedName 字符串
+	 * @param seperator 分隔符
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 提取后的字符串
 	 */
 	public static String unqualify(String qualifiedName, String seperator) {
 		return qualifiedName.substring(qualifiedName.lastIndexOf(seperator) + 1);
 	}
 
 	/**
-	 * 提取字符串中，以.为分隔符以前的字符，如string.exe，则返回string
 	 *
-	 * @param qualifiedName
-	 *            字符串
-	 * @return 提取后的字符串
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 提取字符串中，以.为分隔符以前的字符，如string.exe，则返回string
+	 * @param qualifiedName 字符串
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 提取后的字符串
 	 */
 	public static String qualifier(String qualifiedName) {
 		int loc = qualifiedName.lastIndexOf(".");
@@ -324,13 +344,15 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 向字符串数组中的所有元素添加上后缀
 	 *
-	 * @param columns
-	 *            字符串数组
-	 * @param suffix
-	 *            后缀
-	 * @return 添加后缀后的数组
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 向字符串数组中的所有元素添加上后缀
+	 * @param columns 字符串数组
+	 * @param suffix 后缀
+	 * @return
+	 * 返回值: String[]
+	 * 返回值说明: 添加后缀后的数组
 	 */
 	public static String[] suffix(String[] columns, String suffix) {
 		if (suffix == null) {
@@ -344,26 +366,30 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 向字符串加上后缀
 	 *
-	 * @param name
-	 *            需要添加后缀的字符串
-	 * @param suffix
-	 *            后缀
-	 * @return 添加后缀的字符串
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 向字符串加上后缀
+	 * @param name 需要添加后缀的字符串
+	 * @param suffix 后缀
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 添加后缀的字符串
 	 */
 	public static String suffix(String name, String suffix) {
 		return (suffix == null) ? name : name + suffix;
 	}
 
 	/**
-	 * 向字符串数组中的所有元素，添加上前缀
 	 *
-	 * @param columns
-	 *            需要添加前缀的字符串数组
-	 * @param prefix
-	 *            prefix
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 向字符串数组中的所有元素，添加上前缀
+	 * @param columns 需要添加前缀的字符串数组
+	 * @param prefix prefix
 	 * @return
+	 * 返回值: String[]
+	 * 返回值说明: 按上述规则处理后的字符串集合
 	 */
 	public static String[] prefix(String[] columns, String prefix) {
 		if (prefix == null) {
@@ -377,24 +403,29 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 向字符串添加上前缀
 	 *
-	 * @param name
-	 *            需要添加前缀的字符串
-	 * @param prefix
-	 *            前缀
-	 * @return 添加前缀后的字符串
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 向字符串添加上前缀
+	 * @param name 需要添加前缀的字符串
+	 * @param prefix 前缀
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 添加前缀后的字符串
 	 */
 	public static String prefix(String name, String prefix) {
 		return (prefix == null) ? name : prefix + name;
 	}
 
 	/**
-	 * 判断字符串是否为"true"、"t"，如果是，返回true，否则返回false
 	 *
-	 * @param tfString
-	 *            需要进行判断真/假的字符串
-	 * @return true/false
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 判断字符串是否为"true"、"t"，如果是，返回true，否则返回false
+	 * @param tfString 需要进行判断真/假的字符串
+	 * @return
+	 * 返回值: boolean
+	 * 返回值说明: true/false
 	 */
 	public static boolean booleanValue(String tfString) {
 		String trimmed = tfString.trim().toLowerCase();
@@ -402,11 +433,14 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 把对象数组转化为字符串
 	 *
-	 * @param array
-	 *            对象数组
-	 * @return 字符串
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 把对象数组转化为字符串
+	 * @param array 对象数组
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 字符串
 	 */
 	public static String toString(Object[] array) {
 		int len = array.length;
@@ -421,15 +455,16 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 描述：把数组中的所有元素出现的字符串进行替换，把旧字符串替换为新字符数组的所有元素，只替换第一次出现的字符。
-	 * 
-	 * @param string
-	 *            需要替换的数组
-	 * @param placeholders
-	 *            需要替换的字符串
-	 * @param replacements
-	 *            新字符串数组
-	 * @return 替换后的字符串数组
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 把数组中的所有元素出现的字符串进行替换，把旧字符串替换为新字符数组的所有元素，只替换第一次出现的字符。
+	 * @param string 需要替换的数组
+	 * @param placeholders 需要替换的字符串
+	 * @param replacements 新字符串数组
+	 * @return
+	 * 返回值: String[]
+	 * 返回值说明: 替换后的字符串数组
 	 */
 	public static String[] multiply(String string, Iterator<?> placeholders, Iterator<?> replacements) {
 		String[] result = new String[] { string };
@@ -440,15 +475,16 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 把数组中的所有元素出现的字符串进行替换，把旧字符串替换为新字符数组的所有元素，只替换第一次出现的字符。
 	 *
-	 * @param strings
-	 *            需要替换的数组
-	 * @param placeholder
-	 *            需要替换的字符串
-	 * @param replacements
-	 *            新字符串数组
-	 * @return 替换后的字符串数组
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 把数组中的所有元素出现的字符串进行替换，把旧字符串替换为新字符数组的所有元素，只替换第一次出现的字符。
+	 * @param strings 需要替换的数组
+	 * @param placeholder 需要替换的字符串
+	 * @param replacements 新字符串数组
+	 * @return
+	 * 返回值: String[]
+	 * 返回值说明: 替换后的字符串数组
 	 */
 	private static String[] multiply(String[] strings, String placeholder, String[] replacements) {
 		String[] results = new String[replacements.length * strings.length];
@@ -462,13 +498,15 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 统计Char在字符串中出现在次数，如"s"在字符串"string"中出现的次数
 	 *
-	 * @param string
-	 *            字符串
-	 * @param character
-	 *            需要进行统计的char
-	 * @return 数量
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 统计Char在字符串中出现在次数，如"s"在字符串"string"中出现的次数
+	 * @param string 字符串
+	 * @param character 需要进行统计的char
+	 * @return
+	 * 返回值: int
+	 * 返回值说明: 数量
 	 */
 	public static int count(String string, char character) {
 		int n = 0;
@@ -481,13 +519,15 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 描述：计算字符串中未引用的字符
-	 * 
-	 * @param string
-	 *            字符串
-	 * @param character
-	 *            字符
-	 * @return 未引用的字符数
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 计算字符串中未引用的字符
+	 * @param string 字符串
+	 * @param character 字符
+	 * @return
+	 * 返回值: int
+	 * 返回值说明: 未引用的字符数
 	 */
 	public static int countUnquoted(String string, char character) {
 		if (SINGLE_QUOTE == character) {
@@ -512,12 +552,14 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 
-	 * 描述：描述：判断字符串是否为空，如果为true则为空。与isEmpty不同，如果字符为" "也视为空字符
-	 * 
-	 * @param str
-	 *            字符串
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 描述：判断字符串是否为空，如果为true则为空。与isEmpty不同，如果字符为" "也视为空字符
+	 * @param str 字符串
 	 * @return
+	 * 返回值: boolean
+	 * 返回值说明: 符合上述判断条件时返回 true
 	 */
 	public static boolean isBlank(String str) {
 		boolean b = true;// 20140507 modify by liwei 修复对" "为false的bug
@@ -541,12 +583,14 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 
-	 * 描述：描述：判断字符串是否为空，如果为true则不为空。与isNotEmpty不同，如果字符为" "也视为空字符
-	 * 
-	 * @param str
-	 *            字符串
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 描述：判断字符串是否为空，如果为true则不为空。与isNotEmpty不同，如果字符为" "也视为空字符
+	 * @param str 字符串
 	 * @return
+	 * 返回值: boolean
+	 * 返回值说明: 符合上述判断条件时返回 true
 	 */
 	public static boolean isNotBlank(String str) {
 		int strLen = 0;
@@ -565,22 +609,28 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 判断字符串是否非空，如果为true则不为空
 	 *
-	 * @param string
-	 *            字符串
-	 * @return true/false
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 判断字符串是否非空，如果为true则不为空
+	 * @param string 字符串
+	 * @return
+	 * 返回值: boolean
+	 * 返回值说明: true/false
 	 */
 	public static boolean isNotEmpty(String string) {
 		return string != null && string.length() > 0;
 	}
 
 	/**
-	 * 判断字符串是否空，如果为true则为空
 	 *
-	 * @param str
-	 *            字符串
-	 * @return true/false
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 判断字符串是否空，如果为true则为空
+	 * @param str 字符串
+	 * @return
+	 * 返回值: boolean
+	 * 返回值说明: true/false
 	 */
 
 	public static boolean isEmpty(String str) {
@@ -591,13 +641,15 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 向字符串添加上前缀，并以.作为分隔符
 	 *
-	 * @param name
-	 *            需要添加前缀的字符串
-	 * @param prefix
-	 *            前缀
-	 * @return 添加前缀后的字符串
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 向字符串添加上前缀，并以.作为分隔符
+	 * @param name 需要添加前缀的字符串
+	 * @param prefix 前缀
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 添加前缀后的字符串
 	 */
 	public static String qualify(String name, String prefix) {
 		if (name.startsWith("'")) {
@@ -608,13 +660,15 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 向字符串数组中的所有字符添加上前缀，前以点作为分隔符
 	 *
-	 * @param names
-	 *            字符串数组
-	 * @param prefix
-	 *            前缀
-	 * @return 添加前缀后的字符串数组
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 向字符串数组中的所有字符添加上前缀，前以点作为分隔符
+	 * @param names 字符串数组
+	 * @param prefix 前缀
+	 * @return
+	 * 返回值: String[]
+	 * 返回值说明: 添加前缀后的字符串数组
 	 */
 	public static String[] qualify(String[] names, String prefix) {
 		if (prefix == null) {
@@ -629,15 +683,16 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 在字符串中，查找字符第一次出现的位置
 	 *
-	 * @param sqlString
-	 *            原字符串
-	 * @param string
-	 *            需要查找到字符串
-	 * @param startindex
-	 *            开始位置
-	 * @return 第一个出现的位置
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 在字符串中，查找字符第一次出现的位置
+	 * @param sqlString 原字符串
+	 * @param string 需要查找到字符串
+	 * @param startindex 开始位置
+	 * @return
+	 * 返回值: int
+	 * 返回值说明: 第一个出现的位置
 	 */
 	public static int firstIndexOfChar(String sqlString, String string, int startindex) {
 		int matchAt = -1;
@@ -655,16 +710,18 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 从字符串中提取指字长度的字符。区分中英文。<br>
-	 * 如果需要加省略号，则将在指定长度上少取3个字符宽度，末尾加上"......"。
 	 *
-	 * @param string
-	 *            字符串
-	 * @param length
-	 *            要取的字符长度，此为中文长度，英文仅当作半个字符。
-	 * @param appendSuspensionPoints
-	 *            是否需要加省略号
-	 * @return 提取后的字符串
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 从字符串中提取指字长度的字符。区分中英文。<br>
+	 *
+	 * 如果需要加省略号，则将在指定长度上少取3个字符宽度，末尾加上"......"。
+	 * @param string 字符串
+	 * @param length 要取的字符长度，此为中文长度，英文仅当作半个字符。
+	 * @param appendSuspensionPoints 是否需要加省略号
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 提取后的字符串
 	 */
 	public static String truncate(String string, int length, boolean appendSuspensionPoints) {
 		if (isEmpty(string) || length < 0) {
@@ -719,11 +776,14 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 描述：判断一个字符是Ascill字符还是其它字符（如汉，日，韩文字符）
-	 * 
-	 * @param c
-	 *            需要判断的字符
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 判断一个字符是Ascill字符还是其它字符（如汉，日，韩文字符）
+	 * @param c 需要判断的字符
 	 * @return
+	 * 返回值: boolean
+	 * 返回值说明: 符合上述判断条件时返回 true
 	 */
 	public static boolean isLetter(char c) {
 		int k = HEX_80;
@@ -731,11 +791,14 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 得到一个字符串的长度,显示的长度,一个汉字或日韩文长度为2,英文字符长度为1
 	 *
-	 * @param s
-	 *            ,需要得到长度的字符串
-	 * @return int, 得到的字符串长度
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 得到一个字符串的长度,显示的长度,一个汉字或日韩文长度为2,英文字符长度为1
+	 * @param s ,需要得到长度的字符串
+	 * @return
+	 * 返回值: int
+	 * 返回值说明: int, 得到的字符串长度
 	 */
 	public static int byteLength(String s) {
 		char[] c = s.toCharArray();
@@ -751,13 +814,15 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 从字符串中提取指字长度的字符
 	 *
-	 * @param string
-	 *            字符串
-	 * @param length
-	 *            字符长度
-	 * @return 提取后的字符串
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 从字符串中提取指字长度的字符
+	 * @param string 字符串
+	 * @param length 字符长度
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 提取后的字符串
 	 */
 	public static String truncate(String string, int length) {
 		if (isEmpty(string)) {
@@ -772,11 +837,14 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 去丢字符的左侧空格
 	 *
-	 * @param value
-	 *            字符串
-	 * @return 去丢左侧空格后的字符串
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 去丢字符的左侧空格
+	 * @param value 字符串
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 去丢左侧空格后的字符串
 	 */
 	public static String leftTrim(String value) {
 		String result = value;
@@ -799,11 +867,14 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 去丢字符的右侧空格
 	 *
-	 * @param value
-	 *            字符串
-	 * @return 去右侧空格后的字符串
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 去丢字符的右侧空格
+	 * @param value 字符串
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 去右侧空格后的字符串
 	 */
 	public static String rightTrim(String value) {
 		String result = value;
@@ -826,35 +897,43 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 把null字符串转化为""
 	 *
-	 * @param source
-	 *            空字符串
-	 * @return 转化后的字符串
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 把null字符串转化为""
+	 * @param source 空字符串
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 转化后的字符串
 	 */
 	public static String n2s(String source) {
 		return source != null ? source : "";
 	}
 
 	/**
-	 * 如果字符串为空，则返回默认字符串
 	 *
-	 * @param source
-	 *            源字符串
-	 * @param defaultStr
-	 *            默认字符串
-	 * @return 转换后的字符串
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 如果字符串为空，则返回默认字符串
+	 * @param source 源字符串
+	 * @param defaultStr 默认字符串
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 转换后的字符串
 	 */
 	public static String n2s(String source, String defaultStr) {
 		return source != null ? source : defaultStr;
 	}
 
 	/**
-	 * 将字符串格式化成 HTML 以SCRIPT变量 主要是替换单,双引号，以将内容格式化输出，适合于 HTML 中的显示输出
 	 *
-	 * @param str
-	 *            要格式化的字符串
-	 * @return 格式化后的字符串
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 将字符串格式化成 HTML 以SCRIPT变量 主要是替换单,双引号，以将内容格式化输出，适合于 HTML 中的显示输出
+	 * @param str 要格式化的字符串
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 格式化后的字符串
 	 */
 	public static String toScript(String str) {
 		if (str == null) {
@@ -878,24 +957,29 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 同于String#trim()，但是检测null，如果原字符串为null，则仍然返回null
 	 *
-	 * @param s
-	 *            s
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 同于String#trim()，但是检测null，如果原字符串为null，则仍然返回null
+	 * @param s s
 	 * @return
+	 * 返回值: String
+	 * 返回值说明: 按上述规则处理后的文本
 	 */
 	public static String trim(String s) {
 		return s == null ? s : s.trim();
 	}
 
 	/**
-	 * 对字符串进行空格处理，如果字符串为null呀是空字符串， 则返回默认的数字。
 	 *
-	 * @param source
-	 *            需要进行处理的字符串
-	 * @param defaultValue
-	 *            缺省值
-	 * @return 字符串的数字值
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 对字符串进行空格处理，如果字符串为null呀是空字符串， 则返回默认的数字。
+	 * @param source 需要进行处理的字符串
+	 * @param defaultValue 缺省值
+	 * @return
+	 * 返回值: int
+	 * 返回值说明: 字符串的数字值
 	 */
 	public static int strTrim(String source, int defaultValue) {
 		if (isEmpty(source)) {
@@ -913,13 +997,15 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 对字符串进行过滤处理，如果字符串是null或为空字符串， 返回默认值。
 	 *
-	 * @param source
-	 *            需要进行处理的字符串
-	 * @param defaultValue
-	 *            缺省值
-	 * @return 过滤后的字符串
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 对字符串进行过滤处理，如果字符串是null或为空字符串， 返回默认值。
+	 * @param source 需要进行处理的字符串
+	 * @param defaultValue 缺省值
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 过滤后的字符串
 	 */
 	public static String strTrim(String source, String defaultValue) {
 		if (StringHelper.isEmpty(source)) {
@@ -936,10 +1022,14 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 描述：为了防止跨站脚本攻击，转换<>这种尖括号。
-	 * 
-	 * @param source
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 为了防止跨站脚本攻击，转换<>这种尖括号。
+	 * @param source 待处理的输入内容
 	 * @return
+	 * 返回值: String
+	 * 返回值说明: 按上述规则处理后的文本
 	 */
 	public static String encodeURL(String source) {
 		if (source == null) {
@@ -966,11 +1056,14 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 把字符串中一些特定的字符转换成html字符，如&、<、>、"号等
 	 *
-	 * @param source
-	 *            需要进行处理的字符串
-	 * @return 处理后的字符串
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 把字符串中一些特定的字符转换成html字符，如&、<、>、"号等
+	 * @param source 需要进行处理的字符串
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 处理后的字符串
 	 */
 	public static String encodeHtml(String source) {
 		if (source == null) {
@@ -989,11 +1082,14 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 把一些html的字符串还原
 	 *
-	 * @param source
-	 *            需要进行处理的字符串
-	 * @return 处理后的字符串
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 把一些html的字符串还原
+	 * @param source 需要进行处理的字符串
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 处理后的字符串
 	 */
 	public static String decodeHtml(String source) {
 		if (source == null) {
@@ -1017,11 +1113,14 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 判断字符串是否为布尔值，如true/false等
 	 *
-	 * @param source
-	 *            需要进行判断的字符串
-	 * @return 返回字符串的布尔值
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 判断字符串是否为布尔值，如true/false等
+	 * @param source 需要进行判断的字符串
+	 * @return
+	 * 返回值: boolean
+	 * 返回值说明: 返回字符串的布尔值
 	 */
 	public static boolean isBoolean(String source) {
 		if (source.equalsIgnoreCase("true") || source.equalsIgnoreCase("false")) {
@@ -1031,13 +1130,15 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 去除字符串中的最后字符
 	 *
-	 * @param str
-	 *            原字符串
-	 * @param strMove
-	 *            要去除字符 比如","
-	 * @return 去除后的字符串
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 去除字符串中的最后字符
+	 * @param str 原字符串
+	 * @param strMove 要去除字符 比如","
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 去除后的字符串
 	 */
 	public static String lastCharTrim(String str, String strMove) {
 		if (isEmpty(str)) {
@@ -1052,11 +1153,14 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 清除字符串里的html代码
 	 *
-	 * @param html
-	 *            需要进行处理的字符串
-	 * @return 清除html后的代码
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 清除字符串里的html代码
+	 * @param html 需要进行处理的字符串
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 清除html后的代码
 	 */
 	public static String clearHtml(String html) {
 		if (isEmpty(html)) {
@@ -1099,11 +1203,14 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 把文杯格式转换为html格式
 	 *
-	 * @param content
-	 *            转换的内容
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 把文杯格式转换为html格式
+	 * @param content 转换的内容
 	 * @return
+	 * 返回值: String
+	 * 返回值说明: 按上述规则处理后的文本
 	 */
 	public static String textFmtToHtmlFmt(String content) {
 		content = StringHelper.replace(content, " ", "&nbsp;");
@@ -1114,12 +1221,14 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 
-	 * 描述：大写英文字母转换成小写
-	 * 
-	 * @param strIn
-	 *            字符串参数
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 大写英文字母转换成小写
+	 * @param strIn 字符串参数
 	 * @return
+	 * 返回值: String
+	 * 返回值说明: 按上述规则处理后的文本
 	 */
 	public static String toLowerStr(String strIn) {
 		String strOut = new String(); // 输出的字串
@@ -1141,12 +1250,14 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 
-	 * 描述：小写英文字母转换成大写
-	 * 
-	 * @param strIn
-	 *            字符串参数
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 小写英文字母转换成大写
+	 * @param strIn 字符串参数
 	 * @return
+	 * 返回值: String
+	 * 返回值说明: 按上述规则处理后的文本
 	 */
 	public static String toUpperStr(String strIn) {
 		String strOut = new String(); // 输出的字串
@@ -1168,10 +1279,14 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 货币缩写,提供亿和万两个单位，并精确到小数点2位 切换到新的算法:对数算法
-	 * 
-	 * @param original
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 将超过亿或万的正数按相应单位展示，缩写时保留两位小数。
+	 * @param original 要显示的原始金额文本
 	 * @return
+	 * 返回值: String
+	 * 返回值说明: 货币显示文本，空白输入或解析失败时返回空字符串
 	 */
 	public static String currencyShortFor(String original) {
 		if (StringHelper.isBlank(original)) {
@@ -1202,11 +1317,14 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 将日期格式由yyyyMMdd装换为yyyy-MM-dd
-	 * 
-	 * @param date
-	 *            Date string whose format is yyyyMMdd.
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 将日期格式由yyyyMMdd装换为yyyy-MM-dd
+	 * @param date Date string whose format is yyyyMMdd.
 	 * @return
+	 * 返回值: String
+	 * 返回值说明: 按上述规则处理后的文本
 	 */
 	public static String formatDate(String date) {
 		if (isBlank(date) || date.length() < 8) {
@@ -1222,11 +1340,14 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 判断是否为整数
-	 * 
-	 * @param str
-	 *            传入的字符串
-	 * @return 是整数返回true,否则返回false
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 判断是否为整数
+	 * @param str 传入的字符串
+	 * @return
+	 * 返回值: boolean
+	 * 返回值说明: 是整数返回true,否则返回false
 	 */
 	public static boolean isInteger(String str) {
 		Pattern pattern = Pattern.compile("^\\d+(\\.0)?$", Pattern.CASE_INSENSITIVE);
@@ -1235,14 +1356,15 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 用于=中英文混排标题中限定字符串长度。保证显示长度最多只相差一个全角字符。
-	 * 
-	 * @param string
-	 *            需要截取的字符串
-	 * @param byteCount
-	 *            字节数（度量标准为中文为两个字节，ASCII字符为一个字节,这样子，刚好匹配ASCII为半角字符，而中文为全角字符，
-	 *            保证在网页上中英文混合的句子长度一致）
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 用于=中英文混排标题中限定字符串长度。保证显示长度最多只相差一个全角字符。
+	 * @param string 需要截取的字符串
+	 * @param byteCount 字节数（度量标准为中文为两个字节，ASCII字符为一个字节,这样子，刚好匹配ASCII为半角字符，而中文为全角字符，            保证在网页上中英文混合的句子长度一致）
 	 * @return
+	 * 返回值: String
+	 * 返回值说明: 按上述规则处理后的文本
 	 * @throws UnsupportedEncodingException
 	 */
 	public static String substring(String string, int byteCount) throws UnsupportedEncodingException {
@@ -1279,13 +1401,15 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 描述：根据长度截断字串
-	 * 
-	 * @param str
-	 *            字串
-	 * @param length
-	 *            截取长度
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 根据长度截断字串
+	 * @param str 字串
+	 * @param length 截取长度
 	 * @return
+	 * 返回值: String[]
+	 * 返回值说明: 按上述规则处理后的字符串集合
 	 */
 	public static String[] splite(String str, int length) {
 		if (StringHelper.isEmpty(str)) {
@@ -1303,41 +1427,46 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 描述：把某一个字符变成大写
-	 * 
-	 * @param str
-	 *            str 字串
-	 * @param index
-	 *            第几个字符
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 把某一个字符变成大写
+	 * @param str str 字串
+	 * @param index 第几个字符
 	 * @return
+	 * 返回值: String
+	 * 返回值说明: 按上述规则处理后的文本
 	 */
 	public static String toUpOneChar(String str, int index) {
 		return toUpOrLowOneChar(str, index, 1);
 	}
 
 	/**
-	 * 描述：把某一个字符变成小写 作者：李建 时间：Dec 17, 2010 9:42:32 PM
-	 * 
-	 * @param str
-	 *            str 字串
-	 * @param index
-	 *            第几个字符
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 把某一个字符变成小写
+	 * @param str str 字串
+	 * @param index 第几个字符
 	 * @return
+	 * 返回值: String
+	 * 返回值说明: 按上述规则处理后的文本
 	 */
 	public static String toLowOneChar(String str, int index) {
 		return toUpOrLowOneChar(str, index, 0);
 	}
 
 	/**
-	 * 描述：把某一个字符变成大写或小写 作者：李建 时间：Dec 17, 2010 9:39:32 PM
-	 * 
-	 * @param str
-	 *            字串
-	 * @param index
-	 *            第几个字符
-	 * @param upOrLow
-	 *            大小写 1：大写；0小写
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 把某一个字符变成大写或小写
+	 * @param str 字串
+	 * @param index 第几个字符
+	 * @param upOrLow 大小写 1：大写；0小写
 	 * @return
+	 * 返回值: String
+	 * 返回值说明: 按上述规则处理后的文本
 	 */
 	public static String toUpOrLowOneChar(String str, int index, int upOrLow) {
 		if (StringHelper.isNotEmpty(str) && index > -1 && index < str.length()) {
@@ -1353,13 +1482,15 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 将字符串用分隔符断裂成字符串列表
-	 * 
-	 * @param value
-	 *            原字符串
-	 * @param separator
-	 *            分隔字符
-	 * @return 结果列表
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 将字符串用分隔符断裂成字符串列表
+	 * @param value 原字符串
+	 * @param separator 分隔字符
+	 * @return
+	 * 返回值: List<String>
+	 * 返回值说明: 结果列表
 	 */
 	public static List<String> split2List(String value, String separator) {
 		List<String> ls = new ArrayList<String>();
@@ -1374,13 +1505,15 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 将数组用分隔符连接成新字符串(split的逆方法)
-	 * 
-	 * @param strs
-	 *            字符串数组
-	 * @param sep
-	 *            分隔符
-	 * @return 结果字符串
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 将数组用分隔符连接成新字符串(split的逆方法)
+	 * @param strs 字符串数组
+	 * @param sep 分隔符
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 结果字符串
 	 */
 	public static String join(String[] strs, String sep) {
 		StringBuilder res = new StringBuilder();
@@ -1391,9 +1524,13 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 获得一个UUID
-	 * 
-	 * @return String UUID
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 获得一个UUID
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: String UUID
 	 */
 	public static String getUUID() {
 		String str = UUID.randomUUID().toString();// 标准的UUID格式为：xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxx(8-4-4-4-12)
@@ -1402,20 +1539,20 @@ public final class StringHelper {
 	}
 
 	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 例： String strVal="This is a dog"; String
+	 *
 	 * <pre>
-	 * 例： String strVal="This is a dog"; String
 	 * strResult=CTools.replace(strVal,"dog","cat"); 结果： strResult equals
 	 * "This is cat"
-	 *
-	 * @param strSrc
-	 *            要进行替换操作的字符串
-	 * @param strOld
-	 *            要查找的字符串
-	 * @param strNew
-	 *            要替换的字符串
-	 * @return 替换后的字符串
-	 * 
-	 *         <pre>
+	 * @param strSrc 要进行替换操作的字符串
+	 * @param strOld 要查找的字符串
+	 * @param strNew 要替换的字符串
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 替换后的字符串
 	 */
 	public static final String replaceAllStr(String strSrc, String strOld, String strNew) {
 		if (strSrc == null || strOld == null || strNew == null)
@@ -1452,12 +1589,16 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 用于将字符串中的特殊字符转换成Web页中可以安全显示的字符串 可对表单数据据进行处理对一些页面特殊字符进行处理如'
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 用于将字符串中的特殊字符转换成Web页中可以安全显示的字符串 可对表单数据据进行处理对一些页面特殊字符进行处理如'
+	 *
 	 * <','>','"',''','&'
-	 * 
-	 * @param strSrc
-	 *            要进行替换操作的字符串
-	 * @return 替换特殊字符后的字符串
+	 * @param strSrc 要进行替换操作的字符串
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 替换特殊字符后的字符串
 	 * @since 1.0
 	 */
 
@@ -1490,14 +1631,17 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 用于将字符串中的特殊字符转换成Web页中可以安全显示的字符串 可对表单数据据进行处理对一些页面特殊字符进行处理如'
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 用于将字符串中的特殊字符转换成Web页中可以安全显示的字符串 可对表单数据据进行处理对一些页面特殊字符进行处理如'
+	 *
 	 * <','>','"',''','&'
-	 * 
-	 * @param strSrc
-	 *            要进行替换操作的字符串
-	 * @param quotes
-	 *            为0时单引号和双引号都替换，为1时不替换单引号，为2时不替换双引号，为3时单引号和双引号都不替换
-	 * @return 替换特殊字符后的字符串
+	 * @param strSrc 要进行替换操作的字符串
+	 * @param quotes 为0时单引号和双引号都替换，为1时不替换单引号，为2时不替换双引号，为3时单引号和双引号都不替换
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 替换特殊字符后的字符串
 	 * @since 1.0
 	 */
 	public static String htmlEncode(String strSrc, int quotes) {
@@ -1532,11 +1676,14 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 和htmlEncode正好相反
-	 * 
-	 * @param strSrc
-	 *            要进行转换的字符串
-	 * @return 转换后的字符串
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 和htmlEncode正好相反
+	 * @param strSrc 要进行转换的字符串
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 转换后的字符串
 	 * @since 1.0
 	 */
 	public static String htmlDecode(String strSrc) {
@@ -1551,13 +1698,15 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 实际处理 return toChineseNoReplace(null2Blank(str));
-	 * 
-	 * @param str
-	 *            要进行处理的字符串
-	 * @return 转换后的字符串
-	 * @see fs_com.utils.CTools#toChinese
-	 * @see fs_com.utils.CTools#null2Blank
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 去除两端空白，将旧编码文本按 ISO-8859-1 字节重解码为 GBK 后进行 HTML 转义。
+	 * @param str 待解码的旧文本
+	 * @param quotes 传给 HTML 转义方法的引号处理选项
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 转义后的文本，输入为空或转换失败时返回空字符串
 	 */
 	public static String toChineseAndHtmlEncode(String str, int quotes) {
 		try {
@@ -1575,11 +1724,14 @@ public final class StringHelper {
 	}
 
 	/**
-	 * 把null值和""值转换成&nbsp; 主要应用于页面表格格的显示
-	 * 
-	 * @param str
-	 *            要进行处理的字符串
-	 * @return 转换后的字符串
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 把null值和""值转换成&nbsp; 主要应用于页面表格格的显示
+	 * @param str 要进行处理的字符串
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 转换后的字符串
 	 */
 	public static String str4Table(String str) {
 		if (str == null)

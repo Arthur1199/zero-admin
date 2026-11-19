@@ -4,12 +4,25 @@ import com.zero.utils.http.HttpClientHelper;
 
 /**
  *
- * ??: Arthur ??
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: ??: Arthur ??
+ *
  * ??: 2026/5/16 14:05
  * ??: HTTP??????????????????????????????
  */
 public class HttpTest {
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 用示例地址调用 HTTP GET。
+	 * @param args 命令行参数，示例不读取
+	 * @return
+	 * 返回值: void
+	 * 返回值说明: 输出示例请求返回内容
+	 */
 	public static void main(String[] args) {
 
 //		while(true) {

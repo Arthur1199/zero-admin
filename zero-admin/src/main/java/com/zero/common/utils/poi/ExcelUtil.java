@@ -595,12 +595,12 @@ public class ExcelUtil<T>
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 对list数据源将其里面的数据导入到excel表单
      * @param list 导出数据集合
      * @param sheetName 工作表的名称
      * @return
-     * 返回值: 结果
+     * 返回值: AjaxResult
      * 返回值说明：对list数据源将其里面的数据导入到excel表单
      */
     public AjaxResult exportExcel(List<T> list, String sheetName)
@@ -611,13 +611,13 @@ public class ExcelUtil<T>
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 对list数据源将其里面的数据导入到excel表单
      * @param list 导出数据集合
      * @param sheetName 工作表的名称
      * @param title 标题
      * @return
-     * 返回值: 结果
+     * 返回值: AjaxResult
      * 返回值说明：对list数据源将其里面的数据导入到excel表单
      */
     public AjaxResult exportExcel(List<T> list, String sheetName, String title)
@@ -629,14 +629,14 @@ public class ExcelUtil<T>
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 对list数据源将其里面的数据导入到excel表单
-     * @param response 返回数据
-     * @param list 导出数据集合
-     * @param sheetName 工作表的名称
+     * 时间: 2026/11/20 01:36
+     * 说明: 将列表导出为没有额外标题的 Excel 文件。
+     * @param response 下载响应
+     * @param list 待导出的数据
+     * @param sheetName 工作表名称
      * @return
-     * 返回值: 结果
-     * 返回值说明：对list数据源将其里面的数据导入到excel表单
+     * 返回值: void
+     * 返回值说明: 写入 HTTP 响应流
      */
     public void exportExcel(HttpServletResponse response, List<T> list, String sheetName)
     {
@@ -646,15 +646,15 @@ public class ExcelUtil<T>
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 对list数据源将其里面的数据导入到excel表单
-     * @param response 返回数据
-     * @param list 导出数据集合
-     * @param sheetName 工作表的名称
-     * @param title 标题
+     * 时间: 2026/11/20 01:36
+     * 说明: 按导出字段规则生成 Excel，设置下载响应内容类型后输出。
+     * @param response 下载响应
+     * @param list 待导出的数据
+     * @param sheetName 工作表名称
+     * @param title 工作表顶部标题，可为空
      * @return
-     * 返回值: 结果
-     * 返回值说明：对list数据源将其里面的数据导入到excel表单
+     * 返回值: void
+     * 返回值说明: 向响应流写入包含数据的工作簿
      */
     public void exportExcel(HttpServletResponse response, List<T> list, String sheetName, String title)
     {
@@ -667,11 +667,11 @@ public class ExcelUtil<T>
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 对list数据源将其里面的数据导入到excel表单
      * @param sheetName 工作表的名称
      * @return
-     * 返回值: 结果
+     * 返回值: AjaxResult
      * 返回值说明：对list数据源将其里面的数据导入到excel表单
      */
     public AjaxResult importTemplateExcel(String sheetName)
@@ -682,12 +682,12 @@ public class ExcelUtil<T>
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 对list数据源将其里面的数据导入到excel表单
      * @param sheetName 工作表的名称
      * @param title 标题
      * @return
-     * 返回值: 结果
+     * 返回值: AjaxResult
      * 返回值说明：对list数据源将其里面的数据导入到excel表单
      */
     public AjaxResult importTemplateExcel(String sheetName, String title)
@@ -699,13 +699,13 @@ public class ExcelUtil<T>
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 对list数据源将其里面的数据导入到excel表单
-     * @param response 响应参数
-     * @param sheetName 工作表的名称
+     * 时间: 2026/11/20 01:36
+     * 说明: 生成无额外标题的空白 Excel 导入模板。
+     * @param response 下载响应
+     * @param sheetName 工作表名称
      * @return
-     * 返回值: 结果
-     * 返回值说明：对list数据源将其里面的数据导入到excel表单
+     * 返回值: void
+     * 返回值说明: 将导入模板写入下载响应
      */
     public void importTemplateExcel(HttpServletResponse response, String sheetName)
     {
@@ -715,14 +715,14 @@ public class ExcelUtil<T>
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 对list数据源将其里面的数据导入到excel表单
-     * @param response 响应参数
-     * @param sheetName 工作表的名称
-     * @param title 标题
+     * 时间: 2026/11/20 01:36
+     * 说明: 按导入字段规则生成带表头的空白 Excel 模板。
+     * @param response 下载响应
+     * @param sheetName 工作表名称
+     * @param title 工作表顶部标题，可为空
      * @return
-     * 返回值: 结果
-     * 返回值说明：对list数据源将其里面的数据导入到excel表单
+     * 返回值: void
+     * 返回值说明: 将导入模板写入下载响应
      */
     public void importTemplateExcel(HttpServletResponse response, String sheetName, String title)
     {
@@ -735,12 +735,12 @@ public class ExcelUtil<T>
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 对list数据源将其里面的数据导入到excel表单
-     * @param response 响应参数
+     * 时间: 2026/11/20 01:36
+     * 说明: 将已初始化的工作簿写入 HTTP 响应，并在结束后关闭工作簿。
+     * @param response 用于写入 Excel 文件的 HTTP 响应
      * @return
-     * 返回值: 结果
-     * 返回值说明：对list数据源将其里面的数据导入到excel表单
+     * 返回值: void
+     * 返回值说明: 导出异常记录日志
      */
     public void exportExcel(HttpServletResponse response)
     {
@@ -762,10 +762,10 @@ public class ExcelUtil<T>
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 对list数据源将其里面的数据导入到excel表单
      * @return
-     * 返回值: 结果
+     * 返回值: AjaxResult
      * 返回值说明：对list数据源将其里面的数据导入到excel表单
      */
     public AjaxResult exportExcel()
@@ -1386,8 +1386,10 @@ public class ExcelUtil<T>
     }
 
     /**
-     * 设置 POI XSSFSheet 单元格提示或选择框
      *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 设置 POI XSSFSheet 单元格提示或选择框
      * @param sheet 表单
      * @param textlist 下拉框显示的内容
      * @param promptContent 提示内容
@@ -1395,6 +1397,9 @@ public class ExcelUtil<T>
      * @param endRow 结束行
      * @param firstCol 开始列
      * @param endCol 结束列
+     * @return
+     * 返回值: void
+     * 返回值说明: 设置 POI XSSFSheet 单元格提示或选择框
      */
     public void setPromptOrValidation(Sheet sheet, String[] textlist, String promptContent, int firstRow, int endRow,
             int firstCol, int endCol)

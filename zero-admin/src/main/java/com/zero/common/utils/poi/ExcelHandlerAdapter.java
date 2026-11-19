@@ -12,14 +12,17 @@ import org.apache.poi.ss.usermodel.Workbook;
 public interface ExcelHandlerAdapter
 {
     /**
-     * 格式化
      *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 格式化
      * @param value 单元格数据值
      * @param args excel注解args参数组
      * @param cell 单元格对象
      * @param wb 工作簿对象
-     *
-     * @return 处理后的值
+     * @return
+     * 返回值: Object
+     * 返回值说明: 处理后的值
      */
     Object format(Object value, String[] args, Cell cell, Workbook wb);
 }

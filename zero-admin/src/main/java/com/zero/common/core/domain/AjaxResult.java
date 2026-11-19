@@ -228,10 +228,10 @@ public class AjaxResult extends HashMap<String, Object>
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 是否为成功消息
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：是否为成功消息
      */
     public boolean isSuccess()
@@ -242,10 +242,10 @@ public class AjaxResult extends HashMap<String, Object>
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 是否为警告消息
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：是否为警告消息
      */
     public boolean isWarn()
@@ -256,10 +256,10 @@ public class AjaxResult extends HashMap<String, Object>
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 是否为错误消息
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：是否为错误消息
      */
     public boolean isError()

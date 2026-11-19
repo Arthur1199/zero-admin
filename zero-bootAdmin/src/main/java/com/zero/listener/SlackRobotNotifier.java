@@ -23,22 +23,34 @@ import de.codecentric.boot.admin.server.notify.AbstractStatusChangeNotifier;
 import reactor.core.publisher.Mono;
 
 /**
- * 作者: Jack
- * 时间: 2024年9月7日12:29:41
- * 说明: telegram机器人通知，自定义监控
  *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 按实例状态筛选 Boot Admin 事件，生成包含环境、实例及状态说明的 Slack 通知。
  */
 @Slf4j
 @Component
 public class SlackRobotNotifier extends AbstractStatusChangeNotifier {
 
 	
+  /** 状态过滤表，格式为来源状态:目标状态，过滤代码同时尝试匹配通配状态。 */
   private String[] ignoreChanges = new String[]{"UNKNOWN:UP","DOWN:UP","OFFLINE:UP"};
 
   public SlackRobotNotifier(InstanceRepository repository) {
     super(repository);
   }
 
+  /**
+   *
+   * 作者: Arthur 亚瑟
+   * 时间: 2026/11/20 01:36
+   * 说明: 仅对状态变更事件执行过滤，依次检查完整状态和含通配符的规则。
+   * @param event Boot Admin 实例事件
+   * @param instance 事件所属的实例
+   * @return
+   * 返回值: boolean
+   * 返回值说明: 当前事件是否进入通知处理
+   */
   @Override
   protected boolean shouldNotify(InstanceEvent event, Instance instance) {
     if (!(event instanceof InstanceStatusChangedEvent)) {
@@ -51,6 +63,17 @@ public class SlackRobotNotifier extends AbstractStatusChangeNotifier {
     }
   }
 
+  /**
+   *
+   * 作者: Arthur 亚瑟
+   * 时间: 2026/11/20 01:36
+   * 说明: 在响应式任务执行时将实例状态、环境和服务地址组装成 Slack 提醒。
+   * @param event Boot Admin 实例事件
+   * @param instance 提供服务名称、地址和状态详情的实例
+   * @return
+   * 返回值: Mono<Void>
+   * 返回值说明: 执行通知发送的任务，完成后无返回体
+   */
   @Override
   protected Mono<Void> doNotify(InstanceEvent event, Instance instance) {
     return Mono.fromRunnable(() -> {
@@ -129,11 +152,15 @@ public class SlackRobotNotifier extends AbstractStatusChangeNotifier {
     });
   }
 
-  /**
-	 * 作者:Jack 日期:2025年4月22日20:05:55
-	 * 
-	 * @param date
-	 * @return 返回值:String 返回值说明:时间格式化，北京时间
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 将通知时间转换为上海时区的展示文本。
+	 * @param date 实例通知使用的时间
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: yyyy-MM-dd HH:mm:ss 格式的时间字符串
 	 */
 	private String getDataStr(Date date) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

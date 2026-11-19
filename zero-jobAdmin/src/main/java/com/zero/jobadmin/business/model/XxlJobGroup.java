@@ -9,20 +9,27 @@ import java.util.List;
 
 /**
  *
- * 作者: xuxueli
- * 时间: 2016/9/30
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
  * 说明: 官方执行器配置，保留通信凭据读写，诊断输出不得包含AccessToken
  */
 public class XxlJobGroup {
 
+    /** 执行器组主键。 */
     private int id;
+    /** 与执行器注册请求匹配的应用名称。 */
     private String appname;
+    /** 调度控制台展示的执行器组名称。 */
     private String name;
 
-    private int addressType;        // 执行器地址类型：0=自动注册、1=手动录入
-    private String addressList;     // 执行器地址列表，多地址逗号分隔(手动录入)
+    /** 地址维护方式，0 为自动注册，1 为手工录入。 */
+    private int addressType;
+    /** 逗号分隔的地址快照，自动注册模式由注册监控刷新，手工模式使用维护值。 */
+    private String addressList;
 
+    /** 调度中心调用该执行器组使用的通信凭据，禁止写入日志。 */
     private String accessToken;
+    /** 执行器组记录最近更新时间。 */
     private Date updateTime;
 
     /**
@@ -96,10 +103,10 @@ public class XxlJobGroup {
 
     /**
      *
-     * 作者: xuxueli
-     * 时间: 2026/11/18 15:53
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
      * 说明: 供执行器缓存日志输出诊断信息，排除AccessToken以防通信凭据落入日志
-     * @return 不包含执行器通信凭据的对象说明
+     * @return
      * 返回值: String
      * 返回值说明: 仅包含执行器基础信息，不影响实际认证字段
      */

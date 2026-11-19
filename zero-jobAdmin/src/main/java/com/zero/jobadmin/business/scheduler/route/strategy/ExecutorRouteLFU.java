@@ -16,8 +16,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  *
- * 作者: xuxueli
- * 时间: 2017/3/10
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
  * 说明: 按任务选取累计使用次数最少的执行器节点。
  */
 public class ExecutorRouteLFU extends ExecutorRouter {

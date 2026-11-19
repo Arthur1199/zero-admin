@@ -12,7 +12,8 @@
 ///**
 // * http job bean
 // * “@DisallowConcurrentExecution” disable concurrent, thread size can not be only one, better given more
-// * @author xuxueli 2015-12-17 18:20:34
+// * 作者: Arthur 亚瑟
+// * 时间: 2026/11/20 01:36
 // */
 ////@DisallowConcurrentExecution
 //public class RemoteHttpJobBean extends QuartzJobBean {

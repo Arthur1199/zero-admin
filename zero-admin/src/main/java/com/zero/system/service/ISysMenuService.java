@@ -162,11 +162,11 @@ public interface ISysMenuService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 新增保存菜单信息
      * @param menu 菜单信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：新增保存菜单信息
      */
     public int insertMenu(SysMenu menu);
@@ -174,11 +174,11 @@ public interface ISysMenuService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 修改保存菜单信息
      * @param menu 菜单信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改保存菜单信息
      */
     public int updateMenu(SysMenu menu);
@@ -186,11 +186,11 @@ public interface ISysMenuService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 删除菜单管理信息
      * @param menuId 菜单ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：删除菜单管理信息
      */
     public int deleteMenuById(Long menuId);
@@ -198,11 +198,11 @@ public interface ISysMenuService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 校验菜单名称是否唯一
      * @param menu 菜单信息
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：校验菜单名称是否唯一
      */
     public boolean checkMenuNameUnique(SysMenu menu);

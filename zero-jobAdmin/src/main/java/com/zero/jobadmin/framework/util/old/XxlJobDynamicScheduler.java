@@ -34,7 +34,8 @@
 //
 ///**
 // * base quartz scheduler util
-// * @author xuxueli 2015-12-19 16:13:53
+// * 作者: Arthur 亚瑟
+// * 时间: 2026/11/20 01:36
 // */
 //public final class XxlJobDynamicScheduler {
 //    private static final Logger logger = LoggerFactory.getLogger(XxlJobDynamicScheduler_old.class);

@@ -62,11 +62,11 @@ public interface SysConfigMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 新增参数配置
      * @param config 参数配置信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：新增参数配置
      */
     public int insertConfig(SysConfig config);
@@ -74,11 +74,11 @@ public interface SysConfigMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 修改参数配置
      * @param config 参数配置信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改参数配置
      */
     public int updateConfig(SysConfig config);
@@ -86,11 +86,11 @@ public interface SysConfigMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 删除参数配置
      * @param configId 参数ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：删除参数配置
      */
     public int deleteConfigById(Long configId);
@@ -98,11 +98,11 @@ public interface SysConfigMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 批量删除参数信息
      * @param configIds 需要删除的参数ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：批量删除参数信息
      */
     public int deleteConfigByIds(Long[] configIds);

@@ -13,9 +13,9 @@ import static org.mockito.Mockito.*;
 
 /**
  *
- * 作者: Jack
- * 时间: 2026/11/18
- * 说明: 环境工具类边界回归，隔离静态上下文读取，不启动数据库、Redis或Nacos
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 验证管理后台部署环境识别的空值、匹配方式和容器生命周期边界，使用静态方法替身隔离真实应用。
  */
 class EnvironmentUtilTest {
 	/** 仅在当前测试线程生效，不改写用户的真实静态上下文字段。 */
@@ -27,12 +27,12 @@ class EnvironmentUtilTest {
 
 	/**
 	 *
-	 * 作者: Jack
-	 * 时间: 2026/11/18
-	 * 说明: 隔离上下文读取，避免测试依赖应用启动顺序
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 在每个测试前替换静态上下文读取，注入可单独设置 Profile 的 Spring 环境。
 	 * @return
 	 * 返回值: void
-	 * 返回值说明: 每个测试使用独立环境
+	 * 返回值说明: 建立当前测试专用的环境和上下文替身
 	 */
 	@BeforeEach
 	void setup() {
@@ -45,12 +45,12 @@ class EnvironmentUtilTest {
 
 	/**
 	 *
-	 * 作者: Jack
-	 * 时间: 2026/11/18
-	 * 说明: 释放静态方法替身，不影响其它测试或真实上下文
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 在每个测试结束后关闭静态替身。
 	 * @return
 	 * 返回值: void
-	 * 返回值说明: 解除当前线程的静态调用拦截
+	 * 返回值说明: 解除当前线程对上下文读取方法的拦截
 	 */
 	@AfterEach
 	void cleanup() {
@@ -59,12 +59,12 @@ class EnvironmentUtilTest {
 
 	/**
 	 *
-	 * 作者: Jack
-	 * 时间: 2026/11/18
-	 * 说明: Spring尚未提供上下文时不能出现空指针或误判为开发环境
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 验证静态上下文尚未注入时的环境识别结果。
 	 * @return
 	 * 返回值: void
-	 * 返回值说明: 三种环境判断全部为false
+	 * 返回值说明: 断言开发、测试和生产判断均为 false
 	 */
 	@Test
 	void missingContextDoesNotThrowOrGuessEnvironment() {
@@ -76,12 +76,12 @@ class EnvironmentUtilTest {
 
 	/**
 	 *
-	 * 作者: Jack
-	 * 时间: 2026/11/18
-	 * 说明: 不完整上下文没有Environment时安全返回，不读取其它全局配置兜底
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 模拟已有上下文却无法取得 Spring 环境的情况。
 	 * @return
 	 * 返回值: void
-	 * 返回值说明: 不发生空指针
+	 * 返回值说明: 断言各环境判断安全返回 false
 	 */
 	@Test
 	void missingEnvironmentReturnsFalse() {
@@ -93,12 +93,12 @@ class EnvironmentUtilTest {
 
 	/**
 	 *
-	 * 作者: Jack
-	 * 时间: 2026/11/18
-	 * 说明: 部署环境与功能profile同时激活时仍能识别，多个环境名不推断优先级
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 验证功能 Profile 与部署 Profile 可并存，多个部署 Profile 可同时命中。
 	 * @return
 	 * 返回值: void
-	 * 返回值说明: dev与附加profile共存可识别，同时激活三个环境名时三个方法均为true
+	 * 返回值说明: 断言环境检查按各自的目标名称独立判断
 	 */
 	@Test
 	void supportsMultipleActiveProfilesWithoutInventingPriority() {
@@ -113,12 +113,12 @@ class EnvironmentUtilTest {
 
 	/**
 	 *
-	 * 作者: Jack
-	 * 时间: 2026/11/18
-	 * 说明: 保留旧工具忽略大小写但不做子串匹配的行为
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 验证现代环境判断对大小写不敏感，并按完整 Profile 名称匹配。
 	 * @return
 	 * 返回值: void
-	 * 返回值说明: PrOd可识别，production等其它名称不会被误认为prod
+	 * 返回值说明: 断言大小写混合的 prod 可匹配，较长的名称无法匹配
 	 */
 	@Test
 	void matchesWholeProfileIgnoringCase() {
@@ -133,12 +133,12 @@ class EnvironmentUtilTest {
 
 	/**
 	 *
-	 * 作者: Jack
-	 * 时间: 2026/11/18
-	 * 说明: 仅当没有激活项时使用Spring默认profile，显式激活项优先
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 验证默认 Profile 仅在显式激活列表为空时参与判断。
 	 * @return
 	 * 返回值: void
-	 * 返回值说明: 默认dev生效，激活prod后默认dev不再参与匹配
+	 * 返回值说明: 断言设置激活项后立即以激活项为准
 	 */
 	@Test
 	void defaultProfilesApplyOnlyWithoutActiveProfiles() {
@@ -151,12 +151,12 @@ class EnvironmentUtilTest {
 
 	/**
 	 *
-	 * 作者: Jack
-	 * 时间: 2026/11/18
-	 * 说明: Spring内置default不等于业务dev，未指定环境时不擅自认定部署类型
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 覆盖 Spring 使用内置 default Profile 的场景。
 	 * @return
 	 * 返回值: void
-	 * 返回值说明: 三种环境判断全部为false
+	 * 返回值说明: 断言内置 default 不满足任何部署环境检查
 	 */
 	@Test
 	void springDefaultIsNotImplicitlyDevelopment() {
@@ -167,12 +167,12 @@ class EnvironmentUtilTest {
 
 	/**
 	 *
-	 * 作者: Jack
-	 * 时间: 2026/11/18
-	 * 说明: 环境配置变化后重新读取，不把第一次判断缓存为永久结果
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 在同一环境对象中切换激活的 Profile，验证读取时机。
 	 * @return
 	 * 返回值: void
-	 * 返回值说明: dev切换prod后立即匹配新值
+	 * 返回值说明: 断言旧 Profile 随切换立即失效，新 Profile 正常匹配
 	 */
 	@Test
 	void readsCurrentProfilesOnEveryCall() {
@@ -185,12 +185,12 @@ class EnvironmentUtilTest {
 
 	/**
 	 *
-	 * 作者: Jack
-	 * 时间: 2026/11/18
-	 * 说明: 容器未刷新或已关闭时不继续返回陈旧的环境判断
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 对同一可配置上下文依次检查未刷新、刷新和关闭状态。
 	 * @return
 	 * 返回值: void
-	 * 返回值说明: 容器生效期间返回true，关闭后返回false
+	 * 返回值说明: 断言仅在容器活动期间读到匹配的 Profile
 	 */
 	@Test
 	void configurableContextMustBeActive() {
@@ -207,12 +207,12 @@ class EnvironmentUtilTest {
 
 	/**
 	 *
-	 * 作者: Jack
-	 * 时间: 2026/11/18
-	 * 说明: 防御替身或非标准Environment返回空数组和空元素的情况
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 模拟环境返回空数组引用、空元素及空字符串，验证默认项回退和有效项匹配。
 	 * @return
 	 * 返回值: void
-	 * 返回值说明: 空元素不匹配；无激活项时仍能读取默认配置
+	 * 返回值说明: 断言异常元素被跳过，缺少有效信息时返回 false
 	 */
 	@Test
 	void nullProfileArraysAndEntriesAreSafe() {

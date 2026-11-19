@@ -205,8 +205,10 @@ public class DictConfigUtil {
         }
 
         List<DictItem> result = query.get();
+        // 数据库可能按不区分大小写的排序规则命中，回填仅用原始编码避免写入无法定向失效的键。
         if (bucket != null && !result.isEmpty() && matchesStoredCodes.test(result.get(0))) {
             try {
+                // 仅在键仍为空时回填，避免覆盖并发请求已经写入的结果。
                 bucket.setIfAbsent(result);
             } catch (RedisException ex) {
                 log.debug("业务字典缓存回填失败，异常类型 {}", ex.getClass().getSimpleName());

@@ -1,6 +1,4 @@
 /*
- * Copyright 2002-2018 the original author or authors.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,7 +25,10 @@ import java.io.File;
 import java.io.InputStream;
 
 /**
- * 简单的 MultipartFile 实现。
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 简单的 MultipartFile 实现。
  */
 @Getter
 public class MockMultipartFile implements MultipartFile {
@@ -74,21 +75,58 @@ public class MockMultipartFile implements MultipartFile {
     }
 
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 根据内存中的文件字节判断内容是否为空。
+     * @return
+     * 返回值: boolean
+     * 返回值说明: 字节数为 0 时返回 true
+     */
     @Override
     public boolean isEmpty() {
         return (this.bytes.length == 0);
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 读取内存文件内容的实际大小。
+     * @return
+     * 返回值: long
+     * 返回值说明: 文件内容的字节数
+     */
     @Override
     public long getSize() {
         return this.bytes.length;
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 为内存文件内容创建新的读取流。
+     * @return
+     * 返回值: InputStream
+     * 返回值说明: 从内容开头读取的输入流
+     */
     @Override
     public InputStream getInputStream() {
         return new ByteArrayInputStream(this.bytes);
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 把内存中的 multipart 内容写入目标文件。
+     * @param dest 接收字节的目标文件
+     * @return
+     * 返回值: void
+     * 返回值说明: 将文件内容写入指定位置
+     */
     @Override
     public void transferTo(File dest) {
         FileUtil.writeBytes(bytes,dest);

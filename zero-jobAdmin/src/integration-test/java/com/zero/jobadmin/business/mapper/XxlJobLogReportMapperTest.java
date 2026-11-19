@@ -9,6 +9,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Date;
 
+/**
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 演练调度逐日报表记录新增或更新，通过日志观察数据库结果。
+ */
 @Slf4j(topic = "com.zero.jobadmin.business.mapper.XxlJobLogMapperTest")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 // 官方集成用例可能操作数据库或执行器，普通打包按标签排除。

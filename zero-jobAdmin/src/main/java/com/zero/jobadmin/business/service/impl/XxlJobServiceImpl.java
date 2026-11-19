@@ -36,8 +36,8 @@ import java.util.concurrent.RejectedExecutionException;
 
 /**
  *
- * 作者: xuxueli
- * 时间: 2016/5/28 15:30:33
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
  * 说明: 负责任务配置维护、启停和触发，并校验执行器组权限
  */
 @Slf4j
@@ -435,6 +435,17 @@ public class XxlJobServiceImpl implements XxlJobService {
 		return Response.ofSuccess();
 	}
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 确认执行器组权限后删除任务及关联数据，任务已不存在时直接成功。
+	 * @param id 任务主键
+	 * @param loginInfo 调度控制台登录信息
+	 * @return
+	 * 返回值: Response<String>
+	 * 返回值说明: 删除结果或失败原因
+	 */
 	@Override
 	public Response<String> remove(int id, LoginInfo loginInfo) {
 		// valid job
@@ -560,22 +571,9 @@ public class XxlJobServiceImpl implements XxlJobService {
 
 	/**
 	 *
-	 * 作者: xuxueli
-	 * 时间: 2016/5/28 15:30:33
-	 * 说明: 校验执行器组权限和临时地址后手动派发，线程池拒绝时返回明确失败。
-	 * @param loginInfo 当前登录用户
-	 * @param jobId 任务 ID
-	 * @param executorParam 手动指定的任务参数，缺省时传空字符串
-	 * @param addressList 英文逗号分隔的临时执行器地址，可为空
-	 * @return
-	 * 返回值: Response<String>
-	 * 返回值说明: 进入派发队列返回成功，任务不存在、无权限、地址非法或提交被拒绝时返回失败
-	 */
-	/**
-	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/11/18 23:05
-	 * 说明: 校验执行器组权限和覆盖字段容量后，将立即触发请求提交到派发队列。
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 校验执行器组权限、临时地址和参数容量后，将手动触发请求提交到派发队列。
 	 * @param loginInfo 当前登录用户，必须有该任务的执行器组权限
 	 * @param jobId 任务 ID
 	 * @param executorParam 本次触发参数，缺省时使用空串
@@ -609,7 +607,7 @@ public class XxlJobServiceImpl implements XxlJobService {
 			return paramCheck;
 		}
 
-		// force cover job param
+		// 手动触发使用本次提交的参数，缺省时用空串覆盖任务定义中的参数。
 		if (executorParam == null) {
 			executorParam = "";
 		}
@@ -628,6 +626,15 @@ public class XxlJobServiceImpl implements XxlJobService {
 		return Response.ofSuccess();
 	}
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 读取任务总数和报表合计，从执行器组地址中去重统计机器数。
+	 * @return
+	 * 返回值: Map<String, Object>
+	 * 返回值说明: 用于首页概览的统计字段
+	 */
 	@Override
 	public Map<String, Object> dashboardInfo() {
 
@@ -662,6 +669,17 @@ public class XxlJobServiceImpl implements XxlJobService {
 		return dashboardMap;
 	}
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 将数据库中按日汇总的记录组装为控制台图表序列和区间合计。
+	 * @param startDate 起始统计日期
+	 * @param endDate 结束统计日期
+	 * @return
+	 * 返回值: Response<Map<String, Object>>
+	 * 返回值说明: 图表数据，区间没有统计记录时按实现生成默认日期数据
+	 */
 	@Override
 	public Response<Map<String, Object>> chartInfo(Date startDate, Date endDate) {
 

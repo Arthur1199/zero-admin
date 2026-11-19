@@ -38,45 +38,39 @@ import java.util.concurrent.TimeUnit;
 public class TokenService
 {
     /**
-     * log字段
-     */
-    // 令牌自定义标识
-    /**
-     * header字段
+     * HTTP 请求中用于读取访问令牌的请求头名称。
      */
     @Value("${token.header}")
     private String header;
 
-    // 令牌秘钥
     /**
-     * secret字段
+     * 用于派生 JWT 签名密钥的配置，禁止写入日志。
      */
     @Value("${token.secret}")
     private String secret;
 
-    // 令牌有效期（默认30分钟）
     /**
-     * expire时间字段
+     * 登录会话写入 Redis 时使用的有效期，单位为分钟。
      */
     @Value("${token.expireTime}")
     private int expireTime;
     /**
-     * MILLISSECOND字段
+     * 一秒对应的毫秒数。
      */
 
     protected static final long MILLIS_SECOND = 1000;
     /**
-     * MILLISMINUTE字段
+     * 一分钟对应的毫秒数。
      */
 
     protected static final long MILLIS_MINUTE = 60 * MILLIS_SECOND;
     /**
-     * MILLISMINUTETWENTY字段
+     * 登录会话提前续期的时间窗口，单位为毫秒。
      */
 
     private static final Long MILLIS_MINUTE_TWENTY = 20 * 60 * 1000L;
     /**
-     * Redis缓存字段
+     * 使用签名声明中的会话编号查询和刷新登录快照。
      */
 
     @Autowired
@@ -85,12 +79,12 @@ public class TokenService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 获取用户身份信息
-     * @param request 请求参数
+     * 时间: 2026/11/20 01:36
+     * 说明: 校验 HTTP 请求携带的 JWT，再用会话编号读取 Redis 中的登录快照。
+     * @param request 当前 HTTP 请求，从配置的请求头提取访问令牌
      * @return
-     * 返回值: 用户信息
-     * 返回值说明：获取用户身份信息
+     * 返回值: LoginUser
+     * 返回值说明: 对应的登录快照，令牌缺失、不可解析或缓存中无会话时为 null
      */
     public LoginUser getLoginUser(HttpServletRequest request)
     {
@@ -101,7 +95,7 @@ public class TokenService
             try
             {
                 Claims claims = parseToken(token);
-                // 解析对应的权限以及用户信息
+                // JWT 只用于定位会话，角色和权限来自 Redis 中的登录快照。
                 String uuid = (String) claims.get(Constants.LOGIN_USER_KEY);
                 String userKey = getTokenKey(uuid);
                 LoginUser user = redisCache.getCacheObject(userKey);
@@ -255,12 +249,12 @@ public class TokenService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 验证令牌有效期，相差不足20分钟，自动刷新缓存
-     * @param loginUser 登录信息
+     * 时间: 2026/11/20 01:36
+     * 说明: 在会话剩余时间小于或等于 20 分钟时刷新 Redis 中的登录会话。
+     * @param loginUser 已根据当前请求解析出的登录会话
      * @return
-     * 返回值: 令牌
-     * 返回值说明：验证令牌有效期，相差不足20分钟，自动刷新缓存
+     * 返回值: void
+     * 返回值说明: 满足续期条件时更新缓存 TTL 和会话时间
      */
     public void verifyToken(LoginUser loginUser)
     {

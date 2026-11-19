@@ -37,8 +37,10 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * index controller
- * @author xuxueli 2015-12-19 16:13:16
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 提供任务定义查询和维护、启停及手动触发入口，并根据登录人限制可操作的执行器组。
  */
 @Slf4j
 @Controller
@@ -54,6 +56,18 @@ public class JobInfoController {
 	@Resource
 	private XxlJobService xxlJobService;
 	
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 加载调度任务管理页，准备登录用户可选的执行器组和任务配置枚举。
+	 * @param request 当前调度控制台请求
+	 * @param model 视图渲染模型
+	 * @param jobGroup 页面初始选中的执行器组，默认 -1
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 任务管理页视图名
+	 */
 	@RequestMapping
 	public String index(HttpServletRequest request, Model model, @RequestParam(value = "jobGroup", required = false, defaultValue = "-1") int jobGroup) {
 
@@ -125,8 +139,8 @@ public class JobInfoController {
 	
 	/**
 	 *
-	 * 作者: xuxueli
-	 * 时间: 2015/12/19 16:13:16
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 提交新任务，校验当前账号对目标执行器组的权限。
 	 * @param request 当前登录请求
 	 * @param jobInfo 新任务配置
@@ -146,8 +160,8 @@ public class JobInfoController {
 
 	/**
 	 *
-	 * 作者: xuxueli
-	 * 时间: 2015/12/19 16:13:16
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 保存任务配置，目标组权限由入口校验，原执行器组权限由业务服务校验。
 	 * @param request 当前登录请求
 	 * @param jobInfo 待保存的任务配置
@@ -167,8 +181,8 @@ public class JobInfoController {
 	
 	/**
 	 *
-	 * 作者: xuxueli
-	 * 时间: 2015/12/19 16:13:16
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 提交单条任务删除，由业务服务校验任务所属执行器组。
 	 * @param request 当前登录请求
 	 * @param ids 表单选中的任务 ID，只允许一条
@@ -192,8 +206,8 @@ public class JobInfoController {
 	
 	/**
 	 *
-	 * 作者: xuxueli
-	 * 时间: 2015/12/19 16:13:16
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 停止单条任务的后续调度，由业务服务校验执行器组权限。
 	 * @param request 当前登录请求
 	 * @param ids 表单选中的任务 ID，只允许一条
@@ -217,8 +231,8 @@ public class JobInfoController {
 	
 	/**
 	 *
-	 * 作者: xuxueli
-	 * 时间: 2015/12/19 16:13:16
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 启动单条任务的调度，由业务服务校验执行器组权限。
 	 * @param request 当前登录请求
 	 * @param ids 表单选中的任务 ID，只允许一条
@@ -242,8 +256,8 @@ public class JobInfoController {
 	
 	/**
 	 *
-	 * 作者: xuxueli
-	 * 时间: 2015/12/19 16:13:16
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 手动派发一次任务，由业务服务按任务所属组校验权限。
 	 * @param request 当前登录请求
 	 * @param id 任务 ID

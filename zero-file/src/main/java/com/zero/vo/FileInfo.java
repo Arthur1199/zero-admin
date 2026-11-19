@@ -6,6 +6,12 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 在文件存储、记录回调及上传响应之间传递文件元数据和缩略图信息。
+ */
 @Data
 public class FileInfo implements Serializable {
 

@@ -8,17 +8,20 @@ import java.util.concurrent.ThreadLocalRandom;
 import com.zero.common.exception.UtilException;
 
 /**
- * 提供通用唯一识别码（universally unique identifier）（UUID）实现
  *
- * @author zero
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 提供通用唯一识别码（universally unique identifier）（UUID）实现
  */
 public final class UUID implements java.io.Serializable, Comparable<UUID>
 {
     private static final long serialVersionUID = -1185015143654744140L;
 
     /**
-     * SecureRandom 的单例
      *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: SecureRandom 的单例
      */
     private static class Holder
     {

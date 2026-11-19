@@ -81,8 +81,9 @@ public class FastJsonUtil {
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/5/16 23:35
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 将JSON字符串转换为指定Java对象
+	 * @param <T> 当前方法处理的值类型
 	 * @param jsonStr JSON字符串
 	 * @param clazz 目标对象类型
 	 * @return
@@ -96,8 +97,9 @@ public class FastJsonUtil {
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/5/16 23:35
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 将JSON数组字符串转换为Object数组
+	 * @param <T> 当前方法处理的值类型
 	 * @param jsonStr JSON数组字符串
 	 * @return
 	 * 返回值: Object[]
@@ -110,8 +112,9 @@ public class FastJsonUtil {
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/5/16 23:35
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 将JSON数组字符串转换为指定类型数组
+	 * @param <T> 当前方法处理的值类型
 	 * @param jsonStr JSON数组字符串
 	 * @param clazz 数组元素类型，可为空；为空时按JSONObject等默认类型解析
 	 * @return
@@ -125,8 +128,9 @@ public class FastJsonUtil {
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/5/16 23:35
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 将JSON数组字符串转换为指定类型列表
+	 * @param <T> 当前方法处理的值类型
 	 * @param jsonStr JSON数组字符串
 	 * @param clazz 列表元素类型
 	 * @return
@@ -183,8 +187,9 @@ public class FastJsonUtil {
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/5/16 23:35
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 将对象序列化为格式化JSON并写入文件
+	 * @param <T> 当前方法处理的值类型
 	 * @param t 待写入对象，可为空
 	 * @param file 目标文件
 	 * @return
@@ -202,8 +207,9 @@ public class FastJsonUtil {
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/5/16 23:35
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 将对象序列化为格式化JSON并写入指定路径文件
+	 * @param <T> 当前方法处理的值类型
 	 * @param t 待写入对象，可为空
 	 * @param filename 目标文件路径
 	 * @return
@@ -218,8 +224,9 @@ public class FastJsonUtil {
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/5/16 23:35
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 从JSON文件读取内容并转换为指定Java对象
+	 * @param <T> 当前方法处理的值类型
 	 * @param cls 目标对象类型
 	 * @param file JSON文件
 	 * @return
@@ -234,8 +241,9 @@ public class FastJsonUtil {
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/5/16 23:35
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 从指定路径JSON文件读取内容并转换为指定Java对象
+	 * @param <T> 当前方法处理的值类型
 	 * @param cls 目标对象类型
 	 * @param filename JSON文件路径
 	 * @return
@@ -250,8 +258,9 @@ public class FastJsonUtil {
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/5/16 23:35
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 从JSON文件读取内容并按TypeReference转换，适合泛型集合或嵌套对象
+	 * @param <T> 当前方法处理的值类型
 	 * @param typeReference Fastjson类型引用
 	 * @param file JSON文件
 	 * @return
@@ -266,8 +275,9 @@ public class FastJsonUtil {
 	/**
 	 *
 	 * 作者: Arthur 亚瑟
-	 * 时间: 2026/5/16 23:35
+	 * 时间: 2026/11/20 01:36
 	 * 说明: 从指定路径JSON文件读取内容并按TypeReference转换，适合泛型集合或嵌套对象
+	 * @param <T> 当前方法处理的值类型
 	 * @param typeReference Fastjson类型引用
 	 * @param filename JSON文件路径
 	 * @return

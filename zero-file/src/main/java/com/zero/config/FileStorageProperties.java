@@ -8,6 +8,12 @@ import org.springframework.context.annotation.Configuration;
 
 import lombok.Data;
 
+/**
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 绑定 spring.file-storage 下的默认平台、缩略图后缀和各存储平台配置。
+ */
 @Data
 //@Component
 @Configuration
@@ -62,7 +68,10 @@ public class FileStorageProperties {
     private List<AwsS3> awsS3 = new ArrayList<>();
 
     /**
-     * 本地存储。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 本地存储。
      */
     @Data
     public static class Local {
@@ -93,7 +102,10 @@ public class FileStorageProperties {
     }
 
     /**
-     * 华为云 OBS。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 华为云 OBS。
      */
     @Data
     public static class HuaweiObs {
@@ -120,7 +132,10 @@ public class FileStorageProperties {
     }
 
     /**
-     * 阿里云 OSS。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 阿里云 OSS。
      */
     @Data
     public static class AliyunOss {
@@ -147,7 +162,10 @@ public class FileStorageProperties {
     }
 
     /**
-     * 七牛云 Kodo。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 七牛云 Kodo。
      */
     @Data
     public static class QiniuKodo {
@@ -173,7 +191,10 @@ public class FileStorageProperties {
     }
 
     /**
-     * 腾讯云 COS。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 腾讯云 COS。
      */
     @Data
     public static class TencentCos {
@@ -200,7 +221,10 @@ public class FileStorageProperties {
     }
 
     /**
-     * 百度云 BOS。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 百度云 BOS。
      */
     @Data
     public static class BaiduBos {
@@ -227,7 +251,10 @@ public class FileStorageProperties {
     }
 
     /**
-     * 又拍云 USS。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 又拍云 USS。
      */
     @Data
     public static class UpyunUSS {
@@ -253,7 +280,10 @@ public class FileStorageProperties {
     }
 
     /**
-     * MinIO
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: MinIO
      */
     @Data
     public static class MinIO {
@@ -280,7 +310,10 @@ public class FileStorageProperties {
     }
 
     /**
-     * AWS S3
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: AWS S3
      */
     @Data
     public static class AwsS3 {

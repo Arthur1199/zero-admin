@@ -20,8 +20,8 @@ import java.util.Map;
 /**
  *
  * 作者: Arthur 亚瑟
- * 时间: 2026/5/14 00:58
- * 说明: swagger 用户测试方法
+ * 时间: 2026/11/20 01:36
+ * 说明: 为 Swagger 演示提供进程内的用户样例，供验证接口文档和返回结构。
  */
 @Tag(name = "用户信息管理", description = "用户相关API接口")
 @RestController
@@ -29,7 +29,7 @@ import java.util.Map;
 public class TestController extends BaseController
 {
     /**
-     * users字段
+     * Swagger 演示用户集合，新增、修改和删除只影响当前进程中的样例。
      */
     private final static Map<Integer, UserEntity> users = new LinkedHashMap<Integer, UserEntity>();
     {
@@ -37,6 +37,15 @@ public class TestController extends BaseController
         users.put(2, new UserEntity(2, "ry", "admin123", "15666666666"));
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 读取当前进程中的 Swagger 演示用户列表。
+     * @return
+     * 返回值: R<List<UserEntity>>
+     * 返回值说明: 按集合顺序返回的演示用户列表
+     */
     @Operation(summary = "获取用户列表", description = "获取所有用户的信息列表")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "成功获取用户列表",
@@ -44,15 +53,6 @@ public class TestController extends BaseController
                             schema = @Schema(implementation = UserEntity.class))),
             @ApiResponse(responseCode = "500", description = "服务器内部错误")
     })
-    /**
-     *
-     * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 用户列表
-     * @return
-     * 返回值: R<List<UserEntity>>
-     * 返回值说明：用户列表
-     */
     @GetMapping("/list")
     public R<List<UserEntity>> userList()
     {
@@ -60,6 +60,16 @@ public class TestController extends BaseController
         return R.ok(userList);
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 按主键查询 Swagger 演示用户。
+     * @param userId 演示用户 ID
+     * @return
+     * 返回值: R<UserEntity>
+     * 返回值说明: 查询到的演示数据，未找到时返回错误提示
+     */
     @Operation(summary = "获取用户详细", description = "根据用户ID获取用户详细信息")
     @GetMapping("/{userId}")
     public R<UserEntity> getUser(
@@ -79,12 +89,12 @@ public class TestController extends BaseController
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: save
-     * @param user 用户参数
+     * 时间: 2026/11/20 01:36
+     * 说明: 写入 Swagger 演示用户，传入已有 ID 时覆盖对应样例。
+     * @param user 带用户 ID 的演示数据
      * @return
      * 返回值: R<String>
-     * 返回值说明：save
+     * 返回值说明: 样例写入结果，缺少用户 ID 时返回错误
      */
 
     @Operation(summary = "新增用户", description = "创建新用户")
@@ -101,12 +111,12 @@ public class TestController extends BaseController
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 修改
-     * @param user 用户参数
+     * 时间: 2026/11/20 01:36
+     * 说明: 替换指定 ID 的 Swagger 演示用户。
+     * @param user 带现有用户 ID 的演示数据
      * @return
      * 返回值: R<String>
-     * 返回值说明：修改
+     * 返回值说明: 样例修改结果，缺少 ID 或目标不存在时返回错误
      */
 
     @Operation(summary = "更新用户", description = "更新现有用户信息")
@@ -126,6 +136,16 @@ public class TestController extends BaseController
         return R.ok();
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 按主键从当前进程的演示集合删除用户样例。
+     * @param userId 演示用户 ID
+     * @return
+     * 返回值: R<String>
+     * 返回值说明: 样例删除结果，目标不存在时返回错误
+     */
     @Operation(summary = "删除用户信息", description = "根据用户ID删除用户")
     @DeleteMapping("/{userId}")
     public R<String> delete(

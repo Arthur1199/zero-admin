@@ -13,7 +13,10 @@ import java.io.*;
 import java.util.function.Consumer;
 
 /**
- * 文件上传预处理对象。
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 文件上传预处理对象。
  */
 @Getter
 @Setter
@@ -61,9 +64,14 @@ public class UploadPretreatment {
     private String saveThFilename;
 
     /**
-     * 设置文件所属对象 ID。
      *
-     * @param objectId 非 String 类型会自动调用 toString() 方法
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 记录上传文件关联的业务对象 ID，非空对象转换为字符串。
+     * @param objectId 文件关联的业务对象 ID，可为空
+     * @return
+     * 返回值: UploadPretreatment
+     * 返回值说明: 当前预处理对象，可继续链式设置
      */
     public UploadPretreatment setObjectId(Object objectId) {
         this.objectId = objectId == null ? null : objectId.toString();
@@ -71,14 +79,27 @@ public class UploadPretreatment {
     }
 
     /**
-     * 获取文件名。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 获取文件名。
+     * @return
+     * 返回值: String
+     * 返回值说明: 按上述规则读取或解析得到的文本
      */
     public String getName() {
         return fileWrapper.getName();
     }
 
     /**
-     * 设置文件名。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 更新上传包装对象中的 multipart 字段名。
+     * @param name multipart 表单字段名
+     * @return
+     * 返回值: UploadPretreatment
+     * 返回值说明: 当前预处理对象，可继续链式设置
      */
     public UploadPretreatment setName(String name) {
         fileWrapper.setName(name);
@@ -86,14 +107,27 @@ public class UploadPretreatment {
     }
 
     /**
-     * 获取原始文件名。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 获取原始文件名。
+     * @return
+     * 返回值: String
+     * 返回值说明: 按上述规则读取或解析得到的文本
      */
     public String getOriginalFilename() {
         return fileWrapper.getOriginalFilename();
     }
 
     /**
-     * 设置原始文件名。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 更新上传包装对象保留的客户端原始文件名。
+     * @param originalFilename 客户端文件名
+     * @return
+     * 返回值: UploadPretreatment
+     * 返回值说明: 当前预处理对象，可继续链式设置
      */
     public UploadPretreatment setOriginalFilename(String originalFilename) {
         fileWrapper.setOriginalFilename(originalFilename);
@@ -102,7 +136,14 @@ public class UploadPretreatment {
 
 
     /**
-     * 进行图片处理，可以进行裁剪、旋转、缩放、水印等操作
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 对当前上传文件的图像执行指定处理，并用生成内容替换上传体。
+     * @param consumer 用于设置缩放、水印等操作的回调
+     * @return
+     * 返回值: UploadPretreatment
+     * 返回值说明: 可继续配置的当前上传预处理对象
      */
     public UploadPretreatment image(Consumer<Thumbnails.Builder<? extends InputStream>> consumer) {
         try (InputStream in = fileWrapper.getInputStream()) {
@@ -119,21 +160,41 @@ public class UploadPretreatment {
     }
 
     /**
-     * 缩放到指定大小。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 将当前图片缩放到给定尺寸范围。
+     * @param width 最大宽度，单位像素
+     * @param height 最大高度，单位像素
+     * @return
+     * 返回值: UploadPretreatment
+     * 返回值说明: 可继续配置的当前上传预处理对象
      */
     public UploadPretreatment image(int width,int height) {
         return image(th -> th.size(width,height));
     }
 
     /**
-     * 缩放到 200*200 大小。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 使用默认 200 × 200 像素范围缩放当前图片。
+     * @return
+     * 返回值: UploadPretreatment
+     * 返回值说明: 可继续配置的当前上传预处理对象
      */
     public UploadPretreatment image() {
         return image(th -> th.size(200,200));
     }
 
     /**
-     * 清空缩略图。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 清除已生成的缩略图数据，避免上传时写入该缩略图。
+     * @return
+     * 返回值: UploadPretreatment
+     * 返回值说明: 可继续配置的当前上传预处理对象
      */
     public UploadPretreatment clearThumbnail() {
         thumbnailBytes = null;
@@ -142,8 +203,14 @@ public class UploadPretreatment {
 
 
     /**
-     * 生成缩略图并进行图片处理；如果缩略图已存在，则使用已有缩略图继续处理。
-     * 可以进行裁剪、旋转、缩放、水印等操作，默认输出图片格式通过 thumbnailSuffix 获取。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 已有缩略图时以该图为输入，否则从当前上传图片开始生成。
+     * @param consumer 用于设置缩略图处理方式的回调
+     * @return
+     * 返回值: UploadPretreatment
+     * 返回值说明: 持有最新缩略图内容的预处理对象
      */
     public UploadPretreatment thumbnail(Consumer<Thumbnails.Builder<? extends InputStream>> consumer) {
         try {
@@ -154,8 +221,15 @@ public class UploadPretreatment {
     }
 
     /**
-     * 通过指定 MultipartFile 生成缩略图并进行图片处理。
-     * 可以进行裁剪、旋转、缩放、水印等操作，默认输出图片格式通过 thumbnailSuffix 获取。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 使用调用方提供的文件生成缩略图，以配置后缀决定默认输出格式。
+     * @param consumer 缩略图处理回调
+     * @param file 用于生成缩略图的图片文件
+     * @return
+     * 返回值: UploadPretreatment
+     * 返回值说明: 持有新缩略图内容的预处理对象
      */
     public UploadPretreatment thumbnail(Consumer<Thumbnails.Builder<? extends InputStream>> consumer,MultipartFile file) {
         try {
@@ -166,9 +240,15 @@ public class UploadPretreatment {
     }
 
     /**
-     * 通过指定 InputStream 生成缩略图并进行图片处理。
-     * 可以进行裁剪、旋转、缩放、水印等操作，默认输出图片格式通过 thumbnailSuffix 获取。
-     * 操作完成后会自动关闭 InputStream。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 读取传入的图片，默认按缩略图后缀选择输出格式，结束后关闭输入流。
+     * @param consumer 缩略图处理回调
+     * @param in 由当前方法接管关闭的图片输入流
+     * @return
+     * 返回值: UploadPretreatment
+     * 返回值说明: 持有新缩略图内容的预处理对象
      */
     public UploadPretreatment thumbnail(Consumer<Thumbnails.Builder<? extends InputStream>> consumer,InputStream in) {
         try {
@@ -187,21 +267,41 @@ public class UploadPretreatment {
     }
 
     /**
-     * 生成缩略图并缩放到指定大小，默认输出图片格式通过 thumbnailSuffix 获取。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 把缩略图缩放到给定尺寸范围，保持缩略图后缀配置。
+     * @param width 最大宽度，单位像素
+     * @param height 最大高度，单位像素
+     * @return
+     * 返回值: UploadPretreatment
+     * 返回值说明: 持有缩放后缩略图内容的预处理对象
      */
     public UploadPretreatment thumbnail(int width,int height) {
         return thumbnail(th -> th.size(width,height));
     }
 
     /**
-     * 生成缩略图并缩放到 200*200 大小，默认输出图片格式通过 thumbnailSuffix 获取。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 生成默认 200 × 200 像素范围内的缩略图。
+     * @return
+     * 返回值: UploadPretreatment
+     * 返回值说明: 持有缩略图内容的预处理对象
      */
     public UploadPretreatment thumbnail() {
         return thumbnail(200,200);
     }
 
     /**
-     * 上传文件，成功返回文件信息，失败返回null
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 将当前上传内容和预处理结果交给存储服务。
+     * @return
+     * 返回值: FileInfo
+     * 返回值说明: 有成功结果时为文件信息，存储或记录返回失败时为 null，异常向调用方传递
      */
     public FileInfo upload() {
         return fileStorageService.upload(this);

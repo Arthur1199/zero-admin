@@ -1,9 +1,10 @@
 package com.zero.jobadmin.business.constant;
 
 /**
- * Trigger Status
  *
- * @author xuxueli 2019-05-04
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 定义任务是否参与自动调度的持久化状态。
  */
 public enum TriggerStatus {
 

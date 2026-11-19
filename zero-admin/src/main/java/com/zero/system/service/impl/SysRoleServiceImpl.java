@@ -206,11 +206,11 @@ public class SysRoleServiceImpl implements ISysRoleService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 校验角色名称是否唯一
      * @param role 角色信息
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：校验角色名称是否唯一
      */
     @Override
@@ -228,11 +228,11 @@ public class SysRoleServiceImpl implements ISysRoleService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 校验角色权限是否唯一
      * @param role 角色信息
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：校验角色权限是否唯一
      */
     @Override
@@ -297,11 +297,11 @@ public class SysRoleServiceImpl implements ISysRoleService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 通过角色ID查询角色使用数量
      * @param roleId 角色ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：通过角色ID查询角色使用数量
      */
     @Override
@@ -313,11 +313,11 @@ public class SysRoleServiceImpl implements ISysRoleService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 在同一事务内新增角色、菜单及自定部门范围，范围无效时不写入；兼容旧调用默认全部数据
      * @param role 角色信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：新增保存角色信息
      */
     @Override
@@ -384,11 +384,11 @@ public class SysRoleServiceImpl implements ISysRoleService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 同一事务保存角色、菜单及显式提交的数据范围，旧调用未传范围时保留部门关联
      * @param role 角色信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改保存角色信息
      */
     @Override
@@ -422,11 +422,11 @@ public class SysRoleServiceImpl implements ISysRoleService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 修改角色状态
      * @param role 角色信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改角色状态
      */
     @Override
@@ -438,11 +438,11 @@ public class SysRoleServiceImpl implements ISysRoleService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 事务内仅保存数据范围及部门关系，独立权限不能修改角色名称、标识或菜单
      * @param role 角色信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改数据权限信息
      */
     @Override
@@ -522,11 +522,11 @@ public class SysRoleServiceImpl implements ISysRoleService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 通过角色ID删除角色
      * @param roleId 角色ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：通过角色ID删除角色
      */
     @Override
@@ -543,11 +543,11 @@ public class SysRoleServiceImpl implements ISysRoleService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 批量删除角色信息
      * @param roleIds 需要删除的角色ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：批量删除角色信息
      */
     @Override

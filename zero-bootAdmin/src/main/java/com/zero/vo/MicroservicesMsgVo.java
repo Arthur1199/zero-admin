@@ -1,25 +1,32 @@
 package com.zero.vo;
 
 /**
- * 作者: Jack
- * 时间: 2023年4月21日下午3:38:52
- * 说明: 微服务Vo
  *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 承载监控通知的环境、服务地址、状态、发生时间和处理提示，可生成机器人消息文本。
  */
 public class MicroservicesMsgVo {
 	//微服务运行环境
+	/** 实例所属运行环境的显示名称。 */
 	private String runEnv;
 	//提示标题
+    /** 通知标题。 */
     private String title = "";
 	//微服务状态
+	/** 实例状态的中文显示名称。 */
 	private String statusName;
 	//微服务名称
+	/** 发生状态变化的服务名称。 */
 	private String clientName;
 	//服务器ip地址
+	/** 监控实例注册的服务访问地址。 */
 	private String clientServerUrl;
 	//创建时间
+	/** 用于通知展示的格式化时间。 */
 	private String createTime;
 	//错误消息
+	/** 状态说明或运维提示。 */
 	private String errorMsg;
 
 	public MicroservicesMsgVo(String runEnv,String title, String statusName, String clientName, String clientServerUrl,

@@ -13,98 +13,19 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "zero")
 public class ZeroConfig
 {
-    /**
-     * 项目名称
-     * -- GETTER --
-     *  作者: Arthur 亚瑟
-     *  时间: 2026/5/14 00:58
-     *  说明: 获取名称
-     *
-     *
-     * -- SETTER --
-     *  作者: Arthur 亚瑟
-     *  时间: 2026/5/14 00:58
-     *  说明: 设置名称
-     *
-     @return
-     * 返回值: String
-     * 返回值说明：获取名称
-      * @param name 名称参数
-      *
-
-     */
+    /** 管理后台项目名称。 */
     private String name;
 
-    /**
-     * 版本
-     * -- GETTER --
-     *  作者: Arthur 亚瑟
-     *  时间: 2026/5/14 00:58
-     *  说明: 获取Version
-     *
-     *
-     * -- SETTER --
-     *  作者: Arthur 亚瑟
-     *  时间: 2026/5/14 00:58
-     *  说明: 设置Version
-     *
-     @return
-     * 返回值: String
-     * 返回值说明：获取Version
-      * @param version version参数
-      *
-
-     */
+    /** 管理后台版本号。 */
     private String version;
 
-    /**
-     * 版权年份
-     * -- GETTER --
-     *  作者: Arthur 亚瑟
-     *  时间: 2026/5/14 00:58
-     *  说明: 获取CopyrightYear
-     *
-     *
-     * -- SETTER --
-     *  作者: Arthur 亚瑟
-     *  时间: 2026/5/14 00:58
-     *  说明: 设置CopyrightYear
-     *
-     @return
-     * 返回值: String
-     * 返回值说明：获取CopyrightYear
-      * @param copyrightYear copyrightYear参数
-      *
-
-     */
+    /** 项目版权年份配置。 */
     private String copyrightYear;
 
-    /**
-     * 上传路径
-     * -- GETTER --
-     *  作者: Arthur 亚瑟
-     *  时间: 2026/5/14 00:58
-     *  说明: 获取Profile
-     *
-     * @return
-     * 返回值: String
-     * 返回值说明：获取Profile
-
-     */
+    /** 本地文件存储根目录，用于上传文件和静态资源映射。 */
     private static String profile;
 
-    /**
-     * 验证码类型
-     * -- GETTER --
-     *  作者: Arthur 亚瑟
-     *  时间: 2026/5/14 00:58
-     *  说明: 获取验证码类型
-     *
-     * @return
-     * 返回值: String
-     * 返回值说明：获取验证码类型
-
-     */
+    /** 登录验证码类型，math 为算术题，char 为字符。 */
     private static String captchaType;
 
     /**

@@ -27,13 +27,15 @@ import java.util.Properties;
  */
 public final class XMLHelper {
 	/**
-	 * 把XML按照给定的XSL进行转换，返回转换后的值
 	 *
-	 * @param xml
-	 *            xml
-	 * @param xsl
-	 *            xsl
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 使用指定的 XSL 将 XML 文本转换为目标格式。
+	 * @param xml 待转换的 XML 文本
+	 * @param xsl 用于转换的 XSL 输入流
 	 * @return
+	 * 返回值: String
+	 * 返回值说明: XSL 转换写出的文本
 	 * @throws Exception
 	 */
 	public static String xml2xsl(String xml, URL xsl) throws Exception {
@@ -70,13 +72,15 @@ public final class XMLHelper {
 	}
 
 	/**
-	 * 把XML按用户定义好的XSL样式进行输出
 	 *
-	 * @param xmlFilePath
-	 *            XML文档
-	 * @param xsl
-	 *            XSL样式
-	 * @return 样式化后的字段串
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 把XML按用户定义好的XSL样式进行输出
+	 * @param xmlFilePath XML文档
+	 * @param xsl XSL样式
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 样式化后的字段串
 	 */
 	public static String xml2xsl(String xmlFilePath, String xsl) throws Exception {
 		if (StringHelper.isEmpty(xmlFilePath)) {
@@ -112,11 +116,14 @@ public final class XMLHelper {
 	}
 
 	/**
-	 * 读取XML文档，返回Document对象.<br>
 	 *
-	 * @param xmlFile
-	 *            XML文件路径
-	 * @return Document 对象
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 读取XML文档，返回Document对象.<br>
+	 * @param xmlFile XML文件路径
+	 * @return
+	 * 返回值: Document
+	 * 返回值说明: Document 对象
 	 */
 	public static Document getDocument(String xmlFile) throws Exception {
 		if (StringHelper.isEmpty(xmlFile)) {
@@ -131,11 +138,14 @@ public final class XMLHelper {
 	}
 
 	/**
-	 * 读取XML文档，返回Document对象.<br>
 	 *
-	 * @param xmlFile
-	 *            file对象
-	 * @return Document 对象
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 读取XML文档，返回Document对象.<br>
+	 * @param xmlFile file对象
+	 * @return
+	 * 返回值: Document
+	 * 返回值说明: Document 对象
 	 */
 	public static Document getDocument(File xmlFile) {
 		try {
@@ -149,11 +159,14 @@ public final class XMLHelper {
 	}
 
 	/**
-	 * 读取XML字串，返回Document对象
 	 *
-	 * @param xmlString
-	 *            XML文件路径
-	 * @return Document 对象
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 读取XML字串，返回Document对象
+	 * @param xmlString XML文件路径
+	 * @return
+	 * 返回值: Document
+	 * 返回值说明: Document 对象
 	 */
 	public static Document getDocumentFromString(String xmlString) {
 		if (StringHelper.isEmpty(xmlString)) {
@@ -170,15 +183,16 @@ public final class XMLHelper {
 	}
 
 	/**
-	 * 描述：把xml输出成为html 作者： 时间：Oct 29, 2008 4:57:56 PM
 	 *
-	 * @param xmlDoc
-	 *            xmlDoc
-	 * @param xslFile
-	 *            xslFile
-	 * @param encoding
-	 *            编码
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 加载指定的 XSL 文件，将 XML 文本转换为 HTML。
+	 * @param xmlDoc 待转换的 XML 文本
+	 * @param xslFile XSL 文件路径
+	 * @param encoding 转换使用的输出字符集
 	 * @return
+	 * 返回值: String
+	 * 返回值说明: 使用指定样式表转换生成的文本
 	 * @throws Exception
 	 */
 	public static String xml2html(String xmlDoc, String xslFile, String encoding) throws Exception {
@@ -225,15 +239,16 @@ public final class XMLHelper {
 	}
 
 	/**
-	 * 描述：把xml输出成为html
 	 *
-	 * @param xmlFile
-	 *            xmlFile
-	 * @param xslFile
-	 *            xslFile
-	 * @param encoding
-	 *            编码
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 使用 XSL 样式表转换 XML 文件。
+	 * @param xmlFile 待转换的 XML 文件路径
+	 * @param xslFile XSL 文件路径
+	 * @param encoding 转换使用的输出字符集
 	 * @return
+	 * 返回值: String
+	 * 返回值说明: 从 XML 文件生成的文本
 	 * @throws Exception
 	 */
 	public static String xmlFile2html(String xmlFile, String xslFile, String encoding) throws Exception {
@@ -280,28 +295,31 @@ public final class XMLHelper {
 	}
 
 	/**
-	 * 描述：
 	 *
-	 * @param name
-	 *            名
-	 * @param element
-	 *            元素
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 按节点表达式读取元素关联的字符串。
+	 * @param name 传给元素求值方法的表达式
+	 * @param element 执行表达式的 XML 元素
 	 * @return
+	 * 返回值: String
+	 * 返回值说明: 读取到的字符串，底层结果为 null 时返回空字符串
 	 */
 	public static String getString(String name, Element element) {
 		return (element.valueOf(name) == null) ? "" : element.valueOf(name);
 	}
 
 	/**
-	 * 将一个XML文档保存至文件中.
 	 *
-	 * @param doc
-	 *            要保存的XML文档对象.
-	 * @param filePathName
-	 *            要保存到的文档路径.
-	 * @param format
-	 *            要保存的输出格式
-	 * @return true代表保存成功，否则代表不成功.
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 将一个XML文档保存至文件中.
+	 * @param doc 要保存的XML文档对象.
+	 * @param filePathName 要保存到的文档路径.
+	 * @param format 要保存的输出格式
+	 * @return
+	 * 返回值: boolean
+	 * 返回值说明: true代表保存成功，否则代表不成功.
 	 */
 	public static boolean savaToFile(Document doc, String filePathName, OutputFormat format) {
 		XMLWriter writer;
@@ -327,13 +345,15 @@ public final class XMLHelper {
 	}
 
 	/**
-	 * 将一个XML文档保存至文件中.
 	 *
-	 * @param filePathName
-	 *            要保存到的文档路径.
-	 * @param doc
-	 *            要保存的XML文档对象.
-	 * @return true代表保存成功，否则代表不成功.
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 将一个XML文档保存至文件中.
+	 * @param filePathName 要保存到的文档路径.
+	 * @param doc 要保存的XML文档对象.
+	 * @return
+	 * 返回值: boolean
+	 * 返回值说明: true代表保存成功，否则代表不成功.
 	 */
 	public static boolean writeToXml(String filePathName, Document doc) {
 		OutputFormat format = OutputFormat.createCompactFormat();

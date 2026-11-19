@@ -20,12 +20,24 @@ import java.lang.annotation.Target;
 public @interface RepeatSubmit
 {
     /**
-     * 间隔时间(ms)，小于此时间视为重复提交
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 间隔时间(ms)，小于此时间视为重复提交
+     * @return
+     * 返回值: int
+     * 返回值说明: 间隔时间(ms)，小于此时间视为重复提交
      */
     public int interval() default 5000;
 
     /**
-     * 提示消息
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 提示消息
+     * @return
+     * 返回值: String
+     * 返回值说明: 提示消息
      */
     public String message() default "不允许重复提交，请稍候再试";
 }

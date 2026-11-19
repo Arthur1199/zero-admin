@@ -15,13 +15,27 @@ import org.springframework.web.servlet.ModelAndView;
 import java.io.IOException;
 
 /**
- * common exception resolver
  *
- * @author xuxueli 2016-1-6 19:22:18
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 将调度控制台的异常转换为对应的 Web 响应或错误页面。
  */
 @Slf4j
 @Component
 public class WebHandlerExceptionResolver implements HandlerExceptionResolver {
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 根据处理方法是否声明响应体决定返回 JSON 错误还是控制台错误页面。
+	 * @param request 当前控制台请求
+	 * @param response 用于输出异常数据的响应
+	 * @param handler 请求匹配到的处理器
+	 * @param ex 控制台处理过程中发生的异常
+	 * @return
+	 * 返回值: ModelAndView
+	 * 返回值说明: 视图响应，已直接写 JSON 时返回空视图对象
+	 */
 	@Override
 	public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
 

@@ -2,19 +2,21 @@ package com.zero.utils.file.disk;
 import java.io.File;
 
 /**
- * 作者: Jack
- * 时间: 2025年3月5日18:35:09
- * 说明: 磁盘空间检测工具列
  *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 扫描系统可见的磁盘根目录并汇总空间，用于监控可用容量。
  */
 public class DiskSpaceSummaryUtil {
 	
 	/**
-	 * 作者:Jack
-	 * 日期:2025年3月5日18:36:52
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 合计各磁盘根目录的容量和可用空间，剩余总空间小于等于 5 GiB 时标记告警。
 	 * @return
-	 * 返回值:DiskSpaceSummary
-	 * 返回值说明:检测磁盘
+	 * 返回值: DiskSpaceSummary
+	 * 返回值说明: 格式化后的磁盘空间汇总，系统无可用磁盘根目录时返回 null
 	 */
 	public static DiskSpaceSummary detectDisk() {
 		DiskSpaceSummary summary = new DiskSpaceSummary();
@@ -66,6 +68,16 @@ public class DiskSpaceSummaryUtil {
 	}
 	
 	
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 扫描系统可见磁盘并打印容量、占用及可用空间。
+     * @param args 命令行参数，示例不读取
+     * @return
+     * 返回值: void
+     * 返回值说明: 向控制台展示汇总结果
+     */
     public static void main(String[] args) {
         // 初始化统计变量
         long totalCapacity = 0;  // 所有磁盘的总容量
@@ -107,9 +119,14 @@ public class DiskSpaceSummaryUtil {
     }
 
     /**
-     * 格式化字节大小为合适的单位（KB、MB、GB）
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 格式化字节大小为合适的单位（KB、MB、GB）
      * @param size 字节大小
-     * @return 格式化后的字符串
+     * @return
+     * 返回值: String
+     * 返回值说明: 格式化后的字符串
      */
     private static String formatSize(long size) {
         if (size < 1024) {

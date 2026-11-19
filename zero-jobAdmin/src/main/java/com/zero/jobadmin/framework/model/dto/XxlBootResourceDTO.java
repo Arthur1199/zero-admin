@@ -5,9 +5,10 @@ import java.util.Date;
 import java.util.List;
 
 /**
- *  XxlBootResource DTO
  *
- *  Created by xuxueli on 2024-08-04
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 承载调度控制台菜单树的目录、菜单及操作资源。
  */
 public class XxlBootResourceDTO implements Serializable {
     private static final long serialVersionUID = 42L;

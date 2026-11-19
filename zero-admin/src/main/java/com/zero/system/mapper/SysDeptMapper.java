@@ -76,11 +76,11 @@ public interface SysDeptMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 是否存在子节点
      * @param deptId 部门ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：是否存在子节点
      */
     public int hasChildByDeptId(Long deptId);
@@ -88,11 +88,11 @@ public interface SysDeptMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 查询部门是否存在用户
      * @param deptId 部门ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：查询部门是否存在用户
      */
     public int checkDeptExistUser(Long deptId);
@@ -100,12 +100,12 @@ public interface SysDeptMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 校验部门名称是否唯一
      * @param deptName 部门名称
      * @param parentId 父部门ID
      * @return
-     * 返回值: 结果
+     * 返回值: SysDept
      * 返回值说明：校验部门名称是否唯一
      */
     public SysDept checkDeptNameUnique(@Param("deptName") String deptName, @Param("parentId") Long parentId);
@@ -113,11 +113,11 @@ public interface SysDeptMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 新增部门信息
      * @param dept 部门信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：新增部门信息
      */
     public int insertDept(SysDept dept);
@@ -125,11 +125,11 @@ public interface SysDeptMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 修改部门信息
      * @param dept 部门信息
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改部门信息
      */
     public int updateDept(SysDept dept);
@@ -149,11 +149,11 @@ public interface SysDeptMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 修改子元素关系
      * @param depts 子元素
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：修改子元素关系
      */
     public int updateDeptChildren(@Param("depts") List<SysDept> depts);
@@ -161,11 +161,11 @@ public interface SysDeptMapper
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 删除部门管理信息
      * @param deptId 部门ID
      * @return
-     * 返回值: 结果
+     * 返回值: int
      * 返回值说明：删除部门管理信息
      */
     public int deleteDeptById(Long deptId);

@@ -29,9 +29,10 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * job code controller
  *
- * @author xuxueli 2015-12-19 16:13:16
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 提供调度控制台的 GLUE 脚本查看、保存及历史版本管理入口。
  */
 @Slf4j
 @Controller

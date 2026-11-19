@@ -3,9 +3,10 @@ package com.zero.jobadmin.business.scheduler.trigger;
 import com.zero.jobadmin.framework.util.I18nUtil;
 
 /**
- * trigger type enum
  *
- * @author xuxueli 2018-09-16 04:56:41
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 定义调度触发来源，包括定时、手动、重试和其他调度场景。
  */
 public enum TriggerTypeEnum {
 

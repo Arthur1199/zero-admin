@@ -32,16 +32,16 @@ public class DataSourceAspect
      */
     protected Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Pointcut(PackageProperties.DATA_SOURCE_POINTCUT_SIGN)
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: dsPointCut
+     * 时间: 2026/11/20 01:36
+     * 说明: 声明处理方法或类上数据源注解的切点。
      * @return
      * 返回值: void
-     * 返回值说明：dsPointCut
+     * 返回值说明: 将匹配的调用交给数据源路由切面
      */
+    @Pointcut(PackageProperties.DATA_SOURCE_POINTCUT_SIGN)
     public void dsPointCut()
     {
 
@@ -49,12 +49,12 @@ public class DataSourceAspect
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: around
-     * @param point point参数
+     * 时间: 2026/11/20 01:36
+     * 说明: 按目标方法或类的注解选择数据源，任何退出路径都会清理线程上的路由标记。
+     * @param point 数据源切换切点
      * @return
      * 返回值: Object
-     * 返回值说明：around
+     * 返回值说明: 被调用方法的执行结果
      */
 
     @Around("dsPointCut()")
@@ -73,7 +73,7 @@ public class DataSourceAspect
         }
         finally
         {
-            // 销毁数据源 在执行方法之后
+            // 清除当前线程的路由标记，避免线程复用时把后续查询带到错误的数据源。
             DynamicDataSourceContextHolder.clearDataSourceType();
         }
     }

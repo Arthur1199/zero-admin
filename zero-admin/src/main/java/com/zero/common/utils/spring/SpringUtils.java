@@ -12,9 +12,10 @@ import org.springframework.stereotype.Component;
 import com.zero.common.utils.StringUtils;
 
 /**
- * spring工具类 方便在非spring管理环境中获取bean
  *
- * @author zero
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: spring工具类 方便在非spring管理环境中获取bean
  */
 @Component
 public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationContextAware
@@ -64,12 +65,13 @@ public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationC
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 获取对象
+     * @param <T> 当前方法处理的值类型
      * @param name 名称参数
      * @return
-     * 返回值: Object 一个以所给名字注册的bean的实例
-     * 返回值说明：获取对象
+     * 返回值: T
+     * 返回值说明: 获取对象
      */
     @SuppressWarnings("unchecked")
     public static <T> T getBean(String name) throws BeansException
@@ -80,12 +82,13 @@ public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationC
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 获取类型为requiredType的对象
+     * @param <T> 当前方法处理的值类型
      * @param clz clz参数
      * @return
-     * 返回值: <T> T
-     * 返回值说明：获取类型为requiredType的对象
+     * 返回值: T
+     * 返回值说明: 获取类型为requiredType的对象
      */
     public static <T> T getBean(Class<T> clz) throws BeansException
     {
@@ -156,12 +159,13 @@ public final class SpringUtils implements BeanFactoryPostProcessor, ApplicationC
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 获取aop代理对象
+     * @param <T> 当前方法处理的值类型
      * @param invoker invoker参数
      * @return
-     * 返回值: <T> T
-     * 返回值说明：获取aop代理对象
+     * 返回值: T
+     * 返回值说明: 获取aop代理对象
      */
     @SuppressWarnings("unchecked")
     public static <T> T getAopProxy(T invoker)

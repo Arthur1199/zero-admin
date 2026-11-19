@@ -44,7 +44,9 @@ public class MybatisSqlLogInterceptor
 {
     /** 默认支持 SQL 日志的本地、测试和生产 Spring Profile。 */
     private static final String DEV = "dev";
+    /** 测试环境的 Profile 名称，用于 SQL 日志开关判断。 */
     private static final String TEST = "test";
+    /** 生产环境的 Profile 名称，用于 SQL 日志开关判断。 */
     private static final String PROD = "prod";
 
     /** 用于判断当前服务启用的 Spring Profile。 */

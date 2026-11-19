@@ -36,9 +36,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * index controller
  *
- * @author xuxueli 2015-12-19 16:13:16
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 渲染调度控制台首页、菜单、概览图表、帮助和错误页面。
  */
 @Controller
 public class IndexController {
@@ -51,7 +52,15 @@ public class IndexController {
 	private JobDashboardService jobDashboardService;
 
 	/**
-	 * index
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 读取当前登录用户可见的菜单并渲染控制台主页。
+	 * @param request 携带调度登录信息的请求
+	 * @param model 用于写入菜单资源的视图模型
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 调度控制台主框架视图名
 	 */
 	@RequestMapping("/")
 	@XxlSso
@@ -65,7 +74,14 @@ public class IndexController {
 	}
 
 	/**
-	 * fill menu data
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 根据调度登录角色筛选菜单资源，为首页生成可见的导航项。
+	 * @param request 用于获取调度登录信息的 HTTP 请求
+	 * @return
+	 * 返回值: List<XxlBootResourceDTO>
+	 * 返回值说明: 当前账号可见的调度菜单
 	 */
 	private List<XxlBootResourceDTO> findResourceList(HttpServletRequest request){
 		// login check
@@ -113,6 +129,17 @@ public class IndexController {
 		return "framework/base/dashboard";
 	}
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 读取调度统计图表的数据。
+	 * @param startDate 统计起始日期
+	 * @param endDate 统计结束日期
+	 * @return
+	 * 返回值: Response<Map<String, Object>>
+	 * 返回值说明: 指定日期范围的调度趋势和合计
+	 */
 	@RequestMapping("/chartInfo")
 	@XxlSso
 	@ResponseBody
@@ -159,7 +186,13 @@ public class IndexController {
 	}
 
 	/**
-	 * help
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 为登录用户显示控制台帮助页。
+	 * @return
+	 * 返回值: String
+	 * 返回值说明: 帮助页视图名
 	 */
 	@RequestMapping("/help")
 	@XxlSso
@@ -167,6 +200,18 @@ public class IndexController {
 		return "framework/base/help";
 	}
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 根据响应状态生成调度控制台通用错误页。
+	 * @param request 触发错误页的请求
+	 * @param response 提供 HTTP 状态的响应
+	 * @param mv 待填充的视图模型
+	 * @return
+	 * 返回值: ModelAndView
+	 * 返回值说明: 包含 HTTP 状态文字的错误视图
+	 */
 	@RequestMapping(value = "/errorpage")
 	@XxlSso(login = false)
 	public ModelAndView errorPage(HttpServletRequest request, HttpServletResponse response, ModelAndView mv) {
@@ -178,6 +223,16 @@ public class IndexController {
 		return mv;
 	}
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 为控制台请求注册严格日期解析，格式为 yyyy-MM-dd HH:mm:ss。
+	 * @param binder 当前请求的数据绑定对象
+	 * @return
+	 * 返回值: void
+	 * 返回值说明: 允许空日期，拒绝格式不匹配的输入
+	 */
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

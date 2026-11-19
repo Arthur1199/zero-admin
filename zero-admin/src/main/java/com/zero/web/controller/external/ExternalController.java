@@ -39,6 +39,9 @@ public class ExternalController extends BaseController
     private ISysIpWhiteService ipWhiteService;
 
     /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
      * 说明: 查询启用状态的登录IP白名单地址列表，供外部JSON调用方同步允许访问的IP规则
      * @return
      * 返回值: AjaxResult
@@ -60,6 +63,9 @@ public class ExternalController extends BaseController
     }
 
     /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
      * 说明: 解析IP归属地，供外部JSON调用方按IP获取完整地区结构
      * @param ipAddr IP地址，仅精确IPv4地址会触发解析
      * @return
@@ -77,6 +83,9 @@ public class ExternalController extends BaseController
     }
 
     /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
      * 说明: 判断外部JSON接口总开关是否开启，未配置或非true时按关闭处理，避免误暴露匿名接口数据
      * @return
      * 返回值: boolean

@@ -139,12 +139,12 @@ public class SecurityUtils
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 判断密码是否相同
      * @param rawPassword 真实密码
      * @param encodedPassword 加密后字符
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：判断密码是否相同
      */
     public static boolean matchesPassword(String rawPassword, String encodedPassword)
@@ -156,11 +156,11 @@ public class SecurityUtils
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 是否为管理员
      * @param userId 用户ID
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：是否为管理员
      */
     public static boolean isAdmin(Long userId)

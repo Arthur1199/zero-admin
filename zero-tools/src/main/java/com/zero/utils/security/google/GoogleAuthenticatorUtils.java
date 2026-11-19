@@ -6,7 +6,10 @@ import java.security.SecureRandom;
 import java.util.Locale;
 
 /**
- * GoogleAuthenticator 工具类
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: GoogleAuthenticator 工具类
  */
 public class GoogleAuthenticatorUtils {
 
@@ -29,7 +32,13 @@ public class GoogleAuthenticatorUtils {
     private static final int timeExcursion = 0;
 
     /**
-     * 创建一个密钥
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 生成用于动态码绑定的共享密钥。
+     * @return
+     * 返回值: String
+     * 返回值说明: 经过 Base32 编码的密钥文本，禁止输出到日志
      */
     public static String createSecretKey() {
         SecureRandom random = new SecureRandom();
@@ -39,10 +48,15 @@ public class GoogleAuthenticatorUtils {
     }
 
     /**
-     * 校验方法
      *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 校验方法
      * @param secretKey 密钥
-     * @param code      用户输入的TOTP
+     * @param code 用户输入的TOTP
+     * @return
+     * 返回值: boolean
+     * 返回值说明: 符合上述判断条件时返回 true
      */
     public static boolean verify(String secretKey, String code) {
         long time = System.currentTimeMillis() / 1000 / 30;
@@ -56,10 +70,17 @@ public class GoogleAuthenticatorUtils {
     }
 
     /**
-     * 根据密钥获取验证码
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 根据密钥获取验证码
+     *
      * 返回字符串是因为数值有可能以0开头
      * @param secretKey 密钥
-     * @param time      第几个30秒 System.currentTimeMillis() / 1000 / 30
+     * @param time 第几个30秒 System.currentTimeMillis() / 1000 / 30
+     * @return
+     * 返回值: String
+     * 返回值说明: 按上述规则读取或解析得到的文本
      */
     public static String getTOTP(String secretKey, long time) {
         byte[] bytes = base32Decode(secretKey);
@@ -69,12 +90,16 @@ public class GoogleAuthenticatorUtils {
     }
 
     /**
-     * 生成Google Authenticator二维码所需信息
-     * Google Authenticator 约定的二维码信息格式 : otpauth://totp/{issuer}:{account}?secret={secret}&issuer={issuer}
-     * 参数需要url编码 +号需要替换成%20
-     * @param secret  密钥 使用createSecretKey方法生成
-     * @param account 用户账户 如: example@domain.com 138XXXXXXXX
-     * @param issuer  服务名称 如: Google Github 印象笔记
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 组装身份验证器绑定二维码承载的配置地址。
+     * @param secret 动态码共享密钥
+     * @param account 绑定账号的显示名称
+     * @param issuer 用于区分系统的发行方名称
+     * @return
+     * 返回值: String
+     * 返回值说明: 用于生成绑定二维码的 otpauth 文本
      */
     public static String createGoogleAuthQRCodeData(String secret, String account, String issuer) {
         String qrCodeData = "otpauth://totp/%s?secret=%s&issuer=%s";

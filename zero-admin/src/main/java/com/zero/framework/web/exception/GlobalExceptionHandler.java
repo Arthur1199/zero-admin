@@ -51,7 +51,15 @@ public class GlobalExceptionHandler
     }
 
     /**
-     * 请求方式不支持
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 将请求方法不受支持的异常转换成管理后台统一错误结构。
+     * @param e 当前 HTTP 请求方法不受支持的异常
+     * @param request 触发异常的 HTTP 请求
+     * @return
+     * 返回值: AjaxResult
+     * 返回值说明: 携带请求方法错误提示的响应
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public AjaxResult handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException e,

@@ -11,7 +11,10 @@ import com.zero.platform.FileStorage;
 import com.zero.vo.FileInfo;
 
 /**
- * 下载缩略图切面调用链。
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 负责单次缩略图下载。按顺序经过存储切面，最后调用实际存储操作。
  */
 @Getter
 @Setter
@@ -20,13 +23,30 @@ public class DownloadThAspectChain {
     private DownloadThAspectChainCallback callback;
     private Iterator<FileStorageAspect> aspectIterator;
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 为本次缩略图下载创建独立的切面迭代器。
+     * @param aspects 已按执行顺序提供的文件存储切面
+     * @param callback 切面遍历结束后的实际操作
+     */
     public DownloadThAspectChain(Iterable<FileStorageAspect> aspects,DownloadThAspectChainCallback callback) {
         this.aspectIterator = aspects.iterator();
         this.callback = callback;
     }
 
     /**
-     * 调用下一个切面。
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 将本次缩略图下载交给下一个切面，切面遍历结束后调用实际操作。
+     * @param fileInfo 携带缩略图位置的文件信息
+     * @param fileStorage 文件原有存储平台
+     * @param consumer 消费缩略图流的回调
+     * @return
+     * 返回值: void
+     * 返回值说明: 由消费回调处理缩略图下载流
      */
     public void next(FileInfo fileInfo,FileStorage fileStorage,Consumer<InputStream> consumer) {
         if (aspectIterator.hasNext()) {// 还有下一个切面

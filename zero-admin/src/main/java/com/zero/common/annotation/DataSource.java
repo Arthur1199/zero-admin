@@ -21,7 +21,13 @@ import com.zero.common.enums.DataSourceType;
 public @interface DataSource
 {
     /**
-     * 切换数据源名称
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 切换数据源名称
+     * @return
+     * 返回值: DataSourceType
+     * 返回值说明: 切换数据源名称
      */
     public DataSourceType value() default DataSourceType.MASTER;
 }

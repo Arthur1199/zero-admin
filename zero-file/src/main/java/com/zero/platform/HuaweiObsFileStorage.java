@@ -17,7 +17,10 @@ import java.io.InputStream;
 import java.util.function.Consumer;
 
 /**
- * 华为云 OBS 存储。
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 华为云 OBS 存储。
  */
 @Getter
 @Setter
@@ -32,14 +35,44 @@ public class HuaweiObsFileStorage implements FileStorage {
     private String domain;
     private String basePath;
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 根据终端地址和认证配置创建 OBS 客户端。
+     * @return
+     * 返回值: ObsClient
+     * 返回值说明: 用于文件对象操作的 OBS 客户端
+     */
     public ObsClient getObs() {
         return new ObsClient(accessKey,secretKey,endPoint);
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 关闭华为云 OBS 客户端。
+     * @param obs 需要关闭的 OBS 客户端
+     * @return
+     * 返回值: void
+     * 返回值说明: 释放传入客户端占用的资源
+     */
     public void close(ObsClient obs) {
         IoUtil.close(obs);
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 通过 华为云 OBS 存储原文件及可选的缩略图，并更新文件信息中的存储位置。
+     * @param fileInfo 用于回填存储位置的文件信息
+     * @param pre 含原文件内容及可选缩略图的预处理结果
+     * @return
+     * 返回值: boolean
+     * 返回值说明: 当前平台的保存结果
+     */
     @Override
     public boolean save(FileInfo fileInfo,UploadPretreatment pre) {
         String newFileKey = basePath + pre.getPath() + fileInfo.getFilename();
@@ -66,6 +99,16 @@ public class HuaweiObsFileStorage implements FileStorage {
         }
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 按历史记录中的存储路径删除 华为云 OBS 的对象及关联缩略图。
+     * @param fileInfo 携带原文件及缩略图路径信息的文件记录
+     * @return
+     * 返回值: boolean
+     * 返回值说明: 当前平台的删除结果
+     */
     @Override
     public boolean delete(FileInfo fileInfo) {
         ObsClient obs = getObs();
@@ -81,6 +124,16 @@ public class HuaweiObsFileStorage implements FileStorage {
     }
 
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 检查 华为云 OBS 是否仍可找到文件记录指向的原文件。
+     * @param fileInfo 包含原文件位置的文件信息
+     * @return
+     * 返回值: boolean
+     * 返回值说明: 原文件存在时返回 true
+     */
     @Override
     public boolean exists(FileInfo fileInfo) {
         ObsClient obs = getObs();
@@ -91,6 +144,17 @@ public class HuaweiObsFileStorage implements FileStorage {
         }
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 从 华为云 OBS 读取文件记录指向的原文件。
+     * @param fileInfo 包含原文件位置的文件信息
+     * @param consumer 用于读取输入流的回调
+     * @return
+     * 返回值: void
+     * 返回值说明: 在输入流有效期间调用消费回调
+     */
     @Override
     public void download(FileInfo fileInfo,Consumer<InputStream> consumer) {
         ObsClient obs = getObs();
@@ -106,6 +170,17 @@ public class HuaweiObsFileStorage implements FileStorage {
         }
     }
 
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 检查缩略图位置，并从 华为云 OBS 读取缩略图。
+     * @param fileInfo 包含缩略图位置的文件信息
+     * @param consumer 用于读取缩略图输入流的回调
+     * @return
+     * 返回值: void
+     * 返回值说明: 读取后在输入流有效期间调用消费回调
+     */
     @Override
     public void downloadTh(FileInfo fileInfo,Consumer<InputStream> consumer) {
         if (StrUtil.isBlank(fileInfo.getThFilename())) {

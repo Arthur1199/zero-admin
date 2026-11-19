@@ -7,14 +7,36 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
- * job log for glue
- * @author xuxueli 2016-5-19 18:04:56
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 维护 xxl_job_logglue 中的 GLUE 脚本历史版本。
  */
 @Mapper
 public interface XxlJobLogGlueMapper {
 	
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 保存任务 GLUE 脚本的历史版本。
+	 * @param xxlJobLogGlue 待保存的脚本版本
+	 * @return
+	 * 返回值: int
+	 * 返回值说明: 插入影响行数
+	 */
 	public int save(XxlJobLogGlue xxlJobLogGlue);
 	
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 查询指定任务的 GLUE 版本历史。
+	 * @param jobId 任务主键
+	 * @return
+	 * 返回值: List<XxlJobLogGlue>
+	 * 返回值说明: 该任务的脚本历史列表
+	 */
 	public List<XxlJobLogGlue> findByJobId(@Param("jobId") int jobId);
 
 	/**
@@ -29,8 +51,29 @@ public interface XxlJobLogGlueMapper {
 	 */
 	Integer findLatestVersionId(@Param("jobId") int jobId);
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 清理指定任务较旧的 GLUE 版本，保留主键最大的指定数量。
+	 * @param jobId 任务主键
+	 * @param limit 要保留的最近版本数
+	 * @return
+	 * 返回值: int
+	 * 返回值说明: 删除行数
+	 */
 	public int removeOld(@Param("jobId") int jobId, @Param("limit") int limit);
 
+	/**
+	 *
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 删除指定任务的全部 GLUE 历史版本。
+	 * @param jobId 任务主键
+	 * @return
+	 * 返回值: int
+	 * 返回值说明: 删除行数
+	 */
 	public int deleteByJobId(@Param("jobId") int jobId);
 	
 }

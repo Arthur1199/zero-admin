@@ -36,10 +36,15 @@ public class QRCodeUtils
     }
 
     /**
-     * 将二维码内容写入图片输出流
      *
-     * @param content 二维码内容
-     * @param outputStream 图片输出流
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 将文本编码成二维码后写入调用方提供的流。
+     * @param content 二维码承载的文本
+     * @param outputStream 用于写入图片的输出流
+     * @return
+     * 返回值: void
+     * 返回值说明: 将二维码图片写入输出流
      */
     public static void writeToStream(String content, OutputStream outputStream) throws WriterException, IOException
     {

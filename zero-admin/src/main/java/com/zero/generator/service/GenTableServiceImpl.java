@@ -145,12 +145,12 @@ public class GenTableServiceImpl implements IGenTableService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 修改业务
-     * @param genTable 业务信息
+     * 时间: 2026/11/20 01:36
+     * 说明: 更新代码生成配置及其字段设置。
+     * @param genTable 待维护的生成配置和字段列表
      * @return
-     * 返回值: 结果
-     * 返回值说明：修改业务
+     * 返回值: void
+     * 返回值说明: 保存生成器的表和字段配置
      */
     @Override
     @Transactional
@@ -171,12 +171,12 @@ public class GenTableServiceImpl implements IGenTableService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 删除业务对象
-     * @param tableIds 需要删除的数据ID
+     * 时间: 2026/11/20 01:36
+     * 说明: 按生成配置 ID 删除生成器表定义及关联字段配置。
+     * @param tableIds 生成器表定义主键数组
      * @return
-     * 返回值: 结果
-     * 返回值说明：删除业务对象
+     * 返回值: void
+     * 返回值说明: 删除生成配置及字段映射
      */
     @Override
     @Transactional
@@ -189,11 +189,11 @@ public class GenTableServiceImpl implements IGenTableService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 创建表
      * @param sql 创建表语句
      * @return
-     * 返回值: 结果
+     * 返回值: boolean
      * 返回值说明：创建表
      */
     @Override
@@ -282,11 +282,11 @@ public class GenTableServiceImpl implements IGenTableService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 生成代码（下载方式）
      * @param tableName 表名称
      * @return
-     * 返回值: 数据
+     * 返回值: byte[]
      * 返回值说明：生成代码（下载方式）
      */
     @Override
@@ -409,11 +409,11 @@ public class GenTableServiceImpl implements IGenTableService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 批量生成代码（下载方式）
      * @param tableNames 表数组
      * @return
-     * 返回值: 数据
+     * 返回值: byte[]
      * 返回值说明：批量生成代码（下载方式）
      */
     @Override

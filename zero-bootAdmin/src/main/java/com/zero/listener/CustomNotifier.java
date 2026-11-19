@@ -16,10 +16,10 @@ import reactor.core.publisher.Mono;
 import java.util.Date;
 
 /**
- * 作者: Jack
- * 时间: 2023年4月21日下午3:26:40
- * 说明: 自定义监控
  *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 将 Boot Admin 实例的上线和离线事件转换成 Telegram 监控通知。供需要 Telegram 通知的调用方手动装配。
  */
 //@Component
 @Slf4j
@@ -47,11 +47,11 @@ public class CustomNotifier extends AbstractStatusChangeNotifier {
             if (event instanceof InstanceStatusChangedEvent) {
                 log.info("Instance {} ({}) is {}", instance.getRegistration().getName(), event.getInstance(),
                         ((InstanceStatusChangedEvent) event).getStatusInfo().getStatus());
-                //获取服务状态 status  UP上线,OFFLINE离职
+                // 当前通知只处理上线和离线状态，其他变化仅保留事件日志。
                 String status = ((InstanceStatusChangedEvent) event).getStatusInfo().getStatus();
                 //服务名称,
                 String clientName = instance.getRegistration().getName().toLowerCase();
-                //服务所在的服务器ip地址
+                // 注册信息提供的服务地址，可能包含协议、域名及端口。
                 String clientServerUrl = instance.getRegistration().getServiceUrl();
                 String statusName="OFFLINE".equals(status)?"已经宕机了":"已经重新上线";
                 if ("OFFLINE".equals(status) || "UP".equals(status)) {
@@ -82,7 +82,17 @@ public class CustomNotifier extends AbstractStatusChangeNotifier {
     }
 
     /**
-     * 替换邮件模板内占位符
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 用监控事件的数据替换通知模板中的状态、服务名及服务地址占位符。
+     * @param msg 待渲染的通知模板正文
+     * @param state 服务状态的展示文本
+     * @param appName 服务注册名称
+     * @param serverIp 模板中所需的服务地址
+     * @return
+     * 返回值: String
+     * 返回值说明: 替换后可用于通知的文本
      */
     private String repelateMessage(String msg, String state, String appName, String serverIp) {
         msg = msg.replace("${服务状态}", state);

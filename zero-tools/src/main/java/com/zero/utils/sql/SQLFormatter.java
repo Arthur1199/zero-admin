@@ -74,13 +74,13 @@ public class SQLFormatter {
 
 	/**
 	 *
-	 * 作者: Jack
-	 * 时间: 2017/8/26 16:46
-	 * 说明: 按常见 SQL 子句重新排版，调用方可在词元无法解析时保留原文。
-	 * @param source 非 null 的 SQL 文本，可含 JDBC 参数占位符
-	 * @return 换行和缩进后的 SQL 文本
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 识别常见 SQL 子句及标点并调整换行和缩进，用于展示 SQL。
+	 * @param source 待排版的 SQL 字符串，可包含 JDBC 参数占位符
+	 * @return
 	 * 返回值: String
-	 * 返回值说明: 供日志展示，保留占位符
+	 * 返回值说明: 格式化后的 SQL 文本
 	 */
 	public static String format(String source) {
 		return new FormatProcess( source ).perform();
@@ -88,9 +88,9 @@ public class SQLFormatter {
 
 	/**
 	 *
-	 * 作者: Jack
-	 * 时间: 2017/8/26 16:46
-	 * 说明: 保存单次格式化所需的分词游标、子句状态和缩进层级。
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 保存一次 SQL 排版的词元输入、括号及子句状态，每次格式化使用独立实例。
 	 */
 	@SuppressWarnings("unused")
 	private static class FormatProcess {
@@ -116,10 +116,10 @@ public class SQLFormatter {
 
 		/**
 		 *
-		 * 作者: Jack
-		 * 时间: 2017/8/26 16:46
-		 * 说明: 初始化 SQL 分词器，保留标点和空白以判断排版边界。
-		 * @param sql 非 null 的原始 SQL 文本
+		 * 作者: Arthur 亚瑟
+		 * 时间: 2026/11/20 01:36
+		 * 说明: 创建本次格式化的分词器，保留分隔符及空白用于识别结构。
+		 * @param sql 待格式化的非空引用 SQL 文本
 		 */
 		public FormatProcess(String sql) {
 			tokens = new StringTokenizer(
@@ -131,12 +131,12 @@ public class SQLFormatter {
 
 		/**
 		 *
-		 * 作者: Jack
-		 * 时间: 2017/8/26 16:46
-		 * 说明: 按词元遍历 SQL，根据子句和括号层级生成排版文本。
-		 * @return 本次生成的 SQL 文本
+		 * 作者: Arthur 亚瑟
+		 * 时间: 2026/11/20 01:36
+		 * 说明: 按词元遍历 SQL，跟踪括号层级和子句切换，应用对应的缩进和换行。
+		 * @return
 		 * 返回值: String
-		 * 返回值说明: 包含排版后的换行和缩进
+		 * 返回值说明: 本次排版生成的 SQL 文本
 		 */
 		public String perform() {
 
@@ -415,10 +415,13 @@ public class SQLFormatter {
 
 	/**
 	 *
-	 * 作者: Jack
-	 * 时间: 2017/8/26 16:46
-	 * 说明: 在控制台展示简单查询的格式化效果。
-	 * @param args 命令行参数，示例不读取
+	 * 作者: Arthur 亚瑟
+	 * 时间: 2026/11/20 01:36
+	 * 说明: 在控制台演示 SQL 排版。
+	 * @param args 命令行参数，示例未读取
+	 * @return
+	 * 返回值: void
+	 * 返回值说明: 打印排版后的示例语句
 	 */
 	public static void main(String[] args) {
 		String sql = SQLFormatter.format("SELECT * From t_sss");

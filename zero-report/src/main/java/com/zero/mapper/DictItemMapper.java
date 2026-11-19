@@ -7,11 +7,10 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 /**
- * <p>
- * 业务字典明细表 Mapper 接口
- * </p>
  *
- * @author Arthur
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/11/20 01:36
+ * 说明: 访问业务字典明细表，提供管理查询和有效字典项读取。
  * @since 2026/06/28 04:06
  */
 public interface DictItemMapper extends BaseMapper<DictItem> {

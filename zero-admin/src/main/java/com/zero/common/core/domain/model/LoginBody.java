@@ -150,9 +150,13 @@ public class LoginBody
     }
 
     /**
-     * 获取谷歌动态码
      *
-     * @return 谷歌动态码
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 获取谷歌动态码
+     * @return
+     * 返回值: String
+     * 返回值说明: 谷歌动态码
      */
     public String getGoogleCode()
     {
@@ -160,9 +164,14 @@ public class LoginBody
     }
 
     /**
-     * 设置谷歌动态码
      *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/20 01:36
+     * 说明: 设置谷歌动态码
      * @param googleCode 谷歌动态码
+     * @return
+     * 返回值: void
+     * 返回值说明: 设置谷歌动态码
      */
     public void setGoogleCode(String googleCode)
     {

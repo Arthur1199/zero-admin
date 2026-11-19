@@ -20,12 +20,12 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为字符串<br>如果给定的值为null，或者转换失败，返回默认值<br>转换失败不会报错
      * @param value 被转换的值
      * @param defaultValue 转换错误时的默认值
      * @return
-     * 返回值: 结果
+     * 返回值: String
      * 返回值说明：转换为字符串<br>如果给定的值为null，或者转换失败，返回默认值<br>转换失败不会报错
      */
     public static String toStr(Object value, String defaultValue)
@@ -44,11 +44,11 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为字符串<br>如果给定的值为<code>null</code>，或者转换失败，返回默认值<code>null</code><br>转换失败不会报错
      * @param value 被转换的值
      * @return
-     * 返回值: 结果
+     * 返回值: String
      * 返回值说明：转换为字符串<br>如果给定的值为<code>null</code>，或者转换失败，返回默认值<code>null</code><br>转换失败不会报错
      */
     public static String toStr(Object value)
@@ -59,12 +59,12 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为字符<br>如果给定的值为null，或者转换失败，返回默认值<br>转换失败不会报错
      * @param value 被转换的值
      * @param defaultValue 转换错误时的默认值
      * @return
-     * 返回值: 结果
+     * 返回值: Character
      * 返回值说明：转换为字符<br>如果给定的值为null，或者转换失败，返回默认值<br>转换失败不会报错
      */
     public static Character toChar(Object value, Character defaultValue)
@@ -85,11 +85,11 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为字符<br>如果给定的值为<code>null</code>，或者转换失败，返回默认值<code>null</code><br>转换失败不会报错
      * @param value 被转换的值
      * @return
-     * 返回值: 结果
+     * 返回值: Character
      * 返回值说明：转换为字符<br>如果给定的值为<code>null</code>，或者转换失败，返回默认值<code>null</code><br>转换失败不会报错
      */
     public static Character toChar(Object value)
@@ -100,12 +100,12 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为byte<br>如果给定的值为<code>null</code>，或者转换失败，返回默认值<br>转换失败不会报错
      * @param value 被转换的值
      * @param defaultValue 转换错误时的默认值
      * @return
-     * 返回值: 结果
+     * 返回值: Byte
      * 返回值说明：转换为byte<br>如果给定的值为<code>null</code>，或者转换失败，返回默认值<br>转换失败不会报错
      */
     public static Byte toByte(Object value, Byte defaultValue)
@@ -140,11 +140,11 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为byte<br>如果给定的值为<code>null</code>，或者转换失败，返回默认值<code>null</code><br>转换失败不会报错
      * @param value 被转换的值
      * @return
-     * 返回值: 结果
+     * 返回值: Byte
      * 返回值说明：转换为byte<br>如果给定的值为<code>null</code>，或者转换失败，返回默认值<code>null</code><br>转换失败不会报错
      */
     public static Byte toByte(Object value)
@@ -155,12 +155,12 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为Short<br>如果给定的值为<code>null</code>，或者转换失败，返回默认值<br>转换失败不会报错
      * @param value 被转换的值
      * @param defaultValue 转换错误时的默认值
      * @return
-     * 返回值: 结果
+     * 返回值: Short
      * 返回值说明：转换为Short<br>如果给定的值为<code>null</code>，或者转换失败，返回默认值<br>转换失败不会报错
      */
     public static Short toShort(Object value, Short defaultValue)
@@ -195,11 +195,11 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为Short<br>如果给定的值为<code>null</code>，或者转换失败，返回默认值<code>null</code><br>转换失败不会报错
      * @param value 被转换的值
      * @return
-     * 返回值: 结果
+     * 返回值: Short
      * 返回值说明：转换为Short<br>如果给定的值为<code>null</code>，或者转换失败，返回默认值<code>null</code><br>转换失败不会报错
      */
     public static Short toShort(Object value)
@@ -210,12 +210,12 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为Number<br>如果给定的值为空，或者转换失败，返回默认值<br>转换失败不会报错
      * @param value 被转换的值
      * @param defaultValue 转换错误时的默认值
      * @return
-     * 返回值: 结果
+     * 返回值: Number
      * 返回值说明：转换为Number<br>如果给定的值为空，或者转换失败，返回默认值<br>转换失败不会报错
      */
     public static Number toNumber(Object value, Number defaultValue)
@@ -246,11 +246,11 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为Number<br>如果给定的值为空，或者转换失败，返回默认值<code>null</code><br>转换失败不会报错
      * @param value 被转换的值
      * @return
-     * 返回值: 结果
+     * 返回值: Number
      * 返回值说明：转换为Number<br>如果给定的值为空，或者转换失败，返回默认值<code>null</code><br>转换失败不会报错
      */
     public static Number toNumber(Object value)
@@ -261,12 +261,12 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为int<br>如果给定的值为空，或者转换失败，返回默认值<br>转换失败不会报错
      * @param value 被转换的值
      * @param defaultValue 转换错误时的默认值
      * @return
-     * 返回值: 结果
+     * 返回值: Integer
      * 返回值说明：转换为int<br>如果给定的值为空，或者转换失败，返回默认值<br>转换失败不会报错
      */
     public static Integer toInt(Object value, Integer defaultValue)
@@ -301,11 +301,11 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为int<br>如果给定的值为<code>null</code>，或者转换失败，返回默认值<code>null</code><br>转换失败不会报错
      * @param value 被转换的值
      * @return
-     * 返回值: 结果
+     * 返回值: Integer
      * 返回值说明：转换为int<br>如果给定的值为<code>null</code>，或者转换失败，返回默认值<code>null</code><br>转换失败不会报错
      */
     public static Integer toInt(Object value)
@@ -316,11 +316,11 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为Integer数组<br>
      * @param str 被转换的值
      * @return
-     * 返回值: 结果
+     * 返回值: Integer[]
      * 返回值说明：转换为Integer数组<br>
      */
     public static Integer[] toIntArray(String str)
@@ -331,11 +331,11 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为Long数组<br>
      * @param str 被转换的值
      * @return
-     * 返回值: 结果
+     * 返回值: Long[]
      * 返回值说明：转换为Long数组<br>
      */
     public static Long[] toLongArray(String str)
@@ -346,12 +346,12 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为Integer数组<br>
      * @param split 被转换的值
      * @param str str参数
      * @return
-     * 返回值: 结果
+     * 返回值: Integer[]
      * 返回值说明：转换为Integer数组<br>
      */
     public static Integer[] toIntArray(String split, String str)
@@ -373,12 +373,12 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为Long数组<br>
      * @param split 分隔符
      * @param str 被转换的值
      * @return
-     * 返回值: 结果
+     * 返回值: Long[]
      * 返回值说明：转换为Long数组<br>
      */
     public static Long[] toLongArray(String split, String str)
@@ -400,11 +400,11 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为String数组<br>
      * @param str 被转换的值
      * @return
-     * 返回值: 结果
+     * 返回值: String[]
      * 返回值说明：转换为String数组<br>
      */
     public static String[] toStrArray(String str)
@@ -419,12 +419,12 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为String数组<br>
      * @param split 被转换的值
      * @param str str参数
      * @return
-     * 返回值: 结果
+     * 返回值: String[]
      * 返回值说明：转换为String数组<br>
      */
     public static String[] toStrArray(String split, String str)
@@ -435,12 +435,12 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为long<br>如果给定的值为空，或者转换失败，返回默认值<br>转换失败不会报错
      * @param value 被转换的值
      * @param defaultValue 转换错误时的默认值
      * @return
-     * 返回值: 结果
+     * 返回值: Long
      * 返回值说明：转换为long<br>如果给定的值为空，或者转换失败，返回默认值<br>转换失败不会报错
      */
     public static Long toLong(Object value, Long defaultValue)
@@ -476,11 +476,11 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为long<br>如果给定的值为<code>null</code>，或者转换失败，返回默认值<code>null</code><br>转换失败不会报错
      * @param value 被转换的值
      * @return
-     * 返回值: 结果
+     * 返回值: Long
      * 返回值说明：转换为long<br>如果给定的值为<code>null</code>，或者转换失败，返回默认值<code>null</code><br>转换失败不会报错
      */
     public static Long toLong(Object value)
@@ -491,12 +491,12 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为double<br>如果给定的值为空，或者转换失败，返回默认值<br>转换失败不会报错
      * @param value 被转换的值
      * @param defaultValue 转换错误时的默认值
      * @return
-     * 返回值: 结果
+     * 返回值: Double
      * 返回值说明：转换为double<br>如果给定的值为空，或者转换失败，返回默认值<br>转换失败不会报错
      */
     public static Double toDouble(Object value, Double defaultValue)
@@ -532,11 +532,11 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为double<br>如果给定的值为空，或者转换失败，返回默认值<code>null</code><br>转换失败不会报错
      * @param value 被转换的值
      * @return
-     * 返回值: 结果
+     * 返回值: Double
      * 返回值说明：转换为double<br>如果给定的值为空，或者转换失败，返回默认值<code>null</code><br>转换失败不会报错
      */
     public static Double toDouble(Object value)
@@ -547,12 +547,12 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为Float<br>如果给定的值为空，或者转换失败，返回默认值<br>转换失败不会报错
      * @param value 被转换的值
      * @param defaultValue 转换错误时的默认值
      * @return
-     * 返回值: 结果
+     * 返回值: Float
      * 返回值说明：转换为Float<br>如果给定的值为空，或者转换失败，返回默认值<br>转换失败不会报错
      */
     public static Float toFloat(Object value, Float defaultValue)
@@ -587,11 +587,11 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为Float<br>如果给定的值为空，或者转换失败，返回默认值<code>null</code><br>转换失败不会报错
      * @param value 被转换的值
      * @return
-     * 返回值: 结果
+     * 返回值: Float
      * 返回值说明：转换为Float<br>如果给定的值为空，或者转换失败，返回默认值<code>null</code><br>转换失败不会报错
      */
     public static Float toFloat(Object value)
@@ -602,12 +602,12 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为boolean<br>String支持的值为：true、false、yes、ok、no、1、0、是、否, 如果给定的值为空，或者转换失败，返回默认值<br>转换失败不会报错
      * @param value 被转换的值
      * @param defaultValue 转换错误时的默认值
      * @return
-     * 返回值: 结果
+     * 返回值: Boolean
      * 返回值说明：转换为boolean<br>String支持的值为：true、false、yes、ok、no、1、0、是、否, 如果给定的值为空，或者转换失败，返回默认值<br>转换失败不会报错
      */
     public static Boolean toBool(Object value, Boolean defaultValue)
@@ -647,11 +647,11 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为boolean<br>如果给定的值为空，或者转换失败，返回默认值<code>null</code><br>转换失败不会报错
      * @param value 被转换的值
      * @return
-     * 返回值: 结果
+     * 返回值: Boolean
      * 返回值说明：转换为boolean<br>如果给定的值为空，或者转换失败，返回默认值<code>null</code><br>转换失败不会报错
      */
     public static Boolean toBool(Object value)
@@ -662,14 +662,15 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为Enum对象<br>如果给定的值为空，或者转换失败，返回默认值<br>
+     * @param <E> 由调用方提供或期望的对象类型
      * @param clazz Enum的Class
      * @param value 值
      * @param defaultValue 默认值
      * @return
-     * 返回值: Enum
-     * 返回值说明：转换为Enum对象<br>如果给定的值为空，或者转换失败，返回默认值<br>
+     * 返回值: E
+     * 返回值说明: 转换为Enum对象<br>如果给定的值为空，或者转换失败，返回默认值<br>
      */
     public static <E extends Enum<E>> E toEnum(Class<E> clazz, Object value, E defaultValue)
     {
@@ -701,13 +702,14 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为Enum对象<br>如果给定的值为空，或者转换失败，返回默认值<code>null</code><br>
+     * @param <E> 由调用方提供或期望的对象类型
      * @param clazz Enum的Class
      * @param value 值
      * @return
-     * 返回值: Enum
-     * 返回值说明：转换为Enum对象<br>如果给定的值为空，或者转换失败，返回默认值<code>null</code><br>
+     * 返回值: E
+     * 返回值说明: 转换为Enum对象<br>如果给定的值为空，或者转换失败，返回默认值<code>null</code><br>
      */
     public static <E extends Enum<E>> E toEnum(Class<E> clazz, Object value)
     {
@@ -717,12 +719,12 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为BigInteger<br>如果给定的值为空，或者转换失败，返回默认值<br>转换失败不会报错
      * @param value 被转换的值
      * @param defaultValue 转换错误时的默认值
      * @return
-     * 返回值: 结果
+     * 返回值: BigInteger
      * 返回值说明：转换为BigInteger<br>如果给定的值为空，或者转换失败，返回默认值<br>转换失败不会报错
      */
     public static BigInteger toBigInteger(Object value, BigInteger defaultValue)
@@ -757,11 +759,11 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为BigInteger<br>如果给定的值为空，或者转换失败，返回默认值<code>null</code><br>转换失败不会报错
      * @param value 被转换的值
      * @return
-     * 返回值: 结果
+     * 返回值: BigInteger
      * 返回值说明：转换为BigInteger<br>如果给定的值为空，或者转换失败，返回默认值<code>null</code><br>转换失败不会报错
      */
     public static BigInteger toBigInteger(Object value)
@@ -772,12 +774,12 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为BigDecimal<br>如果给定的值为空，或者转换失败，返回默认值<br>转换失败不会报错
      * @param value 被转换的值
      * @param defaultValue 转换错误时的默认值
      * @return
-     * 返回值: 结果
+     * 返回值: BigDecimal
      * 返回值说明：转换为BigDecimal<br>如果给定的值为空，或者转换失败，返回默认值<br>转换失败不会报错
      */
     public static BigDecimal toBigDecimal(Object value, BigDecimal defaultValue)
@@ -820,11 +822,11 @@ public class Convert
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
+     * 时间: 2026/11/20 01:36
      * 说明: 转换为BigDecimal<br>如果给定的值为空，或者转换失败，返回默认值<br>转换失败不会报错
      * @param value 被转换的值
      * @return
-     * 返回值: 结果
+     * 返回值: BigDecimal
      * 返回值说明：转换为BigDecimal<br>如果给定的值为空，或者转换失败，返回默认值<br>转换失败不会报错
      */
     public static BigDecimal toBigDecimal(Object value)
