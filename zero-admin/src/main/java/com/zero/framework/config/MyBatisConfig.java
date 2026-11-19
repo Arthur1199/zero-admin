@@ -23,6 +23,7 @@ import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.util.ClassUtils;
 import com.zero.common.utils.StringUtils;
+import com.zero.framework.intercept.MybatisSqlLogInterceptor;
 
 /**
  *
@@ -140,15 +141,16 @@ public class MyBatisConfig
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/14 00:58
-     * 说明: SQLSession工厂
-     * @param dataSource 数据Source参数
+     * 说明: 创建后台 SQLSession 工厂，并注册用于记录实际 SQL 的日志拦截器。
+     * @param dataSource 后台动态数据源
+     * @param sqlLogInterceptor SQL 日志拦截器
      * @return
      * 返回值: SqlSessionFactory
      * 返回值说明：SQLSession工厂
      */
 
     @Bean
-    public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception
+    public SqlSessionFactory sqlSessionFactory(DataSource dataSource, MybatisSqlLogInterceptor sqlLogInterceptor) throws Exception
     {
         String typeAliasesPackage = env.getProperty("mybatis.typeAliasesPackage");
         String mapperLocations = env.getProperty("mybatis.mapperLocations");
@@ -161,6 +163,7 @@ public class MyBatisConfig
         sessionFactory.setTypeAliasesPackage(typeAliasesPackage);
         sessionFactory.setMapperLocations(resolveMapperLocations(StringUtils.split(mapperLocations, ",")));
         sessionFactory.setConfigLocation(new DefaultResourceLoader().getResource(configLocation));
+        sessionFactory.setPlugins(sqlLogInterceptor);
         return sessionFactory.getObject();
     }
 }

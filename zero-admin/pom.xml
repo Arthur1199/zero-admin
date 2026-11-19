@@ -15,6 +15,19 @@
     <description>后台管理系统服务</description>
     <packaging>jar</packaging>
     <dependencies>
+        <!-- 复用 SQL 日志格式化工具，工具包的其他集成依赖不随之引入。 -->
+        <dependency>
+            <groupId>com.zero</groupId>
+            <artifactId>zero-tools</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
         <!-- 系统通知HTML白名单过滤，使用HTML解析器处理不完整标记，不使用正则替代HTML解析。 -->
         <dependency>
             <groupId>org.jsoup</groupId>
