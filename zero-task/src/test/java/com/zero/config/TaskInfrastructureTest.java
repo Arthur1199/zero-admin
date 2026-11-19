@@ -7,6 +7,7 @@ import com.zero.base.TaskBaseService;
 import com.zero.controller.TaskBizDictTestController;
 import com.zero.domain.DictItem;
 import com.zero.mapper.TaskRoutingProbeMapper;
+import com.zero.model.AjaxResult;
 import com.zero.util.DictConfigUtil;
 import com.zero.util.RedissonUtil;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.assertj.core.api.InstanceOfAssertFactories.list;
 
 /**
  *
@@ -208,10 +210,19 @@ class TaskInfrastructureTest {
                 .withInitializer(context -> context.getEnvironment().setActiveProfiles("test"))
                 .run(context -> {
                     var controller = context.getBean(TaskBizDictTestController.class);
-                    assertThat(controller.getBizDictValue("task_status.paid")).isEqualTo("paid");
-                    assertThat(controller.findActiveItem("task_status", "paid").getItemCode()).isEqualTo("paid");
-                    assertThat(controller.findActiveItems("task_status")).extracting(DictItem::getItemCode)
-                            .containsExactly("pending", "paid");
+                    var value = controller.getBizDictValue("task_status.paid");
+                    assertThat(value.isSuccess()).isTrue();
+                    assertThat(value).containsEntry(AjaxResult.DATA_TAG, "paid");
+
+                    var item = controller.findActiveItem("task_status.paid");
+                    assertThat(item.isSuccess()).isTrue();
+                    assertThat(item.get(AjaxResult.DATA_TAG)).isInstanceOfSatisfying(DictItem.class,
+                            dictItem -> assertThat(dictItem.getItemCode()).isEqualTo("paid"));
+
+                    var items = controller.findActiveItems("task_status");
+                    assertThat(items.isSuccess()).isTrue();
+                    assertThat(items.get(AjaxResult.DATA_TAG)).asInstanceOf(list(DictItem.class))
+                            .extracting(DictItem::getItemCode).containsExactly("pending", "paid");
                 });
     }
 
