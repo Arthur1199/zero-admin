@@ -3,6 +3,7 @@ package com.zero.controller;
 import com.zero.domain.DictItem;
 import com.zero.model.AjaxResult;
 import com.zero.service.TaskBizDictTestService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +17,7 @@ import java.util.List;
  * 时间: 2026/11/19 18:43
  * 说明: 验证任务父类的业务字典查询，数据源关闭时仍注册测试路由。
  */
+@Slf4j
 @RestController
 @RequestMapping("/internal/task/biz-dict")
 public class TaskBizDictTestController {
@@ -69,6 +71,7 @@ public class TaskBizDictTestController {
     @GetMapping("/getActiveItems")
     public AjaxResult findActiveItems(String groupCode) {
         List<DictItem> activeItems = taskBizDictTestService.getActiveItems(groupCode);
+        log.info("查询字典列表成功,groupCodes:{}",groupCode);
         return AjaxResult.success(activeItems);
     }
 
