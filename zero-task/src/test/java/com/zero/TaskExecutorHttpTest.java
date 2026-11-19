@@ -1,4 +1,4 @@
-package com.zero.task;
+package com.zero;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.core.FileAppender;
@@ -109,6 +109,11 @@ class TaskExecutorHttpTest {
                     "--spring.cloud.nacos.config.enabled=false",
                     "--spring.cloud.nacos.discovery.enabled=false",
                     "--spring.cloud.discovery.enabled=false",
+                    "--spring.datasource.dynamic.primary=zeroBiz",
+                    "--spring.datasource.dynamic.datasource.zeroBiz.url=jdbc:h2:mem:task_executor_biz;MODE=MySQL",
+                    "--spring.datasource.dynamic.datasource.zeroBiz.username=sa",
+                    "--spring.datasource.dynamic.datasource.zeroAdmin.url=jdbc:h2:mem:task_executor_admin;MODE=MySQL",
+                    "--spring.datasource.dynamic.datasource.zeroAdmin.username=sa",
                     "--server.address=127.0.0.1",
                     "--server.port=0",
                     "--logging.file.path=" + logPath,
@@ -139,7 +144,7 @@ class TaskExecutorHttpTest {
                 assertThat(healthDetails.path("status").asText()).isEqualTo("UP");
                 assertThat(healthDetails.path("components").has("diskSpace")).isTrue();
                 for (String endpoint : new String[]{"info", "metrics/jvm.memory.used", "threaddump",
-                        "loggers", "env/xxl.job.executor.access-token", "configprops", "logfile"}) {
+                        "loggers", "env/xxl.job.executor.access-token", "configprops/xxl.job.executor", "logfile"}) {
                     var monitoringRequest = HttpRequest.newBuilder()
                             .uri(URI.create("http://127.0.0.1:" + managementPort + "/actuator/" + endpoint))
                             .timeout(Duration.ofSeconds(5)).build();

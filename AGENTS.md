@@ -31,7 +31,7 @@
 - 新建 Java 项目先确定模块职责、数据归属和调用方，再以 `zero-task` 为集成参考。实施前核对根 `pom.xml`、`zero-task/pom.xml`、启动类、`application*.yml`、`nacosConfig` 和[zero-task 模块说明](zero-task/README.md)。仓库内新模块沿用父工程版本管理并登记到 Maven 聚合模块，并核对启动类的组件扫描和持久层 Mapper 扫描范围。按业务需要接入 Nacos、Actuator、MySQL 和 Redis，只有承担任务执行职责的服务才接 XXL-JOB。
 - 以 [zero-task 的 Logback 配置](zero-task/src/main/resources/logback-spring.xml)为样板，控制台和应用文件使用相同格式，并与 admin、report、file、job-admin 保持一致。格式包含毫秒时间、线程、级别、Logger、方法、行号和消息。日志按服务设置独立目录，沿用 `sys-info.log`、`sys-error.log` 的分流和滚动方式。接入 Boot Admin 日志查看时，核对 Logback 写入的 `application.log` 与 Actuator logfile 读取的是同一文件。
 - 为新项目生成的所有 `.yml` 和 `.yaml` 配置都要就近添加中文注释，包括主配置、各环境配置及 Nacos 配置源。注释内容、覆盖关系及凭据示例按 [YAML 配置注释规范](#yaml-配置注释规范)执行。
-- 每个新 Java 项目都要集成 MyBatis-Plus 代码生成器。参考 [TaskCodeGenerator.java](zero-task/src/test/java/com/zero/task/generator/TaskCodeGenerator.java)，使用测试作用域的 MyBatis-Plus Generator 和 Velocity，提供显式执行入口，从本地环境变量读取数据库连接信息，并要求显式指定表名。生成实体、Mapper、Mapper XML、Service 接口和实现，默认跳过已有文件。生成器不随服务启动执行。
+- 每个新 Java 项目都要集成 MyBatis-Plus 代码生成器。参考 [TaskCodeGenerator.java](zero-task/src/test/java/com/zero/generator/TaskCodeGenerator.java)，使用测试作用域的 MyBatis-Plus Generator 和 Velocity，提供显式执行入口，从本地环境变量读取数据库连接信息，并要求显式指定表名。生成实体、Mapper、Mapper XML、Service 接口和实现，默认跳过已有文件。生成器不随服务启动执行。
 - 生成器包名、输出目录及 XML 扫描路径按新项目调整并保持一致。沿用 task 单层资源目录时，XML 写入 `src/main/resources/mapper`，文件以 `Mapper.xml` 结尾。持久层按开关装配时，生成的 Service 模板也要遵循相同开关。模块 README 写清生成命令、输入及输出目录，用隔离测试验证生成产物及重复执行时跳过已有文件，并验证模块可构建。
 
 ## 技术栈与版本来源
@@ -159,9 +159,9 @@
 
 - `zero-report` 当前定位是业务库/report 服务，不是管理后台权限中心。管理后台按钮权限、菜单权限、操作日志放在 `zero-admin` 代理层；report Controller 专注真实业务接口。
 - `zero-report` 的 Redis 客户端为 Redisson，连接信息仍从 `zero-report-redis.yml` 的 `spring.data.redis` 读取。Service 子类可通过 `getRedissonUtil()` 使用 Redisson 缓存工具，`RedisTemplate` 兼容入口也复用同一客户端。原生工具使用 JSON 编解码，新增缓存键按业务独立命名，避免与已有键的序列化格式混用。
-- `BizDictLookup` 直接使用 Redisson `RBucket` 和明确类型的 JSON 编解码缓存 `biz_dict_group` 与 `biz_dict_item` 的联查结果，覆盖按组编码和项编码查单项、按组编码查有效项列表。正常结果缓存 60 秒，空结果缓存 15 秒。单项查无结果返回 `null`，列表查无结果返回空集合。缓存未命中时按键限时加锁回填，Redis 不可用或等锁超时时回源 `zeroBiz`。
-- 字典组和字典项的新增、修改、软删除、恢复由 `zero-report` 的 Service 统一失效。写入成功后，有事务时在提交后切换共享缓存版本，无事务时立即切换。失败或回滚时保留当前版本。旧版本的单项和列表键由 TTL 回收，并发中的旧查询只向原版本回填。Redis 失效操作失败时记录告警，由 TTL 清理旧缓存。
-- 业务字典缓存使用固定前缀 `zero:report:biz-dict:`，键中不加环境名。各环境通过 `zero-report-redis.yml` 中的实际 Redis 连接配置隔离。同一环境的查询和写入实例应连接同一 Redis 库，以共享缓存版本。
+- `DictConfigUtil` 使用 Redisson `RBucket` 缓存单项和分组查询。单项查无结果返回 `null`，列表查无结果返回空集合。缓存未命中时查询 `zeroBiz`，有结果时写入无有效期缓存，空结果不缓存。Redis 不可用时直接查库。
+- 业务字典由 `zero-report` 写入。写入成功后只清理受影响的单项及其分组列表，改编码或移动分组时包含新旧缓存键。分组变更只清理该组列表及其下的单项缓存。有事务时在提交后执行，回滚时保留原缓存。Redis 清理失败时记录告警，受影响的旧缓存需要清理。
+- 业务字典键使用原始编码，格式为 `zero:dict:config:item:<分组>:<字典项>` 和 `zero:dict:config:group:<分组>`。分组编码含冒号时，单项键使用 `zero:dict:config:item-colon:<分组长度>:<分组>:<字典项>`，避免键冲突。同环境的 `zero-report` 和 `zero-task` 连接同一 Redis 库，发布时同步升级。
 - report 接口可以读取 admin 透传的上下文，但这些上下文只应作为内部链路信息使用。直接外部调用 report 时，不应仅凭 `adminId`、`isAdmin` 等自定义请求头做授权判断。
 - 启动入口 `ZeroReportApplication` 已统一设置时区 `Asia/Shanghai`、应用 `PackageProperties`、启用服务发现、Feign、Mapper 扫描。新增包路径和 Mapper 前先确认 `PackageProperties`。
 - report 的动态数据源以 `zero-report-mysql.yml` 为准，当前 primary 是 `zeroBiz`；`ReportDataSourceConstants.REPORT` 对应 `zeroBiz`，`ReportDataSourceConstants.ADMIN` 对应 `zeroAdmin`。业务表默认走 `zeroBiz`，只有明确需要读取后台基础数据时才切到 `zeroAdmin`。
@@ -195,10 +195,10 @@
 
 - `zero-task` 使用 XXL-JOB Core 3.5.0，主入口为 `com.zero.ZeroTaskApplication`。任务方法使用 `@XxlJob`，执行器端口默认 9998，仅运行 BEAN 任务。
 - Boot Admin 从 `zero-task` 的 HTTP 端口读取只读 Actuator 监控数据，环境和配置属性值脱敏。应用日志沿用其他微服务的 Logback 格式，默认在 `logs/zero-task` 下生成 `sys-info.log`、`sys-error.log` 和供 Boot Admin 读取的 `application.log`。任务执行日志由 XXL-JOB 管理。
-- MySQL 和 Redis 可独立装配。MySQL 由 `spring.datasource.dynamic.enabled` 控制，配置 `spring.data.redis.host` 后装配 Redis，旧配置显式设置 `zero.task.redis.enabled=false` 时仍关闭 Redis。任务和报表的 Redis 模板使用相同的 `spring.data.redis` 连接参数和 `zero.redis` 连接池参数，分别按服务 Data ID 发布。修改连接配置后重启服务。MySQL 默认访问 `zeroBiz`，需要后台库时显式使用 `@DS("zeroAdmin")`。Mapper 在 `com.zero.task.mapper`，任务 Redis 键使用 `zero-task:<环境>:<业务>:<标识>`。
-- `zero-task` 启用 Redis 后使用 Redisson，任务按需注入 `RedissonUtil`，已有 Spring Redis 模板复用 Redisson 连接工厂。`TaskBaseService` 提供 `getBizDictItem`、`getBizDictItems`、`getBizDictValue` 三个字典查询方法。字典查询访问 `zeroBiz`，与同环境 `zero-report` 共用 Redis 库和 `zero:report:biz-dict:` 失效协议。正常结果缓存 60 秒，空结果缓存 15 秒，Redis 不可用时回源数据库。
-- 开发期通过 `com.zero.task.generator.TaskCodeGenerator` 和显式表名生成实体、Mapper、XML、Service 接口及实现，凭据从本地环境变量读取。生成器跳过已有文件，生成的 Service 随 MySQL 开关启用。
-- Mapper XML 统一放在 `zero-task/src/main/resources/mapper` 根目录，文件名以 `Mapper.xml` 结尾。MyBatis 使用 `classpath*:mapper/*Mapper.xml` 只扫描这一层。`TaskCodeGenerator` 生成的 Mapper XML 也直接输出到该目录。
+- MySQL 是启动必需依赖，动态数据源由框架自动配置，JDBC 参数从 Nacos 的 `zero-task-mysql.yml` 读取。启动时要求配置 `zeroBiz` 和 `zeroAdmin`，并验证 `zeroBiz` 可连接。配置 `spring.data.redis.host` 后装配 Redis，显式设置 `zero.task.redis.enabled=false` 可关闭 Redis。任务和报表的 Redis 模板使用相同的 `spring.data.redis` 连接参数和 `zero.redis` 连接池参数，分别按服务 Data ID 发布。修改连接配置后重启服务。MySQL 默认访问 `zeroBiz`，需要后台库时显式使用 `@DS("zeroAdmin")`。Mapper 在 `com.zero.mapper`，任务 Redis 键使用 `zero-task:<环境>:<业务>:<标识>`。
+- `zero-task` 启用 Redis 后使用 Redisson，任务按需注入 `RedissonUtil`，已有 Spring Redis 模板复用 Redisson 连接工厂。`TaskBaseService` 提供 `getBizDictItem`、`getBizDictItems`、`getBizDictValue` 三个字典查询方法。字典查询访问 `zeroBiz`，与同环境 `zero-report` 共用 Redis 库和 `zero:dict:config:` 失效协议。有结果时写入无有效期缓存，空结果不缓存，Redis 不可用时回源数据库。
+- 开发期通过 `com.zero.generator.TaskCodeGenerator` 和显式表名生成实体、Mapper、XML、Service 接口及实现，凭据从本地环境变量读取。生成器跳过已有文件，生成的 Service 由 Spring 组件扫描装配。
+- `zero-task` 的 `PackageProperties` 统一维护组件、Mapper 和实体别名的包路径。Mapper 由启动类扫描，分页由 `MybatisPlusConfig` 装配，Redis 组件由 Redis 配置单独导入。Mapper XML 统一放在 `zero-task/src/main/resources/mapper` 根目录，文件名以 `Mapper.xml` 结尾。MyBatis 使用 `classpath*:mapper/*Mapper.xml` 只扫描这一层，`TaskCodeGenerator` 也直接输出到该目录。
 - 服务以 `zero-task` 注册到 Nacos 的 `DEFAULT_GROUP`。Nacos 连接信息由 `application-dev.yml`、`application-test.yml`、`application-prod.yml` 分别维护，默认地址和命名空间与 `zero-job-admin` 对应环境一致。三个环境均从当前 profile 分组可选导入 `zero-task-common.yml`、`zero-task-mysql.yml` 和 `zero-task-redis.yml`，并监听配置变更。`xxl.job.executor.*` 在服务启动时装配，变更后仍需重启才能应用到执行器。执行器通过 XXL-JOB 原生协议向调度中心注册并接收任务，执行器组 AppName 和 AccessToken 须与对应配置一致。
 
 ## common 包归类规则

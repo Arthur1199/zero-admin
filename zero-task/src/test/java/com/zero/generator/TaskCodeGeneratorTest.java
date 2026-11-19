@@ -1,4 +1,4 @@
-package com.zero.task.generator;
+package com.zero.generator;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -39,18 +39,18 @@ class TaskCodeGeneratorTest {
             statement.execute("CREATE TABLE biz_task_sample (id BIGINT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(40))");
             TaskCodeGenerator.generate(output, url, "sa", "", List.of("biz_task_sample"));
 
-            Path javaDir = output.resolve("src/main/java/com/zero/task");
+            Path javaDir = output.resolve("src/main/java/com/zero");
             Path service = javaDir.resolve("service/impl/TaskSampleServiceImpl.java");
             Path mapperXml = output.resolve("src/main/resources/mapper/TaskSampleMapper.xml");
             assertThat(javaDir.resolve("domain/TaskSample.java")).exists();
             assertThat(javaDir.resolve("mapper/TaskSampleMapper.java")).exists();
             assertThat(javaDir.resolve("service/ITaskSampleService.java")).exists();
             assertThat(javaDir.resolve("controller")).doesNotExist();
-            assertThat(Files.readString(mapperXml)).contains("com.zero.task.mapper.TaskSampleMapper", "BaseResultMap");
+            assertThat(Files.readString(mapperXml)).contains("com.zero.mapper.TaskSampleMapper", "BaseResultMap");
             String marker = Files.readString(service) + "\n// 保留已有业务代码\n";
             Files.writeString(service, marker);
             TaskCodeGenerator.generate(output, url, "sa", "", List.of("biz_task_sample"));
-            assertThat(Files.readString(service)).isEqualTo(marker).contains("@ConditionalOnProperty");
+            assertThat(Files.readString(service)).isEqualTo(marker).contains("@Service").doesNotContain("@Conditional");
 
             Path classes = Files.createDirectory(output.resolve("classes"));
             String classpath = System.getProperty("surefire.test.class.path", System.getProperty("java.class.path"));

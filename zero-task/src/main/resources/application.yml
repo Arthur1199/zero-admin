@@ -14,21 +14,13 @@ spring:
     # 默认使用开发环境。可通过 --spring.profiles.active=test 或 prod 切换，
     # 对应环境文件负责连接 Nacos 并加载该环境分组的配置。
     active: dev
-  # JDBC 数据源及连接池设置。
-  datasource:
-    # 按业务场景切换多个数据源的配置。
-    dynamic:
-      # 发布并启用 zero-task-mysql.yml 后才装配数据库连接和 Mapper。
-      enabled: false
-      # 未指定数据源时使用的默认数据源名称。
-      primary: zeroBiz
-      # 开启后切换到不存在的数据源时报错，关闭时回退到默认数据源。
-      strict: true
 ---
 # MyBatis-Plus Mapper 和全局配置。
 mybatis-plus:
   # Mapper XML 的类路径扫描规则，匹配范围由通配符确定。
   mapper-locations: classpath*:mapper/*Mapper.xml
+  # 任务实体的 MyBatis 类型别名扫描包。
+  type-aliases-package: ${zero.package.type-aliases-package:com.zero.domain}
   # MyBatis 底层配置。
   configuration:
     # 自动将下划线列名映射到 Java 驼峰属性。

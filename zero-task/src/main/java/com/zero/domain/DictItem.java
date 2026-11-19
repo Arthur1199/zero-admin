@@ -1,9 +1,10 @@
-package com.zero.task.domain;
+package com.zero.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -37,6 +38,11 @@ public class DictItem implements Serializable
      */
     @TableField("group_id")
     private Long groupId;
+
+    /** 联查取得的原始分组编码，仅用于校验缓存键可按库中编码清理。 */
+    @JsonIgnore
+    @TableField(exist = false)
+    private String lookupGroupCode;
 
     /**
      * 字典编码，可用于程序识别；同一字典组下不允许重复，也不允许为空

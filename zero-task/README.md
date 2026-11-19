@@ -28,27 +28,27 @@ java -jar zero-task/target/zero-task-1.0.0.jar --spring.profiles.active=dev
 - 参数填 `fail` 再执行一次，调度日志应显示执行失败。
 - 在「执行日志」查看参数长度和分片信息。
 
-新增业务任务时，在 `com.zero.task` 下添加 Spring 组件，参考 [DemoTaskHandler](src/main/java/com/zero/task/handler/DemoTaskHandler.java) 编写无参方法并标注唯一的 `@XxlJob("handlerName")`，然后在 ZERO-JOB 中使用同名 JobHandler。执行器仅启用 BEAN 模式。
+新增业务任务时，在 `com.zero` 下添加 Spring 组件，参考 [DemoTaskHandler](src/main/java/com/zero/handler/DemoTaskHandler.java) 编写无参方法并标注唯一的 `@XxlJob("handlerName")`，然后在 ZERO-JOB 中使用同名 JobHandler。执行器仅启用 BEAN 模式。
 
 ## MySQL 和 Redis
 
-将所需模板发布到当前环境的 Nacos 分组，填写连接信息后重启 `zero-task`。MySQL 和 Redis 可独立装配。
+将配置发布到当前环境的 Nacos 分组，填写连接信息后重启 `zero-task`。启动依赖 MySQL，Redis 按需接入。
 
 | 配置 | Data ID | 启用条件 |
 | --- | --- | --- |
-| [MySQL 模板](src/main/resources/nacosConfig/zero-task-mysql.yml) | `zero-task-mysql.yml` | `spring.datasource.dynamic.enabled` |
+| [MySQL 模板](src/main/resources/nacosConfig/zero-task-mysql.yml) | `zero-task-mysql.yml` | 启动必需，配置 `zeroBiz` 和 `zeroAdmin` |
 | [Redis 模板](src/main/resources/nacosConfig/zero-task-redis.yml) | `zero-task-redis.yml` | 配置 `spring.data.redis.host` |
 
-- MySQL 默认访问 `zeroBiz`，后台库通过独立 Service Bean 的公开方法标注 `@DS("zeroAdmin")` 切换。Mapper 放在 `com.zero.task.mapper`，对应 XML 放在 `src/main/resources/mapper`。分页使用 MyBatis-Plus 的 `Page`。
+- JDBC 连接从当前环境的 Nacos 配置 `zero-task-mysql.yml` 读取，启动时验证 `zeroBiz` 可连接。默认访问 `zeroBiz`，后台库通过独立 Service Bean 的公开方法标注 `@DS("zeroAdmin")` 切换。启动类扫描 `com.zero.mapper`，对应 XML 放在 `src/main/resources/mapper`，分页由 `MybatisPlusConfig` 装配。
 - Redis 启用后可注入 `RedissonUtil`。`StringRedisTemplate` 和 `RedisTemplate` 也使用 Redisson 连接工厂。任务键统一采用 `zero-task:<环境>:<业务>:<标识>`，例如 `zero-task:dev:order-sync:cursor`。
-- `TaskBaseService` 子类可用 `getBizDictItem("order_status.paid")`、`getBizDictValue("order_status.paid")` 或 `getBizDictItems("order_status")` 查询业务字典。为使报表服务提交字典修改后任务立即使用新版本，两服务使用同一个 `zeroBiz` 数据库和 Redis 库。Redis 关闭或连接失败时，任务直接查询 `zeroBiz`。
+- `TaskBaseService` 子类可用 `getBizDictItem("order_status.paid")`、`getBizDictValue("order_status.paid")` 或 `getBizDictItems("order_status")` 查询业务字典。两服务共用 `zeroBiz` 和 Redis 库，报表服务提交字典修改后只清理受影响的缓存，下次查询有结果时回填无有效期缓存。查无结果时，单项和值返回 null，分组返回空列表，均不写入 Redis。Redis 关闭或连接失败时，任务直接查询 `zeroBiz`。
 - 依赖这些能力的 JobHandler 按数据源和 Redis 客户端的装配条件启用。旧配置若显式设置 `zero.task.redis.enabled=false`，继续关闭 Redis。
 
 ### 从已有表生成代码
 
-在 IDEA 运行 [TaskCodeGenerator](src/test/java/com/zero/task/generator/TaskCodeGenerator.java) 的 `main()`，程序实参填写表名，多张表用英文逗号分隔。运行配置需提供 `TASK_GENERATOR_DB_URL`、`TASK_GENERATOR_DB_USERNAME`、`TASK_GENERATOR_DB_PASSWORD` 三个环境变量。每次连接一个目标库，使用具备读取表结构权限的开发账号，凭据放在本地运行配置中。
+在 IDEA 运行 [TaskCodeGenerator](src/test/java/com/zero/generator/TaskCodeGenerator.java) 的 `main()`，程序实参填写表名，多张表用英文逗号分隔。运行配置需提供 `TASK_GENERATOR_DB_URL`、`TASK_GENERATOR_DB_USERNAME`、`TASK_GENERATOR_DB_PASSWORD` 三个环境变量。每次连接一个目标库，使用具备读取表结构权限的开发账号，凭据放在本地运行配置中。
 
-生成实体、Mapper 接口、Mapper XML、Service 接口和实现，输出到模块自身的 `src/main/java/com/zero/task` 与 `src/main/resources/mapper`。生成器会去掉 `zero_`、`biz_`、`report_` 前缀，跳过已有文件。生成的 Service 随 MySQL 开关启用。
+生成实体、Mapper 接口、Mapper XML、Service 接口和实现，输出到模块自身的 `src/main/java/com/zero` 与 `src/main/resources/mapper`。生成器会去掉 `zero_`、`biz_`、`report_` 前缀，跳过已有文件。生成的 Service 由 Spring 组件扫描装配。
 
 ## Boot Admin 监控
 

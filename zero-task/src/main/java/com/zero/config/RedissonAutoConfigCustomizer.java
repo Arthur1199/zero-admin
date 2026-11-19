@@ -4,7 +4,6 @@ import org.redisson.codec.JsonJacksonCodec;
 import org.redisson.config.Config;
 import org.redisson.spring.starter.RedissonAutoConfigurationCustomizer;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 /**
  *
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Component;
  * 时间: 2026/11/19 15:10
  * 说明: 为任务服务配置 JSON 编解码、延迟初始化和 Redisson 单节点连接池。
  */
-@Component
 public class RedissonAutoConfigCustomizer implements RedissonAutoConfigurationCustomizer {
 
 	/** 单节点普通命令连接池上限。 */

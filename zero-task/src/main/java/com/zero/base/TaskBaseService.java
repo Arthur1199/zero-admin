@@ -2,8 +2,8 @@ package com.zero.base;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zero.task.domain.DictItem;
-import com.zero.task.service.TaskBizDictLookup;
+import com.zero.domain.DictItem;
+import com.zero.util.DictConfigUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
@@ -19,7 +19,7 @@ public abstract class TaskBaseService<M extends BaseMapper<T>, T> extends Servic
 
     /** 业务数据源启用后装配，兼容只运行不依赖数据库的任务服务。 */
     @Autowired(required = false)
-    private TaskBizDictLookup bizDictLookup;
+    private DictConfigUtil bizDictLookup;
 
     /**
      *
@@ -85,11 +85,11 @@ public abstract class TaskBaseService<M extends BaseMapper<T>, T> extends Servic
      * 时间: 2026/11/19 15:56
      * 说明: 验证字典查询所需的任务数据源已装配，避免把配置缺失当成字典无记录。
      * @return 已装配的字典查询服务
-     * 返回值: TaskBizDictLookup
+     * 返回值: DictConfigUtil
      * 返回值说明: 业务库的字典查询入口
      * @throws IllegalStateException 业务数据源未启用
      */
-    private TaskBizDictLookup dictionaryLookup() {
+    private DictConfigUtil dictionaryLookup() {
         Assert.state(bizDictLookup != null, "查询业务字典需要启用 zero-task 业务数据源");
         return bizDictLookup;
     }

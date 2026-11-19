@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.zero.domain.DictItem;
 import com.zero.dto.ReportAdminContext;
-import com.zero.service.BizDictLookup;
+import com.zero.util.DictConfigUtil;
 import com.zero.util.RedissonUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
@@ -38,7 +38,7 @@ public abstract class ReportBaseService<M extends BaseMapper<T>, T> extends Serv
 
     /** 独立读取业务字典，确保子类所在的数据源和事务不影响查询。 */
     @Autowired
-    private BizDictLookup bizDictLookup;
+    private DictConfigUtil dictConfigUtil;
 
     /**
      *
@@ -63,7 +63,7 @@ public abstract class ReportBaseService<M extends BaseMapper<T>, T> extends Serv
         if (groupCode.isEmpty() || itemCode.isEmpty()) {
             return null;
         }
-        return bizDictLookup.findActiveItem(groupCode, itemCode);
+        return dictConfigUtil.findActiveItem(groupCode, itemCode);
     }
 
     /**
@@ -80,7 +80,7 @@ public abstract class ReportBaseService<M extends BaseMapper<T>, T> extends Serv
         if (groupCode == null || groupCode.isBlank()) {
             return List.of();
         }
-        return bizDictLookup.findActiveItems(groupCode.strip());
+        return dictConfigUtil.findActiveItems(groupCode.strip());
     }
 
     /**

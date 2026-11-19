@@ -5,19 +5,17 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.zero.base.ReportBaseService;
 import com.zero.domain.DictGroup;
 import com.zero.domain.DictItem;
-import com.zero.queryDto.DictItemQuery;
 import com.zero.mapper.DictGroupMapper;
 import com.zero.mapper.DictItemMapper;
-import com.zero.service.BizDictLookup;
+import com.zero.queryDto.DictItemQuery;
 import com.zero.service.IDictItemService;
+import com.zero.util.DictConfigUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -45,7 +43,7 @@ public class DictItemServiceImpl extends ReportBaseService<DictItemMapper, DictI
 
     /** 写入成功后统一刷新业务字典查询缓存。 */
     @Autowired
-    private BizDictLookup bizDictLookup;
+    private DictConfigUtil dictConfigUtil;
 
     /**
      * 字典组数据访问，用于校验字典项所属分组是否存在且未删除
@@ -117,7 +115,7 @@ public class DictItemServiceImpl extends ReportBaseService<DictItemMapper, DictI
     public boolean insertItem(DictItem dictItem)
     {
         prepareItem(dictItem);
-        validateGroupExists(dictItem.getGroupId());
+        DictGroup group = requireGroup(dictItem.getGroupId());
         validateItemUnique(dictItem);
         dictItem.setId(null);
         dictItem.setDelFlag(DEL_FLAG_NORMAL);
@@ -131,7 +129,8 @@ public class DictItemServiceImpl extends ReportBaseService<DictItemMapper, DictI
         }
         dictItem.setCreateBy(getAdminName());
         dictItem.setCreateTime(new Date());
-        return bizDictLookup.invalidateAfterWrite(save(dictItem));
+        return dictConfigUtil.invalidateItemsAfterWrite(save(dictItem),
+                Map.of(group.getGroupCode(), Set.of(dictItem.getItemCode())));
     }
 
     /**
@@ -157,12 +156,13 @@ public class DictItemServiceImpl extends ReportBaseService<DictItemMapper, DictI
             throw new IllegalArgumentException("字典项不存在或已删除");
         }
         prepareItem(dictItem);
-        validateGroupExists(dictItem.getGroupId());
+        requireGroup(dictItem.getGroupId());
         validateItemUnique(dictItem);
         dictItem.setDelFlag(DEL_FLAG_NORMAL);
         dictItem.setUpdateBy(getAdminName());
         dictItem.setUpdateTime(new Date());
-        return bizDictLookup.invalidateAfterWrite(updateById(dictItem));
+        var affected = affectedItems(List.of(oldItem, dictItem));
+        return dictConfigUtil.invalidateItemsAfterWrite(updateById(dictItem), affected);
     }
 
     /**
@@ -179,12 +179,14 @@ public class DictItemServiceImpl extends ReportBaseService<DictItemMapper, DictI
     public boolean deleteItemByIds(Long[] ids)
     {
         List<Long> idList = parseIds(ids, "请选择要删除的字典项");
-        return bizDictLookup.invalidateAfterWrite(lambdaUpdate().in(DictItem::getId, idList)
+        var affected = affectedItems(lambdaQuery().select(DictItem::getGroupId, DictItem::getItemCode)
+                .in(DictItem::getId, idList).eq(DictItem::getDelFlag, DEL_FLAG_NORMAL).list());
+        return dictConfigUtil.invalidateItemsAfterWrite(lambdaUpdate().in(DictItem::getId, idList)
                 .eq(DictItem::getDelFlag, DEL_FLAG_NORMAL)
                 .set(DictItem::getDelFlag, DEL_FLAG_DELETE)
                 .set(DictItem::getUpdateBy, getAdminName())
                 .set(DictItem::getUpdateTime, new Date())
-                .update());
+                .update(), affected);
     }
 
     /**
@@ -224,12 +226,45 @@ public class DictItemServiceImpl extends ReportBaseService<DictItemMapper, DictI
         {
             throw new IllegalArgumentException("所属字典组不存在或已删除，请先恢复字典组");
         }
-        return bizDictLookup.invalidateAfterWrite(lambdaUpdate().in(DictItem::getId, idList)
+        var affected = affectedItems(itemList);
+        return dictConfigUtil.invalidateItemsAfterWrite(lambdaUpdate().in(DictItem::getId, idList)
                 .eq(DictItem::getDelFlag, DEL_FLAG_DELETE)
                 .set(DictItem::getDelFlag, DEL_FLAG_NORMAL)
                 .set(DictItem::getUpdateBy, getAdminName())
                 .set(DictItem::getUpdateTime, new Date())
-                .update());
+                .update(), affected);
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/19 19:35
+     * 说明: 批量解析需要清理缓存的新旧分组和字典项编码。
+     * @param items 受影响的字典项
+     * @return 按分组编码聚合的字典项编码
+     * 返回值: Map<String, Set<String>>
+     * 返回值说明: 不存在的分组没有对应缓存键
+     */
+    private Map<String, Set<String>> affectedItems(List<DictItem> items)
+    {
+        List<Long> groupIds = items.stream().map(DictItem::getGroupId).filter(Objects::nonNull).distinct().toList();
+        if (groupIds.isEmpty())
+        {
+            return Map.of();
+        }
+        var codes = dictGroupMapper.selectList(new LambdaQueryWrapper<DictGroup>()
+                        .select(DictGroup::getId, DictGroup::getGroupCode).in(DictGroup::getId, groupIds))
+                .stream().collect(Collectors.toMap(DictGroup::getId, DictGroup::getGroupCode));
+        Map<String, Set<String>> affected = new HashMap<>();
+        for (DictItem item : items)
+        {
+            String groupCode = codes.get(item.getGroupId());
+            if (groupCode != null)
+            {
+                affected.computeIfAbsent(groupCode, ignored -> new HashSet<>()).add(item.getItemCode());
+            }
+        }
+        return affected;
     }
 
     /**
@@ -263,22 +298,24 @@ public class DictItemServiceImpl extends ReportBaseService<DictItemMapper, DictI
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/6/28 04:35
+     * 时间: 2026/11/19 19:35
      * 说明: 校验字典项所属分组存在且未删除，避免明细挂到无效分组
      * @param groupId 字典组ID
-     * @return
-     * 返回值: void
-     * 返回值说明: 分组不存在时抛出业务异常
+     * @return 包含分组编码的字典组
+     * 返回值: DictGroup
+     * 返回值说明: 用分组编码定位缓存，分组不存在时抛出业务异常
      */
-    private void validateGroupExists(Long groupId)
+    private DictGroup requireGroup(Long groupId)
     {
-        Long count = dictGroupMapper.selectCount(new LambdaQueryWrapper<DictGroup>()
+        DictGroup group = dictGroupMapper.selectOne(new LambdaQueryWrapper<DictGroup>()
+                .select(DictGroup::getGroupCode)
                 .eq(DictGroup::getId, groupId)
                 .eq(DictGroup::getDelFlag, DEL_FLAG_NORMAL));
-        if (count == null || count == 0)
+        if (group == null)
         {
             throw new IllegalArgumentException("字典组不存在或已删除");
         }
+        return group;
     }
 
     /**

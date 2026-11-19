@@ -7,7 +7,6 @@ import org.redisson.RedissonRateLimiter;
 import org.redisson.api.*;
 import org.redisson.client.codec.StringCodec;
 import org.redisson.client.protocol.RedisCommands;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import java.time.Duration;
@@ -25,7 +24,6 @@ import java.util.concurrent.TimeUnit;
  * 示例中的 {@code cache} 指本工具实例，按需通过构造器注入。
  * 缓存键、计数器键、锁名称和限流键使用独立前缀。各服务实例使用相同的锁名称或限流键协调同一业务资源。
  */
-@Component
 @RequiredArgsConstructor
 public class RedissonUtil {
 

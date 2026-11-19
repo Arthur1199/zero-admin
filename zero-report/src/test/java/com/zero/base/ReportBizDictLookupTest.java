@@ -9,7 +9,7 @@ import com.zero.constant.ReportDataSourceConstants;
 import com.zero.domain.DictGroup;
 import com.zero.domain.DictItem;
 import com.zero.mapper.DictItemMapper;
-import com.zero.service.BizDictLookup;
+import com.zero.util.DictConfigUtil;
 import com.zero.service.impl.DictGroupServiceImpl;
 import com.zero.service.impl.DictItemServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,6 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
-import org.springframework.beans.factory.support.StaticListableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
@@ -31,20 +30,11 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.nio.charset.StandardCharsets;
 import java.sql.DriverManager;
-import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  *
@@ -144,15 +134,25 @@ class ReportBizDictLookupTest {
             assertThat(lookup.items("order_status")).extracting(DictItem::getItemCode)
                     .containsExactly("quote'd", "paid", "packed");
             assertThat(lookup.item("order_status.missing")).isNull();
+            assertThat(lookup.value("refund_status.paid")).isEqualTo("2");
+            assertThat(lookup.items("refund_status")).extracting(DictItem::getItemValue).containsExactly("2");
             assertThat(lookup.items("new_group")).isEmpty();
             var readerClient = reader.getBean(RedissonClient.class);
-            verifyCacheTtls(readerClient);
+            verifyCacheEntries(readerClient);
+            String affectedKey = "zero:dict:config:item:group[*]:paid";
+            String unrelatedKey = "zero:dict:config:item:group*:paid";
+            readerClient.getBucket(affectedKey).set("affected");
+            readerClient.getBucket(unrelatedKey).set("unrelated");
+            writer.getBean(DictConfigUtil.class).invalidateGroupsAfterWrite(true, List.of("group[*]"));
+            assertThat(readerClient.getBucket(affectedKey).isExists()).isFalse();
+            assertThat(readerClient.getBucket(unrelatedKey).isExists()).isTrue();
             jdbc.update("UPDATE biz_dict_item SET item_value = ? WHERE id = 10", "external");
             jdbc.update("UPDATE biz_dict_item SET status = '1', item_code = 'missing' WHERE id = 12");
+            jdbc.update("UPDATE biz_dict_item SET item_value = 'refund updated outside service' WHERE id = 11");
             assertThat(lookup.value("order_status.paid")).isEqualTo(" 1 ");
             assertThat(lookup.items("order_status")).extracting(DictItem::getItemCode)
                     .containsExactly("quote'd", "paid", "packed");
-            assertThat(lookup.item("order_status.missing")).isNull();
+            assertThat(lookup.value("order_status.missing")).isEqualTo("3");
 
             transaction.executeWithoutResult(status -> {
                 var item = items.selectItemById(10L);
@@ -170,6 +170,9 @@ class ReportBizDictLookupTest {
             });
             assertThat(lookup.value("order_status.paid")).isEqualTo("committed");
             assertThat(lookup.value("order_status.missing")).isEqualTo("3");
+            assertThat(lookup.items("order_status")).extracting(DictItem::getItemCode).contains("missing");
+            assertThat(lookup.value("refund_status.paid")).isEqualTo("2");
+            assertThat(lookup.items("refund_status")).extracting(DictItem::getItemValue).containsExactly("2");
             assertThat(lookup.item("order_status.paid").getUpdateTime()).isNotNull();
 
             DictGroup group = new DictGroup();
@@ -186,8 +189,10 @@ class ReportBizDictLookupTest {
             assertThat(lookup.items("new_group")).extracting(DictItem::getItemCode).containsExactly("new_item");
 
             group.setGroupCode("renamed_group");
+            assertThat(lookup.value("new_group.new_item")).isEqualTo("new value");
             assertThat(groups.updateGroup(group)).isTrue();
             assertThat(lookup.items("new_group")).isEmpty();
+            assertThat(lookup.item("new_group.new_item")).isNull();
             assertThat(lookup.value("renamed_group.new_item")).isEqualTo("new value");
 
             var moved = items.selectItemById(10L);
@@ -215,9 +220,8 @@ class ReportBizDictLookupTest {
             assertThat(lookup.items("renamed_group")).isEmpty();
             assertThat(groups.restoreGroupByIds(new Long[]{group.getId()})).isTrue();
             assertThat(lookup.items("renamed_group")).hasSize(2);
+            assertThat(lookup.value("refund_status.paid")).isEqualTo("2");
 
-            verifyLateFill(reader.getBean(DictItemMapper.class), items, writer.getBean(RedissonClient.class),
-                    reader.getBean(BizDictLookup.class), group.getId());
             readerClient.shutdown();
             writer.getBean(RedissonClient.class).shutdown();
             var changedWithoutRedis = items.selectItemById(10L);
@@ -231,63 +235,21 @@ class ReportBizDictLookupTest {
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/19 15:31
-     * 说明: 检查独立 Redis 中单项和列表的正常结果与空结果均设置了预期有效期。
+     * 说明: 检查独立 Redis 中单项和列表的有效结果无有效期，空结果不创建缓存键。
      * @param client 测试实例的 Redisson 客户端
      */
-    private void verifyCacheTtls(RedissonClient client) {
-        var encoder = Base64.getUrlEncoder().withoutPadding();
-        Function<String, String> encode = value -> encoder.encodeToString(value.getBytes(StandardCharsets.UTF_8));
-        String prefix = "zero:report:biz-dict:entry:*:";
-        String groupCode = encode.apply("order_status");
+    private void verifyCacheEntries(RedissonClient client) {
+        String prefix = "zero:dict:config:";
+        String groupCode = "order_status";
         var keys = client.getKeys();
-        assertThat(keys.getKeysByPattern(prefix + "item:" + groupCode + ":" + encode.apply("paid")))
-                .singleElement().satisfies(key -> assertThat(keys.remainTimeToLive(key)).isBetween(1L, 60_000L));
-        assertThat(keys.getKeysByPattern(prefix + "item:" + groupCode + ":" + encode.apply("missing")))
-                .singleElement().satisfies(key -> assertThat(keys.remainTimeToLive(key)).isBetween(1L, 15_000L));
+        assertThat(keys.getKeysByPattern(prefix + "item:" + groupCode + ":" + "paid"))
+                .singleElement().satisfies(key -> assertThat(keys.remainTimeToLive(key)).isEqualTo(-1L));
+        assertThat(keys.getKeysByPattern(prefix + "item:" + groupCode + ":" + "missing"))
+                .isEmpty();
         assertThat(keys.getKeysByPattern(prefix + "group:" + groupCode))
-                .singleElement().satisfies(key -> assertThat(keys.remainTimeToLive(key)).isBetween(1L, 60_000L));
-        assertThat(keys.getKeysByPattern(prefix + "group:" + encode.apply("new_group")))
-                .singleElement().satisfies(key -> assertThat(keys.remainTimeToLive(key)).isBetween(1L, 15_000L));
-    }
-
-    /**
-     *
-     * 作者: Arthur 亚瑟
-     * 时间: 2026/11/19 15:30
-     * 说明: 暂停已取得旧值的回源请求，提交更新后再放行，验证该旧值不能覆盖新版本缓存。
-     * @param mapper 真实字典查询 Mapper
-     * @param items 负责写入的字典项 Service
-     * @param client 第一个实例的 Redisson 客户端
-     * @param reader 带事务和数据源代理的第二个实例查询服务
-     * @param groupId 并发测试时写入的字典组
-     */
-    private void verifyLateFill(DictItemMapper mapper, DictItemServiceImpl items, RedissonClient client,
-                                BizDictLookup reader, Long groupId)
-            throws Exception {
-        var valuesRead = new CountDownLatch(1);
-        var allowFill = new CountDownLatch(1);
-        var delayedMapper = mock(DictItemMapper.class);
-        when(delayedMapper.selectActiveByCodes("renamed_group", "paid")).thenAnswer(invocation -> {
-            var old = mapper.selectActiveByCodes("renamed_group", "paid");
-            valuesRead.countDown();
-            assertThat(allowFill.await(10, TimeUnit.SECONDS)).isTrue();
-            return old;
-        });
-        var factory = new StaticListableBeanFactory(Map.of("redis", client));
-        var delayedLookup = new BizDictLookup(delayedMapper, factory.getBeanProvider(RedissonClient.class));
-        var delayed = CompletableFuture.supplyAsync(() -> delayedLookup.findActiveItem("renamed_group", "paid"));
-        try {
-            assertThat(valuesRead.await(10, TimeUnit.SECONDS)).isTrue();
-            var changed = items.selectItemById(10L);
-            assertThat(changed.getGroupId()).isEqualTo(groupId);
-            changed.setItemValue("latest");
-            assertThat(items.updateItem(changed)).isTrue();
-            assertThat(reader.findActiveItem("renamed_group", "paid").getItemValue()).isEqualTo("latest");
-        } finally {
-            allowFill.countDown();
-        }
-        assertThat(delayed.get(10, TimeUnit.SECONDS).getItemValue()).isEqualTo("committed");
-        assertThat(reader.findActiveItem("renamed_group", "paid").getItemValue()).isEqualTo("latest");
+                .singleElement().satisfies(key -> assertThat(keys.remainTimeToLive(key)).isEqualTo(-1L));
+        assertThat(keys.getKeysByPattern(prefix + "group:" + "new_group"))
+                .isEmpty();
     }
 
     /**
@@ -376,7 +338,7 @@ class ReportBizDictLookupTest {
                         PageHelperAutoConfiguration.class, JdbcTemplateAutoConfiguration.class,
                         DataSourceTransactionManagerAutoConfiguration.class,
                         TransactionAutoConfiguration.class))
-                .withUserConfiguration(MapperConfiguration.class, BizDictLookup.class, DictionaryCaller.class)
+                .withUserConfiguration(MapperConfiguration.class, DictConfigUtil.class, DictionaryCaller.class)
                 .withPropertyValues("mybatis-plus.mapper-locations=classpath*:mapper/**/*Mapper.xml",
                         "mybatis-plus.global-config.banner=false",
                         "pagehelper.helper-dialect=mysql",
