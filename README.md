@@ -13,7 +13,7 @@
 
 零号是一套全部开源的快速开发平台，毫无保留给个人及企业免费使用。
 
-* 当前 zero-ui 采用 Vue 3 + Vite + Element Plus，保留 Options API 和 Vuex 4。使用 Node 24.21.0、npm ci；升级说明见根目录“前段项目升级方案”。
+* 当前 `zero-ui` 采用 Vue 3、Vite 和 Element Plus，保留 Options API 和 Vuex 4。开发、构建与测试见[前端说明](zero-ui/README.md)，迁移过程见 [Vue 3 升级方案](前段项目升级方案/01-Vue3升级实施方案.md)。
 * 后端采用Spring Boot、Spring Security、Redis & Jwt。
 * 权限认证使用Jwt，支持多终端认证系统。
 * 支持加载动态权限菜单，多方式轻松权限控制。
@@ -27,7 +27,7 @@
 
 | 模块目录 | 职责 |
 | --- | --- |
-| `zero-tools` | Java 基础工具包，提供跨服务复用的常量、返回对象和通用工具，由 `zero-report`、`zero-file` 和 `zero-task` 直接依赖，无独立进程。 |
+| `zero-tools` | Java 基础工具包，无独立进程。`zero-report`、`zero-file` 和 `zero-task` 复用其常量、返回对象和通用工具，`zero-admin` 仅复用 SQL 日志格式化工具并排除传递依赖。 |
 | `zero-admin` | 管理后台后端和统一 API 入口，负责登录、权限、操作审计和后台自身业务。 |
 | `zero-report` | 报表和业务数据服务，供 `zero-admin` 调用，负责所属业务数据的查询、管理和持久化。 |
 | `zero-jobAdmin` | 服务名为 `zero-job-admin`，负责 XXL-JOB 任务管理、执行器注册、任务调度和结果收集。 |
@@ -45,10 +45,10 @@
 
 | 范围 | 主要技术 |
 | --- | --- |
-| 后端基线 | Java 17、Maven 多模块、Spring Boot 3.5.12、Spring Framework 6.2.18、Spring Cloud 2025.0.2、Spring Cloud Alibaba 2025.0.0.0。父 POM 单独管理 `spring-boot-autoconfigure` 为 3.5.14。 |
+| 后端基线 | Java 17、Maven 多模块、Spring Boot 3.5.16、Spring Framework 6.2.19、Spring Cloud 2025.0.2、Spring Cloud Alibaba 2025.0.0.0。Spring Boot 核心、自动配置和打包插件统一沿用官方父 POM 的版本。 |
 | 服务发现与调用 | Nacos 注册和配置、Spring Cloud LoadBalancer、OpenFeign。后台对报表和文件服务的代理分别使用带 `@LoadBalanced` 的 `reportRestTemplate` 和 `fileRestTemplate`，统一追加管理员上下文请求头。 |
 | 后台管理 | Spring Security、JWT、MyBatis XML、PageHelper、Druid、Redis、Quartz、SpringDoc 2.8.17。 |
-| 报表、文件与任务数据访问 | MySQL、MyBatis-Plus 3.5.16、dynamic-datasource 4.5.0。报表的复杂 XML 查询保留 PageHelper，报表与任务服务通过 Redisson 4.6.1 接入 Redis。 |
+| 报表、文件与任务数据访问 | MySQL、MyBatis-Plus 3.5.16、dynamic-datasource 4.6.0。报表的复杂 XML 查询保留 PageHelper，报表与任务服务通过 Redisson 4.6.1 接入 Redis。 |
 | 调度与监控 | XXL-JOB 3.5.0 负责调度和任务执行，Spring Boot Admin 3.5.8 与 Actuator 负责运行监控。 |
 | 管理后台前端 | Node 开发基线为 24.21.0，引擎范围为 `>=24.21.0 <25`。使用 Vue 3.5.43、Vite 8.3.3、Vue Router 4.6.4、Vuex 4.1.0 和 Element Plus 2.14.7，沿用 Options API 和 Axios 请求封装。 |
 
@@ -83,7 +83,29 @@ Java 类和方法沿用作者、时间和说明的 JavaDoc 模板，写清职责
 - `zero-admin/src/main/resources/localYml` 保存本地配置模板，当前主配置中的导入已注释。Boot Admin 使用自己的 `application*.yml`，通过服务发现获取监控实例。
 - 修改已发布配置后，按服务的刷新开关和组件初始化方式判断生效时机。任务执行器或调度中心启动时读取的参数按各模块的启动说明处理。连接凭据通过部署环境或受控的 Nacos 配置维护。
 
-调度中心和执行器的配置、启动与验证步骤见 [ZERO-JOB](zero-jobAdmin/README.md) 和 [ZERO-TASK](zero-task/README.md)。
+## 本地开发
+
+后端使用 JDK 17。在仓库根目录打包所需服务，例如管理后台：
+
+```powershell
+java -version
+mvn -version
+mvn -pl zero-admin -am package -DskipTests
+java -jar zero-admin/target/zero-admin-1.0.0.jar --spring.profiles.active=dev
+```
+
+启动前准备对应环境的 MySQL、Redis 和 Nacos 配置，并核对服务端口与应用名。首次初始化时，先核对[各数据库脚本的归属和执行边界](AGENTS.md#技术栈与版本来源)。初始化脚本包含重建表语句，需确认目标为可重建的库。
+
+另开终端，在 `zero-ui` 用 Node 24.21.0 和 npm 11 执行 `npm ci`、`npm run dev`。默认开发端口为 80，API 代理指向管理后台的 9099 端口。
+
+## 模块与部署文档
+
+| 主题 | 文档 |
+| --- | --- |
+| 调度中心与执行器 | [ZERO-JOB](zero-jobAdmin/README.md)、[ZERO-TASK](zero-task/README.md) |
+| 报表代码生成 | [MyBatis-Plus 代码生成器](zero-report/src/test/resources/generator/README.md) |
+| 后台功能 | [备忘录](docs/备忘录功能部署.md)、[实时日志](docs/实时日志部署与验证.md)、[运行统计](docs/运行统计部署与验证.md)、[WebSocket 与系统通知](docs/WebSocket集成与部署.md) |
+| 前端构建和发布 | [开发与验证](zero-ui/README.md)、[发布与回退](前段项目升级方案/03-发布与回退方案.md) |
 
 ## 内置功能
 
@@ -106,7 +128,11 @@ Java 类和方法沿用作者、时间和说明的 JavaDoc 模板，写清职责
 17. 在线构建器：拖动表单元素生成相应的HTML代码。
 18. 连接池监视：监视当前系统数据库连接池状态，可进行分析SQL找出系统性能瓶颈。
 
-系统接口文档使用 SpringDoc 2.8.17，与当前 Spring Boot 3.5 / Spring Framework 6.2 配套。后台菜单为“系统工具 → 系统接口”，文档 JSON 为 `/v3/api-docs`；Swagger UI 的配置入口 `/v3/api-docs/swagger-config` 仅开放 GET，业务接口仍按原有登录与权限规则校验。调整 Maven 依赖后需重新加载并重启 admin；隔离回归执行 `mvn -pl zero-admin -am test`，不连接数据库、Redis 或 Nacos。
+系统接口文档使用 SpringDoc 2.8.17，与当前 Spring Boot 3.5 / Spring Framework 6.2 配套。后台菜单为“系统工具 → 系统接口”，文档 JSON 为 `/v3/api-docs`，Swagger UI 的配置入口 `/v3/api-docs/swagger-config` 只对 GET 放行。业务接口仍按登录和权限规则校验。调整 Maven 依赖后重新加载项目并重启 `zero-admin`。检查接口文档和安全规则时，从仓库根目录执行以下隔离测试：
+
+```powershell
+mvn -pl zero-admin -am test '-Dtest=SpringDocCompatibilityTest' '-Dsurefire.failIfNoSpecifiedTests=false'
+```
 
 后台页面通过Axios追加Bearer请求头，Swagger调试不会自动继承后台登录Cookie。调试业务接口前，在Swagger右上角Authorize填写当前会话的原始Token（不带`Bearer `前缀）；可在浏览器开发者工具中从正常业务请求的Authorization头取得，去掉前缀后仅粘贴到本机Swagger授权框，不发送到聊天或保存到文档。401表示认证未通过，授权后仍按原业务权限规则校验。
 

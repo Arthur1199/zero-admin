@@ -17,8 +17,8 @@ ZERO-JOB 是由 **Arthur** 维护的任务调度中心，当前项目版本为 *
 
 1. 经数据库管理员确认后，在独立测试环境执行仓库的 `sql/zero_job.sql`。每次执行都会删除并重建调度表，重新写入初始数据。新环境初始化或明确需要重置测试库时才执行，应用启动时不会执行该脚本。
 2. 初始化脚本保留官方示例账号、密码摘要和示例执行器配置。首次登录后修改密码；执行器管理中设置自己的 AccessToken，配置实际执行器地址，不使用官方示例凭据或示例任务进行生产调度。源码中的初始账号信息不应继续对外传播。
-3. 按下表在 YAML 中直接填写运行配置，数据库、邮件及 Nacos 账号密码暂留空。真实凭据不要提交到仓库或输出到日志。
-4. 如使用配置中心，将 `src/main/resources/nacosConfig/` 的两个 YAML 文件分别发布到对应 namespace 和配置分组。文件名即 Data ID；仅将文件保存在源码目录中不会自动发布。
+3. 按下表准备目标环境的配置。仓库模板保留空凭据，使用受控配置填写目标环境的数据库、SMTP 和 Nacos 凭据。
+4. 在目标 Nacos 命名空间和配置分组中发布 [MySQL 模板](src/main/resources/nacosConfig/zero-job-admin-mysql.yml)与[通用模板](src/main/resources/nacosConfig/zero-job-admin-common.yml)对应的配置。文件名即 Data ID，启动前核对数据库连接和所需的调度参数。
 5. 从仓库根目录运行：
 
 ```powershell
@@ -28,7 +28,7 @@ mvn -pl zero-jobAdmin -am package
 java -jar zero-jobAdmin/target/zero-jobAdmin-1.0.0.jar
 ```
 
-访问 [控制台](http://localhost:9102/)，Nacos 应显示 `zero-job-admin`。当前交付没有连接实际数据库或 Nacos，注册和真实任务闭环仍需使用已初始化的测试环境验证。
+访问 [控制台](http://localhost:9102/)，并在目标环境的 Nacos 命名空间及注册分组确认 `zero-job-admin` 实例。注册、登录和任务闭环按下文在独立测试环境验收。
 
 ## 环境与配置
 
@@ -36,7 +36,7 @@ java -jar zero-jobAdmin/target/zero-jobAdmin-1.0.0.jar
 
 | 配置位置 | 用途与默认值 |
 | --- | --- |
-| `application.yml` 的 `spring.profiles.active` | 默认 `dev`，可通过 `--spring.profiles.active=test/prod` 切换 |
+| `application.yml` 的 `spring.profiles.active` | 默认 `dev`，可通过 `--spring.profiles.active=test` 或 `--spring.profiles.active=prod` 切换 |
 | `application.yml` 的 `server.port` | 默认 `9102` |
 | Nacos `zero-job-admin-mysql.yml` 的 `spring.datasource` | 本机MySQL的 `zero_job` 库、Hikari连接池，账号密码待填写 |
 | Nacos `zero-job-admin-common.yml` 的 `spring.mail` | 默认 `localhost:25`，邮件账号、密码和发件人待填写 |
@@ -54,7 +54,7 @@ namespace为空表示公共空间；需要和其它服务注册在同一空间�
 
 ## 执行器及集群
 
-- 执行器使用 `xxl-job-core:3.5.0`，`xxl.job.admin.addresses` 填调度中心可访问的 HTTP 地址，例如 `http://调度中心主机:9102`。这不是 Nacos 服务名解析入口，不可直接填写 `http://zero-job-admin` 并假定官方执行器支持服务发现。
+- 执行器使用 `xxl-job-core:3.5.0`。本仓库的 `zero-task` 通过 `xxl.job.executor.admin-addresses` 配置调度中心的可达 HTTP 地址，例如同机的 `http://127.0.0.1:9102`。独立接入的执行器按自身配置格式填写地址。填写域名时确认执行器所在环境可解析并访问该地址。见 [ZERO-TASK 配置与启动](../zero-task/README.md#配置和启动)。
 - 执行器 `appname` 与控制台执行器 AppName 一致，AccessToken 与该执行器在控制台保存的值一致。3.5.0 的凭据按执行器隔离；调度中心和执行器配套升级。
 - Nacos 注册只用于服务发现，不替代 XXL-JOB 原生的注册、心跳、回调与任务执行协议。调度中心和执行器需要双向网络可达。
 - 多调度中心实例共用同一个调度数据库，沿用官方数据库锁与集群调度逻辑。浏览器控制台保持官方数据库登录存储，不接入 zero-admin 的 JWT 或按钮权限。
@@ -73,4 +73,4 @@ mvn -pl zero-jobAdmin -am -Pjob-integration test-compile -DskipTests
 
 部署联调验收：服务注册到正确 namespace 和 discovery group；健康检查正常；控制台登录及列表正常；测试执行器可注册；经授权触发专用测试任务并确认日志、回调；退出登录后受保护页面不可访问。此流程需单独准备数据库、Nacos、执行器，本次不自动执行。
 
-官方来源、许可证和改造差异见 `upstream/README.md`；原始数据库脚本保存在 `upstream/tables_xxl_job-3.5.0.sql`。
+官方来源、许可证和改造差异见[上游记录](upstream/README.md)，原始数据库脚本见 [XXL-JOB 3.5.0 SQL](upstream/tables_xxl_job-3.5.0.sql)。

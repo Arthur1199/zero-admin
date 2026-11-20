@@ -19,68 +19,79 @@
         <job.test.excluded-groups>job-integration</job.test.excluded-groups>
     </properties>
     <dependencies>
-        <!-- spring-boot-devtools -->
+        <!-- 提供调度中心在本地开发期的应用自动重启，并标记为可选依赖。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <optional>true</optional> <!-- 表示依赖不会传递 -->
         </dependency>
 
-        <!-- Java日志注解，与admin启动类一致，由父工程统一管理版本。 -->
+        <!-- 在编译期为调度中心的启动类和业务组件生成 SLF4J 日志字段，版本由父 POM 管理。 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+        <!-- 引入 Spring MVC 和内嵌 Tomcat，承载调度控制台和执行器通信接口。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+        <!-- 提供 FreeMarker 模板引擎，渲染调度中心登录页和任务管理页面。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-freemarker</artifactId>
         </dependency>
+        <!-- 装配 JavaMailSender，供任务失败时按配置发送告警邮件。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
+        <!-- 提供健康检查等运行状态端点，供 Boot Admin 监控调度中心。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
-        <!-- 使用Boot 3适配版本，不沿用官方Boot 4的MyBatis starter。 -->
+        <!-- 集成调度中心的 Mapper 与 XML SQL，沿用 Spring Boot 3 适配版本。 -->
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>
             <artifactId>mybatis-spring-boot-starter</artifactId>
             <version>${job.mybatis-starter.version}</version>
         </dependency>
+        <!-- 提供调度中心连接独立 zero_job 库所需的 MySQL JDBC 驱动。 -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
         </dependency>
+        <!-- 提供调度中心与执行器通信使用的协议、请求对象和调度常量。 -->
         <dependency>
             <groupId>com.xuxueli</groupId>
             <artifactId>xxl-job-core</artifactId>
             <version>${xxl-job.version}</version>
         </dependency>
+        <!-- 为调度控制台提供登录拦截、会话模型和独立认证支持。 -->
         <dependency>
             <groupId>com.xuxueli</groupId>
             <artifactId>xxl-sso-core</artifactId>
             <version>${xxl-sso.version}</version>
         </dependency>
+        <!-- 提供 XXL-JOB 使用的响应模型、分页对象及字符串、日期和 JSON 工具。 -->
         <dependency>
             <groupId>com.xuxueli</groupId>
             <artifactId>xxl-tool</artifactId>
             <version>${xxl-tool.version}</version>
         </dependency>
+        <!-- 在启动早期加载外部配置，使数据源及调度设置可在应用初始化时读取。 -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-bootstrap</artifactId>
         </dependency>
+        <!-- 将调度中心注册到 Nacos，供监控服务发现实例。 -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
         </dependency>
+        <!-- 从 Nacos 读取调度中心的数据源、邮件和调度参数。 -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
@@ -92,6 +103,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- 引入测试作用域的 JUnit、Mockito 和 Spring Test，供控制台、登录及调度协议回归使用。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

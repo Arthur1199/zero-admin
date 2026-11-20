@@ -21,58 +21,22 @@
         <tools.commons-io.version>2.22.0</tools.commons-io.version>
         <tools.jakarta-mail.version>2.0.2</tools.jakarta-mail.version>
         <tools.dom4j.version>2.2.0</tools.dom4j.version>
-        <tools.jsoup.version>1.22.2</tools.jsoup.version>
+        <tools.jsoup.version>1.23.2</tools.jsoup.version>
         <tools.fastjson2.version>2.0.62</tools.fastjson2.version>
-        <tools.jackson.version>2.21.3</tools.jackson.version>
-        <tools.jackson-annotations.version>2.21</tools.jackson-annotations.version>
         <tools.zxing.version>3.5.4</tools.zxing.version>
-        <tools.java-jwt.version>4.5.2</tools.java-jwt.version>
+        <tools.java-jwt.version>4.6.2</tools.java-jwt.version>
         <tools.hutool.version>5.8.44</tools.hutool.version>
-        <tools.spring.version>6.2.18</tools.spring.version>
         <tools.slf4j.version>2.0.18</tools.slf4j.version>
         <tools.servlet.version>6.1.0</tools.servlet.version>
         <tools.libphonenumber.version>9.0.30</tools.libphonenumber.version>
         <tools.selenium.version>4.44.0</tools.selenium.version>
-        <tools.opentelemetry.version>1.62.0</tools.opentelemetry.version>
-        <tools.opentelemetry-alpha.version>1.62.0-alpha</tools.opentelemetry-alpha.version>
         <tools.byte-buddy.version>1.18.8-jdk5</tools.byte-buddy.version>
         <selenium.version>${tools.selenium.version}</selenium.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!-- 覆盖java-jwt传递的旧Jackson版本，不作为工具包直接API暴露。 -->
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
-                <version>${tools.jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${tools.jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-                <version>${tools.jackson-annotations.version}</version>
-            </dependency>
-
-            <!-- Selenium 4.44.0依赖较新的OpenTelemetry，避免被父工程Spring Boot依赖管理压低版本。 -->
-            <dependency>
-                <groupId>io.opentelemetry</groupId>
-                <artifactId>opentelemetry-bom</artifactId>
-                <version>${tools.opentelemetry.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>io.opentelemetry</groupId>
-                <artifactId>opentelemetry-bom-alpha</artifactId>
-                <version>${tools.opentelemetry-alpha.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
+            <!-- 管理 Selenium 支持模块引入的 Byte Buddy 版本，提供运行期字节码生成能力。 -->
             <dependency>
                 <groupId>net.bytebuddy</groupId>
                 <artifactId>byte-buddy</artifactId>
@@ -82,12 +46,13 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- Apache Commons基础工具：字符串、IO。 -->
+        <!-- 提供 Apache Commons Lang 字符串处理和其他基础工具。 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${tools.commons-lang3.version}</version>
         </dependency>
+        <!-- 提供文件扩展名与输入输出流工具，供 FileHelper 等文件工具使用。 -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -100,18 +65,20 @@
             <artifactId>jakarta.mail</artifactId>
             <version>${tools.jakarta-mail.version}</version>
         </dependency>
+        <!-- 为 MailHelper 提供附件的数据源和 MIME 数据处理接口。 -->
         <dependency>
             <groupId>com.sun.activation</groupId>
             <artifactId>jakarta.activation</artifactId>
             <version>2.0.1</version>
         </dependency>
 
-        <!-- XML/HTML解析：XMLHelper、HtmlParse、JsoupHelper、DomainCheckUtil使用。 -->
+        <!-- 供 XMLHelper、XmlConfig 及 HtmlParse 读取、组织和写入 XML 文档。 -->
         <dependency>
             <groupId>org.dom4j</groupId>
             <artifactId>dom4j</artifactId>
             <version>${tools.dom4j.version}</version>
         </dependency>
+        <!-- 供 JsoupHelper 和 DomainCheckUtil 解析 HTML、提取网页元素。 -->
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
@@ -132,17 +99,19 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- 二维码与认证安全工具：谷歌动态码二维码、JWT签名解析。 -->
+        <!-- 供 QRCodeUtils 在 Java SE 中读写二维码图像。 -->
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>javase</artifactId>
             <version>${tools.zxing.version}</version>
         </dependency>
+        <!-- 提供谷歌动态码绑定二维码的编解码算法。 -->
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>core</artifactId>
             <version>${tools.zxing.version}</version>
         </dependency>
+        <!-- 供 JwtUtils 签发、解析与校验 JWT。 -->
         <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
@@ -156,21 +125,21 @@
             <version>${tools.hutool.version}</version>
         </dependency>
 
-        <!-- Spring与日志基础依赖：工具类直接使用spring-core、spring-beans和slf4j-api。 -->
+        <!-- 提供工具类的统一日志接口，日志实现由使用该工具包的应用选择。 -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${tools.slf4j.version}</version>
         </dependency>
+        <!-- 为 PropHelper 提供类路径资源读取等 Spring 基础能力。 -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>${tools.spring.version}</version>
         </dependency>
+        <!-- 为 BeanCopyHelper 提供 Spring Bean 属性复制工具。 -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
-            <version>${tools.spring.version}</version>
         </dependency>
 
         <!-- 手机号码解析与格式校验。 -->
@@ -180,22 +149,25 @@
             <version>${tools.libphonenumber.version}</version>
         </dependency>
 
-        <!-- 浏览器自动化：DomainCheckUtil使用ChromeDriver访问并解析动态网页。 -->
+        <!-- 提供 WebDriver、By 等浏览器自动化公共接口，供 DomainCheckUtil 定位和读取网页元素。 -->
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-api</artifactId>
             <version>${tools.selenium.version}</version>
         </dependency>
+        <!-- 提供 Chromium 系浏览器的驱动基础，供 Selenium 的 Chrome 驱动使用。 -->
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-chromium-driver</artifactId>
             <version>${tools.selenium.version}</version>
         </dependency>
+        <!-- 提供 ChromeDriver 和 ChromeOptions，供 DomainCheckUtil 使用 Chrome 访问动态网页。 -->
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-chrome-driver</artifactId>
             <version>${tools.selenium.version}</version>
         </dependency>
+        <!-- 提供 WebDriverWait 和 ExpectedConditions，等待动态页面满足读取条件。 -->
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-support</artifactId>

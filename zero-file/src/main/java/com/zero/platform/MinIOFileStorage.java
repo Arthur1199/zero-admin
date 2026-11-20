@@ -5,21 +5,19 @@ import cn.hutool.core.util.StrUtil;
 import com.zero.exception.FileStorageRuntimeException;
 import com.zero.vo.FileInfo;
 import com.zero.vo.UploadPretreatment;
-import io.minio.ErrorCode;
+import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
-import io.minio.ObjectStat;
-import io.minio.PutObjectOptions;
-import io.minio.errors.*;
+import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
+import io.minio.StatObjectArgs;
+import io.minio.errors.ErrorResponseException;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -53,8 +51,8 @@ public class MinIOFileStorage implements FileStorage {
      */
     public MinioClient getClient() {
         try {
-            return new MinioClient(endPoint,accessKey,secretKey);
-        } catch (InvalidEndpointException | InvalidPortException e) {
+            return MinioClient.builder().endpoint(endPoint).credentials(accessKey, secretKey).build();
+        } catch (IllegalArgumentException e) {
             throw new FileStorageRuntimeException("文件存储操作失败", e);
         }
     }
@@ -76,36 +74,37 @@ public class MinIOFileStorage implements FileStorage {
         fileInfo.setBasePath(basePath);
         fileInfo.setUrl(domain + newFileKey);
 
-        MinioClient client = getClient();
-        try {
+        try (MinioClient client = getClient()) {
             Optional<MediaType> mediaType = MediaTypeFactory.getMediaType(fileInfo.getFilename());
             MediaType contentType = mediaType.orElse(MediaType.APPLICATION_OCTET_STREAM);
-//			if(fileInfo.getFilename().endsWith("gif") || fileInfo.getFilename().endsWith("GIF") ) {
-//				contentType = MediaType.APPLICATION_OCTET_STREAM;
-//			}
             log.info("上传文件类型，filename={}, contentType={}", fileInfo.getFilename(), contentType.toString());
 
-            PutObjectOptions objOpt =  new PutObjectOptions(pre.getFileWrapper().getSize(),-1);
-            objOpt.setContentType(contentType.toString());
-            client.putObject(bucketName,newFileKey,pre.getFileWrapper().getInputStream(),objOpt);
+            try (InputStream in = pre.getFileWrapper().getInputStream()) {
+                client.putObject(PutObjectArgs.builder().bucket(bucketName).object(newFileKey)
+                        .stream(in, pre.getFileWrapper().getSize(), -1).contentType(contentType.toString()).build());
+            }
 
             byte[] thumbnailBytes = pre.getThumbnailBytes();
-            if (thumbnailBytes != null) { // 上传缩略图
+            if (thumbnailBytes != null) {
                 String newThFileKey = basePath + fileInfo.getPath() + fileInfo.getThFilename();
                 fileInfo.setThUrl(domain + newThFileKey);
-                PutObjectOptions objOptions = new PutObjectOptions(thumbnailBytes.length,-1);
-                objOptions.setContentType(contentType.toString());
-               // client.putObject(bucketName,newThFileKey,new ByteArrayInputStream(thumbnailBytes),new PutObjectOptions(thumbnailBytes.length,-1));
-                client.putObject(bucketName,newThFileKey,new ByteArrayInputStream(thumbnailBytes),objOptions);
-
+                try {
+                    client.putObject(PutObjectArgs.builder().bucket(bucketName).object(newThFileKey)
+                            .stream(new ByteArrayInputStream(thumbnailBytes), thumbnailBytes.length, -1)
+                            .contentType(contentType.toString()).build());
+                } catch (Exception uploadFailure) {
+                    // 缩略图上传失败时清理本次已经写入的原件，保留上传异常。
+                    try {
+                        client.removeObject(RemoveObjectArgs.builder().bucket(bucketName).object(newFileKey).build());
+                    } catch (Exception cleanupFailure) {
+                        uploadFailure.addSuppressed(cleanupFailure);
+                    }
+                    throw uploadFailure;
+                }
             }
 
             return true;
-        } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidBucketNameException | InvalidKeyException | InvalidResponseException | IOException | NoSuchAlgorithmException | XmlParserException e) {
-            try {
-                client.removeObject(bucketName,newFileKey);
-            } catch (Exception ignored) {
-            }
+        } catch (Exception e) {
             throw new FileStorageRuntimeException("文件存储操作失败", e);
         }
     }
@@ -122,14 +121,16 @@ public class MinIOFileStorage implements FileStorage {
      */
     @Override
     public boolean delete(FileInfo fileInfo) {
-        MinioClient client = getClient();
-        try {
-            if (fileInfo.getThFilename() != null) {   // 删除缩略图
-                client.removeObject(bucketName,fileInfo.getBasePath() + fileInfo.getPath() + fileInfo.getThFilename());
+        String directory = fileInfo.getBasePath() + fileInfo.getPath();
+        try (MinioClient client = getClient()) {
+            if (fileInfo.getThFilename() != null) {
+                client.removeObject(RemoveObjectArgs.builder().bucket(bucketName)
+                        .object(directory + fileInfo.getThFilename()).build());
             }
-            client.removeObject(bucketName,fileInfo.getBasePath() + fileInfo.getPath() + fileInfo.getFilename());
+            client.removeObject(RemoveObjectArgs.builder().bucket(bucketName)
+                    .object(directory + fileInfo.getFilename()).build());
             return true;
-        } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidBucketNameException | InvalidKeyException | InvalidResponseException | IOException | NoSuchAlgorithmException | XmlParserException e) {
+        } catch (Exception e) {
             throw new FileStorageRuntimeException("文件存储操作失败", e);
         }
     }
@@ -147,17 +148,17 @@ public class MinIOFileStorage implements FileStorage {
      */
     @Override
     public boolean exists(FileInfo fileInfo) {
-        MinioClient client = getClient();
-        try {
-            ObjectStat stat = client.statObject(bucketName,fileInfo.getBasePath() + fileInfo.getPath() + fileInfo.getFilename());
-            return stat != null && stat.createdTime() != null;
+        try (MinioClient client = getClient()) {
+            var stat = client.statObject(StatObjectArgs.builder().bucket(bucketName)
+                    .object(fileInfo.getBasePath() + fileInfo.getPath() + fileInfo.getFilename()).build());
+            return stat.lastModified() != null;
         } catch (ErrorResponseException e) {
-            String code = e.errorResponse().errorCode().code();
-            if (ErrorCode.RESOURCE_NOT_FOUND.code().equals(code) || ErrorCode.NO_SUCH_OBJECT.code().equals(code)) {
+            String code = e.errorResponse().code();
+            if ("NoSuchKey".equals(code) || "NoSuchObject".equals(code) || "ResourceNotFound".equals(code)) {
                 return false;
             }
             throw new FileStorageRuntimeException("文件存储操作失败", e);
-        } catch (InsufficientDataException | InternalException | InvalidBucketNameException | InvalidKeyException | InvalidResponseException | IOException | NoSuchAlgorithmException | XmlParserException e) {
+        } catch (Exception e) {
             throw new FileStorageRuntimeException("文件存储操作失败", e);
         }
     }
@@ -175,12 +176,7 @@ public class MinIOFileStorage implements FileStorage {
      */
     @Override
     public void download(FileInfo fileInfo,Consumer<InputStream> consumer) {
-        MinioClient client = getClient();
-        try (InputStream in = client.getObject(bucketName,fileInfo.getBasePath() + fileInfo.getPath() + fileInfo.getFilename())) {
-            consumer.accept(in);
-        } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidBucketNameException | InvalidKeyException | InvalidResponseException | IOException | NoSuchAlgorithmException | XmlParserException e) {
-            throw new FileStorageRuntimeException("文件存储操作失败", e);
-        }
+        downloadObject(fileInfo.getBasePath() + fileInfo.getPath() + fileInfo.getFilename(), consumer);
     }
 
     /**
@@ -199,13 +195,23 @@ public class MinIOFileStorage implements FileStorage {
         if (StrUtil.isBlank(fileInfo.getThFilename())) {
             throw new FileStorageRuntimeException("文件不存在或无法操作");
         }
-        MinioClient client = getClient();
-        try (InputStream in = client.getObject(bucketName,fileInfo.getBasePath() + fileInfo.getPath() + fileInfo.getThFilename())) {
+        downloadObject(fileInfo.getBasePath() + fileInfo.getPath() + fileInfo.getThFilename(), consumer);
+    }
+
+    /**
+     * 在消费回调返回后关闭对象流和客户端，沿用历史文件记录的对象路径。
+     * @param key 对象在当前存储桶内的完整路径
+     * @param consumer 在流打开期间读取对象的回调
+     */
+    private void downloadObject(String key, Consumer<InputStream> consumer) {
+        try (MinioClient client = getClient();
+             InputStream in = client.getObject(GetObjectArgs.builder().bucket(bucketName).object(key).build())) {
             consumer.accept(in);
-        } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidBucketNameException | InvalidKeyException | InvalidResponseException | IOException | NoSuchAlgorithmException | XmlParserException e) {
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
             throw new FileStorageRuntimeException("文件存储操作失败", e);
         }
-
     }
 }
 

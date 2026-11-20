@@ -9,7 +9,7 @@
 3. 配置 `xxl.job.executor.address` 为调度中心可以访问的执行器地址。同机开发可用 `http://127.0.0.1:9998`，跨主机时使用可达的内网地址。默认 `9998` 用于任务派发和查询任务执行日志，`9104` 用于 Boot Admin 采集 `/actuator` 监控数据。执行器端口只向调度中心开放，监控路径只向内网监控端开放。
 4. 在 ZERO-JOB 的「执行器管理」新增自动注册的执行器组，AppName 填 `zero-task`，AccessToken 与 Nacos 的 `xxl.job.executor.access-token` 使用同一值。凭据通过受控配置维护。
 
-三个环境文件通过 `spring.config.import` 声明要加载的 Data ID。`optional:` 允许其中一个模板尚未发布。`zero-task-common.yml` 提供执行器参数，MySQL 和 Redis 模板按任务需求发布。
+三个环境文件通过 `spring.config.import` 声明要加载的 Data ID。`optional:` 允许导入资源缺失。运行此服务需要有效的执行器配置和 MySQL 数据源，启动前按下文发布通用配置与 MySQL 模板。Redis 模板按业务需要发布。
 
 服务运行时会监听 `zero-task-common.yml` 的变更，并刷新 Spring 环境中的配置。执行器在启动时读取 `xxl.job.executor.*`，修改调度地址、端口、AccessToken 等启动参数后，仍需重启 `zero-task` 才会应用到执行器。应用运行日志由 `logging.file.*` 和 Logback 管理，单次任务日志由 `xxl.job.executor.log-path` 和 `log-retention-days` 管理。
 
@@ -22,7 +22,7 @@ java -jar zero-task/target/zero-task-1.0.0.jar --spring.profiles.active=dev
 
 ## 验证任务
 
-执行器上线后，在 ZERO-JOB 的「任务管理」新增任务，选择 `zero-task` 执行器组，运行模式选 `BEAN`，JobHandler 填 `zeroTaskDemoHandler`。
+在已获授权的测试环境中，确认调度中心与执行器互通后，在 ZERO-JOB 的「任务管理」新增测试任务，选择 `zero-task` 执行器组，运行模式选 `BEAN`，JobHandler 填 `zeroTaskDemoHandler`。调度中心启动步骤见 [ZERO-JOB](../zero-jobAdmin/README.md#初始化与启动)。
 
 - 点击「执行一次」，参数留空，调度日志应显示执行成功。
 - 参数填 `fail` 再执行一次，调度日志应显示执行失败。

@@ -35,30 +35,31 @@
             <version>1.23.2</version>
         </dependency>
 
-        <!-- Spring Framework -->
+        <!-- 提供 HTTP 请求响应类型和 RestTemplate，供管理后台转发报表与文件请求。 -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
         </dependency>
 
+        <!-- 提供 Spring MVC 路由、控制器和请求拦截器支持。 -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
         </dependency>
 
-        <!-- Spring Boot Autoconfigure-->
+        <!-- 提供 Spring Boot 自动装配及自动装配类，供启动入口声明默认数据源配置的排除项。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
         </dependency>
 
-        <!-- SpringBoot Web容器-->
+        <!-- 引入 Spring MVC 与内嵌 Tomcat，承载管理后台的 HTTP 接口。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!--  Bouncy Castle -->
+        <!-- 提供 Bouncy Castle 密码学算法实现，版本由父 POM 统一管理。 -->
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
@@ -69,7 +70,7 @@
             <artifactId>spring-cloud-starter-bootstrap</artifactId>
         </dependency>
 
-        <!-- Nacos服务注册与发现 -->
+        <!-- 从 Nacos 注册和发现服务，供管理后台按服务名调用内部服务。 -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
@@ -87,13 +88,13 @@
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
 
-        <!-- Spring Cloud 负载均衡组件，供 OpenFeign 按服务名调用 Nacos 实例 -->
+        <!-- 根据服务名选择 Nacos 实例，供 OpenFeign、报表代理和文件代理使用。 -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-loadbalancer</artifactId>
         </dependency>
 
-        <!-- SpringBoot 拦截器 -->
+        <!-- 为操作日志、数据权限和接口统计等切面提供 Spring AOP 支持。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
@@ -105,73 +106,73 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-        <!-- spring-boot-devtools -->
+        <!-- 提供本地开发期的应用自动重启，并标记为可选依赖。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <optional>true</optional> <!-- 表示依赖不会传递 -->
         </dependency>
 
-        <!-- 添加 SpringDoc 依赖 -->
+        <!-- 生成管理后台的 OpenAPI 文档并提供 Swagger UI。 -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         </dependency>
 
-        <!-- MySQL驱动包,使用新版官方Maven坐标。 -->
+        <!-- 提供连接管理库等 MySQL 数据源所需的 JDBC 驱动，版本由父 POM 管理。 -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
         </dependency>
 
-        <!-- Spring框架基本的核心工具 -->
+        <!-- 补充 Spring 缓存、调度等集成所需的上下文适配类。 -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
         </dependency>
 
-        <!-- spring security 安全认证 -->
+        <!-- 提供登录认证、请求授权和 JWT 认证过滤链所需的安全框架。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
-        <!-- pagehelper 分页插件 -->
+        <!-- 自动装配 PageHelper，为管理后台列表查询生成分页 SQL。 -->
         <dependency>
             <groupId>com.github.pagehelper</groupId>
             <artifactId>pagehelper-spring-boot-starter</artifactId>
         </dependency>
-        <!--mybatis 升级版本-->
+        <!-- 将 MyBatis Mapper 和 SqlSession 接入 Spring 容器与事务管理，版本由父 POM 管理。 -->
         <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis-spring</artifactId>
         </dependency>
 
-        <!-- 自定义验证注解 -->
+        <!-- 提供 Jakarta Bean Validation 实现，用于接口参数和实体字段校验。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- lombok -->
+        <!-- 在编译期为使用注解的类生成访问方法、日志字段等代码。 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
 
-        <!--常用工具类 -->
+        <!-- 提供字符串处理、对象操作和日期等基础工具。 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
 
-        <!-- JSON工具类 -->
+        <!-- 提供 Java 对象与 JSON 的映射，供代理请求参数和响应等场景使用。 -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
-        <!-- yml解析器 -->
+        <!-- 解析 application.yml 等 YAML 配置，供 Spring Boot 读取配置值。 -->
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
@@ -183,13 +184,13 @@
             <artifactId>jaxb-runtime</artifactId>
         </dependency>
 
-        <!-- redis 缓存操作 -->
+        <!-- 提供 Spring Data Redis 和 RedisTemplate，供后台缓存、会话和消息发布使用。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
-        <!-- pool 对象池 -->
+        <!-- 为 Lettuce Redis 客户端提供连接池能力。 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-pool2</artifactId>
@@ -201,25 +202,26 @@
 <!--            <artifactId>javax.servlet-api</artifactId>-->
 <!--        </dependency>-->
 
-        <!-- 添加新依赖（Jakarta EE） -->
+        <!-- 提供过滤器、拦截器和工具类使用的 Servlet 请求响应接口，运行时由 Web 容器提供。 -->
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
             <scope>provided</scope> <!-- 运行时由容器提供 -->
         </dependency>
 
-        <!-- 阿里数据库连接池 -->
+        <!-- 提供 Spring Boot 3 适配的 Druid JDBC 连接池和监控支持。 -->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid-spring-boot-3-starter</artifactId>
         </dependency>
 
-        <!-- 覆盖logback的依赖配置-->
+        <!-- 提供 Logback 的日志输出基础能力，供实时日志的自定义 Appender 使用。 -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
         </dependency>
 
+        <!-- 提供 SLF4J 的 Logback 实现和 LoggerContext，供实时日志采集与格式化使用。 -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
@@ -231,76 +233,79 @@
             <artifactId>UserAgentUtils</artifactId>
         </dependency>
 
-        <!-- 获取系统信息 -->
+        <!-- 采集 CPU、内存、磁盘等信息，供管理后台的服务监控页面展示。 -->
         <dependency>
             <groupId>com.github.oshi</groupId>
             <artifactId>oshi-core</artifactId>
         </dependency>
 
-        <!-- io常用工具类 -->
+        <!-- 提供文件名处理、流复制等工具，供上传下载和文件操作使用。 -->
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
 
-        <!-- excel工具 -->
+        <!-- 提供 Excel 文件读写能力，供管理后台的导入导出功能使用。 -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
         </dependency>
 
-        <!-- velocity代码生成使用模板 -->
+        <!-- 渲染管理后台代码生成器中的 Java、Mapper、前端页面等模板。 -->
         <dependency>
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity-engine-core</artifactId>
         </dependency>
 
-        <!-- 阿里JSON解析器 -->
+        <!-- 用于 Redis 数据、统计事件等业务对象的 JSON 序列化与反序列化。 -->
         <dependency>
             <groupId>com.alibaba.fastjson2</groupId>
             <artifactId>fastjson2</artifactId>
         </dependency>
 
-        <!-- IP地址离线解析 -->
+        <!-- 使用本地 XDB 数据文件查询 IP 归属地，为登录日志等功能提供离线查询。 -->
         <dependency>
             <groupId>org.lionsoul</groupId>
             <artifactId>ip2region</artifactId>
         </dependency>
 
-        <!-- Token生成与解析 -->
+        <!-- 提供登录 Token 生成与解析的公共接口。 -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
         </dependency>
+        <!-- 提供 JJWT 在运行时签名和校验 Token 的实现。 -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <!-- 在运行时为 JJWT 提供基于 Jackson 的 JSON 转换，支持令牌头和自定义声明。 -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
             <scope>runtime</scope>
         </dependency>
 
-        <!-- 验证码 -->
+        <!-- 用于生成登录时的图形验证码和对应校验文本。 -->
         <dependency>
             <groupId>pro.fessional</groupId>
             <artifactId>kaptcha</artifactId>
         </dependency>
 
-        <!-- 谷歌动态码二维码 -->
+        <!-- 提供谷歌动态码绑定二维码的编码算法。 -->
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>core</artifactId>
         </dependency>
 
+        <!-- 将 ZXing 的二维码矩阵输出为 Java 图像，供谷歌动态码绑定页面展示。 -->
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>javase</artifactId>
         </dependency>
 
-        <!-- 定时任务 -->
+        <!-- 提供管理后台定时任务的调度器、Cron 表达式和触发器支持。 -->
         <dependency>
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
@@ -318,7 +323,7 @@
             <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
 
-        <!-- 文档接口与现有安全链的隔离回归，不启动数据库、Redis或Nacos。 -->
+        <!-- 测试作用域的 JUnit、Mockito 和 Spring Test，供文档接口、安全链及其他后台回归测试使用。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
