@@ -17,7 +17,7 @@
 5. 官方 `application.properties` 改为 YAML 和环境配置；Boot 4 的错误页配置改用 `server.error.whitelabel.enabled`。凭据外置，数据库改为独立 `zero_job`，监控与report/file一致暴露全部已启用Actuator端点并显示健康详情，供Boot Admin及管理后台采集；监控路径排除控制台登录拦截，部署时须限制内部访问来源。官方 `logback.xml` 替换为项目风格的独立日志配置。
 6. 添加 Nacos discovery/config；排除 Nacos 配置依赖传递引入的旧版 Druid starter，保留官方 Hikari。调度配置采用启动时加载，修改后需重启。
 7. 官方测试放入显式 profile 管理的集成测试目录，并添加 `job-integration` 标签，普通打包始终排除，即使此前编译过官方用例也不会误运行。新增隔离 Web 兼容性测试。
-8. `tables_xxl_job-3.5.0.sql` 是上游原件。仓库 `sql/zero_job.sql` 用于初始化 `zero_job`，每次执行都会重建 8 张调度表并重新写入初始数据。已有实例升级应使用对应版本的迁移脚本。
+8. [tables_xxl_job-3.5.0.sql](tables_xxl_job-3.5.0.sql) 是上游原件。[zero_job.sql](../../sql/zero_job.sql) 用于初始化 `zero_job`，每次执行都会重建 8 张调度表并重新写入初始数据。已有实例升级时先核对实际表结构与上游对应版本的迁移说明。
 9. 从 `XxlJobGroup.toString()` 移除AccessToken，防止官方缓存日志记录执行器凭据；保留getter/setter及实际通信认证逻辑。
 
-未自动建库、发布Nacos配置、启动真实调度或发送邮件。当前工作区的修改版本不能标称为未经修改的官方发行版。
+本文记录 2026-11-18 的源码迁入和适配范围。实际部署和联调边界见 [ZERO-JOB 模块说明](../README.md)。

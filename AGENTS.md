@@ -13,7 +13,7 @@
 
 | 模块目录（必要时注明服务名） | 职责与边界 |
 | --- | --- |
-| `zero-tools` | Java 基础工具包，提供跨服务的常量、返回对象和通用工具，由 `zero-report`、`zero-file` 和 `zero-task` 直接依赖，无独立进程。 |
+| `zero-tools` | Java 基础工具包，无独立进程。`zero-report`、`zero-file` 和 `zero-task` 复用常量、返回对象和通用工具。`zero-admin` 复用 SQL 日志格式化工具，并在其 POM 中排除工具包的全部传递依赖。 |
 | `zero-admin` | 管理后台后端和统一业务入口，负责登录、菜单权限和后台自身业务，并在代理入口校验操作权限和记录审计。 |
 | `zero-report` | 管理后台的报表和业务数据服务，由 admin 调用，负责报表与其所属业务数据的查询、管理和持久化。 |
 | `zero-jobAdmin`（服务名 `zero-job-admin`） | 独立的 XXL-JOB 调度中心，负责管理任务、接收执行器注册、派发任务和收集执行结果。 |
@@ -37,14 +37,15 @@
 ## 技术栈与版本来源
 
 - 后端是 Maven 多模块项目，父工程 `pom.xml` 当前模块为：`zero-tools`、`zero-admin`、`zero-bootAdmin`、`zero-report`、`zero-file`、`zero-jobAdmin`、`zero-task`。
-- 父 POM 声明的版本基线为 Java 17、Spring Boot 3.5.12、Spring Framework 6.2.18、Spring Cloud 2025.0.2、Spring Cloud Alibaba 2025.0.0.0。父 POM 单独管理 `spring-boot-autoconfigure` 为 3.5.14。排查依赖冲突时先看父 POM 的版本管理，再用对应模块的有效 POM 或依赖树确认解析结果。
+- 父 POM 声明的版本基线为 Java 17、Spring Boot 3.5.16、Spring Framework 6.2.19、Spring Cloud 2025.0.2、Spring Cloud Alibaba 2025.0.0.0。Spring Boot 核心、自动配置和打包插件统一继承官方父 POM 的版本管理。排查依赖冲突时先看父 POM 的版本管理，再用对应模块的有效 POM 或依赖树确认解析结果。
+- 修改 Maven 依赖时，在对应声明上方维护中文备注，说明实际用途、作用域或版本对齐原因。父 POM 的 `dependencyManagement` 管理版本，模块的 `dependencies` 声明实际使用的组件。升级后核对受影响模块的依赖树与回归结果，保留仍待处理的安全告警记录。
 - `zero-admin` 是管理后台服务，主入口为 `com.zero.ZeroAdminApplication`，启用 Nacos 注册/配置、OpenFeign、LoadBalancer，并排除默认数据源自动配置。主要技术包括 Spring Security、JWT、MyBatis XML、PageHelper、Druid、Redis、Quartz、Actuator、SpringDoc、Kaptcha、Fastjson2、POI。
 - 系统接口文档使用 SpringDoc 2.8.17，与当前 Boot 3.5 / Spring 6.2 配套；文档子路径 `/v3/api-docs/**` 仅额外放行 GET，保证 Swagger UI 可读取配置和文档，不扩大业务接口的匿名访问。
 - Swagger3Config声明HTTP Bearer/JWT方案；后台Axios登录请求头不会自动继承到Swagger，调试受保护接口须在Authorize输入原始Token，不带Bearer前缀。不要把Token写入文档、日志、URL或测试产物。
 - `zero-report` 是报表/业务服务，主入口为 `com.zero.ZeroReportApplication`，启用 Nacos 注册/配置、OpenFeign、`@MapperScan`。主要技术包括 MyBatis-Plus、MyBatis-Plus 分页拦截器、dynamic-datasource、PageHelper（复杂 XML 报表 SQL 保留使用）、Redis、Actuator、Validation、Lombok。
-- `zero-tools` 承载跨服务复用的基础常量、统一返回对象和通用工具，`zero-report`、`zero-file` 和 `zero-task` 均直接依赖它；不要把只属于 admin 的 `common` 类误搬到 `zero-tools`。
+- `zero-tools` 的 JWT 工具使用 `com.auth0:java-jwt`，当前为 4.6.2。`zero-admin` 的登录令牌使用 `io.jsonwebtoken:jjwt-*`，版本由父 POM 管理。维护依赖时分别核对调用方，不将只属于 admin 的 `common` 类移动到 `zero-tools`。
 - `zero-bootAdmin` 使用 Spring Boot Admin 3.5.8。分析监控功能时需单独读取该模块和各服务 Actuator 暴露配置。
-- `zero-report`、`zero-file` 和 `zero-task` 使用父 POM 管理的 MyBatis-Plus 3.5.16 和 dynamic-datasource 4.5.0。report 和 task 分别在模块 POM 中管理 Redisson 4.6.1，并使用适配 Spring Data 3.5 的模块。
+- `zero-report`、`zero-file` 和 `zero-task` 使用父 POM 管理的 MyBatis-Plus 3.5.16 和 dynamic-datasource 4.6.0。report 和 task 分别在模块 POM 中管理 Redisson 4.6.1，并使用适配 Spring Data 3.5 的模块。
 - `zero-file` 是独立文件服务，入口为 `com.zero.ZeroFileApplication`，通过 `@EnableFileStorage` 启用存储能力，使用 MyBatis-Plus、dynamic-datasource 和 `zero-tools`，文件记录表为业务库的 `biz_file_detail`。
 - 前端模块：`zero-ui`，Vue 3.5.43 + Vite 8.3.3 + Vue Router 4.6.4 + Vuex 4.1.0 + Element Plus 2.14.7，保留 Options API。Node 开发基线为 24.21.0，`package.json` 声明的引擎范围为 `>=24.21.0 <25`。
 - 前端请求：Axios 封装在 `zero-ui/src/utils/request.js`，开发代理在 `zero-ui/vite.config.mjs`，浏览器变量使用 `VITE_APP_*`。Vite 开发代理由 `VITE_DEV_PROXY_TARGET` 覆盖，默认指向 `http://localhost:9099`。
@@ -81,7 +82,7 @@
 `zero-task` 的 9104 是应用 HTTP 端口。XXL-JOB 派发使用独立的执行器端口，配置源默认值为 9998。
 
 - admin 的 `ServiceNameConstants.ZERO_ADMIN` 和 tools 的 `ServiceNameConstant.ZERO_ADMIN` 当前仍为 `zeroAdmin`，与 admin 本地应用名 `zero-admin` 不一致。涉及服务调用时核对 Nacos 实际注册名和调用双方配置，不宣称两者已一致，不在无关任务中直接改名。
-- 各服务读取自己的 `application.yml` 和环境配置；Nacos 导入以对应 `application-{profile}.yml` 的 `spring.config.import` 为准。`resources/nacosConfig` 是配置源文件目录，不能仅因文件在目录中就认定已进入运行环境。
+- 各服务读取自己的 `application.yml` 和环境配置。`zero-bootAdmin` 使用自身配置接入服务发现，其余服务按 `application-{profile}.yml` 的 `spring.config.import` 读取 Nacos 配置。`resources/nacosConfig` 保存发布模板，实际生效值以目标环境已发布配置和启动覆盖项为准。
 - 新增或修改 Spring 和 Nacos 配置按 [YAML 配置注释规范](#yaml-配置注释规范)执行。各服务的配置源见 [README.md](README.md#后端配置入口)。
 - admin 的 `localYml` 导入在主配置中当前被注释，不把该目录的数据库、Redis、上传限制当作生效配置。分析配置问题要同时检查本地文件、Nacos 和启动覆盖参数。
 - 包扫描规则按各服务自己的 `PackageProperties` 核对；监控服务的安全配置、通知器和 Actuator 暴露范围单独分析，不能沿用 admin JWT 假设。
@@ -449,4 +450,4 @@ public static final String OPEN_GOOGLE_AUTH = "sys.account.openGoogleAuth";
 ## 当前环境提示
 
 - 项目后端需要 Java 17；如果本机 Maven 使用 JDK 8，会出现 `无效的标记: --release` 等编译失败。
-- `application-dev.yml` 含数据库连接信息，提交或回复时不要泄露明文密码。
+- 配置、测试工具和部署示例中的数据库凭据、Token 与应用密钥均按敏感信息处理。提交前核对变更，文档和测试记录使用占位值。

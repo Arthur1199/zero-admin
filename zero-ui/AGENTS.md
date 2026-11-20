@@ -1,6 +1,6 @@
 # zero-ui 前端 Agent 说明
 
-本目录为若依系管理后台前端（Vue 3 + Element Plus，保留 Options API）。在 Cursor 中编辑本目录下文件时，项目规则会自动附加 Agency 中与前端优化相关的角色（见仓库根目录 `.cursor/rules` 中带 `zero-ui` 路径匹配的规则）。
+本目录为若依系管理后台前端，使用 Vue 3 和 Element Plus，保留 Options API。通用规则见[仓库 AGENTS.md](../AGENTS.md)，本文件补充前端约束。安装、启动和构建见[前端 README](README.md)。
 
 ## 技术栈（勿擅自升级）
 
@@ -10,7 +10,7 @@
 
 ## 优化时的约束
 
-- 以**最小改动**修复问题；不做无关重构、不批量格式化 unrelated 文件。
+- 以最小改动修复问题，格式与文件现有写法一致。
 - 列表页沿用既有若依结构（`queryParams`、`getList`、分页等）。
 - 样式改动前先阅读 `src/assets/styles` 与主题相关 SCSS，避免破坏多主题。
 - 不新增全局依赖、不升级框架，除非单独评审并说明影响。
@@ -34,7 +34,7 @@
 
 ## 验证
 
-- 后端代码生成的空前端类型默认Vue3，显式Vue2选择保留；模板在admin的resources/vm，Vue3产物使用Options API、dicts、TreeSelect及resolveIcon。先运行后端GeneratorTemplatesTest，再运行generated-templates.spec.js和generator-flows.spec.js；浏览器用例读取target实际生成产物，不手写模拟组件代替模板输出。
+- 空前端类型默认 Vue 3，显式选择 Vue 2 时沿用历史模板。模板位于 [zero-admin/src/main/resources/vm](../zero-admin/src/main/resources/vm)。Vue 3 产物沿用 Options API、`dicts`、`TreeSelect` 和 `resolveIcon`。生成组件测试先运行 `GeneratorTemplatesTest`，再运行 `generated-templates.spec.js` 和 `generator-flows.spec.js`，顺序见[专项复验](../前段项目升级方案/04-代码生成模板集成与验证报告.md#证据及复验)。
 
 - 源码与大小写检查：npm run check:migration；单元测试：npm test；浏览器回归：npm run test:e2e。
 - Vite开发监听排除output目录，截图、trace和报告不能反复广播到测试及日常浏览器；保留源码热更新，不用延长业务请求超时掩盖产物监听干扰。

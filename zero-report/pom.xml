@@ -20,7 +20,7 @@
     </properties>
 
     <dependencies>
-        <!-- spring-boot-devtools -->
+        <!-- 提供报表服务在本地开发期的应用自动重启，并标记为可选依赖。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -70,7 +70,7 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-        <!-- Redis 统一使用 Redisson。Boot 3.5 使用 Spring Data Redis 3.5 适配模块。 -->
+        <!-- 装配 Redisson 客户端，供报表缓存和字典查询使用。替换默认的 Spring Data 适配版本，并避免同时引入 Lettuce。 -->
         <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson-spring-boot-starter</artifactId>
@@ -86,6 +86,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- 将 Redisson 适配到 Spring Data Redis 3.5，供既有 RedisTemplate 和缓存配置使用。 -->
         <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson-spring-data-35</artifactId>
@@ -116,7 +117,7 @@
             <artifactId>mybatis-plus-jsqlparser</artifactId>
         </dependency>
 
-        <!-- 动态数据源，统一承载 report、admin 等多数据源切换能力 -->
+        <!-- 在 zeroBiz 与 zeroAdmin 数据源间按业务需要切换。 -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>dynamic-datasource-spring-boot3-starter</artifactId>
@@ -143,17 +144,19 @@
             <artifactId>velocity-engine-core</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- 测试作用域的 JUnit、Mockito 和 Spring Test，供业务字典和 Redis 配置等测试使用。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- 测试作用域的内存数据库，用于隔离验证业务字典查询与数据源路由。 -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- SpringBoot Web 容器，后续报表查询接口从该模块提供 -->
+        <!-- 引入 Spring MVC 和内嵌 Tomcat，承载报表、业务字典等 HTTP 接口。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -165,7 +168,7 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- Lombok，保持后续报表 DTO 与项目现有实体写法一致 -->
+        <!-- 在编译期为报表实体和 DTO 生成访问方法等代码，并标记为可选依赖。 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

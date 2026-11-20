@@ -17,12 +17,13 @@
     <description>零号Boot Admin监控服务</description>
 
     <dependencies>
+        <!-- 为监控服务的启动类、监听器和工具类生成 SLF4J 日志字段，并标记为可选依赖。 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
-        <!-- Spring Boot Admin Server，版本由父工程统一管理并与Spring Boot 3.5.x保持同一主线 -->
+        <!-- Spring Boot Admin 监控服务端读取 Actuator 端点并展示实例状态，版本由父 POM 的 spring-boot-admin.version 管理，与 Spring Boot 3.5.x 配套。 -->
         <dependency>
             <groupId>de.codecentric</groupId>
             <artifactId>spring-boot-admin-starter-server</artifactId>
@@ -34,13 +35,13 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- Boot Admin 登录认证 -->
+        <!-- 为 Boot Admin 控制台提供登录认证和受保护资源的访问控制。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
-        <!-- Nacos 服务注册与发现，版本由父工程 dependencyManagement 统一管理 -->
+        <!-- 将监控服务注册到 Nacos 并发现被监控服务，版本由父 POM 统一管理。 -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
@@ -53,13 +54,13 @@
             <version>2.1.4</version>
         </dependency>
 
-        <!-- 兼容老代码中的 com.alibaba.fastjson 包名，版本引用父工程 fastjson.version -->
+        <!-- 为旧通知器保留 com.alibaba.fastjson 包名的兼容 API，版本引用父 POM 的 fastjson.version。 -->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>${fastjson.version}</version>
         </dependency>
-        <!-- 新代码默认使用 Fastjson2，版本引用父工程 fastjson.version -->
+        <!-- 供 Slack 通知工具构造 JSON 消息，版本由父 POM 管理。 -->
         <dependency>
             <groupId>com.alibaba.fastjson2</groupId>
             <artifactId>fastjson2</artifactId>
@@ -78,20 +79,20 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
 
-        <!-- 通用编码工具，保留给老工具类使用 -->
+        <!-- 提供 Base64、Hex 等编解码工具，保留旧工具类使用的公共依赖。 -->
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
         </dependency>
 
-        <!-- Spring Security 测试支持 -->
+        <!-- 测试作用域的 Spring Security 支持，用于构造测试认证上下文和验证安全访问规则。 -->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
 
-        <!-- spring-boot-devtools -->
+        <!-- 提供监控服务在本地开发期的应用自动重启，并标记为可选依赖。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>

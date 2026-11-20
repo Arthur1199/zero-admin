@@ -16,7 +16,7 @@
         <task.redisson.version>4.6.1</task.redisson.version>
     </properties>
     <dependencies>
-        <!-- spring-boot-devtools -->
+        <!-- 提供任务服务在本地开发期的应用自动重启，并标记为可选依赖。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -35,18 +35,22 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+        <!-- 提供 Spring MVC 与内嵌 Tomcat，承载任务服务自身的 HTTP 接口。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+        <!-- 提供健康检查等监控端点，供 Boot Admin 查看执行服务状态。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
+        <!-- 将任务服务注册到 Nacos，供监控和内部服务发现。 -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
         </dependency>
+        <!-- 从 Nacos 导入任务服务的数据源、Redis 和执行器配置。 -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
@@ -57,33 +61,39 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- 提供 XXL-JOB 执行器注册、任务处理器调度和执行结果回传。 -->
         <dependency>
             <groupId>com.xuxueli</groupId>
             <artifactId>xxl-job-core</artifactId>
             <version>${xxl-job.version}</version>
         </dependency>
-        <!-- 任务服务依赖业务数据源，Redis 按配置独立装配。 -->
+        <!-- 集成 Mapper 和通用 CRUD，供任务服务访问业务数据源。 -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
         </dependency>
+        <!-- 提供分页拦截器所需的 SQL 解析能力。 -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-jsqlparser</artifactId>
         </dependency>
+        <!-- 在 zeroBiz 与 zeroAdmin 数据源之间按任务的业务需要切换。 -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>dynamic-datasource-spring-boot3-starter</artifactId>
         </dependency>
+        <!-- 为任务服务的数据源提供 Spring Boot 3 适配版 Druid 连接池。 -->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid-spring-boot-3-starter</artifactId>
         </dependency>
+        <!-- 在运行时提供两个 MySQL 数据源使用的 JDBC 驱动。 -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <!-- 按配置装配 Redisson，提供缓存与 Redis 连接能力。替换默认的 Spring Data 适配版本，并避免同时引入 Lettuce。 -->
         <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson-spring-boot-starter</artifactId>
@@ -99,27 +109,32 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- 将 Redisson 适配到 Spring Data Redis 3.5，供任务服务的 RedisTemplate 使用。 -->
         <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson-spring-data-35</artifactId>
             <version>${task.redisson.version}</version>
         </dependency>
+        <!-- 开发期通过测试作用域运行，按指定表生成实体、Mapper 和 Service 等代码。 -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-generator</artifactId>
             <version>${mybatis-plus.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- 测试作用域的模板引擎，供 MyBatis-Plus 代码生成器渲染文件。 -->
         <dependency>
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity-engine-core</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- 测试作用域的内存数据库，用于验证动态数据源、分页和代码生成。 -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- 测试作用域的 JUnit、Mockito 和 Spring Test，供调度执行、数据源和 Redis 配置测试使用。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
