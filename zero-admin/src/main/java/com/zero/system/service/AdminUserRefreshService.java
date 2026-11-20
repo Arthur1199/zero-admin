@@ -7,6 +7,7 @@ import java.util.Set;
 import com.zero.common.enums.webSocket.WebSocketMessageType;
 import com.zero.framework.websocket.AdminWebSocketService;
 import com.zero.framework.websocket.WebSocketMessageVo;
+import com.zero.system.mapper.SysUserRoleMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -16,7 +17,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  *
  * 作者: Arthur 亚瑟
  * 时间: 2026/11/17
- * 说明: 管理后台配置变更提交后通知客户端刷新，用户变更定向通知，API谷歌验证修改全员通知，不保存离线消息
+ * 说明: 用户关系和角色授权变更提交后定向通知客户端刷新，API谷歌验证修改全员通知，不保存离线消息
  */
 @Slf4j
 @Service
@@ -25,16 +26,21 @@ public class AdminUserRefreshService
     /** 跨节点消息发布入口，接收人由服务端业务流程确定。 */
     private final AdminWebSocketService webSocketService;
 
+    /** 提交后定位变更角色的当前成员，兼容并发分配用户角色。 */
+    private final SysUserRoleMapper userRoleMapper;
+
     /**
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/17
      * 说明: 复用统一Redis推送入口，不查询本节点在线用户，避免遗漏其它节点连接
      * @param webSocketService 管理后台在线通信服务
+     * @param userRoleMapper 角色成员查询
      */
-    public AdminUserRefreshService(AdminWebSocketService webSocketService)
+    public AdminUserRefreshService(AdminWebSocketService webSocketService, SysUserRoleMapper userRoleMapper)
     {
         this.webSocketService = webSocketService;
+        this.userRoleMapper = userRoleMapper;
     }
 
     /**
@@ -49,29 +55,81 @@ public class AdminUserRefreshService
      */
     public void afterChanged(Collection<Long> userIds)
     {
+        Set<Long> targets = validTargets(userIds);
+        if (!targets.isEmpty())
+        {
+            afterCommit(() -> sendRefresh(targets, "你的部门或角色已变更，正在刷新页面。"));
+        }
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 03:04
+     * 说明: 角色菜单或数据范围保存成功后，读取该角色当前成员并定向通知。
+     * @param roleId 菜单授权或数据范围实际变更的角色ID
+     */
+    public void afterRoleAuthorizationChanged(Long roleId)
+    {
+        if (roleId == null || roleId <= 0)
+        {
+            return;
+        }
+        afterCommit(() -> {
+            try
+            {
+                Set<Long> targets = validTargets(userRoleMapper.selectMembersByRoleId(roleId));
+                if (!targets.isEmpty())
+                {
+                    sendRefresh(targets, "你的角色权限已变更，正在刷新页面。");
+                }
+            }
+            catch (Exception e)
+            {
+                log.warn("角色权限修改已提交，读取刷新通知目标失败，角色ID={}", roleId);
+            }
+        });
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 03:04
+     * 说明: 过滤并去重定向目标，无有效用户时避免发送。
+     * @param userIds 接收用户ID，可为空
+     * @return 可定向通知的有效用户ID
+     */
+    private Set<Long> validTargets(Collection<Long> userIds)
+    {
         Set<Long> targets = new LinkedHashSet<>();
         if (userIds != null)
         {
             userIds.stream().filter(id -> id != null && id > 0).forEach(targets::add);
         }
-        if (targets.isEmpty())
+        return targets;
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 03:08
+     * 说明: 发送定向刷新事件，通信失败不影响已经提交的变更。
+     * @param targets 经校验的非空接收者集合
+     * @param content 刷新原因
+     */
+    private void sendRefresh(Set<Long> targets, String content)
+    {
+        try
         {
-            return;
+            webSocketService.sendToUsers(targets, WebSocketMessageVo.builder()
+                    .msgType(WebSocketMessageType.REFRESH_BROWSER)
+                    .msgData(Map.of("content", content))
+                    .build());
         }
-        Runnable send = () -> {
-            try
-            {
-                webSocketService.sendToUsers(targets, WebSocketMessageVo.builder()
-                        .msgType(WebSocketMessageType.REFRESH_BROWSER)
-                        .msgData(Map.of("content", "你的部门或角色已变更，正在刷新页面。"))
-                        .build());
-            }
-            catch (Exception e)
-            {
-                log.warn("用户部门或角色修改已提交，刷新通知发送失败");
-            }
-        };
-        afterCommit(send);
+        catch (Exception e)
+        {
+            log.warn("用户部门、角色或角色权限修改已提交，定向刷新通知发送失败");
+        }
     }
 
     /**

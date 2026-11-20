@@ -4,6 +4,7 @@ import com.zero.common.core.domain.AjaxResult;
 import com.zero.framework.config.SecurityConfig;
 import com.zero.framework.config.properties.PermitAllUrlProperties;
 import com.zero.framework.security.filter.JwtAuthenticationTokenFilter;
+import com.zero.framework.web.service.SysPermissionService;
 import com.zero.framework.security.handle.AuthenticationEntryPointImpl;
 import com.zero.framework.security.handle.LogoutSuccessHandlerImpl;
 import com.zero.framework.web.exception.GlobalExceptionHandler;
@@ -64,6 +65,7 @@ class SpringDocCompatibilityTest
         .withInitializer(context -> {
             // 直接注册替身，避免对替身再次注入令牌配置、Redis及应用扫描生命周期。
             context.getBeanFactory().registerSingleton("tokenService", mock(TokenService.class));
+            context.getBeanFactory().registerSingleton("sysPermissionService", mock(SysPermissionService.class));
             context.getBeanFactory().registerSingleton("userDetailsService", mock(UserDetailsService.class));
             context.getBeanFactory().registerSingleton("logoutSuccessHandler", mock(LogoutSuccessHandlerImpl.class));
             PermitAllUrlProperties properties = mock(PermitAllUrlProperties.class);

@@ -155,6 +155,7 @@ class RoleOperationPermissionTest
         ReflectionTestUtils.setField(service, "roleMapper", roles);
         ReflectionTestUtils.setField(service, "roleDeptMapper", departments);
         SysRole role = new SysRole(); role.setRoleId(2L); role.setDataScope("1"); role.setRoleKey("forged");
+        when(roles.selectRoleForAuthorizationUpdate(2L)).thenReturn(role);
         when(roles.updateRoleDataScope(role)).thenReturn(1);
         assertThat(service.authDataScope(role)).isEqualTo(1);
         verify(roles).updateRoleDataScope(role);

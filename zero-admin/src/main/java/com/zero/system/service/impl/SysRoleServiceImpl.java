@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -384,8 +385,8 @@ public class SysRoleServiceImpl implements ISysRoleService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/11/20 01:36
-     * 说明: 同一事务保存角色、菜单及显式提交的数据范围，旧调用未传范围时保留部门关联
+     * 时间: 2026/11/21 03:08
+     * 说明: 同一事务保存角色、菜单及显式提交的数据范围，授权实际变化时在提交后通知。
      * @param role 角色信息
      * @return
      * 返回值: int
@@ -404,6 +405,19 @@ public class SysRoleServiceImpl implements ISysRoleService
         {
             validateRoleDataScope(role);
         }
+        Long roleId = role.getRoleId();
+        SysRole previous = roleMapper.selectRoleForAuthorizationUpdate(roleId);
+        if (previous == null)
+        {
+            return 0;
+        }
+        if (role.getMenuIds() == null)
+        {
+            throw new ServiceException("菜单授权不能为空");
+        }
+        boolean menuChanged = !new HashSet<>(roleMenuMapper.selectMenuIdsForUpdate(roleId))
+                .equals(new HashSet<>(Arrays.asList(role.getMenuIds())));
+        boolean scopeChanged = updateScope && dataScopeChanged(previous, role);
         // 角色、菜单和部门关系共同提交，异常由事务回滚。
         roleMapper.updateRole(role);
         roleMenuMapper.deleteRoleMenuByRoleId(role.getRoleId());
@@ -415,6 +429,10 @@ public class SysRoleServiceImpl implements ISysRoleService
             {
                 insertRoleDept(role);
             }
+        }
+        if (menuChanged || scopeChanged)
+        {
+            userRefreshService.afterRoleAuthorizationChanged(roleId);
         }
         return rows;
     }
@@ -438,8 +456,8 @@ public class SysRoleServiceImpl implements ISysRoleService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/11/20 01:36
-     * 说明: 事务内仅保存数据范围及部门关系，独立权限不能修改角色名称、标识或菜单
+     * 时间: 2026/11/21 03:08
+     * 说明: 独立保存数据范围及部门关系，实际变化时注册提交后通知。
      * @param role 角色信息
      * @return
      * 返回值: int
@@ -454,11 +472,47 @@ public class SysRoleServiceImpl implements ISysRoleService
             throw new ServiceException("角色编号和数据权限不能为空");
         }
         validateRoleDataScope(role);
+        Long roleId = role.getRoleId();
+        SysRole previous = roleMapper.selectRoleForAuthorizationUpdate(roleId);
+        if (previous == null)
+        {
+            return 0;
+        }
+        boolean scopeChanged = dataScopeChanged(previous, role);
         int rows = roleMapper.updateRoleDataScope(role);
-        if (rows <= 0) return rows;
-        roleDeptMapper.deleteRoleDeptByRoleId(role.getRoleId());
-        if (RoleDataScopeConstants.CUSTOM.equals(role.getDataScope())) insertRoleDept(role);
+        // 同一秒内只修改自定义部门时，角色行可能没有变化。
+        if (rows <= 0 && !scopeChanged)
+        {
+            return rows;
+        }
+        roleDeptMapper.deleteRoleDeptByRoleId(roleId);
+        if (RoleDataScopeConstants.CUSTOM.equals(role.getDataScope()))
+        {
+            insertRoleDept(role);
+        }
+        if (scopeChanged)
+        {
+            userRefreshService.afterRoleAuthorizationChanged(roleId);
+            return Math.max(rows, 1);
+        }
         return rows;
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 03:04
+     * 说明: 比较实际数据范围，自定义范围按部门集合比较，忽略选择顺序和联动选项。
+     * @param previous 持有角色行锁后读取的现有范围
+     * @param role 经校验的待保存范围
+     * @return 实际数据范围是否变化
+     */
+    private boolean dataScopeChanged(SysRole previous, SysRole role)
+    {
+        return !Objects.equals(previous.getDataScope(), role.getDataScope())
+                || (RoleDataScopeConstants.CUSTOM.equals(role.getDataScope())
+                    && !new HashSet<>(roleDeptMapper.selectDeptIdsForUpdate(role.getRoleId()))
+                            .equals(new HashSet<>(Arrays.asList(role.getDeptIds()))));
     }
 
     /**

@@ -14,6 +14,26 @@ public interface SysRoleMapper
     /**
      *
      * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 03:01
+     * 说明: 以同一次查询读取用户的角色状态、数据范围和启用菜单的权限标识。
+     * @param userId 当前登录用户ID
+     * @return 用户角色与菜单权限原值，无角色时为空
+     */
+    List<SysRole> selectRoleAuthorizationsByUserId(Long userId);
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 03:01
+     * 说明: 在授权修改事务内锁定未删除的角色，串行比较和保存同一角色的权限。
+     * @param roleId 待保存的角色ID
+     * @return 角色ID和当前数据范围，角色不存在或已删除时为空
+     */
+    SysRole selectRoleForAuthorizationUpdate(Long roleId);
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
      * 时间: 2026/11/16 18:10
      * 说明: 读取全部未删除角色的最大显示顺序，包含停用角色，不受页面分页或筛选影响
      * @return

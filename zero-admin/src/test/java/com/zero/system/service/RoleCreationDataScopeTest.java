@@ -217,6 +217,9 @@ class RoleCreationDataScopeTest
         role.setDataScope(scope);
         role.setMenuIds(new Long[] {11L});
         role.setDeptIds(new Long[] {101L, 101L});
+        when(roles.selectRoleForAuthorizationUpdate(77L)).thenReturn(role);
+        when(menus.selectMenuIdsForUpdate(77L)).thenReturn(List.of(11L));
+        when(departments.selectDeptIdsForUpdate(77L)).thenReturn(List.of(101L));
         service.updateRole(role);
         verify(roles).updateRole(role);
         verify(departments).deleteRoleDeptByRoleId(77L);
@@ -246,6 +249,7 @@ class RoleCreationDataScopeTest
         SysRole role = new SysRole();
         role.setRoleId(77L);
         role.setMenuIds(new Long[0]);
+        when(roles.selectRoleForAuthorizationUpdate(77L)).thenReturn(role);
         service.updateRole(role);
         verifyNoInteractions(departments);
         clearInvocations(roles, menus);

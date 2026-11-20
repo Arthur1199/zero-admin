@@ -11,11 +11,14 @@ import com.zero.framework.config.RedisConfig;
 import com.zero.framework.config.SecurityConfig;
 import com.zero.framework.config.properties.PermitAllUrlProperties;
 import com.zero.framework.security.filter.JwtAuthenticationTokenFilter;
+import com.zero.framework.web.service.SysPermissionService;
 import com.zero.framework.security.handle.AuthenticationEntryPointImpl;
 import com.zero.framework.security.handle.LogoutSuccessHandlerImpl;
 import com.zero.framework.web.service.AdminLoginSessionStore;
 import com.zero.framework.web.service.TokenService;
 import com.zero.system.service.AdminUserLogoutService;
+import com.zero.system.mapper.SysUserRoleMapper;
+import com.zero.system.service.AdminUserRefreshService;
 import com.zero.system.service.ISysConfigService;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -221,13 +224,24 @@ class AdminWebSocketIntegrationTest
                 assertThat(first.messages.poll(200, TimeUnit.MILLISECONDS)).isNull();
 
                 // 复用用户变更通知服务，确认刷新事件只投递到跨节点的目标用户连接。
-                new com.zero.system.service.AdminUserRefreshService(a.getBean(AdminWebSocketService.class))
-                        .afterChanged(List.of(21L));
+                var members = mock(SysUserRoleMapper.class);
+                var refreshService = new AdminUserRefreshService(a.getBean(AdminWebSocketService.class), members);
+                refreshService.afterChanged(List.of(21L));
                 for (Client target : List.of(first, second))
                 {
                     JsonNode refresh = target.next();
                     assertThat(refresh.path("msgType").path("messageType").asInt()).isEqualTo(2);
                     assertThat(refresh.path("msgData").path("content").asText()).contains("部门或角色");
+                }
+                assertThat(third.messages.poll(200, TimeUnit.MILLISECONDS)).isNull();
+
+                when(members.selectMembersByRoleId(7L)).thenReturn(List.of(21L));
+                refreshService.afterRoleAuthorizationChanged(7L);
+                for (Client target : List.of(first, second))
+                {
+                    JsonNode refresh = target.next();
+                    assertThat(refresh.path("msgType").path("messageType").asInt()).isEqualTo(2);
+                    assertThat(refresh.path("msgData").path("content").asText()).contains("角色权限");
                 }
                 assertThat(third.messages.poll(200, TimeUnit.MILLISECONDS)).isNull();
 
@@ -245,8 +259,7 @@ class AdminWebSocketIntegrationTest
                 }
 
                 // 配置变更广播覆盖两个节点的所有用户，不局限于操作者或单节点。
-                new com.zero.system.service.AdminUserRefreshService(b.getBean(AdminWebSocketService.class))
-                        .afterApiAuthChanged();
+                new AdminUserRefreshService(b.getBean(AdminWebSocketService.class), members).afterApiAuthChanged();
                 String configMessageId = null;
                 for (Client client : List.of(first, second, third))
                 {
@@ -422,6 +435,7 @@ class AdminWebSocketIntegrationTest
         context.getBeanFactory().registerSingleton("userDetailsService", mock(UserDetailsService.class));
         context.getBeanFactory().registerSingleton("logoutSuccessHandler", mock(LogoutSuccessHandlerImpl.class));
         context.getBeanFactory().registerSingleton("sysConfigService", mock(ISysConfigService.class));
+        context.getBeanFactory().registerSingleton("sysPermissionService", mock(SysPermissionService.class));
         PermitAllUrlProperties permitted = mock(PermitAllUrlProperties.class);
         when(permitted.getUrls()).thenReturn(List.of());
         context.getBeanFactory().registerSingleton("permitAllUrl", permitted);

@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.zero.common.constant.Constants;
 import com.zero.common.core.domain.AjaxResult;
 import com.zero.common.core.domain.entity.SysMenu;
-import com.zero.common.core.domain.entity.SysRole;
 import com.zero.common.core.domain.entity.SysUser;
 import com.zero.common.core.domain.model.LoginBody;
 import com.zero.common.core.domain.model.LoginUser;
@@ -112,18 +110,13 @@ public class SysLoginController
         {
             throw new ServiceException("用户不存在，请重新登录");
         }
-        Set<Long> previousRoles = previous == null || previous.getRoles() == null ? Set.of() : previous.getRoles().stream()
-                .map(SysRole::getRoleId).collect(Collectors.toSet());
-        Set<Long> latestRoles = user.getRoles() == null ? Set.of() : user.getRoles().stream()
-                .map(SysRole::getRoleId).collect(Collectors.toSet());
+        // 计算每个角色权限后再比较，合并权限相同也可能发生角色数据范围变更。
+        Set<String> roles = permissionService.getRolePermission(user);
+        Set<String> permissions = permissionService.getMenuPermission(user);
         boolean userChanged = !Objects.equals(loginUser.getDeptId(), user.getDeptId())
-                || !previousRoles.equals(latestRoles);
+                || !SysPermissionService.sameRoleAuthorization(previous == null ? null : previous.getRoles(), user.getRoles());
         loginUser.setUser(user);
         loginUser.setDeptId(user.getDeptId());
-        // 角色集合
-        Set<String> roles = permissionService.getRolePermission(user);
-        // 权限集合
-        Set<String> permissions = permissionService.getMenuPermission(user);
         if (userChanged || !Objects.equals(loginUser.getPermissions(), permissions))
         {
             loginUser.setPermissions(permissions);

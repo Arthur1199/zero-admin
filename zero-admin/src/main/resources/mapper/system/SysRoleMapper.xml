@@ -24,6 +24,29 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<result property="remark"             column="remark"                />
 	</resultMap>
 	
+    <resultMap id="RoleAuthorizationResult" type="SysRole" extends="SysRoleResult">
+        <collection property="permissions" javaType="java.util.HashSet" ofType="String" notNullColumn="perms">
+            <result column="perms"/>
+        </collection>
+    </resultMap>
+
+    <!-- 与原菜单权限查询使用相同的启用状态条件，保留没有菜单的角色供数据范围校验。 -->
+    <select id="selectRoleAuthorizationsByUserId" resultMap="RoleAuthorizationResult">
+        select r.role_id, r.role_name, r.role_key, r.role_sort, r.data_scope, r.status, m.perms
+        from sys_user_role ur
+        join sys_role r on r.role_id = ur.role_id
+        left join sys_role_menu rm on rm.role_id = r.role_id and r.status = '0'
+        left join sys_menu m on m.menu_id = rm.menu_id and m.status = '0'
+        where ur.user_id = #{userId}
+    </select>
+
+    <!-- 菜单授权和数据范围保存共用同一角色行锁。 -->
+    <select id="selectRoleForAuthorizationUpdate" resultMap="SysRoleResult">
+        select role_id, data_scope from sys_role
+        where role_id = #{roleId} and del_flag = '0'
+        for update
+    </select>
+
 	<sql id="selectRoleVo">
 	    select distinct r.role_id, r.role_name, r.role_key, r.role_sort, r.data_scope, r.menu_check_strictly, r.dept_check_strictly,
             r.status, r.del_flag, r.create_by, r.create_time, r.update_by, r.update_time, r.remark
