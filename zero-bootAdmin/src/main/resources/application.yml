@@ -75,4 +75,4 @@ spring:
 #日志
 logging:
   # Logback 配置文件位置，classpath 路径从应用资源目录加载。
-  config: classpath:logback.xml
+  config: classpath:logback-spring.xml
