@@ -5,7 +5,14 @@
       <el-form-item label="接收方式">
         <el-radio-group v-model="form.targetType" @change="changeTarget">
           <el-radio value="ALL">全部在线账号</el-radio><el-radio value="USERS">指定在线账号</el-radio>
-          <el-radio value="DEPT">按部门</el-radio><el-radio value="ROLE">按角色</el-radio>
+          <el-radio value="DEPT">
+            <span class="system-notice-department-label">
+              按部门
+              <button type="button" class="system-notice-department-help" aria-label="查看部门接收范围说明" title="查看部门接收范围说明" @click.stop.prevent="departmentHelpVisible = true">
+                <AppIcon icon-class="el-icon-question" />
+              </button>
+            </span>
+          </el-radio><el-radio value="ROLE">按角色</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item label="在线账号" v-if="form.targetType === 'ALL'">
@@ -17,7 +24,19 @@
         <el-button @click="openUsers">选择在线账号</el-button><span style="margin-left: 12px">已选择 {{ form.userIds.length }} 个账号</span>
       </el-form-item>
       <el-form-item label="接收部门" v-if="form.targetType === 'DEPT'">
-        <el-tree-select v-model="form.deptIds" :data="departmentTree" multiple show-checkbox check-strictly filterable clearable style="width: 100%" />
+        <div class="system-notice-department-picker">
+          <div class="system-notice-department-options">
+            <el-checkbox v-model="departmentExpanded" :disabled="!departments.length" @change="expandDepartments">展开/折叠</el-checkbox>
+            <el-checkbox :model-value="allDepartmentsChecked" :disabled="!departments.length" @change="checkAllDepartments">全选/全不选</el-checkbox>
+            <el-checkbox v-model="departmentLinked" @change="refreshDepartmentChecks">父子联动</el-checkbox>
+            <span v-if="form.deptIds.length" class="system-notice-department-count">已选 {{ form.deptIds.length }} 个部门</span>
+          </div>
+          <el-input v-model="departmentKeyword" placeholder="搜索部门名称" clearable :disabled="!departments.length"
+            @input="$refs.departmentTree?.filter($event.trim().toLowerCase())" />
+          <el-tree ref="departmentTree" class="tree-border system-notice-department-tree" :data="departmentTree"
+            show-checkbox default-expand-all node-key="value" :check-strictly="!departmentLinked"
+            :filter-node-method="filterDepartment" empty-text="暂无可选部门" @check="updateDepartmentChecks" />
+        </div>
         <el-checkbox v-model="form.includeChildren">包含下级部门</el-checkbox>
       </el-form-item>
       <el-form-item label="接收角色" v-if="form.targetType === 'ROLE'">
@@ -43,6 +62,18 @@
         <el-button type="primary" v-hasPermi="['systemTools:systemNotice:send']" :loading="busy" @click="submit">发送通知</el-button>
       </el-form-item>
     </el-form>
+    <el-dialog title="部门接收范围说明" v-model="departmentHelpVisible" width="min(860px, 94vw)" append-to-body :close-on-click-modal="false">
+      <div class="system-notice-department-guide">
+        <p>勾选「包含下级部门」后，通知会匹配所选部门及其所有层级下级部门的在线账号，下级部门即使没有在树上勾选，也会纳入接收范围。</p>
+        <p>取消「包含下级部门」后，只匹配树上实际勾选部门的在线账号。已单独勾选的下级部门仍会收到通知。</p>
+        <p>「父子联动」控制树上的勾选操作。开启后，勾选或取消父部门会同步勾选或取消下级部门；取消某个下级后，父部门可能显示为半选，半选部门不作为接收目标。「包含下级部门」控制发送时是否自动扩展接收范围。</p>
+        <p>例如，只勾选某个父部门时，开启「包含下级部门」会同时通知该部门及其所有层级下级部门的在线账号；关闭后只通知直接归属该部门的在线账号。若只想通知某个子部门直属的在线账号，应仅勾选该子部门，并取消「包含下级部门」。</p>
+        <p>选择多个部门时合并接收范围，同一账号只匹配一次。仅向发送时仍在线的有效账号发送，离线账号上线后不会补发。</p>
+      </div>
+      <template #footer>
+        <el-button type="primary" @click="departmentHelpVisible = false">我知道了</el-button>
+      </template>
+    </el-dialog>
     <el-dialog title="选择在线账号" v-model="usersVisible" width="min(900px, 94vw)" append-to-body @close="cancelUserSearch">
       <el-input v-model="query.keyword" clearable placeholder="输入账号或昵称自动搜索" @input="scheduleUserSearch" @clear="searchUsers" @keyup.enter="searchUsers" style="width: 260px" />
       <el-button @click="searchUsers">搜索</el-button><el-button @click="loadUsers">刷新在线状态</el-button>
@@ -84,14 +115,18 @@ export default {
       }, trigger: 'blur' }] },
       noticeToolbar: [['bold', 'italic', 'underline', 'strike'], ['blockquote', 'code-block'], [{ list: 'ordered' }, { list: 'bullet' }], [{ indent: '-1' }, { indent: '+1' }], [{ size: ['small', false, 'large', 'huge'] }], [{ header: [1, 2, 3, false] }], [{ color: [] }, { background: [] }], [{ align: [] }], ['clean'], ['link', 'image']],
       imageUploads: 0,
-      manualClose: true, seconds: 8, busy: false, usersVisible: false, loadingUsers: false,
+      manualClose: true, seconds: 8, busy: false, usersVisible: false, loadingUsers: false, departmentHelpVisible: false,
       users: [], total: 0, onlineCount: null, query: { keyword: '', pageNum: 1, pageSize: 20 }, requestId: 0, userSearchTimer: null,
-      departments: [], roles: [], displayTypes: [], messageLevels: [],
+      departments: [], departmentKeyword: '', departmentExpanded: true, departmentLinked: true,
+      roles: [], displayTypes: [], messageLevels: [],
       displayLabels: { NOTIFICATION: '右侧通知卡片', MESSAGE: '顶部提示', MESSAGE_BOX: '居中弹窗' },
       levelLabels: { NORMAL: '普通', WARNING: '警告', ERROR: '错误' }
     }
   },
   computed: {
+    allDepartmentsChecked() {
+      return this.departments.length > 0 && this.form.deptIds.length === this.departments.length
+    },
     departmentTree() {
       const nodes = new Map(this.departments.map(dept => [dept.deptId, { value: dept.deptId, label: dept.deptName, children: [] }]))
       const roots = []
@@ -107,7 +142,7 @@ export default {
   async created() {
     this.noticePreview = createWebSocketPresenter()
     const { data } = await getNoticeOptions()
-    this.departments = data.departments
+    this.departments = data.departments ?? []
     this.roles = data.roles
     this.displayTypes = data.displayTypes
     this.messageLevels = data.messageLevels
@@ -123,7 +158,33 @@ export default {
     },
     changeTarget() {
       this.form.userIds = []; this.form.deptIds = []; this.form.roleIds = []
+      this.departmentKeyword = ''
+      this.departmentExpanded = true
       this.$refs.usersTable?.clearSelection()
+    },
+    filterDepartment(keyword, department) {
+      return department.label.toLowerCase().includes(keyword)
+    },
+    expandDepartments(expanded) {
+      const tree = this.$refs.departmentTree
+      for (const department of this.departments) {
+        const node = tree?.getNode(department.deptId)
+        if (node && !node.isLeaf) node.expanded = expanded
+      }
+    },
+    checkAllDepartments(checked) {
+      this.$refs.departmentTree?.setCheckedKeys(checked ? this.departments.map(department => department.deptId) : [])
+      this.updateDepartmentChecks()
+    },
+    async refreshDepartmentChecks() {
+      // 等父子联动设置生效，再按当前选择重算勾选及半选状态。
+      await this.$nextTick()
+      this.$refs.departmentTree?.setCheckedKeys(this.form.deptIds)
+      this.updateDepartmentChecks()
+    },
+    updateDepartmentChecks() {
+      // 半选父部门不能加入发送目标，否则「包含下级部门」会匹配未勾选的分支。
+      this.form.deptIds = this.$refs.departmentTree?.getCheckedKeys() ?? []
     },
     openUsers() { this.usersVisible = true; this.searchUsers() },
     cancelUserSearch() {
@@ -191,6 +252,46 @@ export default {
 }
 .system-notice-form > .el-form-item:not(.system-notice-content-field):not(.system-notice-actions) {
   max-width: 900px;
+}
+.system-notice-department-picker {
+  width: 100%;
+  min-width: 0;
+}
+.system-notice-department-label,
+.system-notice-department-help {
+  display: inline-flex;
+  align-items: center;
+}
+.system-notice-department-label {
+  gap: 4px;
+}
+.system-notice-department-help {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.system-notice-department-guide p {
+  margin: 0 0 12px;
+  line-height: 1.7;
+}
+.system-notice-department-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 24px;
+}
+.system-notice-department-options > .el-checkbox {
+  margin-right: 0;
+}
+.system-notice-department-count {
+  line-height: 1;
+  white-space: nowrap;
+}
+.system-notice-department-tree {
+  max-height: 300px;
+  overflow: auto;
 }
 .system-notice-actions {
   margin-top: -8px;

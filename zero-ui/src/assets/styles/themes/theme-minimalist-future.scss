@@ -411,11 +411,12 @@
     }
     
     th.el-table__cell {
-      background-color: #000000 !important;
-      color: #ffffff !important;
-      border-color: #000000 !important;
+      // 弹窗挂在 body 下，表头单元格与文字区域统一复用主题变量。
+      background-color: var(--zero-fixed-table-header-bg) !important;
+      color: var(--zero-fixed-table-header-text) !important;
+      border-color: var(--zero-fixed-table-border) !important;
       font-weight: 700;
-      border-bottom: 2px solid #000000 !important;
+      border-bottom: 2px solid var(--zero-fixed-table-border) !important;
     }
     
     td.el-table__cell {
