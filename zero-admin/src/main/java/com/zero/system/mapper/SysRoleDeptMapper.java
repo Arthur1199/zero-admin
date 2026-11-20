@@ -14,6 +14,16 @@ public interface SysRoleDeptMapper
     /**
      *
      * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 03:01
+     * 说明: 取得角色行锁后读取最新的部门关联，避免与同一角色的并发保存比较旧快照。
+     * @param roleId 角色ID
+     * @return 已保存的部门ID，无关联时为空列表
+     */
+    List<Long> selectDeptIdsForUpdate(Long roleId);
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
      * 时间: 2026/11/20 01:36
      * 说明: 通过角色ID删除角色和部门关联
      * @param roleId 角色ID

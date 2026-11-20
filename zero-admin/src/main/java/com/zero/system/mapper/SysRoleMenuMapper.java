@@ -14,6 +14,16 @@ public interface SysRoleMenuMapper
     /**
      *
      * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 03:01
+     * 说明: 取得角色行锁后读取最新的菜单关联，避免与同一角色的并发保存比较旧快照。
+     * @param roleId 角色ID
+     * @return 已保存的菜单ID，无关联时为空列表
+     */
+    List<Long> selectMenuIdsForUpdate(Long roleId);
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
      * 时间: 2026/11/20 01:36
      * 说明: 查询菜单使用数量
      * @param menuId 菜单ID

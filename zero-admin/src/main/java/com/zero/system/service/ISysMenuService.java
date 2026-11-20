@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 import com.zero.common.core.domain.TreeSelect;
 import com.zero.common.core.domain.entity.SysMenu;
+import com.zero.common.core.domain.entity.SysRole;
 import com.zero.system.domain.vo.RouterVo;
 
 /**
@@ -62,6 +63,16 @@ public interface ISysMenuService
      * 返回值说明：根据角色ID查询权限
      */
     public Set<String> selectMenuPermsByRoleId(Long roleId);
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 03:04
+     * 说明: 读取认证请求使用的角色数据范围和各角色的菜单权限。
+     * @param userId 当前登录用户ID
+     * @return 已解析权限标识的角色列表
+     */
+    List<SysRole> selectRoleAuthorizationsByUserId(Long userId);
 
     /**
      *

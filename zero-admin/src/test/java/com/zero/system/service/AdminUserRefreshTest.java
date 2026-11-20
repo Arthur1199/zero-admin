@@ -3,27 +3,40 @@ package com.zero.system.service;
 import java.sql.Connection;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.Set;
 import javax.sql.DataSource;
 import com.zero.common.core.domain.entity.SysRole;
 import com.zero.common.core.domain.entity.SysUser;
 import com.zero.common.core.domain.model.LoginUser;
 import com.zero.common.enums.webSocket.WebSocketMessageType;
+import com.zero.common.utils.SecurityUtils;
+import com.zero.framework.security.filter.JwtAuthenticationTokenFilter;
+import com.zero.framework.web.service.PermissionService;
 import com.zero.framework.web.service.SysPermissionService;
 import com.zero.framework.web.service.TokenService;
 import com.zero.framework.websocket.AdminWebSocketService;
+import com.zero.system.mapper.SysRoleDeptMapper;
+import com.zero.system.mapper.SysRoleMapper;
+import com.zero.system.mapper.SysRoleMenuMapper;
 import com.zero.system.mapper.SysUserMapper;
 import com.zero.system.mapper.SysUserPostMapper;
 import com.zero.system.mapper.SysUserRoleMapper;
+import com.zero.system.service.impl.SysRoleServiceImpl;
 import com.zero.system.service.impl.SysUserServiceImpl;
 import com.zero.web.controller.system.SysLoginController;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -40,6 +53,145 @@ class AdminUserRefreshTest
     /**
      *
      * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 03:06
+     * 说明: 验证角色实际授权变化时提交后定向刷新，菜单顺序和角色基本信息变化不刷新。
+     */
+    @Test
+    void roleAuthorizationNotifiesMembersOnlyAfterCommit() throws Exception
+    {
+        var ws = mock(AdminWebSocketService.class);
+        var service = new SysRoleServiceImpl();
+        var roles = mock(SysRoleMapper.class);
+        var menus = mock(SysRoleMenuMapper.class);
+        var departments = mock(SysRoleDeptMapper.class);
+        var members = mock(SysUserRoleMapper.class);
+        ReflectionTestUtils.setField(service, "userRefreshService", new AdminUserRefreshService(ws, members));
+        ReflectionTestUtils.setField(service, "roleMapper", roles);
+        ReflectionTestUtils.setField(service, "roleMenuMapper", menus);
+        ReflectionTestUtils.setField(service, "roleDeptMapper", departments);
+        var saved = authorizationRole(2L, "2", Set.of());
+        var edited = authorizationRole(2L, "2", Set.of());
+        edited.setDeptIds(new Long[] {4L, 3L});
+        edited.setMenuIds(new Long[] {16L, 15L});
+        edited.setRoleName("新角色名称");
+        edited.setRoleSort(7);
+        edited.setRemark("新备注");
+        when(roles.selectRoleForAuthorizationUpdate(2L)).thenReturn(saved);
+        when(menus.selectMenuIdsForUpdate(2L)).thenReturn(List.of(15L, 16L));
+        when(menus.batchRoleMenu(anyList())).thenReturn(2);
+        when(departments.selectDeptIdsForUpdate(2L)).thenReturn(List.of(3L, 4L));
+        when(members.selectMembersByRoleId(2L)).thenReturn(List.of(8L, 9L));
+
+        transaction(mock(Connection.class)).executeWithoutResult(status -> service.updateRole(edited));
+        verifyNoInteractions(ws, members);
+
+        edited.setMenuIds(new Long[] {15L});
+        var connection = mock(Connection.class);
+        transaction(connection).executeWithoutResult(status -> {
+            service.updateRole(edited);
+            verifyNoInteractions(ws, members);
+        });
+        var order = inOrder(connection, members, ws);
+        order.verify(connection).commit();
+        order.verify(members).selectMembersByRoleId(2L);
+        order.verify(ws).sendToUsers(eq(Set.of(8L, 9L)), argThat(message ->
+                message.getMsgType() == WebSocketMessageType.REFRESH_BROWSER));
+
+        clearInvocations(ws, members);
+        edited.setDeptIds(new Long[] {5L});
+        transaction(mock(Connection.class)).executeWithoutResult(status -> {
+            assertThat(service.authDataScope(edited)).isEqualTo(1);
+            status.setRollbackOnly();
+        });
+        verifyNoInteractions(ws, members);
+
+        transaction(mock(Connection.class)).executeWithoutResult(status -> service.authDataScope(edited));
+        verify(ws).sendToUsers(eq(Set.of(8L, 9L)), argThat(message ->
+                message.getMsgType() == WebSocketMessageType.REFRESH_BROWSER));
+        verify(ws, never()).broadcast(any());
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 03:06
+     * 说明: 模拟普通业务请求带着旧会话到达，接口鉴权先采用最新菜单权限和各角色的数据范围。
+     */
+    @Test
+    void nextHttpRequestRechecksRoleAuthorizationWithoutWebSocket() throws Exception
+    {
+        var menus = mock(ISysMenuService.class);
+        var permissions = new SysPermissionService();
+        ReflectionTestUtils.setField(permissions, "menuService", menus);
+        var tokens = mock(TokenService.class);
+        var filter = new JwtAuthenticationTokenFilter();
+        ReflectionTestUtils.setField(filter, "permissionService", permissions);
+        ReflectionTestUtils.setField(filter, "tokenService", tokens);
+
+        String shared = "system:user:list";
+        String revoked = "system:user:edit";
+        var request = new MockHttpServletRequest("GET", "/system/user/list");
+        var response = new MockHttpServletResponse();
+        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+        SysUser user = user(3L, 2L);
+        user.setRoles(List.of(authorizationRole(2L, "1", Set.of(shared, revoked)), authorizationRole(3L, "5", Set.of(shared))));
+        var login = new LoginUser(2L, 3L, user, Set.of(shared, revoked));
+        var latest = List.of(authorizationRole(2L, "5", Set.of()), authorizationRole(3L, "5", Set.of(shared)));
+        when(tokens.getLoginUser(request)).thenReturn(login);
+        when(menus.selectRoleAuthorizationsByUserId(2L)).thenReturn(latest);
+        var seen = new AtomicReference<LoginUser>();
+
+        filter.doFilter(request, response, (req, res) -> {
+            var operationPermissions = new PermissionService();
+            assertThat(operationPermissions.hasPermi(revoked)).isFalse();
+            assertThat(operationPermissions.hasPermi(shared)).isTrue();
+            seen.set(SecurityUtils.getLoginUser());
+        });
+
+        assertThat(seen.get()).isSameAs(login);
+        assertThat(login.getUser().getRoles()).isEqualTo(latest);
+        assertThat(login.getUser().getRoles().get(0).getDataScope()).isEqualTo("5");
+        assertThat(login.getPermissions()).containsExactly(shared);
+        verify(tokens).refreshToken(login);
+
+        SecurityContextHolder.clearContext();
+        clearInvocations(tokens);
+        var scopeOnly = List.of(authorizationRole(2L, "5", Set.of()), authorizationRole(3L, "3", Set.of(shared)));
+        when(menus.selectRoleAuthorizationsByUserId(2L)).thenReturn(scopeOnly);
+        filter.doFilter(request, new MockHttpServletResponse(), (req, res) -> {
+            assertThat(SecurityUtils.getLoginUser().getPermissions()).containsExactly(shared);
+            assertThat(SecurityUtils.getLoginUser().getUser().getRoles().get(1).getDataScope()).isEqualTo("3");
+        });
+        verify(tokens).refreshToken(login);
+
+        SecurityContextHolder.clearContext();
+        when(menus.selectRoleAuthorizationsByUserId(2L)).thenThrow(new DataAccessResourceFailureException("isolated"));
+        var unavailable = new MockHttpServletResponse();
+        filter.doFilter(request, unavailable, (req, res) -> fail("权限读取失败时不得进入业务接口"));
+        assertThat(unavailable.getStatus()).isEqualTo(503);
+        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 03:06
+     * 说明: 生成带有效状态、范围和权限的角色，用于比较保存结果和请求权限。
+     */
+    private SysRole authorizationRole(Long roleId, String scope, Set<String> permissions)
+    {
+        var role = new SysRole();
+        role.setRoleId(roleId);
+        role.setRoleKey("test-role-" + roleId);
+        role.setStatus("0");
+        role.setDataScope(scope);
+        role.setPermissions(permissions);
+        return role;
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
      * 时间: 2026/11/17
      * 说明: 清理测试登录身份，避免污染其它安全回归
      * @return
@@ -50,6 +202,7 @@ class AdminUserRefreshTest
     void cleanup()
     {
         SecurityContextHolder.clearContext();
+        RequestContextHolder.resetRequestAttributes();
     }
 
     /**
@@ -65,7 +218,7 @@ class AdminUserRefreshTest
     void sendsOnlyAfterCommit() throws Exception
     {
         var ws = mock(AdminWebSocketService.class);
-        var service = new AdminUserRefreshService(ws);
+        var service = new AdminUserRefreshService(ws, mock(SysUserRoleMapper.class));
         var connection = mock(Connection.class);
         transaction(connection).executeWithoutResult(status -> {
             service.afterChanged(Arrays.asList(2L, 2L, null, -1L));
@@ -90,7 +243,7 @@ class AdminUserRefreshTest
     void rollbackAndEmptyTargetsDoNotSend() throws Exception
     {
         var ws = mock(AdminWebSocketService.class);
-        var service = new AdminUserRefreshService(ws);
+        var service = new AdminUserRefreshService(ws, mock(SysUserRoleMapper.class));
         transaction(mock(Connection.class)).executeWithoutResult(status -> {
             service.afterChanged(List.of(2L));
             status.setRollbackOnly();
@@ -116,7 +269,7 @@ class AdminUserRefreshTest
         org.springframework.transaction.support.TransactionSynchronizationManager.setActualTransactionActive(true);
         try
         {
-            new AdminUserRefreshService(ws).afterChanged(List.of(2L));
+            new AdminUserRefreshService(ws, mock(SysUserRoleMapper.class)).afterChanged(List.of(2L));
             verifyNoInteractions(ws);
         }
         finally
@@ -139,7 +292,7 @@ class AdminUserRefreshTest
     {
         var ws = mock(AdminWebSocketService.class);
         when(ws.sendToUsers(anyCollection(), any())).thenThrow(new IllegalStateException("isolated failure"));
-        var service = new AdminUserRefreshService(ws);
+        var service = new AdminUserRefreshService(ws, mock(SysUserRoleMapper.class));
         var connection = mock(Connection.class);
         var template = transaction(connection);
         assertThatCode(() -> template.executeWithoutResult(status -> service.afterChanged(List.of(2L))))
@@ -285,7 +438,7 @@ class AdminUserRefreshTest
         rule.setIsNeedGoogle(1);
         when(mapper.selectApiAuthById(9L)).thenReturn(rule);
         ReflectionTestUtils.setField(service, "apiAuthMapper", mapper);
-        ReflectionTestUtils.setField(service, "clientRefreshService", new AdminUserRefreshService(ws));
+        ReflectionTestUtils.setField(service, "clientRefreshService", new AdminUserRefreshService(ws, mock(SysUserRoleMapper.class)));
         assertThat(service.updateApiAuth(rule)).isZero();
         when(mapper.updateApiAuth(any())).thenReturn(1);
         transaction(mock(Connection.class)).executeWithoutResult(status -> {

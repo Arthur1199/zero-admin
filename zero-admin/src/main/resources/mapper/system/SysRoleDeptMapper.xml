@@ -31,4 +31,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		</foreach>
 	</insert>
 	
+    <select id="selectDeptIdsForUpdate" resultType="Long">
+        select dept_id from sys_role_dept where role_id = #{roleId} for update
+    </select>
 </mapper> 

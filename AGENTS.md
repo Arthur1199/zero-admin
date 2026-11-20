@@ -248,7 +248,7 @@
 - `zero-admin` 匿名路径在 `SecurityConfig` 和 `@Anonymous` / `PermitAllUrlProperties` 相关逻辑中体现，新增匿名接口必须谨慎确认。
 - 管理后台 WebSocket 为精确 `GET /ws/admin` 握手入口，首帧仅发送含token字符串的JSON，JWT认证成功后返回CREATE_CONNECTION才接收业务事件；认证失败或协议错误直接关闭，不发送错误类型；握手、心跳和会话检查不续期登录。频道必须显式配置，缺失时拒绝启动；消息统一经环境隔离的 Redis Pub/Sub 分发，调用 `AdminWebSocketService` 按用户ID发送，不提供公网通用推送接口。前端从现有 API 地址自动生成 ws/wss 地址；代理须保留 Host 并转发 Upgrade。同账号多会话、多标签页接收，单登录会话连接上限由 Redis 租约跨节点控制。在线消息不落库、不补发，部署和验证边界见 `docs/WebSocket集成与部署.md`。
 - WebSocket认证、心跳、错误及业务消息统一使用 `common.enums.webSocket.WebSocketMessageType`；消息对象 `WebSocketMessageVo` 包含 `id/sendTime/senderIp/fromAdminId/toAdminId/msgType/msgData/forwardUrl`，不恢复版本号。枚举以对象输出事件编号、中文说明、展示形式displayType及级别messageLevel；前端使用 `websocketMessageType.js` 对应编号订阅。业务发送入口只允许业务事件，禁止伪造控制消息；仅保留统一枚举及消息对象发送接口；无openSendMsg开关，前端展示器支持卡片、顶部提示及独立居中弹窗，退出清理自身提示和队列。
-- 用户部门或角色关系变更成功后通过 `system.service.AdminUserRefreshService` 在事务提交后定向发送REFRESH_BROWSER；全局前端整页刷新，/getInfo读取最新部门和角色并按需更新当前登录快照。角色定义及菜单授权修改不在此通知范围；离线不补发，推送失败不回滚业务。
+- 用户部门或角色关系变更成功后通过 `system.service.AdminUserRefreshService` 在事务提交后定向发送REFRESH_BROWSER；全局前端整页刷新，/getInfo读取最新部门和角色并按需更新当前登录快照。角色菜单授权或实际数据范围变化同样在提交后定向通知所属用户；仅修改角色名称、排序、备注不通知。HTTP认证读取当前角色及菜单权限，Redis会话快照仍用于登录状态，权限快照有变化时更新；离线不补发，推送失败不回滚业务。
 - API谷歌验证修改保存成功后，在事务提交后通过 `AdminUserRefreshService.afterApiAuthChanged()` 广播REFRESH_BROWSER至所有在线连接，页面刷新后重新读取 `/system/apiAuth/googleAuthApis` 更新本地规则；查询接口不触发推送，原校验、权限和审计日志保留。
 - `zero-admin` 登录验证码由 `/captchaImage`、`SysLoginService.validateCaptcha`、`ISysConfigService.selectCaptchaEnabled()` 和配置项 `sys.account.captchaEnabled` 控制。
 - `sys.account.multiClientLogin` 在完整登录验证通过后生效，包含超级管理员。显式设为 `false` 时，通过 `RedisTemplate` 的账号标记和事务保存新会话、撤销同账号旧会话，再按旧会话定向发送 `LOGIN_OUT`。设为 `true` 或未配置时保留多端登录。续期只更新仍存在的会话，参数变更在下一次成功登录时应用。

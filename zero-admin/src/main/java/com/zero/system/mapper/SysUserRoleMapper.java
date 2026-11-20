@@ -15,6 +15,16 @@ public interface SysUserRoleMapper
     /**
      *
      * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 03:01
+     * 说明: 根据角色关系定位权限变更的定向通知目标，不按操作者的数据范围过滤。
+     * @param roleId 权限配置实际变更的角色ID
+     * @return 所属用户ID列表，无用户时为空
+     */
+    List<Long> selectMembersByRoleId(Long roleId);
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
      * 时间: 2026/11/20 01:36
      * 说明: 通过用户ID删除用户和角色关联
      * @param userId 用户ID

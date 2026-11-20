@@ -114,16 +114,7 @@ public class SysMenuServiceImpl implements ISysMenuService
     @Override
     public Set<String> selectMenuPermsByUserId(Long userId)
     {
-        List<String> perms = menuMapper.selectMenuPermsByUserId(userId);
-        Set<String> permsSet = new HashSet<>();
-        for (String perm : perms)
-        {
-            if (StringUtils.isNotEmpty(perm))
-            {
-                permsSet.addAll(Arrays.asList(perm.trim().split(",")));
-            }
-        }
-        return permsSet;
+        return splitMenuPermissions(menuMapper.selectMenuPermsByUserId(userId));
     }
 
     /**
@@ -139,7 +130,39 @@ public class SysMenuServiceImpl implements ISysMenuService
     @Override
     public Set<String> selectMenuPermsByRoleId(Long roleId)
     {
-        List<String> perms = menuMapper.selectMenuPermsByRoleId(roleId);
+        return splitMenuPermissions(menuMapper.selectMenuPermsByRoleId(roleId));
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 03:04
+     * 说明: 使用同一条查询读角色和菜单，保留按角色区分的权限供数据范围过滤。
+     * @param userId 当前登录用户ID
+     * @return 角色列表，停用角色及超级管理员角色不参与普通用户的菜单授权
+     */
+    @Override
+    public List<SysRole> selectRoleAuthorizationsByUserId(Long userId)
+    {
+        List<SysRole> roles = roleMapper.selectRoleAuthorizationsByUserId(userId);
+        for (SysRole role : roles)
+        {
+            Set<String> permissions = role.getPermissions();
+            role.setPermissions(role.isAdmin() || permissions == null ? Set.of() : splitMenuPermissions(permissions));
+        }
+        return roles;
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 03:04
+     * 说明: 沿用菜单字段的逗号分隔和去重语义，保证登录查询和请求校验一致。
+     * @param perms 菜单权限字段原值
+     * @return 可用于接口授权的权限集合
+     */
+    private Set<String> splitMenuPermissions(Iterable<String> perms)
+    {
         Set<String> permsSet = new HashSet<>();
         for (String perm : perms)
         {
