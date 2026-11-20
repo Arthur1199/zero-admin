@@ -3,6 +3,7 @@ package com.zero.framework.web.service;
 import lombok.extern.slf4j.Slf4j;
 import com.zero.common.constant.CacheConstants;
 import com.zero.common.constant.Constants;
+import com.zero.common.constant.UserConstants;
 import com.zero.common.core.domain.model.LoginUser;
 import com.zero.common.core.redis.RedisCache;
 import com.zero.common.utils.ServletUtils;
@@ -10,6 +11,8 @@ import com.zero.common.utils.StringUtils;
 import com.zero.common.utils.ip.AddressUtils;
 import com.zero.common.utils.ip.IpUtils;
 import com.zero.common.utils.uuid.IdUtils;
+import com.zero.system.service.AdminUserLogoutService;
+import com.zero.system.service.ISysConfigService;
 import eu.bitwalker.useragentutils.UserAgent;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -17,6 +20,7 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -24,7 +28,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -75,6 +78,19 @@ public class TokenService
 
     @Autowired
     private RedisCache redisCache;
+
+    /** 每次签发登录令牌时读取后台运行参数。 */
+    @Autowired
+    private ISysConfigService configService;
+
+    /** 跨实例原子更新或替换登录会话。 */
+    @Autowired
+    private AdminLoginSessionStore loginSessions;
+
+    /** 延迟取得通知服务，避免它依赖的 WebSocket 认证再次初始化 TokenService。 */
+    @Autowired
+    @Lazy
+    private AdminUserLogoutService userLogoutService;
 
     /**
      *
@@ -203,24 +219,32 @@ public class TokenService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 创建令牌
-     * @param loginUser 用户信息
-     * @return
-     * 返回值: 令牌
-     * 返回值说明：创建令牌
+     * 时间: 2026/11/21 01:11
+     * 说明: 为通过登录校验的用户签发 JWT，按后台多端登录开关保存或替换会话。
+     * @param loginUser 已通过密码及附加登录校验的用户
+     * @return 新登录会话的 JWT
+     * 返回值: String
+     * 返回值说明: 会话保存后返回新 JWT，已撤销的旧会话分别收到退出通知
      */
     public String createToken(LoginUser loginUser)
     {
         String token = IdUtils.fastUUID();
         loginUser.setToken(token);
         setUserAgent(loginUser);
-        refreshToken(loginUser);
+        prepareSessionTime(loginUser);
 
         Map<String, Object> claims = new HashMap<>();
         claims.put(Constants.LOGIN_USER_KEY, token);
         claims.put(Constants.JWT_USERNAME, loginUser.getUsername());
-        return createToken(claims);
+        String jwt = createToken(claims);
+        // 只有显式关闭多端登录才开始替换会话，兼容缺少该参数的已有安装。
+        boolean singleClient = "false".equalsIgnoreCase(StringUtils.trimToEmpty(
+                configService.selectConfigByKey(UserConstants.MULTI_CLIENT_LOGIN_CONFIG)));
+        for (String sessionId : loginSessions.save(loginUser, expireTime, singleClient))
+        {
+            userLogoutService.notifySessionLogout(loginUser.getUserId(), sessionId);
+        }
+        return jwt;
     }
 
     /**
@@ -269,20 +293,33 @@ public class TokenService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 刷新令牌有效期
-     * @param loginUser 登录信息
+     * 时间: 2026/11/21 01:11
+     * 说明: 刷新仍然有效的登录快照和缓存有效期。
+     * @param loginUser 当前请求读取的既有会话
      * @return
      * 返回值: void
-     * 返回值说明：刷新令牌有效期
+     * 返回值说明: 已删除的会话不再写入 Redis
      */
     public void refreshToken(LoginUser loginUser)
     {
+        prepareSessionTime(loginUser);
+        loginSessions.renew(loginUser, expireTime);
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 01:11
+     * 说明: 计算写入登录快照的会话时间和到期时间。
+     * @param loginUser 待创建或续期的会话
+     * @return
+     * 返回值: void
+     * 返回值说明: 更新快照时间供 HTTP 和 WebSocket 校验
+     */
+    private void prepareSessionTime(LoginUser loginUser)
+    {
         loginUser.setLoginTime(System.currentTimeMillis());
         loginUser.setExpireTime(loginUser.getLoginTime() + expireTime * MILLIS_MINUTE);
-        // 根据uuid将loginUser缓存
-        String userKey = getTokenKey(loginUser.getToken());
-        redisCache.setCacheObject(userKey, loginUser, expireTime, TimeUnit.MINUTES);
     }
 
     /**

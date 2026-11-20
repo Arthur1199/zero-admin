@@ -4,6 +4,7 @@ import com.zero.common.constant.CacheConstants;
 import com.zero.common.core.domain.entity.SysUser;
 import com.zero.common.core.domain.model.LoginUser;
 import com.zero.common.core.redis.RedisCache;
+import com.zero.system.service.ISysConfigService;
 import com.zero.system.domain.SysUserOnline;
 import com.zero.system.service.impl.SysUserOnlineServiceImpl;
 import com.zero.web.controller.monitor.SysUserOnlineController;
@@ -98,6 +99,8 @@ class OnlineAuthorizationTokenTest
         RedisCache cache = mock(RedisCache.class);
         TokenService tokens = new TokenService();
         ReflectionTestUtils.setField(tokens, "redisCache", cache);
+        ReflectionTestUtils.setField(tokens, "configService", mock(ISysConfigService.class));
+        ReflectionTestUtils.setField(tokens, "loginSessions", mock(AdminLoginSessionStore.class));
         ReflectionTestUtils.setField(tokens, "header", "Authorization");
         ReflectionTestUtils.setField(tokens, "secret", "isolated-online-token-test-key");
         ReflectionTestUtils.setField(tokens, "expireTime", 30);

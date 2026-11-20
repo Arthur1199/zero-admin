@@ -9,6 +9,8 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.redisson.codec.JsonJacksonCodec;
 import org.redisson.client.codec.ByteArrayCodec;
+import org.redisson.client.RedisException;
+import org.redisson.client.protocol.RedisCommands;
 import org.redisson.config.Config;
 import org.redisson.spring.data.connection.RedissonConnectionFactory;
 import org.redisson.spring.starter.RedissonAutoConfigurationV2;
@@ -23,6 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -229,6 +234,7 @@ class ReportRedissonTest {
             verifySharedRateLimit(client, cache, secondCache, prefix);
             verifyRateRuleUpdate(client, cache, secondCache, prefix);
             verifyRateDecreaseWithStaggeredExpiry(client, cache, secondCache, prefix);
+            verifyConcurrentRateUpdate(client, cache, secondCache, prefix);
         } finally {
             secondClient.shutdown();
         }
@@ -343,6 +349,86 @@ class ReportRedissonTest {
             assertThat(secondCache.tryAcquirePermits(key, 2, Duration.ofSeconds(1))).isTrue();
             assertThat(cache.tryAcquirePermits(key, 1)).isFalse();
         } finally {
+            limiter.delete();
+        }
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 01:29
+     * 说明: 两个客户端同时更新规则并申领许可时，规则只变更一次，许可余额不会因并发写入被覆盖。
+     * @param client 隔离 Redis 的主测试客户端
+     * @param firstCache 第一个服务实例
+     * @param secondCache 第二个服务实例
+     * @param prefix 随机测试键前缀
+     * @return
+     * 返回值: void
+     * 返回值说明: 并发过程中消耗的许可仍计入最终配额，规则及其子键保留到期时间
+     */
+    private void verifyConcurrentRateUpdate(RedissonClient client, RedissonUtil firstCache,
+            RedissonUtil secondCache, String prefix) {
+        String key = prefix + ":rate:concurrent";
+        Duration window = Duration.ofMinutes(1);
+        var limiter = client.getRateLimiter(key);
+        var pool = Executors.newFixedThreadPool(3);
+        var start = new CountDownLatch(1);
+        try {
+            assertThat(firstCache.tryInitRateLimiter(key, 8, window)).isTrue();
+            assertThat(firstCache.tryAcquirePermits(key, 4)).isTrue();
+            assertThat(limiter.expire(Duration.ofMinutes(2))).isTrue();
+            Callable<Boolean> update = () -> {
+                start.await();
+                return firstCache.updateRateLimiter(key, 10, window);
+            };
+            var first = pool.submit(update);
+            var second = pool.submit(() -> {
+                start.await();
+                return secondCache.updateRateLimiter(key, 10, window);
+            });
+            var acquires = pool.submit(() -> {
+                start.await();
+                int acquired = 0;
+                for (int request = 0; request < 12; request++) {
+                    if (secondCache.tryAcquirePermits(key, 1)) {
+                        acquired++;
+                    }
+                }
+                return acquired;
+            });
+            start.countDown();
+            assertThat(List.of(first.get(10, TimeUnit.SECONDS), second.get(10, TimeUnit.SECONDS)))
+                    .containsExactlyInAnyOrder(true, false);
+            int acquired = acquires.get(10, TimeUnit.SECONDS);
+            while (acquired <= 6 && secondCache.tryAcquirePermits(key, 1)) {
+                acquired++;
+            }
+            assertThat(acquired).isEqualTo(6);
+            var manager = ((Redisson) client).getCommandExecutor().getConnectionManager();
+            var connection = manager.getEntry(key).getClient().connect();
+            try {
+                long expiry = connection.sync(RedisCommands.PEXPIRETIME, key);
+                assertThat(expiry).isPositive();
+                assertThat(connection.sync(RedisCommands.PEXPIRETIME, RedissonObject.suffixName(key, "value")))
+                        .isEqualTo(expiry);
+                assertThat(connection.sync(RedisCommands.PEXPIRETIME, RedissonObject.suffixName(key, "permits")))
+                        .isEqualTo(expiry);
+            } catch (RedisException failure) {
+                if (failure.getMessage() == null || !failure.getMessage().contains("unknown command")) {
+                    throw failure;
+                }
+                assertThat(limiter.remainTimeToLive()).isPositive();
+                assertThat(client.getBucket(RedissonObject.suffixName(key, "value")).remainTimeToLive()).isPositive();
+            } finally {
+                connection.close();
+            }
+        } catch (InterruptedException error) {
+            Thread.currentThread().interrupt();
+            throw new AssertionError("等待并发限流验证被中断", error);
+        } catch (java.util.concurrent.ExecutionException | java.util.concurrent.TimeoutException error) {
+            throw new AssertionError("并发限流验证失败", error);
+        } finally {
+            pool.shutdownNow();
             limiter.delete();
         }
     }

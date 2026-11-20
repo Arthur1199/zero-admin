@@ -1,9 +1,16 @@
 package com.zero.framework.websocket;
 
-import java.util.List;
+import com.zero.common.core.redis.RedisWatchTransaction;
+import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import org.springframework.data.domain.Range;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisCallback;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,29 +22,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class AdminWebSocketLease
 {
-    /** 使用Redis统一时间原子清理并申请名额，避免节点时钟偏差误回收其它节点连接。 */
-    private static final DefaultRedisScript<Long> ACQUIRE = new DefaultRedisScript<>(
-            "local t=redis.call('TIME'); local now=tonumber(t[1])*1000+math.floor(tonumber(t[2])/1000); "
-            + "redis.call('zremrangebyscore',KEYS[1],'-inf',now); "
-            + "if redis.call('zcard',KEYS[1]) >= tonumber(ARGV[2]) then return 0 end; "
-            + "redis.call('zadd',KEYS[1],now+tonumber(ARGV[1]),ARGV[3]); "
-            + "redis.call('pexpire',KEYS[1],ARGV[1]); return 1", Long.class);
-    /** 只续租仍存活的成员，过期成员不能凭旧连接重新占用名额。 */
-    private static final DefaultRedisScript<Long> RENEW = new DefaultRedisScript<>(
-            "local t=redis.call('TIME'); local now=tonumber(t[1])*1000+math.floor(tonumber(t[2])/1000); "
-            + "local score=redis.call('zscore',KEYS[1],ARGV[2]); "
-            + "if not score or tonumber(score)<=now then return 0 end; "
-            + "redis.call('zadd',KEYS[1],now+tonumber(ARGV[1]),ARGV[2]); "
-            + "redis.call('pexpire',KEYS[1],ARGV[1]); return 1", Long.class);
-    /** 已认证索引使用Redis统一时间，独立于配额，宕机后自然到期。 */
-    private static final DefaultRedisScript<Long> ONLINE = new DefaultRedisScript<>(
-        "local t=redis.call('TIME'); local n=tonumber(t[1])*1000+math.floor(tonumber(t[2])/1000); "
-        + "redis.call('zremrangebyscore',KEYS[1],'-inf',n); redis.call('zadd',KEYS[1],n+tonumber(ARGV[1]),ARGV[2]); "
-        + "redis.call('pexpire',KEYS[1],ARGV[1]); return 1", Long.class);
-    /** 只统计有效在线成员，不延长登录缓存。 */
-    private static final DefaultRedisScript<Long> ONLINE_COUNT = new DefaultRedisScript<>(
-        "local t=redis.call('TIME'); local n=tonumber(t[1])*1000+math.floor(tonumber(t[2])/1000); "
-        + "return redis.call('zcount',KEYS[1],'('..n,'+inf')", Long.class);
     private final StringRedisTemplate redis;
     private final AdminWebSocketProperties properties;
 
@@ -68,9 +52,20 @@ public class AdminWebSocketLease
      */
     public boolean acquire(String sessionId, String connectionId)
     {
-        long ttl = leaseTtl();
-        return Long.valueOf(1).equals(redis.execute(ACQUIRE, List.of(key(sessionId)),
-                Long.toString(ttl), Integer.toString(properties.maxConnectionsPerSession()), connectionId));
+        byte[] key = key(sessionId).getBytes(StandardCharsets.UTF_8);
+        byte[] member = connectionId.getBytes(StandardCharsets.UTF_8);
+        return RedisWatchTransaction.execute(redis, key, connection -> {
+            long now = connection.serverCommands().time(TimeUnit.MILLISECONDS);
+            boolean available = connection.zSetCommands().zCount(key, Range.rightUnbounded(Range.Bound.exclusive(now)))
+                    < properties.maxConnectionsPerSession();
+            connection.multi();
+            connection.zSetCommands().zRemRangeByScore(key, Double.NEGATIVE_INFINITY, now);
+            if (available)
+            {
+                writeLease(connection, key, member, now);
+            }
+            return RedisWatchTransaction.commit(connection) ? available : null;
+        });
     }
 
     /**
@@ -86,8 +81,20 @@ public class AdminWebSocketLease
      */
     public boolean renew(String sessionId, String connectionId)
     {
-        long ttl = leaseTtl();
-        boolean valid = Long.valueOf(1).equals(redis.execute(RENEW, List.of(key(sessionId)), Long.toString(ttl), connectionId));
+        byte[] key = key(sessionId).getBytes(StandardCharsets.UTF_8);
+        byte[] member = connectionId.getBytes(StandardCharsets.UTF_8);
+        boolean valid = RedisWatchTransaction.execute(redis, key, connection -> {
+            Double score = connection.zSetCommands().zScore(key, member);
+            long now = connection.serverCommands().time(TimeUnit.MILLISECONDS);
+            if (score == null || score <= now)
+            {
+                connection.unwatch();
+                return false;
+            }
+            connection.multi();
+            writeLease(connection, key, member, now);
+            return RedisWatchTransaction.commit(connection) ? Boolean.TRUE : null;
+        });
         if (valid) markOnline(sessionId, connectionId);
         return valid;
     }
@@ -152,7 +159,35 @@ public class AdminWebSocketLease
  */
 
     public void markOnline(String sessionId, String connectionId) {
-        redis.execute(ONLINE, List.of(onlinePrefix() + sessionId), Long.toString(leaseTtl()), connectionId);
+        byte[] key = (onlinePrefix() + sessionId).getBytes(StandardCharsets.UTF_8);
+        byte[] member = connectionId.getBytes(StandardCharsets.UTF_8);
+        RedisWatchTransaction.execute(redis, key, connection -> {
+            long now = connection.serverCommands().time(TimeUnit.MILLISECONDS);
+            connection.multi();
+            connection.zSetCommands().zRemRangeByScore(key, Double.NEGATIVE_INFINITY, now);
+            writeLease(connection, key, member, now);
+            return RedisWatchTransaction.commit(connection) ? Boolean.TRUE : null;
+        });
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 01:23
+     * 说明: 在事务中写入成员和键的过期时间，两个期限使用同一个 Redis 服务端时间。
+     * @param connection 正在排队事务命令的 Redis 连接
+     * @param key 配额或在线索引的 Redis 键
+     * @param member 当前连接编号
+     * @param now Redis 服务端时间，单位为毫秒
+     * @return
+     * 返回值: void
+     * 返回值说明: 写入命令与调用方的清理或续租操作一并提交
+     */
+    private void writeLease(RedisConnection connection, byte[] key, byte[] member, long now)
+    {
+        long expiresAt = now + leaseTtl();
+        connection.zSetCommands().zAdd(key, expiresAt, member);
+        connection.keyCommands().pExpireAt(key, expiresAt);
     }
 /**
  *
@@ -164,13 +199,17 @@ public class AdminWebSocketLease
  * 返回值说明: 仅服务端使用的会话编号集合
  */
 
-    public java.util.Set<String> onlineSessions() {
-        java.util.Set<String> sessions = new java.util.HashSet<>();
+    public Set<String> onlineSessions() {
+        Set<String> sessions = new HashSet<>();
         String prefix = onlinePrefix();
-        try (var cursor = redis.scan(org.springframework.data.redis.core.ScanOptions.scanOptions().match(prefix + "*").count(200).build())) {
+        try (var cursor = redis.scan(ScanOptions.scanOptions().match(prefix + "*").count(200).build())) {
             while (cursor.hasNext()) {
                 String key = cursor.next();
-                Long count = redis.execute(ONLINE_COUNT, List.of(key));
+                Long count = redis.execute((RedisCallback<Long>) connection -> {
+                    long now = connection.serverCommands().time(TimeUnit.MILLISECONDS);
+                    return connection.zSetCommands().zCount(key.getBytes(StandardCharsets.UTF_8),
+                            Range.rightUnbounded(Range.Bound.exclusive(now)));
+                });
                 if (count != null && count > 0) sessions.add(key.substring(prefix.length()));
             }
         }

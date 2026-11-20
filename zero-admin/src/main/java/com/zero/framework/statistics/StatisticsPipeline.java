@@ -5,6 +5,7 @@ import com.alibaba.fastjson2.JSON;
 import com.zero.common.constant.CacheConstants;
 import com.zero.common.core.domain.model.LoginUser;
 import com.zero.common.core.redis.RedisCache;
+import com.zero.common.core.redis.RedisWatchTransaction;
 import com.zero.system.domain.statistics.StatEvent;
 import com.zero.system.domain.statistics.StatInboxEntry;
 import com.zero.system.mapper.StatisticsMapper;
@@ -15,7 +16,6 @@ import jakarta.annotation.PreDestroy;
 import org.springframework.data.domain.Range;
 import org.springframework.data.redis.connection.stream.*;
 import org.springframework.data.redis.core.*;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.time.*;
@@ -72,9 +72,6 @@ public class StatisticsPipeline
     private LocalDateTime inboxCursorTime;
     /** 与创建时间共同组成稳定游标的事件编号。 */
     private String inboxCursorId;
-    /** 只释放属于本采样实例的租约。 */
-    private static final DefaultRedisScript<Long> UNLOCK = new DefaultRedisScript<>(
-        "if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('DEL',KEYS[1]); end; return 0", Long.class);
     /**
      *
      * 作者: Arthur 亚瑟
@@ -330,7 +327,34 @@ public class StatisticsPipeline
             mapper.online(Map.of("minute",at.withSecond(0).withNano(0),"at",at,"users",users.size(),"sessions",sessions.size(),"active",active));
         }
         catch (Exception e) { problem("在线人数采样失败，保留上次采样"); }
-        finally { if (acquired) try { redis.execute(UNLOCK,List.of(lock),owner); } catch (Exception ignored) { /* 租约自动到期。 */ } }
+        finally { if (acquired) try { releaseSampleLock(lock, owner); } catch (Exception ignored) { /* 租约自动到期。 */ } }
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 01:23
+     * 说明: 仅释放本轮采样持有的锁，锁到期被其他节点接管时保留新持有者。
+     * @param lock 采样锁的 Redis 键
+     * @param owner 本轮采样写入的持有者编号
+     * @return 是否由本轮采样释放
+     * 返回值: boolean
+     * 返回值说明: 锁不存在或已被其他采样实例接管时返回 false
+     */
+    boolean releaseSampleLock(String lock, String owner)
+    {
+        byte[] key = lock.getBytes(StandardCharsets.UTF_8);
+        byte[] expectedOwner = owner.getBytes(StandardCharsets.UTF_8);
+        return RedisWatchTransaction.execute(redis, key, connection -> {
+            if (!Arrays.equals(expectedOwner, connection.stringCommands().get(key)))
+            {
+                connection.unwatch();
+                return false;
+            }
+            connection.multi();
+            connection.keyCommands().del(key);
+            return RedisWatchTransaction.commit(connection) ? Boolean.TRUE : null;
+        });
     }
     /**
      *

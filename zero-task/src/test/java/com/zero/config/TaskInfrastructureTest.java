@@ -192,7 +192,7 @@ class TaskInfrastructureTest {
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/19 14:08
-     * 说明: 显式指定临时 Redis 端口后，校验字符串及对象读写和键过期。
+     * 说明: 显式指定临时 Redis 端口后，校验字符串及对象读写、键过期和共享限流规则更新。
      */
     @Test
     @EnabledIfSystemProperty(named = "zero.task.test.redis-port", matches = "[0-9]+")
@@ -205,7 +205,9 @@ class TaskInfrastructureTest {
             var stringKey = namespace + ":string";
             var objectKey = namespace + ":object";
             var nativeKey = namespace + ":native";
+            var rateKey = namespace + ":rate";
             var nativeRedis = context.getBean(RedissonUtil.class);
+            var limiter = context.getBean(RedissonClient.class).getRateLimiter(rateKey);
             @SuppressWarnings("unchecked")
             var objects = (RedisTemplate<Object, Object>) context.getBean("redisTemplate");
             try {
@@ -216,12 +218,22 @@ class TaskInfrastructureTest {
                 assertThat(objects.opsForValue().get(objectKey)).isEqualTo(42);
                 nativeRedis.setString(nativeKey, "native");
                 assertThat(nativeRedis.<String>getString(nativeKey)).isEqualTo("native");
+
+                Duration window = Duration.ofMinutes(1);
+                assertThat(nativeRedis.tryInitRateLimiter(rateKey, 2, window)).isTrue();
+                assertThat(nativeRedis.tryAcquirePermits(rateKey, 2)).isTrue();
+                assertThat(nativeRedis.updateRateLimiter(rateKey, 3, window)).isTrue();
+                assertThat(nativeRedis.updateRateLimiter(rateKey, 3, window)).isFalse();
+                assertThat(nativeRedis.tryAcquirePermits(rateKey, 1)).isTrue();
+                assertThat(nativeRedis.tryAcquirePermits(rateKey, 1)).isFalse();
+
                 org.awaitility.Awaitility.await().atMost(Duration.ofSeconds(5))
                         .until(() -> Boolean.FALSE.equals(redis.hasKey(stringKey)));
             } finally {
                 redis.delete(stringKey);
                 objects.delete(objectKey);
                 nativeRedis.remove(nativeKey);
+                limiter.delete();
             }
         });
     }

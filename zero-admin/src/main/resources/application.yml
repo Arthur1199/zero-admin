@@ -70,13 +70,18 @@ logging:
     # Spring 框架日志分类的最低输出级别。
     org.springframework: warn
 ---
-# token配置
+# 管理后台登录令牌（JWT）配置。登录成功后由 zero-admin 签发，用于访问受保护的后台接口。
+# 服务端验证签名后，使用令牌里的会话编号从 Redis 读取登录用户和权限。
 token:
-  # 令牌自定义标识
+  # 后台 HTTP 请求携带 JWT 的请求头名称，前端按 Authorization: Bearer <JWT> 发送。
+  # 修改名称时需同步调整前端和读取该请求头的调用方。
   header: Authorization
-  # 令牌密钥
+  # 服务端用于派生 HS512 签名密钥的配置，签发和验签共用。由 TokenService 在启动时读取。
+  # 同一环境的多个实例应使用相同配置。更换后，原令牌无法通过验签，用户需重新登录。
+  # 使用受控配置维护密钥，避免将其写入日志、文档或公开仓库。
   secret: AdclHFxAAtFH3tgmAgaUmHSi+4t/7/3JG9cTlhxSjqEA5Si0Br0167nXzjrNLQJs
-  # 令牌有效期（默认30分钟）
+  # Redis 登录会话有效期，单位为分钟。登录和续期都会按此值设置缓存 TTL。
+  # 经 JWT 认证的 HTTP 请求在会话剩余时间不超过 20 分钟时续期，是否过期以 Redis 会话为准。
   expireTime: 30
 ---
 # MyBatis配置
@@ -149,4 +154,4 @@ zero:
   # 敏感备忘录功能配置。
   memo:
     # 备忘录内容加密所需密钥，按部署说明外部注入。
-    encryption-key: 'Vp0T9mhvhlqtylnwrpbEBgDlTSHLlt0lELpO3BJDt28='
+    encryption-key: Vp0T9mhvhlqtylnwrpbEBgDlTSHLlt0lELpO3BJDt28=

@@ -1,12 +1,7 @@
 package com.zero.util;
 
 import lombok.RequiredArgsConstructor;
-import org.redisson.Redisson;
-import org.redisson.RedissonObject;
-import org.redisson.RedissonRateLimiter;
 import org.redisson.api.*;
-import org.redisson.client.codec.StringCodec;
-import org.redisson.client.protocol.RedisCommands;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -29,33 +24,6 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class RedissonUtil {
 
-	/**
-	 * 原子更新 Redisson 4.6.1 的共享限流状态。键依次为规则、余额和许可记录，
-	 * 参数依次为新配额、窗口毫秒数和本次更新的时间戳。
-	 * 余额可以为负，旧许可逐批过期时，Redisson 会先抵消超出新配额的消耗。
-	 */
-	private static final String UPDATE_RATE_LIMITER_SCRIPT = """
-			local rule = redis.call('HMGET', KEYS[1], 'type', 'rate', 'interval')
-			if not rule[1] then return 0 end
-			if rule[1] ~= '0' then return -1 end
-			if rule[2] == ARGV[1] and rule[3] == ARGV[2] then return 0 end
-
-			local cutoff = tonumber(ARGV[3]) - tonumber(ARGV[2])
-			local used = 0
-			for _, entry in ipairs(redis.call('ZRANGEBYSCORE', KEYS[3], '(' .. cutoff, '+inf')) do
-			    local _, permits = struct.unpack('Bc0I', entry)
-			    used = used + permits
-			end
-			redis.call('HSET', KEYS[1], 'rate', ARGV[1], 'interval', ARGV[2])
-			redis.call('ZREMRANGEBYSCORE', KEYS[3], '-inf', cutoff)
-			redis.call('SET', KEYS[2], tonumber(ARGV[1]) - used)
-			local ttl = redis.call('PTTL', KEYS[1])
-			if ttl >= 0 then
-			    redis.call('PEXPIRE', KEYS[2], ttl)
-			    redis.call('PEXPIRE', KEYS[3], ttl)
-			end
-			return 1
-			""";
 
 	/** 应用共用的 Redisson 客户端。 */
 	private final RedissonClient redissonClient;
@@ -1073,16 +1041,7 @@ public class RedissonUtil {
 	 */
 	public boolean updateRateLimiter(String key, long permits, Duration interval) {
 		validateRateRule(key, permits, interval);
-		RedissonRateLimiter limiter = (RedissonRateLimiter) redissonClient.getRateLimiter(key);
-		String rawKey = limiter.getRawName();
-		List<Object> keys = List.of(rawKey, RedissonObject.suffixName(rawKey, "value"),
-				RedissonObject.suffixName(rawKey, "permits"));
-		// 使用 Redisson 已映射的物理键，规则与其关联键在同一个 Redis 槽。
-		var executor = ((Redisson) redissonClient).getCommandExecutor();
-		long result = executor.get(executor.evalWriteAsync(rawKey, StringCodec.INSTANCE, RedisCommands.EVAL_LONG,
-				UPDATE_RATE_LIMITER_SCRIPT, keys, permits, interval.toMillis(), System.currentTimeMillis()));
-		Assert.state(result >= 0, "只能更新共享限流规则");
-		return result == 1;
+		return RedissonRateRuleUpdate.update(redissonClient, key, permits, interval.toMillis());
 	}
 
 	/**
