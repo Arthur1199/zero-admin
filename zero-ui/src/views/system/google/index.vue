@@ -75,19 +75,20 @@ v-model:limit="queryParams.pageSize"
 
     <el-dialog title="谷歌登录秘钥全文" class="google-key-dialog" v-model="keyOpen" width="520px" append-to-body :close-on-click-modal="false">
       <el-alert title="该信息属于敏感密钥，请勿截图、转发或记录到日志中。" type="warning" show-icon :closable="false" />
-      <div class="key-box">
-        <el-input ref="googleAuthKeyInput" v-model="googleAuthKey" readonly class="key-input" />
-        <el-button  link type="primary" :icon="resolveIcon('el-icon-document-copy')" class="copy-key-btn" @click="copyGoogleAuthKey">复制</el-button>
-      </div>
-      <template #footer><div  class="dialog-footer">
-        <el-button @click="keyOpen = false">关 闭</el-button>
-      </div></template>
+      <code ref="googleAuthKeyText" class="key-text">{{ googleAuthKey }}</code>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" :icon="resolveIcon('el-icon-document-copy')" @click="copyGoogleAuthKey">复制</el-button>
+          <el-button @click="keyOpen = false">关 闭</el-button>
+        </div>
+      </template>
     </el-dialog>
   </div>
 </template>
 
 <script>
 import { getGoogleAuthKey, listGoogle, unbindGoogle } from '@/api/system/google'
+import { getToken } from '@/utils/auth'
 
 export default {
   name: 'Google',
@@ -136,11 +137,19 @@ export default {
       })
     },
     handleUnbind(row) {
-      this.$modal.confirm('确认解绑用户"' + row.userName + '"的谷歌动态码吗？解绑后该用户下次登录需要重新绑定。').then(() => {
+      let ownToken
+      return this.$modal.confirm('确认解绑用户"' + row.userName + '"的谷歌动态码吗？解绑会强制退出该用户的所有在线会话。').then(() => {
+        if (String(row.userId) === String(this.$store.getters.id)) ownToken = this.$store.getters.token
         return unbindGoogle({ userId: row.userId })
-      }).then(() => {
+      }).then(async () => {
         this.$modal.msgSuccess('解绑成功')
-        this.getList()
+        if (ownToken) {
+          // 自己解绑时用接口成功作为退出兜底，只清理发起解绑的登录态。
+          if (this.$store.getters.token === ownToken && getToken() === ownToken) await this.$store.dispatch('FedLogOut')
+          if (!getToken() && this.$route.path !== '/login') await this.$router.replace('/login')
+          return
+        }
+        return this.getList()
       })
     },
     copyGoogleAuthKey() {
@@ -159,14 +168,25 @@ export default {
       }
     },
     copyGoogleAuthKeyFallback() {
-      const input = this.$refs.googleAuthKeyInput && this.$refs.googleAuthKeyInput.$el.querySelector('input')
-      if (!input) {
+      const text = this.$refs.googleAuthKeyText
+      const selection = window.getSelection()
+      if (!text || !selection) {
         this.$modal.msgError('复制失败')
         return
       }
-      input.select()
-      const success = document.execCommand('copy')
-      input.blur()
+      // 剪贴板 API 不可用时，选中弹窗内的明文执行复制。
+      const range = document.createRange()
+      range.selectNodeContents(text)
+      selection.removeAllRanges()
+      selection.addRange(range)
+      let success = false
+      try {
+        success = document.execCommand('copy')
+      } catch {
+        success = false
+      } finally {
+        selection.removeAllRanges()
+      }
       success ? this.$modal.msgSuccess('复制成功') : this.$modal.msgError('复制失败')
     }
   }
@@ -174,18 +194,17 @@ export default {
 </script>
 
 <style scoped>
-.key-box {
-  margin-top: 16px;
-  text-align: right;
-}
-
-.key-input {
+.key-text {
   display: block;
-}
-
-.copy-key-btn {
   margin-top: 16px;
-  padding: 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background-color: color-mix(in srgb, currentColor 7%, transparent);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 14px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+  user-select: text;
 }
 
 :deep(.google-key-dialog) {

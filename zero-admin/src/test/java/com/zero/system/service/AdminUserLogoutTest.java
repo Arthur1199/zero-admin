@@ -9,11 +9,16 @@ import com.zero.common.core.domain.entity.SysUser;
 import com.zero.common.core.domain.model.LoginUser;
 import com.zero.common.core.redis.RedisCache;
 import com.zero.common.enums.webSocket.WebSocketMessageType;
+import com.zero.system.domain.SysGoogle;
+import com.zero.system.mapper.SysGoogleMapper;
 import com.zero.system.mapper.SysUserMapper;
 import com.zero.system.mapper.SysUserPostMapper;
 import com.zero.system.mapper.SysUserRoleMapper;
 import com.zero.system.service.impl.SysUserServiceImpl;
+import com.zero.system.service.impl.SysGoogleServiceImpl;
 import com.zero.framework.websocket.AdminWebSocketService;
+import org.apache.ibatis.builder.xml.XMLMapperBuilder;
+import org.apache.ibatis.session.Configuration;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -139,6 +144,83 @@ class AdminUserLogoutTest
         order.verify(ws).sendToUsers(eq(Set.of(2L)), argThat(message -> message.getMsgType() == WebSocketMessageType.LOGIN_OUT));
         verify(cache, never()).deleteObject("other");
         verify(cursor).close();
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 02:02
+     * 说明: 谷歌解绑只在成功提交后撤销目标用户的会话，零行更新和事务回滚不强退。
+     * @return
+     * 返回值: void
+     * 返回值说明: 验证数据库提交先于会话删除和定向退出通知
+     */
+    @Test
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    void googleUnbindRevokesSessionsOnlyAfterSuccessfulCommit() throws Exception
+    {
+        var cache = mock(RedisCache.class);
+        cache.redisTemplate = mock(RedisTemplate.class);
+        var cursor = mock(Cursor.class);
+        var ws = mock(AdminWebSocketService.class);
+        var mapper = mock(SysGoogleMapper.class);
+        var connection = mock(Connection.class);
+        var service = new SysGoogleServiceImpl();
+        ReflectionTestUtils.setField(service, "googleMapper", mapper);
+        ReflectionTestUtils.setField(service, "userLogoutService", new AdminUserLogoutService(cache, ws));
+        var binding = new SysGoogle();
+        binding.setGoogleAuthKey("isolated-test-key");
+        when(mapper.selectGoogleByUserId(2L)).thenReturn(binding);
+        when(mapper.updateGoogleAuthKey(any(SysGoogle.class))).thenReturn(0, 1, 1);
+
+        assertThat(service.unbindGoogle(2L, "operator")).isZero();
+        transaction(connection).executeWithoutResult(status -> {
+            assertThat(service.unbindGoogle(2L, "operator")).isOne();
+            status.setRollbackOnly();
+        });
+        verifyNoInteractions(cache, cache.redisTemplate, ws);
+
+        when(cache.redisTemplate.scan(any(ScanOptions.class))).thenReturn(cursor);
+        when(cursor.hasNext()).thenReturn(true, true, false);
+        when(cursor.next()).thenReturn("target-session", "other-session");
+        when(cache.getCacheObject("target-session")).thenReturn(login(2L));
+        when(cache.getCacheObject("other-session")).thenReturn(login(3L));
+        transaction(connection).executeWithoutResult(status -> {
+            assertThat(service.unbindGoogle(2L, "operator")).isOne();
+            verifyNoInteractions(cache, ws);
+        });
+        var order = inOrder(connection, cache, ws);
+        order.verify(connection).commit();
+        order.verify(cache).deleteObject("target-session");
+        order.verify(ws).sendToUsers(eq(Set.of(2L)), argThat(message -> message.getMsgType() == WebSocketMessageType.LOGIN_OUT));
+        verify(cache, never()).deleteObject("other-session");
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 02:02
+     * 说明: 仅解绑写入检查原绑定仍存在，正常绑定可以更新空密钥的记录。
+     * @return
+     * 返回值: void
+     * 返回值说明: 验证 MyBatis 为不同操作生成的 SQL 条件
+     */
+    @Test
+    void googleUnbindUpdatesOnlyAnExistingBinding() throws Exception
+    {
+        var config = new Configuration();
+        config.getTypeAliasRegistry().registerAlias(SysGoogle.class);
+        String resource = "mapper/system/SysGoogleMapper.xml";
+        try (var input = org.apache.ibatis.io.Resources.getResourceAsStream(resource))
+        {
+            new XMLMapperBuilder(input, config, resource, config.getSqlFragments()).parse();
+        }
+        var update = config.getMappedStatement(SysGoogleMapper.class.getName() + ".updateGoogleAuthKey");
+        var record = new SysGoogle();
+        record.setGoogleAuthKey("");
+        assertThat(update.getBoundSql(record).getSql()).contains("google_auth_key is not null and google_auth_key <> ''");
+        record.setGoogleAuthKey("isolated-test-key");
+        assertThat(update.getBoundSql(record).getSql()).doesNotContain("google_auth_key is not null");
     }
 
     /**

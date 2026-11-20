@@ -49,9 +49,9 @@
       <el-table ref="usersTable" style="margin-top: 8px" :data="users" row-key="userId" v-loading="loadingUsers" @selection-change="selectUsers">
         <el-table-column type="selection" :reserve-selection="true" width="50" />
         <el-table-column prop="userId" label="账号ID" width="100" />
-        <el-table-column prop="userName" label="账号" min-width="150" show-overflow-tooltip />
-        <el-table-column prop="nickName" label="昵称" min-width="150" show-overflow-tooltip />
-        <el-table-column prop="deptName" label="部门" min-width="150" show-overflow-tooltip />
+        <el-table-column prop="userName" label="账号" min-width="150" :show-overflow-tooltip="true" />
+        <el-table-column prop="nickName" label="昵称" min-width="150" :show-overflow-tooltip="true" />
+        <el-table-column prop="deptName" label="部门" min-width="150" :show-overflow-tooltip="true" />
       </el-table>
       <pagination :total="total" v-model:page="query.pageNum" v-model:limit="query.pageSize" :page-sizes="[10,20,50,100]" @pagination="loadUsers" />
       <template #footer><el-button type="primary" @click="usersVisible = false">确定（{{ form.userIds.length }} 个账号）</el-button></template>
