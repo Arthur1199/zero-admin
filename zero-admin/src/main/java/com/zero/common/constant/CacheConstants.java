@@ -13,6 +13,9 @@ public class CacheConstants
      */
     public static final String LOGIN_TOKEN_KEY = "login_tokens:";
 
+    /** 按用户 ID 保存最近一次登录模式和单端会话编号的 Redis 键前缀。 */
+    public static final String USER_LOGIN_SESSION_KEY = "login_user_session:";
+
     /**
      * 验证码 redis key
      */

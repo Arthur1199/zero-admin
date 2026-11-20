@@ -19,8 +19,8 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 /**
  *
  * 作者: Arthur 亚瑟
- * 时间: 2026/11/17
- * 说明: 强退单个登录会话，或在禁用、删除提交后撤销目标账号会话并跨节点通知客户端退出
+ * 时间: 2026/11/21 01:11
+ * 说明: 处理指定会话强退、账号禁用或删除后的会话撤销，以及旧会话的跨节点退出通知。
  */
 @Slf4j
 @Service
@@ -50,7 +50,7 @@ public class AdminUserLogoutService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/11/17
+     * 时间: 2026/11/21 01:11
      * 说明: 服务端先撤销指定会话，浏览器未收到通知也不能继续使用该会话
      * @param sessionId 在线列表选中的会话编号，不是JWT
      * @return
@@ -65,16 +65,36 @@ public class AdminUserLogoutService
         }
         LoginUser login = cache.getCacheObject(CacheConstants.LOGIN_TOKEN_KEY + sessionId);
         cache.deleteObject(CacheConstants.LOGIN_TOKEN_KEY + sessionId);
-        if (login != null && login.getUserId() != null && login.getUserId() > 0)
+        if (login != null)
         {
-            try
-            {
-                webSocket.logoutSession(login.getUserId(), sessionId);
-            }
-            catch (Exception e)
-            {
-                log.warn("登录会话已强退，客户端退出通知发送失败");
-            }
+            notifySessionLogout(login.getUserId(), sessionId);
+        }
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 01:11
+     * 说明: 对已经撤销的会话定向发送退出事件，保留同账号其它会话。
+     * @param userId 已确认会话归属的用户 ID
+     * @param sessionId 已撤销的会话编号
+     * @return
+     * 返回值: void
+     * 返回值说明: 通知失败时记录告警，会话维持撤销状态
+     */
+    public void notifySessionLogout(Long userId, String sessionId)
+    {
+        if (userId == null || userId <= 0 || sessionId == null || sessionId.isBlank())
+        {
+            return;
+        }
+        try
+        {
+            webSocket.logoutSession(userId, sessionId);
+        }
+        catch (RuntimeException e)
+        {
+            log.warn("登录会话已强退，客户端退出通知发送失败");
         }
     }
 

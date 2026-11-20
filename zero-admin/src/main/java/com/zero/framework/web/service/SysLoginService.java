@@ -87,8 +87,8 @@ public class SysLoginService
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/11/20 01:36
-     * 说明: 登录验证
+     * 时间: 2026/11/21 01:11
+     * 说明: 完成各项登录校验后签发令牌，并按后台多端登录配置处理现有会话。
      * @param username 用户名
      * @param password 密码
      * @param code 验证码
@@ -96,7 +96,7 @@ public class SysLoginService
      * @param googleCode 谷歌动态码
      * @return
      * 返回值: String
-     * 返回值说明：登录验证
+     * 返回值说明: 本次登录签发的 JWT
      */
     public String login(String username, String password, String code, String uuid, String googleCode)
     {
@@ -137,7 +137,7 @@ public class SysLoginService
         validateGoogleCode(loginUser, googleCode);
         AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_SUCCESS, MessageUtils.message("user.login.success")));
         recordLoginInfo(loginUser.getUserId());
-        // 生成token
+        // 完成登录校验后才签发新会话，避免失败登录触发旧端退出。
         return tokenService.createToken(loginUser);
     }
 

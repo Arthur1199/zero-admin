@@ -8,6 +8,9 @@ package com.zero.common.constant;
  */
 public class UserConstants
 {
+    /** 后台同账号多端登录配置。显式设置为 false 时，新登录替换旧会话。 */
+    public static final String MULTI_CLIENT_LOGIN_CONFIG = "sys.account.multiClientLogin";
+
     /** 用户删除标志：未删除，可用于用户列表筛选 */
     public static final String USER_NOT_DELETED = "0";
 

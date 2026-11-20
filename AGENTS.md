@@ -251,6 +251,7 @@
 - 用户部门或角色关系变更成功后通过 `system.service.AdminUserRefreshService` 在事务提交后定向发送REFRESH_BROWSER；全局前端整页刷新，/getInfo读取最新部门和角色并按需更新当前登录快照。角色定义及菜单授权修改不在此通知范围；离线不补发，推送失败不回滚业务。
 - API谷歌验证修改保存成功后，在事务提交后通过 `AdminUserRefreshService.afterApiAuthChanged()` 广播REFRESH_BROWSER至所有在线连接，页面刷新后重新读取 `/system/apiAuth/googleAuthApis` 更新本地规则；查询接口不触发推送，原校验、权限和审计日志保留。
 - `zero-admin` 登录验证码由 `/captchaImage`、`SysLoginService.validateCaptcha`、`ISysConfigService.selectCaptchaEnabled()` 和配置项 `sys.account.captchaEnabled` 控制。
+- `sys.account.multiClientLogin` 在完整登录验证通过后生效，包含超级管理员。显式设为 `false` 时，通过 `RedisTemplate` 的账号标记和事务保存新会话、撤销同账号旧会话，再按旧会话定向发送 `LOGIN_OUT`。设为 `true` 或未配置时保留多端登录。续期只更新仍存在的会话，参数变更在下一次成功登录时应用。
 - `zero-admin` 当前 XSS 配置在 `application.yml` 的 `xss` 节，匹配 `/system/*,/monitor/*,/tool/*`，不要认为所有 JSON 请求都天然安全。
 - 数据权限通过 `@DataScope` 和 SQL 中 `${params.dataScope}` 拼接实现。涉及用户、角色、部门数据时必须先确认数据范围规则。
 - `DataScopeAspect` 对“本部门”“本部门及以下”范围按当前认证用户ID读取最新归属部门，并仅在当前请求内复用；不能回退登录缓存里的旧部门。辅助读取前挂起、读取成功后恢复原PageHelper实例，异常时清理分页上下文。全部、自定义、本人范围及超级管理员沿用既有规则；该机制不刷新角色、菜单权限或跨请求登录缓存。
@@ -341,6 +342,7 @@
 
 - 保持当前文件风格，精准局部改动，不做无关重构。
 - Java 代码使用现有工具类：`StringUtils`、`SecurityUtils`、`DateUtils`、`ExcelUtil`、`RedisCache` 等。
+- 各模块的 Redis 操作统一使用模块现有 Java 客户端的 API，例如 `RedisTemplate`、`Redisson` 或项目已有的 `RedisCache` 封装。新增或修改 Redis 逻辑时，禁止编写、内嵌或通过客户端执行自定义 Lua 脚本。需要原子性时，使用客户端提供的原子操作、条件更新或 Redis 事务。
 - 新增或修改 Java 代码时，必须同步维护注释；注释要贴合项目现有风格，说明业务职责、参数含义、返回语义、边界和安全原因，避免空话、过期注释和与代码不一致的注释。
 - 前端保持 Vue3 Options API 写法、单引号/双引号风格按当前文件就近一致，不批量格式化。
 - 中文文件按 UTF-8 读取和写入；如果发现乱码，必须重新确认编码后再编辑。

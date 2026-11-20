@@ -380,6 +380,44 @@ class AdminWebSocketTest
     /**
      *
      * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 01:40
+     * 说明: 最终读取登录快照与跨节点强退重叠时，已经收到的退出通知仍能投递。
+     * @return
+     * 返回值: void
+     * 返回值说明: 底层读取返回旧快照时，队列会在认证响应之后关闭旧连接
+     */
+    @Test
+    void logoutDuringFinalSessionReadIsNotLost() throws Exception
+    {
+        var pending = new ArrayList<Runnable>();
+        var receiver = new AdminWebSocketHandler(properties(), tokens, leases, mapper, pending::add);
+        LoginUser login = user(2L, "revoked-during-read");
+        when(tokens.authenticateWebSocketToken(anyString())).thenReturn(login);
+        when(leases.acquire(anyString(), anyString())).thenReturn(true);
+        when(tokens.getWebSocketLoginUser(login.getToken())).thenAnswer(invocation -> {
+            receiver.dispatchLogout(false, Set.of(2L), login.getToken(), "queued-logout");
+            return login;
+        });
+        List<String> messages = new ArrayList<>();
+        WebSocketSession socket = socket("revoked-during-read", messages);
+        try
+        {
+            receiver.afterConnectionEstablished(socket);
+            receiver.handleTextMessage(socket, new TextMessage("{\"token\":\"test-only\"}"));
+            assertThat(pending).hasSize(1);
+            pending.get(0).run();
+            assertThat(messages).hasSize(2).last().isEqualTo("queued-logout");
+            verify(socket).close(argThat(status -> status.getCode() == 4401));
+        }
+        finally
+        {
+            receiver.stop();
+        }
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
      * 时间: 2026/11/17
      * 说明: 认证超时代表通信延迟，只允许重试，不得向浏览器返回登录失效关闭码
      * @return

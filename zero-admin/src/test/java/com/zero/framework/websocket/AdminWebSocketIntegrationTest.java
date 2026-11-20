@@ -3,6 +3,7 @@ package com.zero.framework.websocket;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zero.common.constant.CacheConstants;
+import com.zero.common.constant.UserConstants;
 import com.zero.common.enums.webSocket.WebSocketMessageType;
 import com.zero.common.core.domain.model.LoginUser;
 import com.zero.common.core.redis.RedisCache;
@@ -12,7 +13,10 @@ import com.zero.framework.config.properties.PermitAllUrlProperties;
 import com.zero.framework.security.filter.JwtAuthenticationTokenFilter;
 import com.zero.framework.security.handle.AuthenticationEntryPointImpl;
 import com.zero.framework.security.handle.LogoutSuccessHandlerImpl;
+import com.zero.framework.web.service.AdminLoginSessionStore;
 import com.zero.framework.web.service.TokenService;
+import com.zero.system.service.AdminUserLogoutService;
+import com.zero.system.service.ISysConfigService;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
@@ -38,9 +42,12 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -58,6 +65,52 @@ import static org.mockito.Mockito.*;
 @EnabledIfEnvironmentVariable(named = "ZERO_WS_TEST_REDIS_PORT", matches = "[0-9]+")
 class AdminWebSocketIntegrationTest
 {
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 01:15
+     * 说明: 新会话签发后，连接在另一节点的旧会话立即收到登录退出事件。
+     * @return
+     * 返回值: void
+     * 返回值说明: 校验旧会话失效及关闭状态，并用新会话完成认证
+     */
+    @Test
+    void singleClientLoginNotifiesOldConnectionAcrossNodes() throws Exception
+    {
+        String channel = "isolated:ws:test:" + UUID.randomUUID();
+        try (var issuer = node(channel); var receiver = node(channel))
+        {
+            when(issuer.getBean(ISysConfigService.class).selectConfigByKey(UserConstants.MULTI_CLIENT_LOGIN_CONFIG))
+                    .thenReturn("false");
+            LoginUser oldSession = AdminWebSocketTest.user(33L, UUID.randomUUID().toString());
+            LoginUser newSession = AdminWebSocketTest.user(33L, UUID.randomUUID().toString());
+            TokenService tokens = issuer.getBean(TokenService.class);
+            try (Client old = connect(receiver, cacheUser(issuer, oldSession)))
+            {
+                old.next();
+                String token;
+                RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(new MockHttpServletRequest()));
+                try
+                {
+                    token = tokens.createToken(newSession);
+                }
+                finally
+                {
+                    RequestContextHolder.resetRequestAttributes();
+                }
+                assertThat(old.next().path("msgType").path("messageType").asInt())
+                        .isEqualTo(WebSocketMessageType.LOGIN_OUT.getMessageType());
+                assertThat(old.closes.poll(5, TimeUnit.SECONDS)).isEqualTo(4401);
+                assertThat(tokens.getWebSocketLoginUser(oldSession.getToken())).isNull();
+                try (Client current = connect(receiver, token))
+                {
+                    assertThat(current.next().path("msgType").path("messageType").asInt())
+                            .isEqualTo(WebSocketMessageType.CREATE_CONNECTION.getMessageType());
+                }
+            }
+        }
+    }
+
     /**
      *
      * 作者: Arthur 亚瑟
@@ -368,6 +421,7 @@ class AdminWebSocketIntegrationTest
                 "token.secret", "isolated-websocket-integration-secret", "token.expireTime", "30")));
         context.getBeanFactory().registerSingleton("userDetailsService", mock(UserDetailsService.class));
         context.getBeanFactory().registerSingleton("logoutSuccessHandler", mock(LogoutSuccessHandlerImpl.class));
+        context.getBeanFactory().registerSingleton("sysConfigService", mock(ISysConfigService.class));
         PermitAllUrlProperties permitted = mock(PermitAllUrlProperties.class);
         when(permitted.getUrls()).thenReturn(List.of());
         context.getBeanFactory().registerSingleton("permitAllUrl", permitted);
@@ -442,7 +496,8 @@ class AdminWebSocketIntegrationTest
     @EnableWebMvc
     @EnableWebSecurity
     @Import({AdminWebSocketConfig.class, AdminWebSocketHandler.class, AdminWebSocketService.class,
-            AdminWebSocketLease.class, TokenService.class, RedisConfig.class, RedisCache.class,
+            AdminWebSocketLease.class, TokenService.class, AdminLoginSessionStore.class, AdminUserLogoutService.class,
+            RedisConfig.class, RedisCache.class,
             SecurityConfig.class, JwtAuthenticationTokenFilter.class, AuthenticationEntryPointImpl.class})
     static class Node
     {
