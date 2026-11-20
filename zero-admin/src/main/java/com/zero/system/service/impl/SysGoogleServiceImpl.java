@@ -9,6 +9,7 @@ import com.zero.packageconfig.PackageProperties;
 import com.zero.util.EnvironmentUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.zero.common.annotation.DataScope;
 import com.zero.common.constant.GoogleAuthConstants;
 import com.zero.common.core.domain.entity.SysUser;
@@ -18,6 +19,7 @@ import com.zero.common.utils.StringUtils;
 import com.zero.system.domain.SysGoogle;
 import com.zero.system.mapper.SysGoogleMapper;
 import com.zero.system.mapper.SysUserMapper;
+import com.zero.system.service.AdminUserLogoutService;
 import com.zero.system.service.ISysGoogleService;
 import com.zero.common.utils.google.GoogleAuthenticatorUtils;
 import com.zero.common.utils.google.QRCodeUtils;
@@ -39,6 +41,10 @@ public class SysGoogleServiceImpl implements ISysGoogleService
 
     @Autowired
     private RedisCache redisCache;
+
+    /** 解绑提交后撤销目标账号的所有登录会话。 */
+    @Autowired
+    private AdminUserLogoutService userLogoutService;
 
     /**
      *
@@ -248,7 +254,7 @@ public class SysGoogleServiceImpl implements ISysGoogleService
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/5/16 07:16
-     * 说明: 解绑用户谷歌动态码，清空绑定记录中的明文密钥
+     * 说明: 清空谷歌绑定密钥，并在解绑提交后强退该账号的所有在线会话。
      * @param userId 用户ID
      * @param updateBy 更新者用户名
      * @return
@@ -256,6 +262,7 @@ public class SysGoogleServiceImpl implements ISysGoogleService
      * 返回值说明: 受影响行数；用户未绑定时抛出业务异常
      */
     @Override
+    @Transactional
     public int unbindGoogle(Long userId, String updateBy)
     {
         SysGoogle google = googleMapper.selectGoogleByUserId(userId);
@@ -267,7 +274,12 @@ public class SysGoogleServiceImpl implements ISysGoogleService
         record.setUserId(userId);
         record.setGoogleAuthKey("");
         record.setUpdateBy(updateBy);
-        return googleMapper.updateGoogleAuthKey(record);
+        int rows = googleMapper.updateGoogleAuthKey(record);
+        if (rows > 0)
+        {
+            userLogoutService.afterUsersUnavailable(List.of(userId));
+        }
+        return rows;
     }
 
     /**

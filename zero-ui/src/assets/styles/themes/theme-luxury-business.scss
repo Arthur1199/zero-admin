@@ -475,7 +475,7 @@
     background: linear-gradient(135deg, #d4af37 0%, #c29d2e 100%);
     border: none;
     border-radius: 6px;
-    color: #2c3e7a;
+    color: $theme-luxury-business-bg-base;
     font-weight: 600;
     box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
     transition: all 0.3s;
@@ -557,8 +557,8 @@
     }
   }
 
-  // 普通按钮
-  .el-button--default {
+  // default 也表示按钮尺寸，主按钮使用默认尺寸时仍沿用主按钮配色。
+  .el-button--default:where(:not(.el-button--primary)) {
     background-color: #1a1f2e;
     border: 1px solid #2a3142;
     border-radius: 6px;

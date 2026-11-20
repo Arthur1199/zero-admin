@@ -102,7 +102,7 @@ public class AdminUserLogoutService
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/17
-     * 说明: 用户禁用或删除成功提交后撤销全部会话，回滚时不执行；空目标绝不广播
+     * 说明: 用户禁用、删除或谷歌解绑提交后撤销目标账号的全部会话，回滚时不执行。
      * @param userIds 已完成权限和写入结果校验的用户ID
      * @return
      * 返回值: void
@@ -130,7 +130,7 @@ public class AdminUserLogoutService
             }
             catch (Exception e)
             {
-                log.error("账号禁用或删除已提交，登录会话撤销失败，请检查Redis");
+                log.error("账号变更已提交，登录会话撤销失败，请检查Redis");
             }
             try
             {
@@ -139,7 +139,7 @@ public class AdminUserLogoutService
             }
             catch (Exception e)
             {
-                log.warn("账号禁用或删除已提交，客户端退出通知发送失败");
+                log.warn("账号变更已提交，客户端退出通知发送失败");
             }
         };
         if (TransactionSynchronizationManager.isActualTransactionActive())

@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <el-config-provider :size="elementSize"><router-view /></el-config-provider>
+    <el-config-provider :size="elementSize" :table="tableConfig"><router-view /></el-config-provider>
     <theme-picker :show-picker="false" />
   </div>
 </template>
@@ -27,6 +27,10 @@ export default {
   components: { ThemePicker },
   computed: {
     elementSize() { return normalizeSize(this.$store.getters.size) },
+    tableConfig() {
+      // 毛玻璃表格的模糊滤镜会影响浮层定位，将溢出提示挂到 body。
+      return this.themeStyle === 'glassmorphism' ? { tooltipOptions: { appendTo: 'body' } } : undefined
+    },
     ...mapState({
       themeStyle: state => state.settings.themeStyle,
       glassmorphismBgStyle: state => state.settings.glassmorphismBgStyle

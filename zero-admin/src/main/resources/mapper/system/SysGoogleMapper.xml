@@ -60,6 +60,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             update_by = #{updateBy},
             update_time = sysdate()
         where user_id = #{userId}
+        <if test="googleAuthKey != null and googleAuthKey.isEmpty()">
+            <!-- 并发解绑时仅首次清空绑定的请求触发强退。 -->
+            and google_auth_key is not null and google_auth_key &lt;&gt; ''
+        </if>
     </update>
 
 </mapper>

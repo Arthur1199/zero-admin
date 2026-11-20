@@ -43,9 +43,9 @@
       <template #header>接口统计明细</template>
       <el-form :inline="true" @submit.prevent="searchList"><el-form-item label="接口"><el-input v-model="keyword" placeholder="接口路径或名称" clearable maxlength="100" @keyup.enter="searchList" /></el-form-item><el-form-item><el-button type="primary" :disabled="loading || tableLoading" @click="searchList">查询</el-button><el-button :disabled="loading || tableLoading" @click="resetList">重置</el-button></el-form-item></el-form>
       <el-table v-loading="tableLoading" :data="rows" empty-text="所选时段暂无采集数据">
-        <el-table-column label="接口名称" prop="name" min-width="230" show-overflow-tooltip />
+        <el-table-column label="接口名称" prop="name" min-width="230" :show-overflow-tooltip="true" />
         <el-table-column label="请求方式" prop="method" width="100" />
-        <el-table-column label="接口路径" prop="route" min-width="260" show-overflow-tooltip />
+        <el-table-column label="接口路径" prop="route" min-width="260" :show-overflow-tooltip="true" />
         <el-table-column label="模块" prop="module" width="120" />
         <el-table-column label="调用次数" prop="total" width="110" align="right" />
         <el-table-column label="成功次数" prop="success" width="110" align="right" />
