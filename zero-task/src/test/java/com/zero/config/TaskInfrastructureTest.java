@@ -38,8 +38,8 @@ import static org.assertj.core.api.InstanceOfAssertFactories.list;
 /**
  *
  * 作者: Arthur 亚瑟
- * 时间: 2026/11/19 14:08
- * 说明: 验证任务数据源必需、Redis 可选、数据源路由、Mapper XML 及分页。
+ * 时间: 2026/11/20 22:49
+ * 说明: 验证任务数据源装配、Redis 可选、数据源路由、Mapper XML 及分页。
  */
 class TaskInfrastructureTest {
 
@@ -57,16 +57,22 @@ class TaskInfrastructureTest {
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/11/19 14:08
-     * 说明: 未配置业务库或尝试关闭动态数据源时，任务服务不能启动。
+     * 时间: 2026/11/20 22:49
+     * 说明: 仅配置业务库时，验证任务服务能启动并通过默认数据源查询。
+     * @return
+     * 返回值: void
+     * 返回值说明: 上下文启动成功且内存业务库查询成功
      */
     @Test
-    void requiresDataSourcesAtStartup() {
-        runner.run(context -> assertThat(context.getStartupFailure())
-                .hasStackTraceContaining("zero-task 必须配置 zeroBiz 数据源"));
-        runner.withPropertyValues("spring.datasource.dynamic.enabled=false")
-                .run(context -> assertThat(context.getStartupFailure())
-                        .hasStackTraceContaining("zero-task 必须启用动态数据源"));
+    void startsWithBusinessDataSourceOnly() {
+        runner.withPropertyValues("spring.datasource.dynamic.primary=zeroBiz",
+                        "spring.datasource.dynamic.datasource.zeroBiz.url=jdbc:h2:mem:task_biz_only;MODE=MySQL",
+                        "spring.datasource.dynamic.datasource.zeroBiz.username=sa")
+                .run(context -> {
+                    assertThat(context).hasNotFailed();
+                    assertThat(context.getBean(JdbcTemplate.class).queryForObject("SELECT 1", Integer.class))
+                            .isEqualTo(1);
+                });
     }
 
     /**
