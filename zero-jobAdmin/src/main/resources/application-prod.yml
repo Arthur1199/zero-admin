@@ -4,10 +4,10 @@ spring:
   config:
     # 启动时导入的配置资源，optional 允许对应资源不存在。
     import:
-      # 导入 JDBC 数据源和连接池配置。
-      - optional:nacos:zero-job-admin-mysql.yml?group=${spring.profiles.active}&refreshEnabled=false
-      # 导入调度中心业务和邮件参数。
-      - optional:nacos:zero-job-admin-common.yml?group=${spring.profiles.active}&refreshEnabled=false
+      # 导入 JDBC 数据源和连接池配置，发布变更后触发调度中心重启。
+      - optional:nacos:zero-job-admin-mysql.yml?group=${spring.profiles.active}&refreshEnabled=true
+      # 导入调度中心业务和邮件参数，发布变更后触发调度中心重启。
+      - optional:nacos:zero-job-admin-common.yml?group=${spring.profiles.active}&refreshEnabled=true
   # Spring Boot 开发工具配置。
   devtools:
     # 开发期应用自动重启配置。
@@ -46,5 +46,5 @@ spring:
         enabled: true
         # Nacos 配置文件的默认扩展名。
         file-extension: yml
-        # 官方调度组件在启动时读取参数，修改后需重启，避免宣称支持动态重配。
-        refresh-enabled: false
+        # 接收 Nacos 配置变更事件，调度组件随应用重启重新读取配置。
+        refresh-enabled: true

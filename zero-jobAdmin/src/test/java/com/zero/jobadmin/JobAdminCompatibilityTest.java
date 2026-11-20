@@ -2586,11 +2586,11 @@ class JobAdminCompatibilityTest {
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/11/18 15:50
-     * 说明: 验证数据源、邮件及调度参数集中在Nacos配置源文件，本地不重复定义
+     * 时间: 2026/11/20 22:45
+     * 说明: 验证数据源、邮件及调度参数集中在 Nacos，并检查三个环境均能收到重启所需的配置事件。
      * @return
      * 返回值: void
-     * 返回值说明: 配置文件语法有效，启动入口使用独立端口、库名及受限监控配置
+     * 返回值说明: 验证独立端口、业务库、监控配置及 Nacos 导入和全局刷新开关
      */
     @Test
     void serviceYamlPreservesDeploymentBoundaries() throws Exception {
@@ -2619,10 +2619,11 @@ class JobAdminCompatibilityTest {
         assertThat(base.getProperty("management.endpoint.health.show-details")).isEqualTo("always");
         for (String profile : new String[]{"dev", "test", "prod"}) {
             var source = loader.load(profile, resolver.getResource("classpath:application-" + profile + ".yml")).get(0);
+            assertThat(source.getProperty("spring.cloud.nacos.config.refresh-enabled")).isEqualTo(true);
             assertThat(source.getProperty("spring.config.import[0]").toString())
-                    .contains("zero-job-admin-mysql.yml?group=${spring.profiles.active}&refreshEnabled=false");
+                    .contains("zero-job-admin-mysql.yml?group=${spring.profiles.active}&refreshEnabled=true");
             assertThat(source.getProperty("spring.config.import[1]").toString())
-                    .contains("zero-job-admin-common.yml?group=${spring.profiles.active}&refreshEnabled=false");
+                    .contains("zero-job-admin-common.yml?group=${spring.profiles.active}&refreshEnabled=true");
         }
     }
 

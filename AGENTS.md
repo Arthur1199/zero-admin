@@ -83,6 +83,7 @@
 
 - admin 的 `ServiceNameConstants.ZERO_ADMIN` 和 tools 的 `ServiceNameConstant.ZERO_ADMIN` 当前仍为 `zeroAdmin`，与 admin 本地应用名 `zero-admin` 不一致。涉及服务调用时核对 Nacos 实际注册名和调用双方配置，不宣称两者已一致，不在无关任务中直接改名。
 - 各服务读取自己的 `application.yml` 和环境配置。`zero-bootAdmin` 使用自身配置接入服务发现，其余服务按 `application-{profile}.yml` 的 `spring.config.import` 读取 Nacos 配置。`resources/nacosConfig` 保存发布模板，实际生效值以目标环境已发布配置和启动覆盖项为准。
+- `zero-admin`、`zero-file`、`zero-job-admin`、`zero-report` 和 `zero-task` 监听本服务已导入且开启刷新的 Nacos 配置。收到变更后，按原启动参数在同一 JVM 中先关闭旧上下文，再启动新上下文。同一实例同时只执行一次重启，单实例重启期间会短暂中断服务。
 - 新增或修改 Spring 和 Nacos 配置按 [YAML 配置注释规范](#yaml-配置注释规范)执行。各服务的配置源见 [README.md](README.md#后端配置入口)。
 - admin 的 `localYml` 导入在主配置中当前被注释，不把该目录的数据库、Redis、上传限制当作生效配置。分析配置问题要同时检查本地文件、Nacos 和启动覆盖参数。
 - 包扫描规则按各服务自己的 `PackageProperties` 核对；监控服务的安全配置、通知器和 Actuator 暴露范围单独分析，不能沿用 admin JWT 假设。
@@ -187,7 +188,7 @@
 
 - `zero-jobAdmin` 基于官方 XXL-JOB 3.5.0 源码，入口 `com.zero.ZeroJobAdminApplication`，调度业务包 `com.zero.jobadmin`；保持官方控制台、独立登录及原生响应/调度协议，不套用 admin JWT 或 report 的业务父类。
 - 使用当前父工程 Java 17 / Boot 3.5 / Spring 6.2 基线，core 版本 3.5.0，MyBatis starter 使用 Boot 3 适配版本，单数据源 Hikari 连接独立 `zero_job` 库；不因上游Boot 4基线升级其它服务。
-- Nacos 注册名 `zero-job-admin`、默认端口 9102；discovery默认DEFAULT_GROUP，配置默认按profile分组。Data ID 为 `zero-job-admin-mysql.yml`、`zero-job-admin-common.yml`，四个application配置文件直接写配置值、凭据暂留空，数据源整段仅在Nacos的zero-job-admin-mysql.yml直接配置，邮件整段和xxl.job调度参数仅在Nacos的zero-job-admin-common.yml直接配置，不使用环境变量占位符；配置修改后重启，不宣称动态生效。
+- Nacos 注册名 `zero-job-admin`、默认端口 9102；discovery默认DEFAULT_GROUP，配置默认按profile分组。Data ID 为 `zero-job-admin-mysql.yml`、`zero-job-admin-common.yml`，四个application配置文件直接写配置值、凭据暂留空，数据源整段仅在Nacos的zero-job-admin-mysql.yml直接配置，邮件整段和xxl.job调度参数仅在Nacos的zero-job-admin-common.yml直接配置，不使用环境变量占位符。三个环境均监听这两份配置，发布变更后由调度中心重启并重新装配。
 - Nacos发现不替代XXL-JOB执行器注册协议，执行器仍需配置可访问的调度中心HTTP地址，并使用3.5.0及对应AppName/AccessToken。
 - `sql/zero_job.sql` 为初始化重建脚本，每次执行均清空并重建 8 张调度表，再插入初始数据。执行需经用户确认。来源、许可证及适配差异见 `zero-jobAdmin/upstream/README.md`。既有Quartz不迁移、不替换。
 - 默认验证：`mvn -pl zero-jobAdmin -am package`。官方有外部写操作的测试位于`src/integration-test/java`，仅显式`job-integration` profile加入，不在未经授权时运行。编译或隔离测试通过不代表真实Nacos、数据库及执行器闭环已验证。
@@ -196,11 +197,11 @@
 
 - `zero-task` 使用 XXL-JOB Core 3.5.0，主入口为 `com.zero.ZeroTaskApplication`。任务方法使用 `@XxlJob`，执行器端口默认 9998，仅运行 BEAN 任务。
 - Boot Admin 从 `zero-task` 的 HTTP 端口读取只读 Actuator 监控数据，环境和配置属性值脱敏。应用日志沿用其他微服务的 Logback 格式，默认在 `logs/zero-task` 下生成 `sys-info.log`、`sys-error.log` 和供 Boot Admin 读取的 `application.log`。任务执行日志由 XXL-JOB 管理。
-- MySQL 是启动必需依赖，动态数据源由框架自动配置，JDBC 参数从 Nacos 的 `zero-task-mysql.yml` 读取。启动时要求配置 `zeroBiz` 和 `zeroAdmin`，并验证 `zeroBiz` 可连接。配置 `spring.data.redis.host` 后装配 Redis，显式设置 `zero.task.redis.enabled=false` 可关闭 Redis。任务和报表的 Redis 模板使用相同的 `spring.data.redis` 连接参数和 `zero.redis` 连接池参数，分别按服务 Data ID 发布。修改连接配置后重启服务。MySQL 默认访问 `zeroBiz`，需要后台库时显式使用 `@DS("zeroAdmin")`。Mapper 在 `com.zero.mapper`，任务 Redis 键使用 `zero-task:<环境>:<业务>:<标识>`。
+- 任务按需配置 MySQL，动态数据源由框架自动装配，JDBC 参数从 Nacos 的 `zero-task-mysql.yml` 读取。配置 `spring.data.redis.host` 后装配 Redis，显式设置 `zero.task.redis.enabled=false` 可关闭 Redis。任务和报表的 Redis 模板使用相同的 `spring.data.redis` 连接参数和 `zero.redis` 连接池参数，分别按服务 Data ID 发布。发布连接配置变更后，服务自动重启。MySQL 默认访问 `zeroBiz`，需要后台库时显式使用 `@DS("zeroAdmin")`。Mapper 在 `com.zero.mapper`，任务 Redis 键使用 `zero-task:<环境>:<业务>:<标识>`。
 - `zero-task` 启用 Redis 后使用 Redisson，任务按需注入 `RedissonUtil`，已有 Spring Redis 模板复用 Redisson 连接工厂。`TaskBaseService` 提供 `getBizDictItem`、`getBizDictItems`、`getBizDictValue` 三个字典查询方法。字典查询访问 `zeroBiz`，与同环境 `zero-report` 共用 Redis 库和 `zero:dict:config:` 失效协议。有结果时写入无有效期缓存，空结果不缓存，Redis 不可用时回源数据库。
 - 开发期通过 `com.zero.generator.TaskCodeGenerator` 和显式表名生成实体、Mapper、XML、Service 接口及实现，凭据从本地环境变量读取。生成器跳过已有文件，生成的 Service 由 Spring 组件扫描装配。
 - `zero-task` 的 `PackageProperties` 统一维护组件、Mapper 和实体别名的包路径。Mapper 由启动类扫描，分页由 `MybatisPlusConfig` 装配，Redis 组件由 Redis 配置单独导入。Mapper XML 统一放在 `zero-task/src/main/resources/mapper` 根目录，文件名以 `Mapper.xml` 结尾。MyBatis 使用 `classpath*:mapper/*Mapper.xml` 只扫描这一层，`TaskCodeGenerator` 也直接输出到该目录。
-- 服务以 `zero-task` 注册到 Nacos 的 `DEFAULT_GROUP`。Nacos 连接信息由 `application-dev.yml`、`application-test.yml`、`application-prod.yml` 分别维护，默认地址和命名空间与 `zero-job-admin` 对应环境一致。三个环境均从当前 profile 分组可选导入 `zero-task-common.yml`、`zero-task-mysql.yml` 和 `zero-task-redis.yml`，并监听配置变更。`xxl.job.executor.*` 在服务启动时装配，变更后仍需重启才能应用到执行器。执行器通过 XXL-JOB 原生协议向调度中心注册并接收任务，执行器组 AppName 和 AccessToken 须与对应配置一致。
+- 服务以 `zero-task` 注册到 Nacos 的 `DEFAULT_GROUP`。Nacos 连接信息由 `application-dev.yml`、`application-test.yml`、`application-prod.yml` 分别维护，默认地址和命名空间与 `zero-job-admin` 对应环境一致。三个环境均从当前 profile 分组可选导入 `zero-task-common.yml`、`zero-task-mysql.yml` 和 `zero-task-redis.yml`，发布变更后服务自动重启。`xxl.job.executor.*` 在新上下文启动时装配。执行器通过 XXL-JOB 原生协议向调度中心注册并接收任务，执行器组 AppName 和 AccessToken 须与对应配置一致。
 
 ## common 包归类规则
 
@@ -378,8 +379,22 @@
 - 新增、补齐或重写类和方法 JavaDoc 时，`作者:` 统一填写 `Arthur 亚瑟`。清理类头和方法注释中模板外的历史署名、上游署名、版权声明和旧版本签名。
 - JavaDoc 的 `时间:` 记录该段注释编写或重写时的 `Asia/Shanghai` 时间，格式为 `yyyy/M/d HH:mm`。重写时更新该时间，示例日期仅展示格式。
 - 中文注释使用简体中文；读取中文文件出现乱码时，必须先用正确编码重新读取再修改。
-- 本项目 Java 类和方法默认使用现有模板注释，不允许只写一句简洁 JavaDoc。新增或修改类头必须包含空行、`作者:`、`时间:`、`说明:`；新增或修改方法必须包含空行、`作者:`、`时间:`、`说明:`，有参数必须写 `@param`，有返回值必须写 `@return`、返回值类型和返回值说明。
-- 方法注释模板必须贴近当前仓库既有格式，示例：
+- 本项目 Java 类和方法使用固定模板。新增或修改类头时，JavaDoc 依次写空行、`作者:`、`时间:`、`说明:`。
+- 新增或修改方法时，JavaDoc 依次写空行、`作者:`、`时间:`、`说明:`、各参数的 `@param`、`@return`、`返回值:` 和 `返回值说明:`。启动入口、事件监听、定时回调、重写方法和关键私有方法均适用。返回值为 `void` 时保留三项返回值字段，按模板说明方法副作用。
+- 类和方法的 JavaDoc 放在第一个注解上方，例如 `@Component`、`@EventListener`、`@Override`。
+
+**类头注释模板**
+
+```java
+/**
+ *
+ * 作者: Arthur 亚瑟
+ * 时间: 2026/5/16 07:16
+ * 说明: 监听应用就绪事件并加载 XML 配置。
+ */
+```
+
+**方法注释模板**
 
 ```java
 /**
@@ -430,6 +445,7 @@ public static final String OPEN_GOOGLE_AUTH = "sys.account.openGoogleAuth";
 4. 确认是否涉及登录态、JWT、Redis 缓存、数据权限、事务、导入导出或上传。
 5. 确认是否有用户未提交改动，不能覆盖。
 6. 同步核对注释与行为、配置默认值及生效方式。能验证时运行最小范围编译或前端构建，未验证的范围说明原因。
+7. 交付前对照 Java 改动逐项检查本次新增或修改的类头和方法，尤其是启动入口、监听回调和 `void` 方法。核对作者、北京时间、用途、参数、返回值类型及说明，缺项补齐后再交付。
 
 ## 常用验证命令
 
