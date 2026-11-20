@@ -36,12 +36,10 @@
 
     <pagination v-show="total>0" :total="total" v-model:page="pageNum" v-model:limit="pageSize" />
 
-    <el-form label-width="100px">
-      <el-form-item style="text-align: center;margin-left:-120px;margin-top:30px;">
-        <el-button type="primary" :disabled="loading || !form.userId" :loading="submitting" @click="submitForm()">提交</el-button>
-        <el-button @click="close()">返回</el-button>
-      </el-form-item>
-    </el-form>
+    <div class="auth-role-actions">
+      <el-button type="primary" :disabled="loading || !form.userId" :loading="submitting" @click="submitForm()">提交</el-button>
+      <el-button @click="close()">返回</el-button>
+    </div>
   </div>
 </template>
 
@@ -136,3 +134,12 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.auth-role-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+  padding-bottom: 12px;
+}
+</style>
