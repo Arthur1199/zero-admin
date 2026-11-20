@@ -285,21 +285,8 @@ public class AdminWebSocketHandler extends TextWebSocketHandler
                 close(connection, RETRY);
                 return;
             }
-            // 申请名额期间可能发生退出或强退，不能用申请之前的登录快照完成认证。
-            LoginUser current = tokens.getWebSocketLoginUser(connection.sessionId);
-            // 最后一次Redis读取也可能阻塞，所有外部校验结束后仍须遵守认证期限和关闭状态。
-            if (connection.closed || System.currentTimeMillis() - connection.created >= properties.authTimeout())
-            {
-                close(connection, RETRY);
-                return;
-            }
-            if (current == null || !connection.userId.equals(current.getUserId()))
-            {
-                close(connection, UNAUTHORIZED);
-                return;
-            }
-            // 先建立已验签身份的连接索引，防止浏览器收到成功响应后恰好漏掉跨节点刷新通知。
-            // queue按连接锁等待此认证过程结束，业务消息仍不能早于成功响应写入连接。
+            // 先登记目标连接，再核对登录缓存。登记前发生的强退由缓存检查捕获，登记后到达的通知进入队列。
+            // 发送任务会等当前连接锁释放，认证成功前不会投递已入队的消息。
             synchronized (registryLock)
             {
                 if (connection.closed || !connection.socket.isOpen())
@@ -309,6 +296,18 @@ public class AdminWebSocketHandler extends TextWebSocketHandler
                 users.computeIfAbsent(connection.userId, key -> new ConcurrentHashMap<>())
                         .computeIfAbsent(connection.sessionId, key -> new ConcurrentHashMap<>())
                         .put(connection.socket.getId(), connection);
+            }
+            LoginUser current = tokens.getWebSocketLoginUser(connection.sessionId);
+            // Redis读取可能阻塞，校验完成后继续遵守认证期限和关闭状态。
+            if (connection.closed || System.currentTimeMillis() - connection.created >= properties.authTimeout())
+            {
+                close(connection, RETRY);
+                return;
+            }
+            if (current == null || !connection.userId.equals(current.getUserId()))
+            {
+                close(connection, UNAUTHORIZED);
+                return;
             }
             send(connection, WebSocketMessageVo.create(WebSocketMessageType.CREATE_CONNECTION,
                     Map.of("heartbeatInterval", properties.heartbeatInterval(), "idleTimeout", properties.idleTimeout())));
