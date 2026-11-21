@@ -424,7 +424,7 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     &:hover,
-    &:focus {
+    &:focus:not(.el-dropdown .is-link.el-tooltip__trigger) {
       background: linear-gradient(135deg, shift-lightness($theme-material-design-primary, 5%) 0%, #8e6bc5 100%);
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.24);
       transform: translateY(-2px);

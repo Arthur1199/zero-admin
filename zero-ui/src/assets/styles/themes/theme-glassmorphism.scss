@@ -1119,7 +1119,7 @@ body.theme-glassmorphism {
     color: #ffffff;
 
     &:hover,
-    &:focus {
+    &:focus:not(.el-dropdown .is-link.el-tooltip__trigger) {
       background: rgba(255, 255, 255, 0.3);
       border-color: rgba(255, 255, 255, 0.5);
       box-shadow: 0 4px 16px rgba(255, 255, 255, 0.2);

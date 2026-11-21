@@ -23,8 +23,8 @@
               <el-form-item label="手机号码" prop="phonenumber">
                 <el-input v-model="queryParams.phonenumber" placeholder="请输入手机号码" clearable style="width: 240px" @keyup.enter="handleQuery" />
               </el-form-item>
-              <el-form-item label="状态" prop="status">
-                <el-select v-model="queryParams.status" placeholder="用户状态" clearable style="width: 240px">
+              <el-form-item label="账号状态" prop="status">
+                <el-select v-model="queryParams.status" placeholder="账号状态" clearable style="width: 240px">
                   <el-option v-for="dict in dict.type.sys_normal_disable" :key="dict.value" :label="dict.label" :value="dict.value" />
                 </el-select>
               </el-form-item>
@@ -32,6 +32,12 @@
                 <el-select v-model="queryParams.delFlag" placeholder="删除状态" clearable style="width: 240px">
                   <el-option label="未删除" value="0" />
                   <el-option label="已删除" value="2" />
+                </el-select>
+              </el-form-item>
+              <el-form-item label="登录锁定" prop="loginLock">
+                <el-select v-model="queryParams.loginLock" placeholder="登录锁定" clearable style="width: 240px">
+                  <el-option label="已锁定" :value="1" />
+                  <el-option label="未锁定" :value="0" />
                 </el-select>
               </el-form-item>
               <el-form-item label="创建时间">
@@ -60,6 +66,12 @@
                 <el-button type="warning" plain :icon="resolveIcon('el-icon-download')" size="small" @click="handleExport" v-hasPermi="['system:user:export']">导出</el-button>
               </el-col>
               <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
+              <el-col v-if="$auth.hasPermi('system:user:unlockLogin')" :span="1.5" class="login-unlock-help-col">
+                <button type="button" class="login-unlock-help el-button--small" aria-label="查看登录解锁说明" title="查看登录解锁说明" @click="openUnlockHelp = true">
+                  登录解锁
+                  <AppIcon icon-class="el-icon-question" />
+                </button>
+              </el-col>
             </el-row>
 
             <el-table v-loading="loading" :data="userList" @selection-change="handleSelectionChange" border>
@@ -70,7 +82,7 @@
               <el-table-column label="部门" align="center" key="deptName" prop="dept.deptName" v-if="columns[3].visible" min-width="180" class-name="user-long-text" />
               <el-table-column label="用户角色" align="center" key="roles" prop="roles" v-if="columns[4].visible" min-width="240" class-name="user-long-text" :formatter="formatUserRoles" />
               <el-table-column label="手机号码" align="center" key="phonenumber" prop="phonenumber" v-if="columns[5].visible" width="120" />
-              <el-table-column label="状态" align="center" key="status" v-if="columns[6].visible">
+              <el-table-column label="账号状态" align="center" key="status" v-if="columns[6].visible">
                 <template #default="scope">
                   <el-switch v-model="scope.row.status" active-value="0" inactive-value="1" :disabled="isDeleted(scope.row)" @change="handleStatusChange(scope.row)"></el-switch>
                 </template>
@@ -80,22 +92,27 @@
                   <el-tag :type="isDeleted(scope.row) ? 'danger' : 'info'">{{ isDeleted(scope.row) ? '已删除' : '未删除' }}</el-tag>
                 </template>
               </el-table-column>
-              <el-table-column label="创建人" align="center" prop="createBy" v-if="columns[8].visible" min-width="120" :show-overflow-tooltip="true">
+              <el-table-column label="登录锁定" align="center" prop="loginLock" v-if="columns[8].visible" min-width="100">
+                <template #default="scope">
+                  <el-tag :type="isLoginLocked(scope.row) ? 'danger' : 'info'">{{ isLoginLocked(scope.row) ? '已锁定' : '未锁定' }}</el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column label="创建人" align="center" prop="createBy" v-if="columns[9].visible" min-width="120" :show-overflow-tooltip="true">
                 <template #default="scope">
                   <span>{{ scope.row.createBy || '—' }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="创建时间" align="center" prop="createTime" v-if="columns[9].visible" width="160">
+              <el-table-column label="创建时间" align="center" prop="createTime" v-if="columns[10].visible" width="160">
                 <template #default="scope">
                   <span>{{ parseTime(scope.row.createTime) }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="更新人" align="center" prop="updateBy" v-if="columns[10].visible" min-width="120" :show-overflow-tooltip="true">
+              <el-table-column label="更新人" align="center" prop="updateBy" v-if="columns[11].visible" min-width="120" :show-overflow-tooltip="true">
                 <template #default="scope">
                   <span>{{ scope.row.updateBy || '—' }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="更新时间" align="center" prop="updateTime" v-if="columns[11].visible" width="160">
+              <el-table-column label="更新时间" align="center" prop="updateTime" v-if="columns[12].visible" width="160">
                 <template #default="scope">
                   <span>{{ parseTime(scope.row.updateTime) || '—' }}</span>
                 </template>
@@ -109,8 +126,8 @@
                   <el-dropdown v-if="showMoreMenu(scope.row)" size="small" @command="(command) => handleCommand(command, scope.row)">
                     <el-button size="small"  link type="primary" :icon="resolveIcon('el-icon-d-arrow-right')">更多</el-button>
                     <template #dropdown><el-dropdown-menu >
+                      <el-dropdown-item v-if="isLoginLocked(scope.row) && $auth.hasPermi('system:user:unlockLogin')" command="handleUnlockLogin" :icon="resolveIcon('el-icon-unlock')">登录解锁</el-dropdown-item>
                       <el-dropdown-item v-if="$auth.hasPermi('system:user:resetPwd')" command="handleResetPwd" :icon="resolveIcon('el-icon-key')">重置密码</el-dropdown-item>
-                      <el-dropdown-item v-if="isLoginLocked(scope.row) && $auth.hasPermi('system:user:unlockLogin')" command="handleUnlockLogin" :icon="resolveIcon('el-icon-unlock')">解锁登录</el-dropdown-item>
                       <el-dropdown-item v-if="$auth.hasPermi('system:user:edit')" command="handleAuthRole" :icon="resolveIcon('el-icon-circle-check')">分配角色</el-dropdown-item>
                     </el-dropdown-menu></template>
                   </el-dropdown>
@@ -155,7 +172,7 @@
         <el-row>
           <el-col :span="12">
             <el-form-item v-if="form.userId == undefined" label="用户名称" prop="userName">
-              <el-input v-model="form.userName" placeholder="请输入用户名称" maxlength="30" />
+              <el-input v-model="form.userName" placeholder="请输入用户名称（登录时账号名称）" maxlength="30" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -210,6 +227,23 @@
       </div></template>
     </el-dialog>
 
+    <el-dialog v-if="$auth.hasPermi('system:user:unlockLogin')" title="登录解锁说明" v-model="openUnlockHelp" width="min(860px, 94vw)" append-to-body :close-on-click-modal="false">
+      <div class="login-unlock-guide">
+        <p>登录解锁用于解除因密码错误次数过多而产生的账号登录锁定。</p>
+        <ul>
+          <li>开启登录锁定保护后，账号在配置的密码错误统计时间内达到错误次数上限，会被锁定并阻止继续登录。保护开启期间，统计时间结束不会自动解除已经产生的账号锁定。</li>
+          <li>关闭登录锁定保护后，已锁定账号仍可使用正确密码登录，登录成功后会自动解除锁定，并清空密码错误次数记录。</li>
+          <li>登录解锁会解除该账号的登录锁定，并清空其密码错误次数记录；解锁后仍需使用正确密码登录。</li>
+          <li>操作方法：找到已锁定的账号，在该行“更多 → 登录解锁”中确认操作。未锁定账号不显示此操作。</li>
+          <li>此操作不会重置密码、启用已停用的账号、恢复已删除的账号，也不会变更角色或菜单权限。</li>
+          <li>仅可对当前账号数据权限范围内的普通账号操作；超级管理员账号不提供此入口。</li>
+        </ul>
+      </div>
+      <template #footer>
+        <el-button type="primary" @click="openUnlockHelp = false">我知道了</el-button>
+      </template>
+    </el-dialog>
+
     <!-- 用户导入对话框 -->
     <el-dialog :title="upload.title" v-model="upload.open" width="50%" append-to-body :close-on-click-modal="false">
       <el-upload ref="upload" :limit="1" accept=".xlsx, .xls" :headers="upload.headers" :action="upload.url + '?updateSupport=' + upload.updateSupport" :disabled="upload.isUploading" :on-progress="handleFileUploadProgress" :on-success="handleFileSuccess" :auto-upload="false" drag>
@@ -221,12 +255,58 @@
           </div>
           <span>仅允许导入xls、xlsx格式文件。</span>
           <el-link type="primary" :underline="false" style="font-size: 12px; vertical-align: baseline" @click="importTemplate">下载模板</el-link>
+          <button v-if="$auth.hasPermi('system:user:import')" type="button" class="user-import-help el-button--small" aria-label="查看用户导入说明" title="查看用户导入说明" @click="openImportHelp = true">
+            导入说明
+            <AppIcon icon-class="el-icon-question" />
+          </button>
         </div></template>
       </el-upload>
       <template #footer><div  class="dialog-footer">
         <el-button type="primary" @click="submitFileForm">确 定</el-button>
         <el-button @click="upload.open = false">取 消</el-button>
       </div></template>
+    </el-dialog>
+    <el-dialog v-if="$auth.hasPermi('system:user:import')" title="用户导入说明" v-model="openImportHelp" width="min(860px, 94vw)" append-to-body :close-on-click-modal="false">
+      <div class="user-import-guide">
+        <p>请下载最新模板，前三列依次填写“部门编号、用户名称、用户昵称”。请保留模板表头，按以下规则填写各列。</p>
+        <dl>
+          <div>
+            <dt>部门编号（非必填，建议填写）</dt>
+            <dd>对应“部门管理”中显示的部门编号，用于指定用户所属部门。请填写编号数字，不是部门名称。所填部门应在当前账号的数据权限范围内；新增时留空不关联部门，更新时留空保留原部门。</dd>
+          </div>
+          <div>
+            <dt>用户名称（必填）</dt>
+            <dd>用户登录系统时使用的账号名称，最多30个字符。系统按此账号识别新增或更新的用户；账号已存在时，需勾选“是否更新已经存在的用户数据”才能更新。</dd>
+          </div>
+          <div>
+            <dt>用户昵称（新增必填，更新可留空）</dt>
+            <dd>用户在系统中显示的名称，可与登录账号不同，最多30个字符。更新时留空保留原昵称；用户名称和用户昵称均不能包含脚本字符。</dd>
+          </div>
+          <div>
+            <dt>用户邮箱（非必填）</dt>
+            <dd>填写有效邮箱地址，例如 user@example.com，最多50个字符。填写后会校验邮箱格式，留空表示不填写邮箱。</dd>
+          </div>
+          <div>
+            <dt>手机号码（非必填）</dt>
+            <dd>最多11个字符，按实际手机号码填写。建议将单元格设置为文本格式，避免科学计数法或数字格式改变号码。</dd>
+          </div>
+          <div>
+            <dt>用户性别（非必填）</dt>
+            <dd>填写中文“男”“女”或“未知”，不要填写数字编码。新增时留空使用数据库默认值（项目初始化默认“男”），更新时留空保留原性别；如需表示未知，请明确填写“未知”。</dd>
+          </div>
+          <div>
+            <dt>账号状态（非必填）</dt>
+            <dd>填写中文“正常”或“停用”，不要填写数字编码。“正常”表示账号可参与登录校验，“停用”表示禁止登录。新增时留空使用数据库默认值（项目初始化默认“正常”），更新时留空保留原状态。</dd>
+          </div>
+        </dl>
+        <div class="user-import-note">
+          <p><strong>更新已有用户时注意</strong></p>
+          <p>使用完整模板更新时，用户邮箱或手机号码单元格留空会清空原值；部门编号、用户昵称、用户性别和账号状态留空则保留原值。请核对后再导入。</p>
+        </div>
+      </div>
+      <template #footer>
+        <el-button type="primary" @click="openImportHelp = false">我知道了</el-button>
+      </template>
     </el-dialog>
   </div>
 </template>
@@ -274,6 +354,10 @@ export default {
       enabledDeptOptions: undefined,
       // 是否显示弹出层
       open: false,
+      // 登录解锁说明独立于用户编辑弹窗，不读取或提交用户数据。
+      openUnlockHelp: false,
+      // 仅展示模板字段说明，关闭说明时保留导入弹窗及已选择的文件。
+      openImportHelp: false,
       // 部门名称
       deptName: undefined,
       // 默认密码
@@ -313,6 +397,7 @@ export default {
         phonenumber: undefined,
         status: undefined,
         delFlag: undefined,
+        loginLock: undefined,
         deptId: undefined
       },
       // 列信息
@@ -323,12 +408,13 @@ export default {
         { key: 3, label: `部门`, visible: true },
         { key: 4, label: `用户角色`, visible: true },
         { key: 5, label: `手机号码`, visible: true },
-        { key: 6, label: `状态`, visible: true },
+        { key: 6, label: `账号状态`, visible: true },
         { key: 7, label: `删除状态`, visible: true },
-        { key: 8, label: `创建人`, visible: true },
-        { key: 9, label: `创建时间`, visible: true },
-        { key: 10, label: `更新人`, visible: true },
-        { key: 11, label: `更新时间`, visible: true }
+        { key: 8, label: `登录锁定`, visible: true },
+        { key: 9, label: `创建人`, visible: true },
+        { key: 10, label: `创建时间`, visible: true },
+        { key: 11, label: `更新人`, visible: true },
+        { key: 12, label: `更新时间`, visible: true }
       ],
       // 表单校验
       rules: {
@@ -488,6 +574,7 @@ export default {
       this.resetForm("queryForm")
       this.queryParams.deptId = undefined
       this.queryParams.delFlag = undefined
+      this.queryParams.loginLock = undefined
       this.$refs.tree.setCurrentKey(null)
       this.handleQuery()
     },
@@ -582,9 +669,9 @@ export default {
           })
         }).catch(() => {})
     },
-    /** 解锁登录操作 */
+    /** 登录解锁操作 */
     handleUnlockLogin(row) {
-      this.$modal.confirm('确认要解锁用户"' + row.userName + '"的登录锁定吗？').then(function() {
+      this.$modal.confirm('确认要对用户"' + row.userName + '"进行登录解锁吗?').then(function() {
         return unlockUserLogin(row.userId)
       }).then(() => {
         this.getList()
@@ -648,9 +735,10 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      this.download('system/user/export', {
+      // 导出时重新合并当前日期范围，避免日期变更后尚未搜索而沿用上一次查询范围。
+      this.download('system/user/export', this.addDateRange({
         ...this.queryParams
-      }, `user_${new Date().getTime()}.xlsx`)
+      }, this.dateRange), `user_${new Date().getTime()}.xlsx`)
     },
     /** 导入按钮操作 */
     handleImport() {
@@ -683,6 +771,59 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.login-unlock-help-col {
+  display: flex;
+  align-items: center;
+}
+
+.login-unlock-help,
+.user-import-help {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  // 字号复用 el-button--small，连同主题对小按钮的字号调整一起生效。
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.user-import-help {
+  margin-left: 8px;
+  vertical-align: baseline;
+}
+
+.login-unlock-guide,
+.user-import-guide {
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 8px;
+
+  p { margin: 0 0 12px; }
+  ul { padding-left: 20px; margin: 0; }
+  li + li { margin-top: 6px; }
+}
+
+// 字段标题、说明与底部注意事项共用左边缘，避免列表缩进导致最后一段错位。
+.user-import-guide {
+  dl { margin: 0; }
+  dl > div { margin-bottom: 14px; }
+  dt { font-weight: 600; }
+  dd { margin: 0; }
+
+  .user-import-note {
+    padding-top: 12px;
+    border-top: 1px solid var(--zero-border);
+
+    p:first-child { margin-bottom: 4px; }
+    p:last-child { margin-bottom: 0; }
+  }
+}
+
 // 这三列直接完整换行展示，长英文也不能撑出单元格或被省略。
 :deep(td.user-long-text .cell) {
   white-space: normal;

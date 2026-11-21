@@ -78,6 +78,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<if test="status != null and status != ''">
 			AND u.status = #{status}
 		</if>
+        <!-- 0也是有效筛选值；历史空锁定状态按未锁定兼容，与登录校验和页面展示一致。 -->
+        <if test="loginLock != null">
+            AND (u.login_lock = #{loginLock}
+            <if test="loginLock == 0">OR u.login_lock IS NULL</if>)
+        </if>
 		<if test="phonenumber != null and phonenumber != ''">
 			AND u.phonenumber like concat('%', #{phonenumber}, '%')
 		</if>

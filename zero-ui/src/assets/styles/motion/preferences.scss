@@ -1,7 +1,8 @@
 // 链接、按钮及自定义可聚焦节点保留键盘轮廓，覆盖基础 reset 中的 outline:none。
 // Plus 的输入控件通过 wrapper 表示聚焦；内部 input 也会匹配 :focus-visible，不能重复描边。
+// Dropdown 会在打开、悬浮及关闭时主动聚焦菜单、菜单项和触发按钮；沿用组件焦点反馈，避免残留轮廓。
 body :is(#app, .el-popper, .el-overlay, .tags-view-contextmenu)
-  :is(a, button, [tabindex]):not(input, textarea, select, .el-input__wrapper, .el-select__wrapper, .el-range-editor):focus-visible {
+  :is(a, button, [tabindex]):not(input, textarea, select, .el-input__wrapper, .el-select__wrapper, .el-range-editor, .el-dropdown-menu, .el-dropdown-menu__item, .el-dropdown-selfdefine, .el-dropdown .el-tooltip__trigger):focus-visible {
   outline: 2px solid var(--zero-text-heading, var(--el-color-primary));
   outline-offset: 2px;
 }

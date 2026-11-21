@@ -207,8 +207,8 @@ insert into sys_menu values('1002', '用户修改', '100', '3',  '', '', '', '',
 insert into sys_menu values('1003', '用户删除|恢复', '100', '4',  '', '', '', '', 1, 0, 'F', '0', '0', 'system:user:remove',         '#', 'admin', sysdate(), '', null, '');
 insert into sys_menu values('1004', '用户导出', '100', '5',  '', '', '', '', 1, 0, 'F', '0', '0', 'system:user:export',         '#', 'admin', sysdate(), '', null, '');
 insert into sys_menu values('1005', '用户导入', '100', '6',  '', '', '', '', 1, 0, 'F', '0', '0', 'system:user:import',         '#', 'admin', sysdate(), '', null, '');
-insert into sys_menu values('1006', '重置密码', '100', '7',  '', '', '', '', 1, 0, 'F', '0', '0', 'system:user:resetPwd',       '#', 'admin', sysdate(), '', null, '');
-insert into sys_menu values('1061', '解锁登录', '100', '8',  '', '', '', '', 1, 0, 'F', '0', '0', 'system:user:unlockLogin',    '#', 'admin', sysdate(), '', null, '');
+insert into sys_menu values('1061', '登录解锁', '100', '7',  '', '', '', '', 1, 0, 'F', '0', '0', 'system:user:unlockLogin',    '#', 'admin', sysdate(), '', null, '');
+insert into sys_menu values('1006', '重置密码', '100', '8',  '', '', '', '', 1, 0, 'F', '0', '0', 'system:user:resetPwd',       '#', 'admin', sysdate(), '', null, '');
 -- 谷歌绑定按钮
 insert into sys_menu values('1062', '谷歌绑定查询', '118', '1',  '', '', '', '', 1, 0, 'F', '0', '0', 'system:google:list',      '#', 'admin', sysdate(), '', null, '');
 insert into sys_menu values('1063', '查看谷歌秘钥全文',  '118', '2',  '', '', '', '', 1, 0, 'F', '0', '0', 'system:google:viewKey',   '#', 'admin', sysdate(), '', null, '');
@@ -283,7 +283,6 @@ insert into sys_menu values('1041', '日志导出', '500', '3', '#', '', '', '',
 insert into sys_menu values('1042', '登录查询', '501', '1', '#', '', '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:query',   '#', 'admin', sysdate(), '', null, '');
 insert into sys_menu values('1043', '登录删除', '501', '2', '#', '', '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:remove',  '#', 'admin', sysdate(), '', null, '');
 insert into sys_menu values('1044', '日志导出', '501', '3', '#', '', '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:export',  '#', 'admin', sysdate(), '', null, '');
-insert into sys_menu values('1045', '账户解锁', '501', '4', '#', '', '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:unlock',  '#', 'admin', sysdate(), '', null, '');
 -- 在线用户按钮
 insert into sys_menu values('1046', '在线查询', '109', '1', '#', '', '', '', 1, 0, 'F', '0', '0', 'monitor:online:query',       '#', 'admin', sysdate(), '', null, '');
 insert into sys_menu values('1047', '批量强退', '109', '2', '#', '', '', '', 1, 0, 'F', '0', '0', 'monitor:online:batchLogout', '#', 'admin', sysdate(), '', null, '');
@@ -404,7 +403,6 @@ insert into sys_role_menu values ('2', '1041');
 insert into sys_role_menu values ('2', '1042');
 insert into sys_role_menu values ('2', '1043');
 insert into sys_role_menu values ('2', '1044');
-insert into sys_role_menu values ('2', '1045');
 insert into sys_role_menu values ('2', '1046');
 insert into sys_role_menu values ('2', '1047');
 insert into sys_role_menu values ('2', '1048');

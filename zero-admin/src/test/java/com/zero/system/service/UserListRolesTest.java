@@ -64,7 +64,7 @@ class UserListRolesTest
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/16 18:00
-     * 说明: 真实解析Mapper，验证ID参数绑定、未删除角色过滤及稳定排序，避免聚合截断
+     * 说明: 真实解析Mapper，验证用户锁定筛选、ID参数绑定、未删除角色过滤及稳定排序，避免聚合截断
      * @return
      * 返回值: void
      * 返回值说明: 仅解析SQL，不执行数据库查询
@@ -94,6 +94,23 @@ class UserListRolesTest
         var deleted = config.getMappedStatement(SysUserMapper.class.getName() + ".selectUserList").getBoundSql(deletedQuery);
         assertThat(deleted.getSql().replaceAll("\\s+", " ")).contains("u.del_flag = ?");
         assertThat(deleted.getParameterMappings()).extracting(mapping -> mapping.getProperty()).contains("delFlag");
+        // 未传锁定条件不增加过滤；0不能被OGNL当成空值，历史null归入未锁定。
+        var userStatement = config.getMappedStatement(SysUserMapper.class.getName() + ".selectUserList");
+        assertThat(userSql).doesNotContain("u.login_lock =");
+        for (int loginLock : new int[] {0, 1})
+        {
+            SysUser query = new SysUser();
+            query.setLoginLock(loginLock);
+            query.setStatus("0");
+            query.setDelFlag("2");
+            var filtered = userStatement.getBoundSql(query);
+            String filteredSql = filtered.getSql().replaceAll("\\s+", " ");
+            assertThat(filteredSql).contains("u.status = ?", "u.del_flag = ?", "AND (u.login_lock = ?");
+            assertThat(filtered.getParameterMappings()).extracting(mapping -> mapping.getProperty())
+                .contains("loginLock", "status", "delFlag");
+            if (loginLock == 0) assertThat(filteredSql).containsPattern("OR u\\.login_lock IS NULL\\s*\\)");
+            else assertThat(filteredSql).doesNotContain("u.login_lock IS NULL");
+        }
         var department = config.getMappedStatement(SysUserMapper.class.getName() + ".selectCurrentDeptIdByUserId").getBoundSql(2L);
         assertThat(department.getSql().replaceAll("\\s+", " ").trim()).isEqualTo("select dept_id from sys_user where user_id = ? and del_flag = '0'");
         assertThat(department.getParameterMappings()).hasSize(1);

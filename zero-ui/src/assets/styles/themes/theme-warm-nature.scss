@@ -458,7 +458,7 @@
     letter-spacing: 0.5px;
 
     &:hover,
-    &:focus {
+    &:focus:not(.el-dropdown .is-link.el-tooltip__trigger) {
       background: linear-gradient(135deg, #c9a876 0%, #e6c08d 100%);
       border-color: #a68968;
       box-shadow: 0 5px 18px rgba(232, 156, 92, 0.35);
@@ -501,7 +501,7 @@
     letter-spacing: 1px;
 
     &:hover,
-    &:focus {
+    &:focus:not(.el-dropdown .is-link.el-tooltip__trigger) {
       background: linear-gradient(135deg, #b88f5f 0%, #d4a876 100%);
       border-color: #8b6f47;
       box-shadow: 0 6px 20px rgba(139, 111, 71, 0.4);
