@@ -136,6 +136,13 @@ body #app .hideSidebar .sidebar-container .el-menu--collapse > div {
     > .el-sub-menu__icon-arrow { display: none !important; }
   }
 }
+// 极简未来风的展开菜单留白不参与折叠后顶层图标的行距。
+body.theme-minimalist-future #app .hideSidebar .sidebar-container .el-menu--collapse > div {
+  > a > .submenu-title-noDropdown,
+  > .el-sub-menu > .el-sub-menu__title {
+    margin-block: 0 !important;
+  }
+}
 // 弹出菜单的二级标题也使用主题文字色，避免深色/毛玻璃下沿用Plus默认黑字。
 body .el-menu--popup .el-sub-menu__title { color: var(--el-text-color-primary); }
 // 原始风格的深/浅侧栏配色独立于主页面，沿用菜单自己传给弹层的文字色。

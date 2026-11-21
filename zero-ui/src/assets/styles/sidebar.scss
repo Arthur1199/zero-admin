@@ -813,7 +813,8 @@
 }
 
 /* 激活菜单的父级submenu抖动 */
-.el-sub-menu.is-active > .el-sub-menu__title {
+.el-sub-menu.is-active > .el-sub-menu__title,
+:where(.sidebar-menu-popper > .el-menu--popup .sidebar-current-branch) > .el-sub-menu__title {
   animation: menu-shake-breath 2.5s ease-in-out infinite !important;
 }
 

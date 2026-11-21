@@ -15,6 +15,7 @@
       v-else 
       ref="subMenu" 
       :index="resolvePathString(item.path)" 
+      :class="{ 'sidebar-current-branch': isCurrentBranch }"
       :data-menu-id="item.menuId"
       teleported @click="handleSubmenuClick">
       <template #title>
@@ -70,6 +71,10 @@ export default {
     }
   },
   computed: {
+    isCurrentBranch() {
+      const activePath = this.$route.meta.activeMenu || this.$route.path
+      return this.isNest && activePath.startsWith(this.basePath + '/')
+    },
     menuClickEffect() {
       return this.$store.state.settings.menuClickEffect || 'gradient-gorgeous'
     }

@@ -24,6 +24,10 @@
   );
 
   // ========== 侧边栏样式 ==========
+  &.hideSidebar .sidebar-container {
+    border-top-width: 0;
+  }
+
   .sidebar-container {
     background-color: #141a35 !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);

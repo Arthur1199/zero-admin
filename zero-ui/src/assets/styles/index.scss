@@ -751,7 +751,8 @@ body.theme-minimalist-future {
   .el-dropdown-menu__item:hover,
   .el-autocomplete-suggestion li:hover,
   .el-menu--popup .el-menu-item:hover,
-  .el-menu--popup .el-sub-menu__title:hover {
+  .el-menu--popup .el-sub-menu__title:hover,
+  .el-menu--popup .el-sub-menu.is-opened > .el-sub-menu__title {
     background: rgba(0, 188, 212, 0.10) !important;
     background-color: rgba(0, 188, 212, 0.10) !important;
     color: #006c9a !important;
@@ -2093,5 +2094,58 @@ body.theme-minimalist-future {
   .el-cascader__dropdown .el-cascader-node.is-disabled > .el-cascader-node__label {
     color: #7c91a6 !important;
     cursor: not-allowed;
+  }
+}
+
+// 折叠侧栏的各级弹层共用选中状态，各主题只提供高亮配色。
+$sidebar-popup-palettes: (
+  (luxury-business, $theme-luxury-business-accent, $theme-luxury-business-menu-active),
+  (vibrant-tech, $theme-vibrant-tech-accent, $theme-vibrant-tech-menu-active),
+  (minimalist-future, $theme-minimalist-future-accent, $theme-minimalist-future-menu-active),
+  (warm-nature, $theme-warm-nature-accent, $theme-warm-nature-text-primary),
+  (material-design, $theme-material-design-primary, $theme-material-design-menu-active),
+  (dark-premium, $theme-dark-premium-accent, $theme-dark-premium-menu-active)
+);
+
+@each $theme, $accent, $text in $sidebar-popup-palettes {
+  body.theme-#{$theme} {
+    --sidebar-popup-active-background: linear-gradient(90deg, #{rgba($accent, 0.24)}, #{rgba($accent, 0.10)});
+    --sidebar-popup-active-text: #{$text};
+    --sidebar-popup-active-mark: #{$accent};
+  }
+}
+
+body.theme-glassmorphism {
+  --sidebar-popup-active-background: linear-gradient(90deg, rgba(56, 189, 248, 0.26), #{rgba($theme-glassmorphism-accent, 0.22)});
+  --sidebar-popup-active-text: #{$theme-glassmorphism-text-primary};
+  --sidebar-popup-active-mark: linear-gradient(180deg, #38bdf8, #{$theme-glassmorphism-accent});
+}
+
+body .sidebar-menu-popper.el-menu--vertical > .el-menu--popup {
+  .el-menu-item.is-active,
+  .el-sub-menu:is(.is-active, .sidebar-current-branch) > .el-sub-menu__title {
+    background: var(--sidebar-popup-active-background,
+      linear-gradient(90deg, color-mix(in srgb, var(--el-color-primary) 26%, transparent), transparent)) !important;
+    color: var(--sidebar-popup-active-text, var(--el-menu-text-color)) !important;
+    font-weight: 600;
+  }
+
+  .el-menu-item.is-active {
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0 auto 0 0 !important;
+      width: 4px !important;
+      height: auto !important;
+      transform: none !important;
+      background: var(--sidebar-popup-active-mark, var(--el-color-primary)) !important;
+      box-shadow: none !important;
+    }
+
+    &::after {
+      content: none !important;
+    }
   }
 }

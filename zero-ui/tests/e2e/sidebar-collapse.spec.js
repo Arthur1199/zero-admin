@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { authenticated } from './mock-api'
+import { authenticated, mockAdminWebSocket } from './mock-api'
 
 const themes = [
   ['glassmorphism', '毛玻璃拟态风'], ['dark-premium', '高端暗黑风'],
@@ -23,8 +23,138 @@ async function switchTheme(page, label) {
   await expect(settings).toBeHidden()
 }
 
+async function waitForSidebarPopup(page, item) {
+  const popup = page.locator('.el-popper.sidebar-menu-popper').filter({ has: item })
+  await expect(popup).toBeVisible()
+  await expect(popup).not.toHaveClass(/el-zoom-in-left-(enter|leave)-/)
+}
+
+for (const [theme, label] of themes) {
+  test(label + '折叠侧栏的二三级选中菜单使用同一高亮和抖动', async ({ page }) => {
+    await mockAdminWebSocket(page)
+    await authenticated(page, { menus })
+    await page.addInitScript(themeStyle => {
+      localStorage.setItem('layout-setting', JSON.stringify({ themeStyle, topNav: false }))
+    }, theme)
+    await page.goto('/system/config')
+    await page.locator('#hamburger-container').click()
+    const root = page.locator('.sidebar-container .el-menu--collapse > div > .el-sub-menu > .el-sub-menu__title')
+    const parent = page.locator('.el-menu--popup .el-sub-menu__title').filter({ hasText: '嵌套菜单' })
+    const secondLevel = page.locator('.el-menu--popup a[href="/system/config"] .el-menu-item')
+    const thirdLevel = page.locator('.el-menu--popup a[href="/system/branch/post"] .el-menu-item')
+
+    await root.hover()
+    await expect(secondLevel).toHaveCSS('background-image', /linear-gradient/)
+    await expect(secondLevel).toHaveCSS('animation-name', 'menu-shake-breath')
+    const activeStyle = await secondLevel.evaluate(element => {
+      const { backgroundImage, color } = getComputedStyle(element)
+      return { backgroundImage, color }
+    })
+
+    await page.goto('/system/branch/post')
+    await root.hover()
+    await expect(parent).toHaveCSS('background-image', activeStyle.backgroundImage)
+    await expect(parent).toHaveCSS('color', activeStyle.color)
+    await expect(parent).toHaveCSS('animation-name', 'menu-shake-breath')
+    await waitForSidebarPopup(page, parent)
+    await parent.hover()
+    await expect(thirdLevel).toBeVisible()
+    await expect(thirdLevel).toHaveCSS('background-image', activeStyle.backgroundImage)
+    await expect(thirdLevel).toHaveCSS('color', activeStyle.color)
+    await expect(thirdLevel).toHaveCSS('animation-name', 'menu-shake-breath')
+    await expect.poll(() => thirdLevel.evaluate(element => getComputedStyle(element, '::before').content)).toBe('""')
+    if (theme === 'material-design') {
+      await expect(parent).toHaveCSS('border-radius', '0px')
+      await expect(thirdLevel).toHaveCSS('border-radius', '0px')
+    }
+  })
+}
+
+test('极简未来风折叠菜单移到三级菜单后保留二级标题的对比度', async ({ page }) => {
+  await mockAdminWebSocket(page)
+  await authenticated(page, { menus })
+  await page.addInitScript(() => {
+    localStorage.setItem('layout-setting', JSON.stringify({ themeStyle: 'minimalist-future', topNav: false }))
+  })
+  await page.goto('/system/config')
+  await page.locator('#hamburger-container').click()
+  await page.locator('.sidebar-container .el-menu--collapse > div > .el-sub-menu > .el-sub-menu__title').hover()
+  const parent = page.locator('.el-menu--popup .el-sub-menu__title').filter({ hasText: '嵌套菜单' })
+  await parent.hover()
+  await page.locator('.el-menu--popup a[href="/system/branch/post"]').hover()
+  await expect(parent).toHaveCSS('color', 'rgb(0, 108, 154)')
+  await expect(parent).toHaveCSS('background-color', 'rgba(0, 188, 212, 0.1)')
+  await expect(parent.getByText('嵌套菜单', { exact: true })).toBeVisible()
+})
+
+test('毛玻璃主题展开和折叠侧栏的各级菜单悬停时突出显示', async ({ page }) => {
+  await mockAdminWebSocket(page)
+  await authenticated(page, { menus })
+  await page.addInitScript(() => {
+    localStorage.setItem('layout-setting', JSON.stringify({
+      themeStyle: 'glassmorphism', glassmorphismBgStyle: 'ocean-sunset', topNav: false
+    }))
+  })
+  await page.goto('/index')
+  const sidebar = page.locator('.sidebar-container')
+  const root = sidebar.locator('.el-sub-menu__title').filter({ hasText: '系统管理' })
+  const secondLevel = page.locator('.sidebar-menu-popper a[href="/system/config"] .el-menu-item')
+  const parent = page.locator('.sidebar-menu-popper .el-sub-menu__title').filter({ hasText: '嵌套菜单' })
+  const thirdLevel = page.locator('.sidebar-menu-popper a[href="/system/branch/post"] .el-menu-item')
+
+  async function expectHover(item) {
+    await expect(item).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
+    await item.hover()
+    await expect(item).toHaveCSS('background-color', 'rgba(186, 230, 253, 0.22)')
+    await expect(item).toHaveCSS('color', 'rgb(207, 250, 254)')
+    await expect(item.locator('.svg-icon')).toHaveCSS('color', 'rgb(207, 250, 254)')
+  }
+
+  await expectHover(root)
+  await root.click()
+  await expectHover(sidebar.locator('a[href="/system/config"] .el-menu-item'))
+  await page.locator('#hamburger-container').click()
+  await expect(sidebar.locator('.el-menu')).toHaveClass(/el-menu--collapse/)
+  await expectHover(root)
+  await waitForSidebarPopup(page, secondLevel)
+  await expectHover(secondLevel)
+  await expectHover(parent)
+  await expect(secondLevel).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
+  await waitForSidebarPopup(page, thirdLevel)
+  await expectHover(thirdLevel)
+})
+
+test('切换八种主题时，折叠侧栏的顶层图标行距保持一致', async ({ page }) => {
+  test.setTimeout(60000)
+  await mockAdminWebSocket(page)
+  await authenticated(page, { menus })
+  await page.addInitScript(() => {
+    localStorage.setItem('layout-setting', JSON.stringify({ themeStyle: 'glassmorphism', topNav: false }))
+  })
+  await page.goto('/system/config')
+  await page.locator('#hamburger-container').click()
+  const sidebarMenu = page.locator('.sidebar-container .el-menu--collapse')
+  const iconPositions = () => sidebarMenu.evaluate(element => {
+    const top = element.closest('.sidebar-container').getBoundingClientRect().top
+    return [...element.querySelectorAll(':scope > div > a > .el-menu-item .svg-icon, :scope > div > .el-sub-menu > .el-sub-menu__title > .svg-icon')]
+      .map(icon => {
+        const rect = icon.getBoundingClientRect()
+        return Math.round(rect.top + rect.height / 2 - top)
+      })
+  })
+  await expect.poll(async () => (await iconPositions()).length).toBe(3)
+  const positions = {}
+  for (const [theme, label] of themes) {
+    if (theme !== 'glassmorphism') await switchTheme(page, label)
+    await expect.poll(async () => (await iconPositions()).length).toBe(3)
+    positions[theme] = await iconPositions()
+  }
+  expect(positions).toEqual(Object.fromEntries(themes.map(([theme]) => [theme, positions.glassmorphism])))
+})
+
 test('八主题折叠侧栏图标居中且可见，标题隐藏后无省略号', async ({ page }, testInfo) => {
   test.setTimeout(120000)
+  await mockAdminWebSocket(page)
   await authenticated(page, { menus })
   const errors = [], measurements = []
   page.on('pageerror', error => errors.push(error.message))
@@ -66,6 +196,7 @@ test('八主题折叠侧栏图标居中且可见，标题隐藏后无省略号',
 
 test('八主题折叠菜单提示、二级悬停、子页跳转、刷新与展开恢复正常', async ({ page }, testInfo) => {
   test.setTimeout(180000)
+  await mockAdminWebSocket(page)
   const requests = await authenticated(page, { menus }), errors = []
   page.on('pageerror', error => errors.push(error.message))
   await page.goto('/system/config')
