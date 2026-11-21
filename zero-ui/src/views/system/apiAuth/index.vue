@@ -88,7 +88,7 @@ size="small"
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="apiAuthList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="apiAuthList" @selection-change="handleSelectionChange" border>
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="ID" align="center" prop="id" width="80" />
       <el-table-column label="请求路径" align="center" prop="apiUrl" min-width="240" :show-overflow-tooltip="true" />

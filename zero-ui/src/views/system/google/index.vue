@@ -21,7 +21,7 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="googleList">
+    <el-table v-loading="loading" :data="googleList" border>
       <el-table-column label="用户ID" align="center" prop="userId" width="100" />
       <el-table-column label="用户名" align="center" prop="userName" :show-overflow-tooltip="true" />
       <el-table-column label="用户昵称" align="center" prop="nickName" :show-overflow-tooltip="true" />

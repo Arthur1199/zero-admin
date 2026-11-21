@@ -27,7 +27,7 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" />
     </el-row>
 
-    <el-table v-loading="loading" :data="memoList">
+    <el-table v-loading="loading" :data="memoList" border>
       <el-table-column label="标题" prop="title" min-width="180" :show-overflow-tooltip="true" />
       <el-table-column label="域名URL" prop="resourceUrl" min-width="240" :show-overflow-tooltip="true">
         <template #default="scope">

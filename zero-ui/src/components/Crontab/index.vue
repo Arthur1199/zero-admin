@@ -68,42 +68,13 @@
     <div class="popup-main">
       <div class="popup-result">
         <p class="title">时间表达式</p>
-        <table>
-          <thead>
-            <tr>
-            <th v-for="item of tabTitles" width="40" :key="item">{{item}}</th>
-            <th>Cron 表达式</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-            <td>
-              <span>{{crontabValueObj.second}}</span>
-            </td>
-            <td>
-              <span>{{crontabValueObj.min}}</span>
-            </td>
-            <td>
-              <span>{{crontabValueObj.hour}}</span>
-            </td>
-            <td>
-              <span>{{crontabValueObj.day}}</span>
-            </td>
-            <td>
-              <span>{{crontabValueObj.month}}</span>
-            </td>
-            <td>
-              <span>{{crontabValueObj.week}}</span>
-            </td>
-            <td>
-              <span>{{crontabValueObj.year}}</span>
-            </td>
-            <td>
-              <span>{{crontabValueString}}</span>
-            </td>
-            </tr>
-          </tbody>
-        </table>
+        <el-table :data="[crontabValueObj]" size="small" border>
+          <el-table-column v-for="column in expressionColumns" :key="column.prop"
+            :prop="column.prop" :label="column.label" width="56" align="center" show-overflow-tooltip />
+          <el-table-column label="Cron 表达式" min-width="140" align="center" show-overflow-tooltip>
+            <template #default>{{ crontabValueString }}</template>
+          </el-table-column>
+        </el-table>
       </div>
       <CrontabResult :ex="crontabValueString"></CrontabResult>
 
@@ -129,7 +100,15 @@ import CrontabResult from "./result.vue"
 export default {
   data() {
     return {
-      tabTitles: ["秒", "分钟", "小时", "日", "月", "周", "年"],
+      expressionColumns: [
+        { prop: "second", label: "秒" },
+        { prop: "min", label: "分钟" },
+        { prop: "hour", label: "小时" },
+        { prop: "day", label: "日" },
+        { prop: "month", label: "月" },
+        { prop: "week", label: "周" },
+        { prop: "year", label: "年" }
+      ],
       tabActive: 0,
       myindex: 0,
       crontabValueObj: {
@@ -414,21 +393,6 @@ export default {
   text-align: center;
   line-height: 30px;
   background: var(--el-bg-color);
-}
-.popup-result table {
-  text-align: center;
-  width: 100%;
-  margin: 0 auto;
-}
-.popup-result table span {
-  display: block;
-  width: 100%;
-  font-family: arial;
-  line-height: 30px;
-  height: 30px;
-  white-space: nowrap;
-  overflow: hidden;
-  border: 1px solid var(--el-border-color);
 }
 .popup-result-scroll {
   font-size: 12px;

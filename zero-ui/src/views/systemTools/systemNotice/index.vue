@@ -77,7 +77,7 @@
     <el-dialog title="选择在线账号" v-model="usersVisible" width="min(900px, 94vw)" append-to-body @close="cancelUserSearch">
       <el-input v-model="query.keyword" clearable placeholder="输入账号或昵称自动搜索" @input="scheduleUserSearch" @clear="searchUsers" @keyup.enter="searchUsers" style="width: 260px" />
       <el-button @click="searchUsers">搜索</el-button><el-button @click="loadUsers">刷新在线状态</el-button>
-      <el-table ref="usersTable" style="margin-top: 8px" :data="users" row-key="userId" v-loading="loadingUsers" @selection-change="selectUsers">
+      <el-table ref="usersTable" style="margin-top: 8px" :data="users" row-key="userId" v-loading="loadingUsers" @selection-change="selectUsers" border>
         <el-table-column type="selection" :reserve-selection="true" width="50" />
         <el-table-column prop="userId" label="账号ID" width="100" />
         <el-table-column prop="userName" label="账号" min-width="150" :show-overflow-tooltip="true" />
