@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test'
 import fs from 'node:fs/promises'
-import { authenticated } from './mock-api'
+import { authenticated, mockAdminWebSocket } from './mock-api'
 
 test('头像选图校验、旋转缩放、PNG裁剪Blob上传及失败重试', async ({ page }) => {
   const errors = []; page.on('pageerror', error => errors.push(error.message))
+  await mockAdminWebSocket(page)
   await authenticated(page)
   const uploads = [], payloads = []
   await page.exposeFunction('recordAvatarPayload', payload => payloads.push(payload))
@@ -37,7 +38,7 @@ test('头像选图校验、旋转缩放、PNG裁剪Blob上传及失败重试', a
   await page.route('**/dev-api/profile/mock-avatar.png', route => route.fulfill({ contentType: 'image/jpeg', body: jpeg }))
   await page.goto('/user/profile')
   await page.locator('.user-info-head').click()
-  const dialog = page.getByRole('dialog', { name: '修改头像' }), canvas = dialog.locator('.cropper-box-canvas')
+  const dialog = page.getByRole('region', { name: '修改头像' }), canvas = dialog.locator('.cropper-box-canvas')
   await expect(canvas).toBeVisible()
   await dialog.locator('input[type=file]').setInputFiles({ name: 'invalid.txt', mimeType: 'text/plain', buffer: Buffer.from('mock') })
   await expect(page.getByText('文件格式错误，请上传图片类型,如：JPG，PNG后缀的文件。', { exact: true })).toBeVisible()
@@ -64,9 +65,16 @@ test('头像选图校验、旋转缩放、PNG裁剪Blob上传及失败重试', a
   await expect(dialog).toBeVisible()
   // 保留一秒防重复提交限制，失败后按原规则重试。
   await page.waitForTimeout(1100)
+  const preview = dialog.locator('.avatar-upload-preview img')
+  const source = await canvas.locator('img').getAttribute('src')
+  const previewStyle = await preview.getAttribute('style')
+  const previewSource = await preview.getAttribute('src')
   await dialog.getByRole('button', { name: /提\s*交/ }).click()
-  await expect(dialog).not.toBeVisible()
+  await expect(dialog).toBeVisible()
   await expect(page.locator('.user-info-head img')).toHaveAttribute('src', '/dev-api/profile/mock-avatar.png')
+  await expect(canvas.locator('img')).toHaveAttribute('src', source)
+  await expect(preview).toHaveAttribute('src', previewSource)
+  await expect(preview).toHaveAttribute('style', previewStyle)
   expect(uploads).toHaveLength(2)
   await expect.poll(() => payloads.length).toBe(2)
   await test.info().attach('avatar-payload-metadata', { body: JSON.stringify({ payloads, transport: uploads.map(({ contentType, bodyLength, width, height }) => ({ contentType, bodyLength, width, height })) }), contentType: 'application/json' })

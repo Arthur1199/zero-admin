@@ -1,56 +1,54 @@
 <template>
-  <div>
-    <div class="user-info-head" @click="editCropper()"><img v-bind:src="options.img" title="点击上传头像" class="img-circle img-lg" /></div>
-    <el-dialog :title="title" v-model="open" width="50%" append-to-body @opened="modalOpened"  @close="closeDialog" :close-on-click-modal="false">
-      <el-row>
-        <el-col :xs="24" :md="12" :style="{height: '350px'}">
-          <vue-cropper
-            ref="cropper"
-            :img="options.img"
-            :info="true"
-            :autoCrop="options.autoCrop"
-            :autoCropWidth="options.autoCropWidth"
-            :autoCropHeight="options.autoCropHeight"
-            :fixedBox="options.fixedBox"
-            :outputType="options.outputType"
-            @realTime="realTime"
-            v-if="visible"
-          />
-        </el-col>
-        <el-col :xs="24" :md="12" :style="{height: '350px'}">
-          <div class="avatar-upload-preview">
-            <img :src="previews.url" :style="previews.img" />
-          </div>
-        </el-col>
-      </el-row>
-      <br />
-      <el-row>
-        <el-col :lg="2" :sm="3" :xs="3">
-          <el-upload action="#" :http-request="requestUpload" :show-file-list="false" :before-upload="beforeUpload">
-            <el-button size="small">
-              选择
-              <AppIcon icon-class="el-icon-upload" class="el-icon--right"></AppIcon>
-            </el-button>
-          </el-upload>
-        </el-col>
-        <el-col :lg="{span: 1, offset: 2}" :sm="2" :xs="2">
-          <el-button :icon="resolveIcon('el-icon-plus')" size="small" aria-label="放大" @click="changeScale(1)"></el-button>
-        </el-col>
-        <el-col :lg="{span: 1, offset: 1}" :sm="2" :xs="2">
-          <el-button :icon="resolveIcon('el-icon-minus')" size="small" aria-label="缩小" @click="changeScale(-1)"></el-button>
-        </el-col>
-        <el-col :lg="{span: 1, offset: 1}" :sm="2" :xs="2">
-          <el-button :icon="resolveIcon('el-icon-refresh-left')" size="small" aria-label="向左旋转" @click="rotateLeft()"></el-button>
-        </el-col>
-        <el-col :lg="{span: 1, offset: 1}" :sm="2" :xs="2">
-          <el-button :icon="resolveIcon('el-icon-refresh-right')" size="small" aria-label="向右旋转" @click="rotateRight()"></el-button>
-        </el-col>
-        <el-col :lg="{span: 2, offset: 6}" :sm="2" :xs="2">
-          <el-button type="primary" size="small" @click="uploadImg()">提 交</el-button>
-        </el-col>
-      </el-row>
-    </el-dialog>
-  </div>
+  <section class="profile-avatar-editor" aria-label="头像裁剪">
+    <el-row>
+      <el-col :xs="24" :md="12" :style="{height: '350px'}">
+        <vue-cropper
+          ref="cropper"
+          :img="options.img"
+          :info="true"
+          :autoCrop="options.autoCrop"
+          :autoCropWidth="options.autoCropWidth"
+          :autoCropHeight="options.autoCropHeight"
+          :fixedBox="options.fixedBox"
+          :outputType="options.outputType"
+          @realTime="realTime"
+        />
+      </el-col>
+      <el-col :xs="24" :md="12" :style="{height: '350px'}">
+        <div class="avatar-upload-preview">
+          <img v-if="previews.url" :src="previews.url" :style="previews.img" alt="头像裁剪预览" />
+        </div>
+      </el-col>
+    </el-row>
+    <el-row class="avatar-editor-actions">
+      <el-col :lg="2" :sm="3" :xs="3">
+        <el-upload action="#" :http-request="requestUpload" :show-file-list="false" :before-upload="beforeUpload">
+          <el-button size="small">
+            选择
+            <AppIcon icon-class="el-icon-upload" class="el-icon--right"></AppIcon>
+          </el-button>
+        </el-upload>
+      </el-col>
+      <el-col :lg="{span: 1, offset: 2}" :sm="2" :xs="2">
+        <el-button :icon="resolveIcon('el-icon-plus')" size="small" aria-label="放大" @click="changeScale(1)"></el-button>
+      </el-col>
+      <el-col :lg="{span: 1, offset: 1}" :sm="2" :xs="2">
+        <el-button :icon="resolveIcon('el-icon-minus')" size="small" aria-label="缩小" @click="changeScale(-1)"></el-button>
+      </el-col>
+      <el-col :lg="{span: 1, offset: 1}" :sm="2" :xs="2">
+        <el-button :icon="resolveIcon('el-icon-refresh-left')" size="small" aria-label="向左旋转" @click="rotateLeft()"></el-button>
+      </el-col>
+      <el-col :lg="{span: 1, offset: 1}" :sm="2" :xs="2">
+        <el-button :icon="resolveIcon('el-icon-refresh-right')" size="small" aria-label="向右旋转" @click="rotateRight()"></el-button>
+      </el-col>
+      <el-col :lg="{span: 2, offset: 6}" :sm="2" :xs="2">
+        <el-button type="primary" size="small" :loading="uploading" @click="uploadImg">提 交</el-button>
+      </el-col>
+      <el-col :lg="{span: 2, offset: 1}" :sm="2" :xs="2">
+        <el-button size="small" @click="$emit('close')">关闭</el-button>
+      </el-col>
+    </el-row>
+  </section>
 </template>
 
 <script>
@@ -63,14 +61,10 @@ import { isHttp } from "@/utils/validate"
 
 export default {
   components: { VueCropper },
+  emits: ["close"],
   data() {
     return {
-      // 是否显示弹出层
-      open: false,
-      // 是否显示cropper
-      visible: false,
-      // 弹出层标题
-      title: "修改头像",
+      uploading: false,
       options: {
         img: store.getters.avatar,  //裁剪图片的地址
         autoCrop: true,             // 是否默认生成截图框
@@ -84,25 +78,14 @@ export default {
       resizeHandler: null
     }
   },
+  mounted() {
+    this.resizeHandler = debounce(() => this.$refs.cropper?.refresh(), 100)
+    window.addEventListener("resize", this.resizeHandler)
+  },
+  beforeUnmount() {
+    window.removeEventListener("resize", this.resizeHandler)
+  },
   methods: {
-    // 编辑头像
-    editCropper() {
-      this.open = true
-    },
-    // 打开弹出层结束时的回调
-    modalOpened() {
-      this.visible = true
-      if (!this.resizeHandler) {
-        this.resizeHandler = debounce(() => {
-          this.refresh()
-        }, 100)
-      }
-      window.addEventListener("resize", this.resizeHandler)
-    },
-    // 刷新组件
-    refresh() {
-      this.$refs.cropper.refresh()
-    },
     // 覆盖默认的上传行为
     requestUpload() {
     },
@@ -134,56 +117,44 @@ export default {
     },
     // 上传图片
     uploadImg() {
+      if (this.uploading) return
+      this.uploading = true
       this.$refs.cropper.getCropBlob(data => {
         let formData = new FormData()
         formData.append("avatarfile", data, this.options.filename)
         uploadAvatar(formData).then(response => {
-          this.open = false
           const imgUrl = response.imgUrl
-          this.options.img = isHttp(imgUrl) ? imgUrl : import.meta.env.VITE_APP_BASE_API + imgUrl
-          store.commit('SET_AVATAR', this.options.img)
+          const avatarUrl = isHttp(imgUrl) ? imgUrl : import.meta.env.VITE_APP_BASE_API + imgUrl
+          // 只更新已保存的头像，当前裁剪器继续使用选图和裁剪位置。
+          store.commit('SET_AVATAR', avatarUrl)
           this.$modal.msgSuccess("修改成功")
-          this.visible = false
         }).catch(() => {
           // 上传失败由请求拦截器提示，保留裁剪结果供重试，避免回调中的未处理异常。
+        }).finally(() => {
+          this.uploading = false
         })
       })
     },
     // 实时预览
     realTime(data) {
       this.previews = data
-    },
-    // 关闭窗口
-    closeDialog() {
-      this.options.img = store.getters.avatar
-      this.visible = false
-      window.removeEventListener("resize", this.resizeHandler)
     }
   }
 }
 </script>
 <style scoped lang="scss">
-.user-info-head {
-  position: relative;
-  display: inline-block;
-  height: 120px;
+.avatar-editor-actions {
+  margin-top: 16px;
 }
 
-.user-info-head:hover:after {
-  content: '+';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  color: #eee;
-  background: rgba(0, 0, 0, 0.5);
-  font-size: 24px;
-  font-style: normal;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  cursor: pointer;
-  line-height: 110px;
-  border-radius: 50%;
+@media (max-width: 767px) {
+  .avatar-editor-actions {
+    gap: 8px;
+  }
+
+  .avatar-editor-actions > .el-col {
+    flex: 0 0 auto;
+    max-width: none;
+  }
 }
 </style>

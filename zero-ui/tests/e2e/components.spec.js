@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { authenticated } from './mock-api'
+import { authenticated, mockAdminWebSocket } from './mock-api'
 
 test('树形选择支持父节点、子节点和数字ID', async ({ page }) => {
   const requests = await authenticated(page)
@@ -15,19 +15,23 @@ test('树形选择支持父节点、子节点和数字ID', async ({ page }) => {
   expect(JSON.parse(requests.find(request => request.path === '/system/dept' && request.method === 'POST').body).parentId).toBe(100)
 })
 
-test('头像裁剪窗口可以打开和旋转缩放', async ({ page }) => {
+test('头像裁剪面板可以打开和旋转缩放', async ({ page }) => {
   const errors = []; page.on('pageerror', error => errors.push(error.message))
+  await mockAdminWebSocket(page)
   await authenticated(page)
   await page.goto('/user/profile')
   await page.locator('.user-info-head').click()
-  const dialog = page.locator('.el-dialog')
+  const dialog = page.getByRole('region', { name: '修改头像' })
   await expect(dialog.locator('.vue-cropper')).toBeVisible()
   // Cropper使用初始本地头像，不需要真实上传。
   await dialog.getByRole('button', { name: '向左旋转' }).click()
   await dialog.getByRole('button', { name: '向右旋转' }).click()
   await dialog.getByRole('button', { name: '放大' }).click()
   await dialog.getByRole('button', { name: '缩小' }).click()
-  await dialog.locator('.el-dialog__headerbtn').click()
+  await dialog.getByRole('button', { name: '关闭', exact: true }).click()
+  await expect(dialog).toBeHidden()
+  await expect(page).toHaveURL(/\/user\/profile$/)
+  await expect(page.getByRole('heading', { name: '个人信息', exact: true })).toBeVisible()
   expect(errors).toEqual([])
 })
 
