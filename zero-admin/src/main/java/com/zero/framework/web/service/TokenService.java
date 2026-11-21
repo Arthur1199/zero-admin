@@ -232,6 +232,7 @@ public class TokenService
         loginUser.setToken(token);
         setUserAgent(loginUser);
         prepareSessionTime(loginUser);
+        loginUser.setSessionStartedAt(loginUser.getLoginTime());
 
         Map<String, Object> claims = new HashMap<>();
         claims.put(Constants.LOGIN_USER_KEY, token);

@@ -1,6 +1,8 @@
 package com.zero.web.controller.system;
 
 import java.util.Map;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,9 +23,11 @@ import com.zero.common.utils.DateUtils;
 import com.zero.common.utils.SecurityUtils;
 import com.zero.common.utils.StringUtils;
 import com.zero.common.utils.file.FileUtils;
+import com.zero.framework.web.service.PermissionService;
 import com.zero.framework.web.service.TokenService;
 import com.zero.system.service.IAdminFileUploadService;
 import com.zero.system.service.ISysUserService;
+import com.zero.system.service.impl.SysProfileStatisticsService;
 
 /**
  *
@@ -35,6 +39,9 @@ import com.zero.system.service.ISysUserService;
 @RequestMapping("/system/user/profile")
 public class SysProfileController extends BaseController
 {
+    /** 备忘录菜单的查看权限标识。 */
+    private static final String MEMO_LIST_PERMISSION = "systemTools:memo:list";
+
     /**
      * 用户服务字段
      */
@@ -49,6 +56,14 @@ public class SysProfileController extends BaseController
 
     @Autowired
     private IAdminFileUploadService adminFileUploadService;
+
+    /** 个人中心操作和备忘录统计服务。 */
+    @Autowired
+    private SysProfileStatisticsService profileStatisticsService;
+
+    /** 复用管理后台的菜单权限校验。 */
+    @Autowired
+    private PermissionService permissionService;
 
     /**
      *
@@ -68,6 +83,53 @@ public class SysProfileController extends BaseController
         ajax.put("roleGroup", userService.selectUserRoleGroup(loginUser.getUsername()));
         ajax.put("postGroup", userService.selectUserPostGroup(loginUser.getUsername()));
         return ajax;
+    }
+
+    /**
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 19:16
+     * 说明: 登录后查看本人操作统计，账号身份只从认证上下文获取
+     * @param response 禁止缓存个人操作记录的响应
+     * @return 近七日操作统计和五条最近操作的展示字段
+     */
+    @GetMapping("/statistics/operations")
+    public AjaxResult operationStatistics(HttpServletResponse response)
+    {
+        response.setHeader("Cache-Control", "no-store");
+        return success(profileStatisticsService.getOperations(getLoginUser().getUser()));
+    }
+
+    /**
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 20:12
+     * 说明: 登录后查询当前会话的信息，只读取当前请求和登录态
+     * @param request 当前请求，用于解析 IP 和设备
+     * @param response 禁止缓存包含客户端信息的响应
+     * @return 在线秒数、当前 IP、地区、浏览器和操作系统
+     */
+    @GetMapping("/statistics/session")
+    public AjaxResult sessionStatistics(HttpServletRequest request, HttpServletResponse response)
+    {
+        response.setHeader("Cache-Control", "no-store");
+        return success(profileStatisticsService.getSession(getLoginUser(), request));
+    }
+
+    /**
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/21 19:50
+     * 说明: 返回登录用户的备忘录查看权限，有菜单权限时才查询本人创建的备忘录
+     * @param response 禁止缓存备忘录元数据的响应
+     * @return 查看权限标识，有权限时同时返回本人备忘录统计
+     */
+    @GetMapping("/statistics/memos")
+    public AjaxResult memoStatistics(HttpServletResponse response)
+    {
+        response.setHeader("Cache-Control", "no-store");
+        if (!permissionService.hasPermi(MEMO_LIST_PERMISSION))
+        {
+            return success(Map.of("canReadMemos", false));
+        }
+        return success(Map.of("canReadMemos", true, "statistics", profileStatisticsService.getMemos(getUserId())));
     }
 
     /**

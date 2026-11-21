@@ -95,6 +95,32 @@ class AdminSingleClientLoginTest
         connectionFactory.destroy();
     }
 
+    /** 首次登录时间随 Redis 会话保存，续期保留，重新登录使用独立的起点。 */
+    @Test
+    void preservesSessionStartAcrossRenewal()
+    {
+        var first = user(7L);
+        String firstJwt = login(first);
+        var saved = httpUser(firstJwt);
+        assertThat(saved.getSessionStartedAt()).isPositive().isEqualTo(saved.getLoginTime());
+        Long startedAt = saved.getSessionStartedAt();
+
+        saved.setLoginTime(1L);
+        tokens.refreshToken(saved);
+        assertThat(httpUser(firstJwt).getLoginTime()).isGreaterThan(1L);
+        assertThat(httpUser(firstJwt).getSessionStartedAt()).isEqualTo(startedAt);
+
+        var second = user(7L);
+        second.setSessionStartedAt(1L);
+        String secondJwt = login(second);
+        assertThat(httpUser(secondJwt).getSessionStartedAt()).isEqualTo(second.getLoginTime()).isGreaterThan(1L);
+        assertThat(httpUser(firstJwt).getSessionStartedAt()).isEqualTo(startedAt);
+
+        saved.setSessionStartedAt(null);
+        tokens.refreshToken(saved);
+        assertThat(httpUser(firstJwt).getSessionStartedAt()).isNull();
+    }
+
     /**
      *
      * 作者: Arthur 亚瑟
