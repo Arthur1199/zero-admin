@@ -1,3 +1,6 @@
+/**
+ * 布局与八种正式主题的运行时配置；合并默认值与本地保存值，并通过统一 mutation 更新设置。
+ */
 import defaultSettings from '@/settings'
 import { useDynamicTitle } from '@/utils/dynamicTitle'
 

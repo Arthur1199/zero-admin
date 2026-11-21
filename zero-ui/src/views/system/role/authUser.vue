@@ -100,6 +100,9 @@ v-model:limit="queryParams.pageSize"
 </template>
 
 <script>
+/**
+ * 指定角色的已分配用户列表；添加和取消关联复用角色分配用户接口及其独立权限。
+ */
 import { allocatedUserList, authUserCancel, authUserCancelAll } from "@/api/system/role"
 import selectUser from "./selectUser"
 

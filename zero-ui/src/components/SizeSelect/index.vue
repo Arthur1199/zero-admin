@@ -12,6 +12,9 @@
 </template>
 
 <script>
+/**
+ * Element Plus 三档控件尺寸选择器；更新 Vuex 后重建当前缓存页面，使新尺寸即时生效。
+ */
 export default {
   data() {
     return {
@@ -53,6 +56,7 @@ export default {
 </script>
 
 <style scoped>
+/* 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。 */
 .size-select-trigger {
   display: flex;
   align-items: center;

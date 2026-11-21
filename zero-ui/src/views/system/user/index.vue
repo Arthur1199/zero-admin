@@ -232,6 +232,9 @@
 </template>
 
 <script>
+/**
+ * 用户维护与部门树筛选；共享部门数据的在途读取，并区分删除、恢复、解锁、重置密码和角色分配操作。
+ */
 import { listUser, getUser, delUser, restoreUser, addUser, updateUser, resetUserPwd, unlockUserLogin, changeUserStatus, deptTreeSelect } from "@/api/system/user"
 import { getToken } from "@/utils/auth"
 import { checkPermi } from "@/utils/permission"

@@ -1,4 +1,12 @@
-/** 图表只读取已生效的主题变量；不改变业务数据、系列名称和坐标范围。 */
+/**
+ * 将当前 CSS 语义变量转换为 ECharts 外观选项；只补充已有坐标系，不修改系列数据、名称和取值范围。
+ */
+/**
+ * @param {Element} element 已挂载并继承当前主题变量的图表容器
+ * @param {Object} options 当前 ECharts 选项，用于确认已有坐标系和图例
+ * @param {Boolean} reducedMotion 是否关闭动画
+ * @returns {Object} 可合并的外观选项，不包含业务数据
+ */
 export function getChartAppearance(element, options = {}, reducedMotion = false) {
   const style = getComputedStyle(element)
   const read = (name, fallback) => style.getPropertyValue(name).trim() || fallback

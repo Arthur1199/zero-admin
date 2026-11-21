@@ -180,6 +180,9 @@ v-model:limit="queryParams.pageSize"
 </template>
 
 <script>
+/**
+ * Quartz 任务执行日志；初始化时保留路由中的任务范围，支持查询、详情及日志清理。
+ */
 import { getJob} from "@/api/monitor/job"
 import { listJobLog, delJobLog, cleanJobLog } from "@/api/monitor/jobLog"
 

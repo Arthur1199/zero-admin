@@ -82,6 +82,9 @@ size="small"
 </template>
 
 <script>
+/**
+ * 在线会话维护页；按既有授权展示完整会话凭证，并提供复制与强制退出操作，页面不输出令牌日志。
+ */
 import { list, forceLogout } from "@/api/monitor/online"
 
 export default {
@@ -148,6 +151,7 @@ export default {
 </script>
 
 <style scoped>
+/* 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。 */
 .online-authorization {
   display: flex;
   flex-direction: column;

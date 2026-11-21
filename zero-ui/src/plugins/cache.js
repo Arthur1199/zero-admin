@@ -1,3 +1,6 @@
+/**
+ * 封装 sessionStorage 和 localStorage 的文本、JSON 读写；两种存储的生命周期不同，由调用方选择。
+ */
 const sessionCache = {
   set (key, value) {
     if (!sessionStorage) {

@@ -16,6 +16,9 @@ v-model:page-size="pageSize"
 </template>
 
 <script>
+/**
+ * 分页组件的双向绑定封装；页码及每页条数变化后通知页面查询，并按配置滚动文档。
+ */
 import { scrollTo } from '@/utils/scroll-to'
 
 export default {
@@ -104,6 +107,7 @@ export default {
 </script>
 
 <style scoped>
+/* 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。 */
 .pagination-container {
   /* background: #fff; */  /* 已注释：让分页组件背景色由主题控制 */
 }

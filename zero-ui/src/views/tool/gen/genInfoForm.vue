@@ -223,6 +223,9 @@
 </template>
 
 <script>
+/**
+ * 代码生成的模板、业务包及主子表配置；联动主子字段选项，最终由编辑页统一校验和保存。
+ */
 import Treeselect from '@/components/TreeSelect'
 export default {
   components: { Treeselect },

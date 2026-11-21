@@ -11,6 +11,9 @@
 </template>
 
 <script>
+/**
+ * 缓存已访问的内嵌路由页面，通过显隐切换保留其加载状态。
+ */
 import InnerLink from "../InnerLink/index"
 
 export default {

@@ -1,3 +1,6 @@
+/**
+ * 每个浏览器标签页的在线通信实例：首帧认证后才分发业务消息，并管理心跳、重连、身份切换和退出清理。
+ */
 import { getToken } from '@/utils/auth'
 import { createWebSocketPresenter } from '@/utils/websocketPresenter'
 import { WebSocketMessageType as Info, isWebSocketBusinessType } from '@/utils/websocketMessageType'

@@ -17,6 +17,9 @@
 </template>
 
 <script>
+/**
+ * 侧栏品牌标识；折叠时隐藏标题，背景及标题颜色与当前主题、侧栏明暗配置保持一致。
+ */
 import logoImg from '@/assets/logo/zero.ico'
 import variables from '@/assets/styles/base/variables.module.scss'
 
@@ -76,6 +79,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 .sidebarLogoFade-enter-active {
   transition: opacity 1.5s;
 }

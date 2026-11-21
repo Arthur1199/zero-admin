@@ -3,6 +3,9 @@
 </template>
 
 <script>
+/**
+ * 仪表盘示例饼图；保留分类和数据语义，图例、提示层等外观交给公共图表适配。
+ */
 import { markRaw } from "vue"
 import * as echarts from 'echarts'
 import 'echarts/theme/macarons' // echarts theme

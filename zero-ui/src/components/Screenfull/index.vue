@@ -5,6 +5,9 @@
 </template>
 
 <script>
+/**
+ * 浏览器全屏开关；订阅全屏状态并在卸载时解除事件，不改变后台布局配置。
+ */
 import screenfull from 'screenfull'
 
 export default {
@@ -46,6 +49,7 @@ export default {
 </script>
 
 <style scoped>
+/* 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。 */
 .screenfull-svg {
   display: inline-block;
   cursor: pointer;

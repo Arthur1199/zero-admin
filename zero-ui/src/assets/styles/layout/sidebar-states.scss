@@ -1,4 +1,4 @@
-// 展开侧栏和任意层级弹层共用状态规则，配色来自 themes/layout/sidebar。
+// 展开侧栏和任意层级弹层共用状态规则，配色来自 themes/layout/_sidebar.scss。
 body #app .app-wrapper .sidebar-container .el-menu--vertical,
 body .sidebar-menu-popper.el-menu--popup-container.el-menu--vertical > .el-menu--popup {
   .el-menu-item:not(.is-active, .is-disabled):is(:hover, :focus-visible),

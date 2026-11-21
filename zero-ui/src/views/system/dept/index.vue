@@ -173,6 +173,9 @@ size="small"
 </template>
 
 <script>
+/**
+ * 部门树维护页；详情和可选上级准备齐备后再打开编辑，避免旧树或不完整数据参与提交。
+ */
 import { listDept, getDept, delDept, addDept, updateDept, listDeptExcludeChild } from "@/api/system/dept"
 import Treeselect from '@/components/TreeSelect'
 export default {

@@ -6,6 +6,9 @@
 </template>
 
 <script>
+/**
+ * 项目 SVG sprite 与外链图标的统一入口；内部图标使用 symbol，外链图标使用遮罩展示。
+ */
 import { isExternal } from '@/utils/validate'
 
 export default {
@@ -45,6 +48,7 @@ export default {
 </script>
 
 <style scoped>
+/* 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。 */
 .svg-icon {
   width: 1em;
   height: 1em;

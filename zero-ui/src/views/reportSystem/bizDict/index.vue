@@ -325,6 +325,9 @@ v-model:limit="queryParams.pageSize"
 </template>
 
 <script>
+/**
+ * 业务字典组与展开明细维护页；分开加载全量筛选选项和分页数据，并在子项操作时核对父组状态。
+ */
 import {
   addDictGroup,
   addDictItem,
@@ -660,6 +663,7 @@ export default {
 </script>
 
 <style scoped>
+/* 业务字典展开区与子表布局；主题取值从 themes/pages/_biz-dict.scss 按需加载。 */
 
 
 .dict-item-panel {
@@ -716,6 +720,7 @@ export default {
 </style>
 
 <style lang="scss">
+// 业务字典展开区与子表布局；主题取值从 themes/pages/_biz-dict.scss 按需加载。
 @use 'sass:meta';
 @include meta.load-css("@/assets/styles/themes/pages/_biz-dict.scss");
 

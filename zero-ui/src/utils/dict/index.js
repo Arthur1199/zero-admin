@@ -1,3 +1,6 @@
+/**
+ * Vue Options API 字典插件：把组件 dicts 配置转为响应式字典对象，并在异步加载完成后通知组件。
+ */
 import { reactive } from 'vue'
 import Dict from './Dict'
 import { mergeOptions } from './DictOptions'

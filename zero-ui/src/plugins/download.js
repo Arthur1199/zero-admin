@@ -1,3 +1,6 @@
+/**
+ * 下载链接、资源与 ZIP 文件的公共封装；携带现有登录令牌并处理二进制响应中的失败信息。
+ */
 import axios from 'axios'
 import { ElLoading as Loading, ElMessage as Message } from 'element-plus'
 import { saveAs } from 'file-saver'

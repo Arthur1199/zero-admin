@@ -49,6 +49,9 @@ size="default"
   </div>
 </template>
 <script>
+/**
+ * 导出代码的文件形式和名称选择弹窗；确认后由构建器执行预览、下载或复制。
+ */
 export default {
   inheritAttrs: false,
   props: ['showFileName'],

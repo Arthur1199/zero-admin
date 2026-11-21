@@ -1,3 +1,6 @@
+/**
+ * 侧栏折叠、设备类型、控件尺寸和侧栏宽度状态；恢复浏览器缓存时对尺寸及宽度做兼容归一化。
+ */
 import Cookies from 'js-cookie'
 import { normalizeSize } from '@/utils/icons'
 

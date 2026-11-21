@@ -14,6 +14,9 @@
 </template>
 
 <script>
+/**
+ * 侧栏折叠触发器；仅发出切换事件，侧栏开合状态由布局及 Vuex 管理。
+ */
 export default {
   name: 'Hamburger',
   props: {
@@ -31,6 +34,7 @@ export default {
 </script>
 
 <style scoped>
+/* 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。 */
 .hamburger {
   display: inline-block;
   vertical-align: middle;

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>毛玻璃弹窗按钮验收</title></head>
+<body class="theme-glassmorphism">
+  <div id="app"></div>
+  <script type="module">
+    import { createApp, h } from 'vue'
+    import { ElDialog, ElButton } from 'element-plus'
+    import 'element-plus/dist/index.css'
+    import '../../src/assets/styles/index.scss'
+    const button = (id, text, props = {}) => h(ElButton, { id, ...props }, () => text)
+    createApp({
+      render() {
+        return h(ElDialog, { modelValue: true, title: '主按钮状态', appendToBody: true, width: '760px' }, {
+          default: () => [button('outside', '正文主按钮', { type: 'primary' })],
+          footer: () => [
+            button('confirm', '确定', { type: 'primary' }),
+            button('disabled', '不可提交', { type: 'primary', disabled: true }),
+            button('loading', '提交中', { type: 'primary', loading: true }),
+            button('plain', '朴素操作', { type: 'primary', plain: true }),
+            button('danger', '危险操作', { type: 'danger' }),
+            button('cancel', '取消')
+          ]
+        })
+      }
+    }).mount('#app')
+  </script>
+</body>
+</html>

@@ -1,3 +1,6 @@
+/**
+ * 已访问页签、keep-alive 缓存名及内嵌页面记录；固定页签与普通页签采用各自的关闭规则。
+ */
 // 从 localStorage 恢复已访问的标签页
 const getVisitedViewsFromStorage = () => {
   try {

@@ -52,6 +52,9 @@
 </template>
 
 <script>
+/**
+ * 个人头像裁剪与上传；维护裁剪参数、文件校验和认证上传，成功后更新当前账号头像。
+ */
 import store from "@/store"
 import { VueCropper } from "vue-cropper"
 import "vue-cropper/dist/index.css"
@@ -143,6 +146,7 @@ export default {
 }
 </script>
 <style scoped lang="scss">
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 .avatar-editor-actions {
   margin-top: 16px;
 }

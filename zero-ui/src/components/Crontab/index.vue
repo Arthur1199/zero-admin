@@ -88,6 +88,9 @@
 </template>
 
 <script>
+/**
+ * Quartz Cron 编辑入口；各时间面板维护草稿表达式，确认时才向父组件回填。
+ */
 import CrontabSecond from "./second.vue"
 import CrontabMin from "./min.vue"
 import CrontabHour from "./hour.vue"
@@ -356,6 +359,7 @@ export default {
 }
 </script>
 <style scoped>
+/* 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。 */
 .pop_btn {
   text-align: center;
   margin-top: 20px;

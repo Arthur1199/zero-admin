@@ -1,3 +1,6 @@
+/**
+ * 通知正文的内容格式识别、富文本白名单清洗和摘要提取；详情的中性色处理只影响展示，不改发送原文。
+ */
 import DOMPurify from 'dompurify'
 
 // 与服务端通知白名单一致，旧TEXT内容不按HTML解释。
@@ -14,6 +17,7 @@ function safeUrl(value) {
   } catch { return false }
 }
 
+/** 将正文转换为安全详情 HTML、摘要文本和图片计数；TEXT 不按富文本解释。 */
 export function noticeContent(content, format = 'TEXT') {
   if (typeof content !== 'string') return { text: '', plainText: '', html: '', hasImages: false, imageCount: 0 }
   if (format !== 'HTML') return { text: content, plainText: content, html: '', hasImages: false, imageCount: 0 }

@@ -1,4 +1,4 @@
-// 毛玻璃菜单弹层的基础背景和层级兼容。通用侧栏交互由后置的 theme-sidebar 处理。
+// 毛玻璃菜单弹层的基础表面回退；Plus 外壳负责层级，通用交互由后置 layout/sidebar-states.scss 与 themes/layout/_sidebar.scss 处理。
 
 body.theme-glassmorphism > .el-menu--popup.el-menu--vertical {
   background: linear-gradient(135deg, rgba(102, 126, 234, 0.98) 0%, rgba(118, 75, 162, 0.98) 100%) !important;  // 深蓝紫色渐变背景，与主题匹配
@@ -10,7 +10,7 @@ body.theme-glassmorphism > .el-menu--popup.el-menu--vertical {
   position: fixed !important;
 }
 
-// 超级强制覆盖：直接针对所有el-menu--popup
+// 补充毛玻璃主题下的 popup 菜单表面，避免依赖其是否为 body 的直接子节点。
 .el-menu--popup {
   body.theme-glassmorphism & {
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.98) 0%, rgba(118, 75, 162, 0.98) 100%) !important;  // 深蓝紫色渐变背景

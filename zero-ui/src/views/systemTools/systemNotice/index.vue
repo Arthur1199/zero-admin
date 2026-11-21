@@ -90,6 +90,9 @@
   </div>
 </template>
 <script>
+/**
+ * 在线系统通知发送页；区分发送目标、显示形式、本地预览和实际发送，处理在线账号搜索的过期响应。
+ */
 import { getNoticeOptions, getNoticeOnlineUsers, previewNotice, sendNotice, uploadNoticeImage } from '@/api/systemTools/systemNotice'
 import { createWebSocketPresenter } from '@/utils/websocketPresenter'
 import { WebSocketMessageType } from '@/utils/websocketMessageType'
@@ -247,6 +250,7 @@ export default {
 </script>
 
 <style scoped>
+/* 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。 */
 .system-notice-form {
   max-width: 1400px;
 }

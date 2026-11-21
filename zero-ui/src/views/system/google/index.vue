@@ -87,6 +87,9 @@ v-model:limit="queryParams.pageSize"
 </template>
 
 <script>
+/**
+ * 谷歌验证绑定记录维护；按操作入口读取绑定信息、复制或解绑，失败提示复用公共请求层。
+ */
 import { getGoogleAuthKey, listGoogle, unbindGoogle } from '@/api/system/google'
 import { getToken } from '@/utils/auth'
 
@@ -194,6 +197,7 @@ export default {
 </script>
 
 <style scoped>
+/* 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。 */
 .key-text {
   display: block;
   margin-top: 16px;

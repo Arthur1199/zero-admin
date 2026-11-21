@@ -160,6 +160,9 @@
 </template>
 
 <script>
+/**
+ * 极简未来风的展示预览页；演示样式与组件组合，不承担全局主题切换或正式业务数据维护。
+ */
 export default {
   name: 'MinimalistFuturePreview',
   methods: {
@@ -174,6 +177,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 .theme-preview-page {
   min-height: 100vh;
   

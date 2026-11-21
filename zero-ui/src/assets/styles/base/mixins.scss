@@ -1,3 +1,5 @@
+// 不直接输出 CSS 的布局工具；调用方按需 include，主题特有表面和组件状态不放在这里。
+// 清除当前容器内部浮动，不影响调用方的其它定位。
 @mixin clearfix {
   &:after {
     content: "";
@@ -6,6 +8,7 @@
   }
 }
 
+// 为调用方生成 WebKit 滚动条外观，是否启用由具体容器决定。
 @mixin scrollBar {
   &::-webkit-scrollbar-track-piece {
     background: #d3dce6;
@@ -21,18 +24,21 @@
   }
 }
 
+// 相对定位并填满父容器的宽高。
 @mixin relative {
   position: relative;
   width: 100%;
   height: 100%;
 }
 
+// 生成指定宽度的水平居中容器；参数应包含所需单位。
 @mixin pct($pct) {
   width: #{$pct};
   position: relative;
   margin: 0 auto;
 }
 
+// 以边框绘制三角形；width 为底边总宽，height 为尖端方向长度，direction 为 up/right/down/left。
 @mixin triangle($width, $height, $color, $direction) {
   $width: $width/2;
   $color-border-style: $height solid $color;

@@ -23,6 +23,9 @@
 </template>
 
 <script>
+/**
+ * 后台布局骨架：组合侧栏、头部、页签及主内容区，维护侧栏宽度调整和移动端遮罩的交互边界。
+ */
 import { AppMain, Navbar, Settings, Sidebar, TagsView } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
 import { mapState } from 'vuex'
@@ -137,6 +140,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
   @use "@/assets/styles/base" as *;
 
   .app-wrapper {

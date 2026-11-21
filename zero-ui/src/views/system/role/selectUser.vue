@@ -57,6 +57,9 @@ v-model:limit="queryParams.pageSize"
 </template>
 
 <script>
+/**
+ * 角色分配用户选择弹窗；只查询尚未分配的账号，确认后提交选中的关联关系。
+ */
 import { unallocatedUserList, authUserSelectAll } from "@/api/system/role"
 export default {
   dicts: ['sys_normal_disable'],

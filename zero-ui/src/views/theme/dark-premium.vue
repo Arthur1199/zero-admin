@@ -173,6 +173,9 @@
 </template>
 
 <script>
+/**
+ * 高端暗黑风的展示预览页；演示样式与组件组合，不承担全局主题切换或正式业务数据维护。
+ */
 export default {
   name: 'DarkPremiumPreview',
   methods: {

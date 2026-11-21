@@ -1,3 +1,6 @@
+/**
+ * 按类型装载字典并维护值到标签、类型到选项的两个索引；支持显式重新加载及懒加载元数据。
+ */
 import { mergeRecursive } from "@/utils/zero"
 import DictMeta from './DictMeta'
 import DictData from './DictData'
@@ -9,7 +12,7 @@ const DEFAULT_DICT_OPTIONS = {
 /**
  * @classdesc 字典
  * @property {Object} label 标签对象，内部属性名为字典类型名称
- * @property {Object} dict 字段数组，内部属性名为字典类型名称
+ * @property {Object.<string, DictData[]>} type 选项数组索引，键为字典类型名称
  * @property {Array.<DictMeta>} _dictMetas 字典元数据数组
  */
 export default class Dict {
@@ -19,6 +22,7 @@ export default class Dict {
     this.type = {}
   }
 
+  /** 初始化类型索引，非懒加载字典并行读取；返回全部初始读取完成的 Promise。 */
   init(options) {
     if (options instanceof Array) {
       options = { types: options }

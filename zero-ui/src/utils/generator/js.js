@@ -1,3 +1,6 @@
+/**
+ * 生成可导出组件的 Options API 脚本、校验、选项及上传方法；字符串模板中的代码属于生成产物。
+ */
 import { timeRangeProps } from './timeRange'
 import { legacyIconAliases } from '@/utils/icons'
 import { exportDefault, titleCase } from '@/utils/index'

@@ -1,3 +1,6 @@
+/**
+ * 将历史 Element 图标标识和控件尺寸转换为当前 Plus 可用值，保留菜单和设计器存储的原始配置。
+ */
 import * as icons from '@element-plus/icons-vue'
 import { markRaw } from 'vue'
 

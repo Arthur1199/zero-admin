@@ -1,3 +1,6 @@
+/**
+ * 与后端对齐的 WebSocket 消息编号及业务消息判定；说明、展示形式和级别继续以服务端消息为准。
+ */
 // 与后端枚举编号保持一致；说明、展示形式和消息级别以服务端为准。
 export const WebSocketMessageType = Object.freeze({
   CREATE_CONNECTION: 0,

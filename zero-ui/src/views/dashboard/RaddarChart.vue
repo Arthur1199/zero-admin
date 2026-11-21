@@ -3,6 +3,9 @@
 </template>
 
 <script>
+/**
+ * 仪表盘示例雷达图；指标范围和数据留在组件，主题适配只调整文字及网格外观。
+ */
 import { markRaw } from "vue"
 import * as echarts from 'echarts'
 import 'echarts/theme/macarons' // echarts theme

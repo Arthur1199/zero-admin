@@ -1,5 +1,5 @@
 @use 'sass:meta';
-// 分页公共样式和原始风格默认值。在 main.js 中排在 index.scss 之后。
+// 分页公共样式和原始风格默认值；由 index.scss 在基础主题之后加载，再按原顺序接入分页主题覆盖。
 .el-pagination {
   .el-pager li {
     background-color: #f4f4f5 !important;

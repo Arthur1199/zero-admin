@@ -1,3 +1,6 @@
+/**
+ * 移动端子菜单 mouseleave 兼容：移动设备忽略该关闭回调，桌面设备仍调用组件原方法。
+ */
 export default {
   computed: {
     device() {

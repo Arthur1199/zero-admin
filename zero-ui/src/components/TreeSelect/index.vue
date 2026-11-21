@@ -4,6 +4,9 @@
   </el-tree-select>
 </template>
 <script>
+/**
+ * 基于 Plus TreeSelect 的历史接口适配；递归归一化节点、保留禁用语义，并统一清空值的回传格式。
+ */
 export default {
   name: 'Treeselect',
   inheritAttrs: false,
@@ -19,6 +22,7 @@ export default {
   data() { return { treeProps: { label: 'label', children: 'children', disabled: 'disabled' } } },
   computed: { treeOptions() { return this.normalizeNodes(this.options) } },
   methods: {
+    // 复制后再执行页面 normalizer，避免归一化过程改写父页面共享的部门或菜单树。
     normalizeNodes(nodes) {
       return (nodes || []).filter(Boolean).map(node => {
         const copy = { ...node, children: node.children ? [...node.children] : undefined }
@@ -27,6 +31,7 @@ export default {
       })
     },
     countNodes(nodes) { return nodes.reduce((total, node) => total + 1 + this.countNodes(node.children || []), 0) },
+    // 清空值统一回传 undefined，保持旧页面的必填校验和查询参数语义。
     updateValue(value) { this.$emit('update:modelValue', value === null || value === '' ? undefined : value) }
   }
 }

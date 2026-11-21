@@ -1,3 +1,6 @@
+/**
+ * 路由初始化与登录守卫：先取得账号信息和接口谷歌验证规则，再生成动态路由并启动在线通信；初始化失败保留可重试边界。
+ */
 import router, { addDynamicRoutes, resetRouter } from './router'
 import store from './store'
 import { ElMessage } from 'element-plus'
@@ -13,6 +16,7 @@ NProgress.configure({ showSpinner: false })
 const whiteList = ['/login']
 const googleAuthApisKey = 'google_auth_apis'
 let initialization
+// 在线连接复用当前身份；强退先清理失效会话，再由 Router 进入登录页。
 function startWebSocket() {
   adminWebSocket.start({
     onAuthFailure: async token => {
@@ -23,6 +27,7 @@ function startWebSocket() {
     onError: message => console.warn(message)
   })
 }
+// 登录初始化时刷新接口验证规则；读取失败清理旧规则，避免沿用上一会话的缓存。
 async function refreshGoogleAuthApis() {
   try {
     const { data = {} } = await getGoogleAuthApis()

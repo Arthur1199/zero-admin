@@ -10,6 +10,9 @@
 </template>
 
 <script>
+/**
+ * 头像式图片悬浮展示容器；图片尺寸和局部叠层由调用方传入，不管理用户头像上传。
+ */
 export default {
   name: 'PanThumb',
   props: {
@@ -34,6 +37,7 @@ export default {
 </script>
 
 <style scoped>
+/* 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。 */
 .pan-item {
   width: 200px;
   height: 200px;

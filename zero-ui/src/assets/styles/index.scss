@@ -47,6 +47,7 @@
 @include meta.load-css('./themes/tokens');
 @include meta.load-css('./components/element-plus-compat.scss');
 @include meta.load-css('./components/table.scss');
+@include meta.load-css('./components/icon-select.scss');
 @include meta.load-css('./layout/tags-contextmenu.scss');
 @include meta.load-css('./components/dialog-interaction.scss');
 @include meta.load-css('./motion/preferences.scss');

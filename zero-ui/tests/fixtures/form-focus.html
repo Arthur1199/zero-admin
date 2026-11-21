@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>表单焦点样式验收</title></head>
+<body>
+  <div id="app"></div>
+  <script type="module">
+    import { createApp, h } from 'vue'
+    import { ElDialog, ElForm, ElFormItem, ElInput, ElInputNumber, ElSelect, ElOption, ElDatePicker, ElTreeSelect } from 'element-plus'
+    import 'element-plus/dist/index.css'
+    import '../../src/assets/styles/index.scss'
+    import TreeSelect from '../../src/components/TreeSelect/index.vue'
+
+    // 复用真实 Plus 控件及项目树选择适配，覆盖 body 弹窗中的聚焦状态。
+    createApp({
+      render() {
+        const field = (label, component, props) => h(ElFormItem, { label }, () => h(component, props))
+        return h(ElDialog, { modelValue: true, title: '表单焦点验证', appendToBody: true, closeOnPressEscape: false, width: '720px' }, () => h(ElForm, { labelWidth: '100px' }, () => [
+          field('用户昵称', ElInput, { class: 'focus-text', modelValue: '测试昵称' }),
+          field('归属部门', TreeSelect, { class: 'focus-tree', options: [{ id: 1, label: '研发部门' }], placeholder: '请选择归属部门' }),
+          field('岗位顺序', ElInputNumber, { class: 'focus-number', modelValue: 0, min: 0, controlsPosition: 'right' }),
+          h(ElFormItem, { label: '状态' }, () => h(ElSelect, { class: 'focus-select', filterable: true, placeholder: '请选择状态' }, () => h(ElOption, { label: '正常', value: '0' }))),
+          field('创建时间', ElDatePicker, { class: 'focus-date', type: 'daterange' }),
+          field('备注', ElInput, { class: 'focus-textarea', type: 'textarea', modelValue: '备注内容' }),
+          h('button', { id: 'keyboard-target', type: 'button' }, '键盘操作')
+        ]))
+      }
+    }).component('ElTreeSelect', ElTreeSelect).mount('#app')
+  </script>
+</body>
+</html>

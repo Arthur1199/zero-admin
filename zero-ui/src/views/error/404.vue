@@ -26,6 +26,9 @@
 </template>
 
 <script>
+/**
+ * 路由未匹配提示页；展示错误说明及返回首页入口。
+ */
 
 export default {
   name: 'Page404',
@@ -38,6 +41,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 .wscn-http404-container{
   transform: translate(-50%,-50%);
   position: absolute;

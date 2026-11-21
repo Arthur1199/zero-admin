@@ -42,6 +42,9 @@
 </template>
 
 <script>
+/**
+ * 公共附件上传控件；校验格式和大小，等待上传队列完成后按既有绑定格式回传文件列表。
+ */
 import { getToken } from "@/utils/auth"
 import { isExternal } from "@/utils/validate"
 import Sortable from 'sortablejs'
@@ -253,6 +256,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 .file-upload-darg {
   opacity: 0.5;
   background: #c8ebfb;

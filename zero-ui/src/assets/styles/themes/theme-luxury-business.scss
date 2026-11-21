@@ -1,3 +1,4 @@
+// 增强主题的基础外观与局部装饰；公共结构、任意层级菜单状态和组件兼容由 index.scss 后置模块统一补充。
 @use './_theme-colors.scss' as *;
 @use './theme-variables' as *;
 @use './theme-mixins' as *;
@@ -1145,7 +1146,7 @@ body.theme-luxury-business {
     }
   }
 
-  // 第三层保护：强制覆盖Element UI默认样式
+  // 补充覆盖 Element Plus 默认菜单样式，保持现有级联顺序
   > .el-menu--popup {
     background-color: rgba(21, 25, 36, 0.98) !important;
     border: 1px solid #2a3142 !important;

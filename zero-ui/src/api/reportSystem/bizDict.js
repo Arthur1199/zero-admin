@@ -1,3 +1,6 @@
+/**
+ * 业务字典 API：前端统一调用 admin 代理路径，真实数据由 report 维护；字典组全量选项与分页列表分别查询。
+ */
 import request from '@/utils/request'
 
 // 查询业务字典组列表

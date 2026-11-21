@@ -1,5 +1,8 @@
 <template><span>{{ formatted }}</span></template>
 <script>
+/**
+ * 数字过渡展示组件；按起始值、目标值和时长更新显示值，卸载时清理动画帧。
+ */
 export default {
   name: 'CountTo',
   props: {

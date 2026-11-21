@@ -1,3 +1,6 @@
+/**
+ * 后台 Axios 统一入口：认证、接口谷歌验证码、短时间重复提交判断、响应提示和文件下载。API 文件只描述路径、方法与参数。
+ */
 import axios from 'axios'
 import { ElNotification as Notification, ElMessageBox as MessageBox, ElMessage as Message, ElLoading as Loading } from 'element-plus'
 import store from '@/store'
@@ -24,6 +27,7 @@ const service = axios.create({
   timeout: 10000
 })
 
+// 请求顺序：补充认证 → 接口谷歌验证 → 查询参数序列化 → 短时间重复提交判断。
 service.interceptors.request.use(async config => {
   const isToken = (config.headers || {}).isToken === false
   const isRepeatSubmit = (config.headers || {}).repeatSubmit === false
@@ -40,6 +44,7 @@ service.interceptors.request.use(async config => {
     config.url = url
   }
 
+  // 这里只做小体积请求的客户端短时间去重，不等同于服务端幂等或事务保障。
   if (!isRepeatSubmit && (config.method === 'post' || config.method === 'put')) {
     const requestObj = {
       url: config.url,
@@ -74,7 +79,9 @@ service.interceptors.request.use(async config => {
   return Promise.reject(error)
 })
 
+// 二进制下载保留流数据；JSON 响应按业务 code 统一提示，并把成功响应整体交给 API 消费方。
 service.interceptors.response.use(res => {
+  // 保留历史缺失/假值状态码兼容；新接口仍应显式返回 code，业务数据不能放在 msg。
   const code = res.data.code || 200
   const msg = errorCode[code] || res.data.msg || errorCode['default']
   if (res.request.responseType === 'blob' || res.request.responseType === 'arraybuffer') {

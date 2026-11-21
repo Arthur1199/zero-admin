@@ -1,5 +1,7 @@
-// 键盘焦点独立于鼠标 hover；覆盖基础 reset 中的 outline:none。
-body :is(#app, .el-popper, .el-overlay, .tags-view-contextmenu) :is(a, button, [tabindex]):focus-visible {
+// 链接、按钮及自定义可聚焦节点保留键盘轮廓，覆盖基础 reset 中的 outline:none。
+// Plus 的输入控件通过 wrapper 表示聚焦；内部 input 也会匹配 :focus-visible，不能重复描边。
+body :is(#app, .el-popper, .el-overlay, .tags-view-contextmenu)
+  :is(a, button, [tabindex]):not(input, textarea, select, .el-input__wrapper, .el-select__wrapper, .el-range-editor):focus-visible {
   outline: 2px solid var(--zero-text-heading, var(--el-color-primary));
   outline-offset: 2px;
 }

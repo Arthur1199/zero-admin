@@ -1,3 +1,6 @@
+/**
+ * 供模板和脚本使用的前端权限、角色判断；只控制界面能力，不能替代后端接口鉴权。
+ */
 import store from '@/store'
 
 function authPermission(permission) {

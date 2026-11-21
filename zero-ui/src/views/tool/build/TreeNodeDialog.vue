@@ -71,6 +71,9 @@
   </div>
 </template>
 <script>
+/**
+ * 构建器树选项的节点编辑弹窗；确认时按输入类型生成节点草稿，再交由父面板挂接到选项树。
+ */
 import { isNumberStr } from '@/utils/index'
 
 export default {

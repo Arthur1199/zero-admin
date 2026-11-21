@@ -30,6 +30,9 @@
 </template>
 
 <script>
+/**
+ * 保留的仪表盘页面：组合概览卡片与示例图表；当前首页路由是否使用它以路由配置为准。
+ */
 import PanelGroup from './dashboard/PanelGroup'
 import LineChart from './dashboard/LineChart'
 import RaddarChart from './dashboard/RaddarChart'
@@ -78,6 +81,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 .dashboard-editor-container {
   padding: 32px;
   background-color: rgb(240, 242, 245);

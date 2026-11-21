@@ -28,6 +28,9 @@
 </template>
 
 <script>
+/**
+ * 当前后台进程的实时日志查看器；维护游标轮询、可见性暂停、缓冲及跟随滚动，清屏只清理本地显示。
+ */
 import { listRealtimeLogs } from '@/api/monitor/realtimeLog'
 
 const MAX_EVENTS = 2000
@@ -197,6 +200,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 .realtime-log {
   color: var(--zero-fixed-table-text, #606266);
   .log-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }

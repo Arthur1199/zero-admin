@@ -45,6 +45,9 @@ v-model="dialogVisible"
 </template>
 
 <script>
+/**
+ * 公共图片上传控件；校验类型和大小、维护上传队列并支持图片预览，绑定格式保持兼容。
+ */
 import { getToken } from "@/utils/auth"
 import { isExternal } from "@/utils/validate"
 import Sortable from 'sortablejs'

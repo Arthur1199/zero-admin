@@ -2,6 +2,10 @@
  * 弹窗拖动和缩放的公共事件管理。保留三种指令入口，卸载或禁用时释放本指令的监听。
  * 仅改变弹窗几何尺寸；不覆盖 document 的事件属性，也不接管关闭、确认等按钮。
  */
+/**
+ * @param {'move'|'width'|'height'} mode 拖动方式；height 为右下角，宽高一起变化
+ * @returns {Object} 带 mounted/updated/unmounted 的 Vue 指令定义
+ */
 export function createDialogInteraction(mode) {
   const instances = new WeakMap()
 
@@ -16,6 +20,7 @@ export function createDialogInteraction(mode) {
     if (!dialog) return
     const handle = mode === 'move' ? dialog.querySelector('.el-dialog__header') : document.createElement('div')
     if (!handle) return
+    // 只保存本指令会修改的定位属性及其优先级，禁用时恢复，避免覆盖其它内联样式。
     const original = {}
     const properties = ['position', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left', 'left', 'top', 'width', 'height', 'transform']
     properties.forEach(key => { original[key] = [dialog.style.getPropertyValue(key), dialog.style.getPropertyPriority(key)] })
@@ -74,6 +79,7 @@ export function createDialogInteraction(mode) {
       event.preventDefault()
     }
     handle.addEventListener('mousedown', start)
+    // 一处清理入口同时服务卸载和动态禁用；窗口失焦仅停止当前拖动，不移除指令。
     instances.set(el, () => {
       stop()
       dialog.classList.remove('zero-dialog-interacting')

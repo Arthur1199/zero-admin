@@ -1,4 +1,4 @@
-// Element Plus 固定列结构与状态。旧变量作为兼容别名保留，现有页面继续读取同一配色。
+// 固定列表格变量的兼容别名；实际 sticky 单元格与状态规则在 _table-compat.scss，取值来自 themes/_tokens.scss。
 body {
   --zero-fixed-table-panel-bg: var(--zero-surface);
   --zero-fixed-table-header-bg: var(--zero-surface-muted);

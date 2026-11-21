@@ -170,6 +170,9 @@ v-model:limit="queryParams.pageSize"
 </template>
 
 <script>
+/**
+ * 数据库代码生成配置列表；组织导入、建表、结构同步、预览及生成操作，模板内容由后台提供。
+ */
 import { listTable, previewTable, delTable, genCode, synchDb } from "@/api/tool/gen"
 import importTable from "./importTable"
 import createTable from "./createTable"

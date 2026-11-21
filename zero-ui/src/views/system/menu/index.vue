@@ -151,6 +151,7 @@ size="small"
                 placement="bottom-start"
                 width="460"
                 trigger="click"
+                popper-class="zero-icon-select-popper"
                 @show="$refs['iconSelect'].reset()"
               >
                 <IconSelect ref="iconSelect" @selected="selected" :active-icon="form.icon" />
@@ -314,6 +315,9 @@ size="small"
 </template>
 
 <script>
+/**
+ * 后台菜单与按钮权限维护；统一处理图标选择、树形上级和编辑回显，实际路由生成由权限模块负责。
+ */
 import { listMenu, getMenu, delMenu, addMenu, updateMenu } from "@/api/system/menu"
 import Treeselect from '@/components/TreeSelect'
 import IconSelect from "@/components/IconSelect"
@@ -503,6 +507,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 :deep(td.menu-long-text .cell) {
   white-space: normal;
   overflow-wrap: anywhere;

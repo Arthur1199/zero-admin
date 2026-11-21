@@ -1,3 +1,6 @@
+/**
+ * Vuex 模块装配入口；按 app、settings、user、permission、tagsView 和 dict 划分状态职责。
+ */
 import { createStore } from 'vuex'
 import app from './modules/app'
 import dict from './modules/dict'

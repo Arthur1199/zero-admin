@@ -37,6 +37,9 @@
   </div>
 </template>
 <script>
+/**
+ * 列表右侧公共工具栏；切换查询区、刷新数据和配置可见列，真实查询仍由父页面处理。
+ */
 export default {
   name: "RightToolbar",
   data() {
@@ -136,6 +139,7 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 :deep(.el-transfer__button) {
   border-radius: 50%;
   padding: 12px;

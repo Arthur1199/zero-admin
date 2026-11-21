@@ -1,0 +1,22 @@
+// 图标选择弹层挂在 body 下，必须用专属类适配，不能依赖菜单编辑弹窗的局部样式。
+// 这里覆盖主题的通用 popover 深色表面，所有正式主题均读取同一组语义变量。
+body .el-popper.el-popover.zero-icon-select-popper {
+  --zero-icon-select-surface: var(--zero-surface);
+  --el-bg-color-overlay: var(--zero-icon-select-surface);
+  --el-border-color: var(--zero-border);
+  --el-text-color-regular: var(--zero-text);
+  max-width: calc(100vw - 24px);
+  background: var(--zero-icon-select-surface) !important;
+  border-color: var(--zero-border) !important;
+  color: var(--zero-text) !important;
+
+  > .el-popper__arrow::before {
+    background: var(--zero-icon-select-surface) !important;
+    border-color: var(--zero-border) !important;
+  }
+}
+
+body.theme-glassmorphism .el-popper.el-popover.zero-icon-select-popper {
+  backdrop-filter: blur(24px) saturate(120%);
+  -webkit-backdrop-filter: blur(24px) saturate(120%);
+}

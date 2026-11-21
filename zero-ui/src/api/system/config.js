@@ -1,3 +1,6 @@
+/**
+ * 后台参数及参数缓存的请求封装；复用公共 request 的认证和错误处理，由页面负责交互及加载状态。
+ */
 import request from '@/utils/request'
 
 // 查询参数列表

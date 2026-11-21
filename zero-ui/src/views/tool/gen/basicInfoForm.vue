@@ -31,6 +31,9 @@
 </template>
 
 <script>
+/**
+ * 代码生成的基本信息表单；编辑父组件传入的表配置，不独立发起保存请求。
+ */
 export default {
   props: {
     info: {

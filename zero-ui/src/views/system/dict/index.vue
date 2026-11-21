@@ -188,6 +188,9 @@ v-model:limit="queryParams.pageSize"
 </template>
 
 <script>
+/**
+ * 系统字典类型维护页；类型变更及缓存刷新与字典数据明细分开处理。
+ */
 import { listType, getType, delType, addType, updateType, refreshCache } from "@/api/system/dict/type"
 
 export default {

@@ -572,6 +572,9 @@
 </template>
 
 <script lang="jsx">
+/**
+ * 构建器的组件及表单属性面板；修改当前草稿配置，组件切换、选项值和默认值保持既有类型语义。
+ */
 const isArray = Array.isArray
 import draggable from 'vuedraggable'
 import TreeNodeDialog from './TreeNodeDialog'
@@ -858,6 +861,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 .right-board {
   width: 350px;
   position: absolute;

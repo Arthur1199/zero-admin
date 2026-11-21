@@ -65,6 +65,9 @@
 </template>
 
 <script>
+/**
+ * 缓存概览页；读取 Redis 概况并绘制统计图，加载状态与窗口尺寸监听由页面维护。
+ */
 import { markRaw } from "vue"
 import { getCache } from "@/api/monitor/cache"
 import * as echarts from "echarts"

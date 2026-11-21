@@ -1,4 +1,4 @@
-// 各主题菜单弹层的基础背景和文字色。侧栏多级交互的最终状态在 theme-sidebar 中统一维护。
+// 各主题菜单弹层的基础背景和文字色；多级交互由 layout/sidebar-states.scss 与 themes/layout/_sidebar.scss 共同维护。
 
 // 高端暗黑风弹出菜单
 body.theme-dark-premium {
