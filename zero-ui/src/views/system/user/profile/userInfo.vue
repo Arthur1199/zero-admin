@@ -1,13 +1,13 @@
 <template>
-  <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+  <el-form ref="form" :model="form" :rules="rules" label-position="top" class="profile-form" :disabled="saving">
     <el-form-item label="用户昵称" prop="nickName">
-      <el-input v-model="form.nickName" maxlength="30" />
-    </el-form-item> 
+      <el-input v-model="form.nickName" maxlength="30" autocomplete="nickname" />
+    </el-form-item>
     <el-form-item label="手机号码" prop="phonenumber">
-      <el-input v-model="form.phonenumber" maxlength="11" />
+      <el-input v-model="form.phonenumber" maxlength="11" inputmode="tel" autocomplete="tel" />
     </el-form-item>
     <el-form-item label="邮箱" prop="email">
-      <el-input v-model="form.email" maxlength="50" />
+      <el-input v-model="form.email" maxlength="50" inputmode="email" autocomplete="email" />
     </el-form-item>
     <el-form-item label="性别">
       <el-radio-group v-model="form.sex">
@@ -15,9 +15,11 @@
         <el-radio value="1">女</el-radio>
       </el-radio-group>
     </el-form-item>
-    <el-form-item>
-      <el-button type="primary" size="small" @click="submit">保存</el-button>
-      <el-button type="danger" size="small" @click="close">关闭</el-button>
+    <el-form-item class="profile-form-actions">
+      <el-button type="primary" :loading="saving" :disabled="!hasChanges" @click="submit">保存</el-button>
+      <el-button :disabled="!hasChanges" @click="restoreForm">还原修改</el-button>
+      <el-button @click="close">关闭</el-button>
+      <span v-if="hasChanges" class="profile-form-status" role="status">有未保存的修改</span>
     </el-form-item>
   </el-form>
 </template>
@@ -26,6 +28,7 @@
 import { updateUserProfile } from "@/api/system/user"
 
 export default {
+  emits: ["saved", "close"],
   props: {
     user: {
       type: Object
@@ -34,6 +37,7 @@ export default {
   data() {
     return {
       form: {},
+      saving: false,
       // 表单校验
       rules: {
         nickName: [
@@ -58,33 +62,64 @@ export default {
       }
     }
   },
+  computed: {
+    hasChanges() {
+      return Object.keys(this.form).some(key => (this.form[key] ?? "") !== (this.user[key] ?? ""))
+    }
+  },
   watch: {
     user: {
-      handler(user) {
-        if (user) {
-          this.form = { nickName: user.nickName, phonenumber: user.phonenumber, email: user.email, sex: user.sex }
-        }
+      handler() {
+        this.restoreForm()
       },
       immediate: true
     }
   },
   methods: {
+    restoreForm() {
+      const { nickName, phonenumber, email, sex } = this.user || {}
+      this.form = { nickName, phonenumber, email, sex }
+      this.$refs.form?.clearValidate()
+    },
     submit() {
+      if (this.saving || !this.hasChanges) return
       this.$refs["form"].validate(valid => {
-        if (valid) {
-          updateUserProfile(this.form).then(response => {
+        if (valid && !this.saving) {
+          this.saving = true
+          const profile = { ...this.form }
+          updateUserProfile(profile).then(() => {
+            this.$emit("saved", profile)
             this.$modal.msgSuccess("修改成功")
-            this.user.phonenumber = this.form.phonenumber
-            this.user.email = this.form.email
           }).catch(() => {
             // 保存失败保留输入，错误提示由请求拦截器负责。
+          }).finally(() => {
+            this.saving = false
           })
         }
       })
     },
     close() {
-      this.$tab.closePage()
+      this.$emit("close")
     }
   }
 }
 </script>
+
+<style scoped lang="scss">
+.profile-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  column-gap: 20px;
+  max-width: 680px;
+  padding-top: 8px;
+}
+
+.profile-form-actions {
+  grid-column: 1 / -1;
+}
+
+.profile-form-status {
+  margin-inline-start: 12px;
+  opacity: .8;
+}
+</style>

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { mockApi } from './mock-api'
+import { mockApi, mockAdminWebSocket } from './mock-api'
 
 const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aV1cAAAAASUVORK5CYII=', 'base64')
 
@@ -91,8 +91,9 @@ test('谷歌首次绑定取消不提交，失败释放按钮并保留输入，�
 })
 
 for (const expired of [false, true]) {
-  test('密码策略提示确认跳转个人中心修改密码Tab ' + (expired ? 'expired' : 'initial'), async ({ page }) => {
+  test('密码策略提示确认跳转个人中心修改密码面板 ' + (expired ? 'expired' : 'initial'), async ({ page }) => {
     test.setTimeout(60000)
+    await mockAdminWebSocket(page)
     await mockApi(page)
     await page.route('**/dev-api/getInfo', route => route.fulfill({ json: {
       code: 200, user: { userId: 1, userName: 'mock-user', nickName: '模拟用户', avatar: '' }, roles: ['admin'], permissions: ['*:*:*'],
@@ -108,7 +109,6 @@ for (const expired of [false, true]) {
     await expect(dialog).toContainText(expired ? '您的密码已过期' : '您的密码还是初始密码')
     await dialog.getByRole('button', { name: '确定', exact: true }).click()
     await expect(page).toHaveURL(/\/user\/profile\?activeTab=resetPwd$/)
-    await expect(page.getByRole('tab', { name: '修改密码', exact: true })).toHaveAttribute('aria-selected', 'true')
-    // 仅验证跳转和激活页签，不输入或提交新密码。
+    await expect(page.getByRole('region', { name: '修改密码', exact: true })).toBeVisible()
   })
 }

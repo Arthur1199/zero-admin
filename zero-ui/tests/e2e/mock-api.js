@@ -1,3 +1,5 @@
+import { WebSocketMessageType } from '../../src/utils/websocketMessageType'
+
 export const groups = [
   { path: '/system', label: '系统管理', children: ['user', 'role', 'menu', 'dept', 'post', 'dict', 'config', 'notice', 'apiAuth', 'google', 'ipWhite'] },
   { path: '/monitor', label: '系统监控', children: ['operlog', 'logininfor', 'online', 'job', 'server', 'cache', 'cache/list', 'druid'] },
@@ -6,6 +8,16 @@ export const groups = [
   { path: '/systemTools', label: '文件工具', children: ['fileManagement'] }
 ]
 export const paths = groups.flatMap(group => group.children.map(child => group.path + '/' + child))
+
+export function mockAdminWebSocket(page) {
+  return page.routeWebSocket('**/ws/admin', socket => {
+    socket.onMessage(() => socket.send(JSON.stringify({
+      msgType: { messageType: WebSocketMessageType.CREATE_CONNECTION },
+      msgData: { heartbeatInterval: 30000, idleTimeout: 60000 }
+    })))
+  })
+}
+
 export async function mockApi(page, options = {}) {
   const requests = []
   await page.route('**/dev-api/**', async route => {
