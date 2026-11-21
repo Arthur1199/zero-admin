@@ -25,7 +25,7 @@ public class SysUser extends BaseEntity
     /**
      * 用户ID
      */
-    @Excel(name = "用户序号", type = Type.EXPORT, cellType = ColumnType.NUMERIC, prompt = "用户编号")
+    @Excel(name = "用户编号", type = Type.EXPORT, cellType = ColumnType.NUMERIC, prompt = "用户编号")
     private Long userId;
 
     /**
@@ -37,13 +37,13 @@ public class SysUser extends BaseEntity
     /**
      * 用户账号
      */
-    @Excel(name = "登录名称")
+    @Excel(name = "用户名称")
     private String userName;
 
     /**
      * 用户昵称
      */
-    @Excel(name = "用户名称")
+    @Excel(name = "用户昵称")
     private String nickName;
 
     /**
@@ -103,7 +103,7 @@ public class SysUser extends BaseEntity
     private Date pwdUpdateDate;
 
     /**
-     * 登录是否被锁定，0否 1是
+     * 登录锁定状态：0-未锁定，1-已锁定；查询条件为null时不筛选，历史数据为null时按未锁定兼容。
      */
     private Integer loginLock;
 

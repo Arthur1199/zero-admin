@@ -556,7 +556,7 @@ body.theme-minimalist-future {
     box-shadow: 0 10px 22px rgba(0, 188, 212, 0.20) !important;
 
     &:hover,
-    &:focus {
+    &:focus:not(.el-dropdown .is-link.el-tooltip__trigger) {
       filter: brightness(1.04);
       color: #ffffff !important;
       box-shadow: 0 12px 26px rgba(0, 188, 212, 0.26) !important;

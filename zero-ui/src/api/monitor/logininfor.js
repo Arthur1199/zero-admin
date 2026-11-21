@@ -1,5 +1,5 @@
 /**
- * 登录日志及账号解锁的请求封装；复用公共 request 的认证和错误处理，由页面负责交互及加载状态。
+ * 登录日志的请求封装；复用公共 request 的认证和错误处理，由页面负责交互及加载状态。
  */
 import request from '@/utils/request'
 
@@ -17,14 +17,6 @@ export function delLogininfor(infoId) {
   return request({
     url: '/monitor/logininfor/' + infoId,
     method: 'delete'
-  })
-}
-
-// 解锁用户登录状态
-export function unlockLogininfor(userName) {
-  return request({
-    url: '/monitor/logininfor/unlock/' + userName,
-    method: 'get'
   })
 }
 

@@ -17,7 +17,6 @@ import com.zero.common.core.domain.AjaxResult;
 import com.zero.common.core.page.TableDataInfo;
 import com.zero.common.enums.BusinessType;
 import com.zero.common.utils.poi.ExcelUtil;
-import com.zero.framework.web.service.SysPasswordService;
 import com.zero.system.domain.SysLogininfor;
 import com.zero.system.service.ISysLogininforService;
 
@@ -36,12 +35,6 @@ public class SysLogininforController extends BaseController
      */
     @Autowired
     private ISysLogininforService logininforService;
-    /**
-     * 密码服务字段
-     */
-
-    @Autowired
-    private SysPasswordService passwordService;
     /**
      *
      * 作者: Arthur 亚瑟
@@ -116,25 +109,6 @@ public class SysLogininforController extends BaseController
     public AjaxResult clean()
     {
         logininforService.cleanLogininfor();
-        return success();
-    }
-    /**
-     *
-     * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: unlock
-     * @param userName 用户名称参数
-     * @return
-     * 返回值: AjaxResult
-     * 返回值说明：unlock
-     */
-
-    @RequiresPermissions("monitor:logininfor:unlock")
-    @Log(title = "账户解锁", businessType = BusinessType.OTHER)
-    @GetMapping("/unlock/{userName}")
-    public AjaxResult unlock(@PathVariable("userName") String userName)
-    {
-        passwordService.clearLoginRecordCache(userName);
         return success();
     }
 }

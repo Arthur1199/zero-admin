@@ -556,7 +556,7 @@
     transition: all 0.3s;
 
     &:hover,
-    &:focus {
+    &:focus:not(.el-dropdown .is-link.el-tooltip__trigger) {
       background: linear-gradient(135deg, #7a8ef5 0%, #8a5bb5 100%);
       box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
       transform: translateY(-2px);

@@ -33,6 +33,14 @@
 - 用户表单复用已成功加载的部门树；首次加载失败时，在下次开窗重试并等待必要选项，共享在途读取且防止并发开窗。重置密码请求须返回原提示框Promise链消费拒绝，成功提示不展示密码。现有默认值接口的msg读取属于历史兼容，不作为新接口返回规范。
 - 设计器复制成功只能在复制执行成功后提示，校验实际剪贴板/粘贴结果，不能只看通知。兼容选区复制和标准Clipboard API；临时选区位于打开的弹窗内部，复制实例在重建/卸载时释放。复选限选数字框使用modelValue/update:modelValue，保留数值和0转undefined的既有语义。
 
+## 提示说明弹窗规范
+
+- 功能说明、操作说明及问号帮助弹窗，统一参考角色管理的“数据权限说明”（`src/views/system/role/index.vue`）和用户管理的“登录解锁说明”（`src/views/system/user/index.vue`），无需每次再询问用户尺寸。此规则不用于新增/修改表单、详情弹窗或 MessageBox 二次确认框。
+- 使用 `el-dialog`，默认宽度为 `width="min(860px, 94vw)"`，设置 `append-to-body` 和 `:close-on-click-modal="false"`。保留标题、关闭按钮及底部“我知道了”按钮，复用全局弹窗和八种主题样式，不单独定义背景、边框或阴影。
+- 内容高度随说明长度自适应；内容区域使用 `max-height: 60vh`、`overflow-y: auto` 和 `overflow-wrap: anywhere`，长说明在内容区域滚动，短说明不强行撑满高度。默认行高为 `1.7`，列表与段落间距参考上述页面。
+- 工具栏的说明文字及问号图标应与相邻按钮的字号、垂直对齐保持一致。工具栏使用 `size="small"` 时，说明入口复用 `el-button--small` 的字号规则，并兼容各主题的尺寸调整；不能直接继承页面正文字号导致说明比按钮大，也不要重复硬编码字号。
+- 说明文案以当前后端实现为准，写清功能作用、操作位置及必要边界。属于特定操作的说明入口和弹窗按当前登录账号的对应权限显示；打开说明只展示文字，不发起实际业务操作。修改后核对八种主题、权限显隐和窄屏适配。
+
 ## 验证
 
 - 空前端类型默认 Vue 3，显式选择 Vue 2 时沿用历史模板。模板位于 [zero-admin/src/main/resources/vm](../zero-admin/src/main/resources/vm)。Vue 3 产物沿用 Options API、`dicts`、`TreeSelect` 和 `resolveIcon`。生成组件测试先运行 `GeneratorTemplatesTest`，再运行 `generated-templates.spec.js` 和 `generator-flows.spec.js`，顺序见[专项复验](../前段项目升级方案/04-代码生成模板集成与验证报告.md#证据及复验)。

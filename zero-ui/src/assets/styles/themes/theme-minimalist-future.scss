@@ -455,7 +455,7 @@
     box-shadow: none;
 
     &:hover,
-    &:focus {
+    &:focus:not(.el-dropdown .is-link.el-tooltip__trigger) {
       background-color: #ffffff;
       border-color: #000000;
       color: #000000;

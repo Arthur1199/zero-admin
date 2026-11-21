@@ -378,7 +378,7 @@
     box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
 
     &:hover,
-    &:focus {
+    &:focus:not(.el-dropdown .is-link.el-tooltip__trigger) {
       background: linear-gradient(135deg, 
         shift-lightness($theme-dark-premium-accent, 10%) 0%,
         $theme-dark-premium-accent 100%);

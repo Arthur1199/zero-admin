@@ -36,3 +36,22 @@ body:not([class*="theme-"]) .el-menu--popup .el-sub-menu__title { color: var(--e
 // 设置抽屉保持非模态，透明遮罩不拦截页面按钮和表单。
 .zero-settings-overlay { pointer-events: none; }
 .zero-settings-overlay .el-drawer { pointer-events: auto; }
+
+// Dropdown 关闭时会恢复触发按钮焦点，不叠加通用轮廓。
+body .el-dropdown :is(.el-dropdown-selfdefine, .el-tooltip__trigger):focus-visible {
+  outline: none;
+}
+
+// 保留各主题原有的按钮背景与边框。主题按钮 :focus 规则排除 .is-link.el-tooltip__trigger，
+// 防止自动回焦维持悬浮底色；链接按钮改以下划线提示焦点，不清空其原有表面。
+body .el-dropdown .el-button.is-link.el-tooltip__trigger:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+// 部分主题只覆盖 hover，并把菜单项底色设为透明；键盘焦点也需有高亮，不能依赖被移除的外轮廓。
+body .el-dropdown__popper .el-dropdown-menu .el-dropdown-menu__item:not(.is-disabled):focus-visible {
+  // 覆盖主题中菜单项的透明底色声明，颜色仍由各主题的公共变量提供。
+  background: var(--zero-surface-hover) !important;
+  color: var(--zero-text-heading) !important;
+}
