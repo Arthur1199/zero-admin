@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zero.system.mapper.SysProfileStatisticsMapper">
+
+    <!-- 账号名按字节精确匹配，起止条件可使用操作时间索引。 -->
+    <sql id="personalOperations">
+        where cast(oper_name as binary) = cast(#{userName} as binary)
+          and oper_time &gt;= #{start}
+          and oper_time &lt; #{end}
+    </sql>
+
+    <select id="selectOperationDays" resultType="com.zero.system.domain.SysProfileStatistics$OperationDay">
+        select date(oper_time) as day,
+               count(*) as total,
+               count(case when status = 0 then 1 end) as succeeded,
+               count(case when status = 1 then 1 end) as failed
+        from sys_oper_log
+        <include refid="personalOperations"/>
+        group by date(oper_time)
+    </select>
+
+    <select id="selectRecentOperations" resultType="com.zero.system.domain.SysProfileStatistics$Operation">
+        select coalesce(title, '') as title, coalesce(business_type, 0) as businessType,
+               coalesce(status, -1) as status, oper_time as operTime
+        from sys_oper_log
+        <include refid="personalOperations"/>
+        order by oper_time desc, oper_id desc
+        limit 5
+    </select>
+
+    <!-- 仅按原创建人查询，超级管理员也使用同一条件。 -->
+    <select id="selectMemoCounts" resultType="com.zero.system.domain.SysProfileStatistics$MemoCounts">
+        select count(*) as total,
+               count(case when visibility = '0' then 1 end) as privateCount,
+               count(case when visibility = '1' then 1 end) as publicCount,
+               count(case when create_time &gt;= #{start} and create_time &lt; #{end} then 1 end) as newCount
+        from sys_memo
+        where owner_user_id = #{userId}
+    </select>
+
+    <select id="selectRecentMemos" resultType="com.zero.system.domain.SysProfileStatistics$MemoEntry">
+        select title, coalesce(update_time, create_time) as updatedAt
+        from sys_memo
+        where owner_user_id = #{userId}
+        order by updatedAt desc, memo_id desc
+        limit 10
+    </select>
+</mapper>

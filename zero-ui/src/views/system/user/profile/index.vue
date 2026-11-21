@@ -1,6 +1,6 @@
 <template>
   <div class="app-container profile-page">
-    <div class="profile-layout" v-loading="loading">
+    <div class="profile-layout" :class="{ 'profile-layout--overview': !selectedPanel }" v-loading="loading">
       <el-card class="profile-summary">
         <div class="profile-identity">
           <button type="button" class="user-info-head" aria-label="编辑头像" @click="selectedPanel = 'avatar'">
@@ -24,6 +24,7 @@
           </div>
         </dl>
       </el-card>
+      <profile-statistics v-if="!selectedPanel" />
       <el-card v-show="selectedPanel" class="profile-editor" role="region" :aria-label="activePanel?.title || activePanel?.label">
         <template #header>
           <h2 class="profile-card-title">{{ activePanel?.title || activePanel?.label }}</h2>
@@ -50,11 +51,12 @@
 import userAvatar from "./userAvatar"
 import userInfo from "./userInfo"
 import resetPwd from "./resetPwd"
+import profileStatistics from "./profileStatistics"
 import { getUserProfile } from "@/api/system/user"
 
 export default {
   name: "Profile",
-  components: { userAvatar, userInfo, resetPwd },
+  components: { userAvatar, userInfo, resetPwd, profileStatistics },
   data() {
     return {
       user: {},
@@ -119,6 +121,7 @@ export default {
 <style scoped lang="scss">
 .profile-layout {
   display: grid;
+  container: profile-layout / inline-size;
   grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
   align-items: start;
   gap: 20px;
@@ -126,6 +129,15 @@ export default {
 
 .profile-layout > * {
   min-width: 0;
+}
+
+@media (width > 1050px) {
+  @container profile-layout (min-width: 1000px) {
+    .profile-layout--overview > .profile-summary:hover,
+    .profile-layout--overview > :deep(.profile-statistics > .el-card:hover) {
+      transform: none;
+    }
+  }
 }
 
 .profile-card-title {

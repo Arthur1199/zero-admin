@@ -37,6 +37,9 @@ public class LoginUser implements UserDetails
      */
     private Long loginTime;
 
+    /** 本次会话首次签发的 Unix 毫秒时间，续期时保留。旧会话可为空。 */
+    private Long sessionStartedAt;
+
     /**
      * 过期时间
      */
@@ -323,6 +326,16 @@ public class LoginUser implements UserDetails
     public void setLoginTime(Long loginTime)
     {
         this.loginTime = loginTime;
+    }
+
+    public Long getSessionStartedAt()
+    {
+        return sessionStartedAt;
+    }
+
+    public void setSessionStartedAt(Long sessionStartedAt)
+    {
+        this.sessionStartedAt = sessionStartedAt;
     }
     /**
      *

@@ -98,6 +98,28 @@ export function getUserProfile() {
   })
 }
 
+// 查询当前账号的个人中心统计
+export function getProfileOperationStatistics() {
+  return request({
+    url: '/system/user/profile/statistics/operations',
+    method: 'get'
+  })
+}
+
+export function getProfileSessionStatistics() {
+  return request({
+    url: '/system/user/profile/statistics/session',
+    method: 'get'
+  })
+}
+
+export function getProfileMemoStatistics() {
+  return request({
+    url: '/system/user/profile/statistics/memos',
+    method: 'get'
+  })
+}
+
 // 修改用户个人信息
 export function updateUserProfile(data) {
   return request({
