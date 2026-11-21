@@ -1,7 +1,9 @@
 <template>
-  <footer v-if="visible" class="copyright">
-    <span>{{ content }}</span>
-  </footer>
+  <teleport to="body">
+    <footer v-if="visible" class="copyright">
+      <span>{{ content }}</span>
+    </footer>
+  </teleport>
 </template>
 
 <script>
@@ -19,10 +21,10 @@ export default {
 
 <style scoped>
 .copyright {
-  position: absolute;
+  position: fixed;
   bottom: 0;
-  left: 0;
   right: 0;
+  max-width: 100%;
   height: 36px;
   display: flex;
   align-items: center;
@@ -36,6 +38,7 @@ export default {
   border-top: none;
   box-shadow: none;
   z-index: 8;
+  pointer-events: none;
 }
 
 .copyright::before {
@@ -43,6 +46,7 @@ export default {
 }
 
 .copyright span {
+  pointer-events: auto;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
