@@ -1,7 +1,11 @@
 import { test, expect } from '@playwright/test'
-import { authenticated } from './mock-api'
+import { authenticated, mockAdminWebSocket } from './mock-api'
 
 const initialNotice = { noticeId: 1, noticeTitle: '模拟公告', noticeType: '1', status: '0', noticeContent: '<p>旧内容</p>' }
+
+test.beforeEach(async ({ page }) => {
+  await mockAdminWebSocket(page)
+})
 
 async function noticeDictionaries(page) {
   await page.route('**/dev-api/system/dict/data/type/sys_notice_type', route => route.fulfill({ json: { code: 200, data: [
@@ -12,6 +16,37 @@ async function noticeDictionaries(page) {
     { dictLabel: '正常', dictValue: '0', listClass: 'success', cssClass: '' },
     { dictLabel: '关闭', dictValue: '1', listClass: 'danger', cssClass: '' }
   ] } }))
+}
+
+for (const themeStyle of ['glassmorphism', 'default']) {
+  test(`公告编辑器工具栏颜色适配 ${themeStyle}`, async ({ page }) => {
+    await authenticated(page)
+    await noticeDictionaries(page)
+    await page.addInitScript(theme => {
+      localStorage.setItem('layout-setting', JSON.stringify({ themeStyle: theme }))
+    }, themeStyle)
+    await page.goto('/system/notice')
+    await page.getByRole('button', { name: '新增', exact: true }).click()
+
+    const toolbar = page.getByRole('dialog', { name: '添加公告' }).locator('.ql-toolbar')
+    const bold = toolbar.locator('button.ql-bold')
+    const boldStroke = bold.locator('.ql-stroke').first()
+    const size = toolbar.locator('.ql-size .ql-picker-label')
+    const color = themeStyle === 'glassmorphism' ? 'rgb(255, 255, 255)' : 'rgb(68, 68, 68)'
+    await expect(boldStroke).toHaveCSS('stroke', color)
+    await expect(toolbar.locator('button.ql-image circle.ql-fill')).toHaveCSS('fill', color)
+    await expect(size).toHaveCSS('color', color)
+
+    if (themeStyle === 'glassmorphism') {
+      await bold.click()
+      await expect(bold).toHaveClass(/ql-active/)
+      await expect(boldStroke).toHaveCSS('stroke', color)
+      await size.click()
+      const options = toolbar.locator('.ql-size .ql-picker-options')
+      await expect(options).toBeVisible()
+      await expect(options).toHaveCSS('color', color)
+    }
+  })
 }
 
 for (const action of ['新增', '修改']) {

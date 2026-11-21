@@ -1,6 +1,7 @@
-import { authenticated } from './mock-api'
+import { authenticated, mockAdminWebSocket } from './mock-api'
 
 export async function mockBizDict(page, auth = {}) {
+  await mockAdminWebSocket(page)
   await authenticated(page, auth)
   const groups = [
     { id: 1, groupCode: 'active', groupName: '正常组', status: '1', delFlag: '0', createTime: '2026-01-10 08:00:00' },
