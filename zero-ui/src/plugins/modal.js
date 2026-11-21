@@ -2,6 +2,16 @@ import { ElMessage as Message, ElMessageBox as MessageBox, ElNotification as Not
 
 let loadingInstance
 
+export function confirm(content, title = '系统提示', options = {}) {
+  return MessageBox.confirm(content, title, {
+    customClass: 'zero-confirm-box',
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+    ...options
+  })
+}
+
 export default {
   // 消息提示
   msg(content) {
@@ -52,13 +62,7 @@ export default {
     Notification.warning(content)
   },
   // 确认窗体
-  confirm(content) {
-    return MessageBox.confirm(content, "系统提示", {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: "warning",
-    })
-  },
+  confirm,
   // 提交内容
   prompt(content) {
     return MessageBox.prompt(content, "系统提示", {

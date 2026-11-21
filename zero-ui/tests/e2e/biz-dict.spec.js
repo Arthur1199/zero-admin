@@ -24,6 +24,65 @@ async function fillItem(page) {
   await dialog(page).getByPlaceholder('请输入字典值', { exact: true }).fill('value-a')
 }
 
+test('毛玻璃展开区使用单层底色，子表沿用主表配色', async ({ page }) => {
+  await mockBizDict(page)
+  await page.addInitScript(() => {
+    localStorage.setItem('layout-setting', JSON.stringify({ themeStyle: 'glassmorphism' }))
+  })
+  await page.goto(root)
+  await expand(page, 'active')
+  await expect(itemRow(page, '正常项')).toBeVisible()
+  await page.mouse.move(0, 0)
+
+  const mainTable = page.locator('.biz-dict-page > .el-table')
+  const childTable = page.locator('.dict-item-table')
+  const header = '.el-table__header-wrapper th.el-table__cell:not(.el-table-fixed-column--right)'
+  const cell = 'td.el-table__cell:not(.el-table-fixed-column--right)'
+  const background = locator => locator.evaluate(element => getComputedStyle(element).backgroundColor)
+
+  await expect(page.locator('td.el-table__expanded-cell')).toHaveCSS('background-color', 'rgba(255, 255, 255, 0.08)')
+  await expect(page.locator('.dict-item-panel')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
+  await expect(childTable.locator(header).first()).toHaveCSS('background-color', await background(mainTable.locator(header).first()))
+  const mainCell = groupRow(page, 'active').locator(cell).first()
+  const childCell = itemRow(page, '正常项').locator(cell).first()
+  await expect(mainCell).toHaveCSS('background-color', 'rgba(72, 48, 134, 0.2)')
+  await expect(childCell).toHaveCSS('background-color', await background(mainCell))
+  await mainCell.hover()
+  await expect(mainCell).toHaveCSS('background-color', 'rgba(102, 70, 168, 0.52)')
+  const hoverColor = await background(mainCell)
+  await childCell.hover()
+  await expect(childCell).toHaveCSS('background-color', hoverColor)
+})
+
+test('毛玻璃日期范围面板使用半透明背景，范围高亮并提交选中日期', async ({ page }) => {
+  const state = await mockBizDict(page)
+  await page.clock.setFixedTime(new Date(2026, 10, 21, 10))
+  await page.addInitScript(() => {
+    localStorage.setItem('layout-setting', JSON.stringify({ themeStyle: 'glassmorphism' }))
+  })
+  await page.goto(root)
+  await page.getByPlaceholder('开始日期').click()
+
+  const picker = page.locator('.el-picker__popper:visible')
+  const calendar = picker.locator('.el-date-range-picker__content.is-left')
+  const day = date => calendar.locator('td.available').getByText(date, { exact: true })
+  await expect(picker).toHaveCSS('background-color', 'rgba(31, 48, 65, 0.52)')
+  await expect(picker).toHaveCSS('backdrop-filter', 'blur(24px) saturate(1.2)')
+  await expect(picker.locator('.el-picker-panel')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
+  await expect(calendar.locator('td.today .el-date-table-cell__text')).toHaveCSS('box-shadow', /inset/)
+
+  await day('12').click()
+  await day('18').hover()
+  await expect(calendar.locator('.start-date .el-date-table-cell__text')).toHaveCSS('background-color', 'rgb(23, 100, 118)')
+  await expect(calendar.locator('td.in-range .el-date-table-cell').filter({ hasText: /^15$/ })).toHaveCSS('background-color', 'rgba(255, 255, 255, 0.12)')
+  await day('18').click()
+  await expect(picker).toBeHidden()
+  await page.getByRole('button', { name: '搜索', exact: true }).click()
+  await expect.poll(() => state.requests.filter(request => request.path.endsWith('/group/list')).at(-1).query).toMatchObject({
+    beginTime: '2026-11-12', endTime: '2026-11-18'
+  })
+})
+
 test('字典查询使用全量options，删除标志、日期和重置保持参数契约', async ({ page }) => {
   const state = await mockBizDict(page)
   await page.goto(root)

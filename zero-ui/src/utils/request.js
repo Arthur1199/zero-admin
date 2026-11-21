@@ -5,6 +5,7 @@ import { getToken } from '@/utils/auth'
 import errorCode from '@/utils/errorCode'
 import { tansParams, blobValidate } from '@/utils/zero'
 import cache from '@/plugins/cache'
+import { confirm } from '@/plugins/modal'
 import { saveAs } from 'file-saver'
 
 export let isRelogin = { show: false }
@@ -82,7 +83,7 @@ service.interceptors.response.use(res => {
   if (code === 401) {
     if (!isRelogin.show) {
       isRelogin.show = true
-      MessageBox.confirm('登录状态已过期，您可以继续留在该页面，或者重新登录', '系统提示', {
+      confirm('登录状态已过期，您可以继续留在该页面，或者重新登录', '系统提示', {
         confirmButtonText: '重新登录',
         cancelButtonText: '取消',
         type: 'warning'

@@ -2305,23 +2305,6 @@ body.theme-glassmorphism {
       color: $theme-glassmorphism-text-primary;
       font-weight: 600;
     }
-
-    .el-date-table td.current:not(.disabled) span {
-      background: $theme-glassmorphism-menu-active;
-      backdrop-filter: blur(10px);
-      color: $theme-glassmorphism-text-primary;
-    }
-
-    // 日期范围选择时的范围内日期背景色
-    .el-date-table td.in-range div,
-    .el-date-table td.in-range div:hover {
-      background-color: rgba(138, 180, 248, 0.15) !important;
-      backdrop-filter: blur(10px);
-    }
-
-    .el-date-table td.in-range span {
-      color: $theme-glassmorphism-text-primary !important;
-    }
   }
 
   // ========== 时间选择器样式 ==========

@@ -1,13 +1,23 @@
+@use './themes/theme-variables' as theme;
+
 // 毛玻璃主题浮层可读性兜底
 // 固定列、弹窗、抽屉、下拉层会覆盖在正文上方，底色太透明会透出后方文字。
 body.theme-glassmorphism {
   --glass-readable-panel: rgba(48, 30, 88, 0.94);
-  --glass-readable-panel-soft: rgba(62, 40, 112, 0.90);
   --glass-readable-header: rgba(93, 68, 145, 0.96);
   --glass-readable-row: rgba(82, 56, 142, 0.88);
   --glass-readable-row-hover: rgba(105, 72, 170, 0.95);
   --glass-readable-border: rgba(255, 255, 255, 0.28);
   --glass-readable-shadow: 0 18px 44px rgba(31, 16, 72, 0.34);
+  --glass-dialog-surface: rgba(31, 48, 65, 0.20);
+  --glass-dialog-mask: rgba(8, 17, 29, 0.38);
+  --glass-dialog-edge: rgba(222, 244, 255, 0.28);
+  --glass-dialog-focus: #82d9ed;
+  --glass-dialog-field: rgba(10, 24, 38, 0.24);
+  --glass-float-surface: rgba(23, 40, 56, 0.96);
+  --glass-float-edge: var(--glass-dialog-edge);
+  --glass-choice-hover: rgba(255, 255, 255, 0.12);
+  --glass-choice-selected: rgba(255, 255, 255, 0.20);
 
   .el-table {
     background: rgba(62, 42, 124, 0.44) !important;
@@ -24,19 +34,25 @@ body.theme-glassmorphism {
     text-shadow: 0 1px 2px rgba(18, 8, 45, 0.35);
   }
 
-  .el-table__body-wrapper td.el-table__cell {
-    background: rgba(72, 48, 134, 0.58) !important;
-    background-color: rgba(72, 48, 134, 0.58) !important;
-  }
+  // 固定列继续使用独立的底色，避免横向滚动时透出经过的文字。
+  .el-table .el-table__body-wrapper .el-table__row {
+    --glass-table-cell-color: rgba(72, 48, 134, 0.20);
 
-  .el-table__body tr.hover-row > td.el-table__cell {
-    background: rgba(72, 48, 134, 0.58) !important;
-    background-color: rgba(72, 48, 134, 0.58) !important;
-  }
+    &.el-table__row--striped {
+      --glass-table-cell-color: rgba(72, 48, 134, 0.42);
+    }
 
-  .el-table__body tr:hover > td.el-table__cell {
-    background: rgba(102, 70, 168, 0.74) !important;
-    background-color: rgba(102, 70, 168, 0.74) !important;
+    &:is(:hover, .hover-row) {
+      --glass-table-cell-color: rgba(102, 70, 168, 0.52);
+    }
+
+    &.current-row {
+      --glass-table-cell-color: rgba(102, 70, 168, 0.62);
+    }
+
+    > td.el-table__cell:where(:not(.el-table-fixed-column--left, .el-table-fixed-column--right)) {
+      background: var(--glass-table-cell-color) !important;
+    }
   }
 
   .el-table__fixed,
@@ -102,30 +118,57 @@ body.theme-glassmorphism {
     text-shadow: 0 1px 2px rgba(18, 8, 45, 0.38);
   }
 
-  .el-dialog,
-  .el-message-box,
-  .el-drawer,
-  .el-popover,
-  .el-dropdown-menu,
-  .el-select-dropdown,
-  .el-picker-panel,
-  .el-cascader__dropdown,
-  .el-autocomplete-suggestion {
-    background: var(--glass-readable-panel) !important;
-    background-color: var(--glass-readable-panel) !important;
-    border: 1px solid var(--glass-readable-border) !important;
-    box-shadow: var(--glass-readable-shadow) !important;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+  .el-overlay:not(.zero-settings-overlay, .admin-ws-notice-dialog-overlay) {
+    --el-overlay-color-lighter: var(--glass-dialog-mask);
+  }
+
+  // 遮罩和弹窗内容各有入场动画，只取消打开阶段。
+  .el-modal-dialog.dialog-fade-enter-active,
+  .el-modal-dialog.dialog-fade-enter-active > .el-overlay-dialog {
+    animation: none;
+  }
+
+  &:not(.form-builder-page) :is(.el-dialog, .el-message-box, .el-drawer) {
+    --el-fill-color-blank: var(--glass-dialog-field);
+    --el-border-color: var(--glass-dialog-edge);
+    --el-input-focus-border-color: var(--glass-dialog-focus);
+    --el-select-input-focus-border-color: var(--glass-dialog-focus);
+    --el-text-color-placeholder: rgba(235, 245, 255, 0.82);
+    background: linear-gradient(135deg, rgba(207, 239, 250, 0.17), transparent 65%),
+      var(--glass-dialog-surface) !important;
+    outline: 1px solid var(--glass-dialog-edge);
+    outline-offset: -1px;
+    backdrop-filter: blur(24px) saturate(135%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(135%) !important;
     color: rgba(255, 255, 255, 0.94) !important;
+  }
+
+  // 确认框叠加当前主题的渐变，减弱编辑器等大块深色内容对透色的影响。
+  .el-message-box.zero-confirm-box {
+    position: relative;
+    isolation: isolate;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      border-radius: inherit;
+      background-image: linear-gradient(var(--glass-dialog-mask), var(--glass-dialog-mask)), theme.$theme-glassmorphism-bg-base;
+      background-size: 100vw 100vh;
+      background-position: center;
+      opacity: 0.78;
+      pointer-events: none;
+    }
   }
 
   .el-dialog__header,
   .el-message-box__header,
   .el-drawer__header {
-    background: var(--glass-readable-header) !important;
-    background-color: var(--glass-readable-header) !important;
-    border-bottom: 1px solid var(--glass-readable-border) !important;
+    background: rgba(224, 245, 255, 0.08) !important;
+    border-bottom: 1px solid var(--glass-dialog-edge) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 
   .el-dialog__body,
@@ -134,14 +177,100 @@ body.theme-glassmorphism {
   .el-message-box__btns,
   .el-drawer__body,
   .drawer-container {
-    background: var(--glass-readable-panel-soft) !important;
-    background-color: var(--glass-readable-panel-soft) !important;
+    background: transparent !important;
     color: rgba(255, 255, 255, 0.94) !important;
   }
 
   .el-dialog__footer,
   .el-message-box__btns {
-    border-top: 1px solid var(--glass-readable-border) !important;
+    border-top: 1px solid var(--glass-dialog-edge) !important;
+  }
+
+  :is(.el-dialog, .el-message-box, .el-drawer) {
+    :is(.el-input__wrapper, .el-select__wrapper, .el-textarea__inner) {
+      background: var(--glass-dialog-field) !important;
+    }
+
+    :is(.el-input__wrapper.is-focus, .el-select__wrapper.is-focused, .el-textarea__inner:focus) {
+      box-shadow: 0 0 0 1px var(--glass-dialog-focus) inset !important;
+    }
+  }
+
+  :is(.el-dialog__footer, .el-message-box__btns) .el-button.el-button--primary:not(.is-disabled, .is-plain) {
+    background: #176476 !important;
+    border-color: #82c4d5 !important;
+    color: #ffffff !important;
+
+    &:hover, &:focus-visible {
+      background: #1b7184 !important;
+    }
+  }
+
+  // 下拉挂在 body 上，外层负责绘制背景，内层列表保持透明。
+  :is(.el-select__popper, .el-tree-select__popper, .el-cascader__dropdown,
+    .el-autocomplete__popper, .el-dropdown__popper) {
+    --glass-float-surface: rgba(31, 48, 65, 0.40);
+    --glass-float-edge: rgba(235, 245, 255, 0.48);
+    --el-tree-bg-color: transparent;
+    --el-tree-node-hover-bg-color: var(--glass-choice-hover);
+  }
+
+  :is(.el-popper.is-light, .el-popover, .el-select-dropdown, .el-dropdown-menu, .el-picker-panel,
+    .el-cascader__dropdown, .el-autocomplete-suggestion) {
+    --el-bg-color-overlay: var(--glass-float-surface);
+    --el-border-color: var(--glass-float-edge);
+    background: var(--glass-float-surface) !important;
+    border-color: var(--glass-float-edge) !important;
+    box-shadow: 0 12px 30px rgba(7, 18, 31, 0.32) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    color: rgba(255, 255, 255, 0.94) !important;
+  }
+
+  .el-popper:is(.el-select__popper, .el-tree-select__popper, .el-cascader__dropdown,
+    .el-autocomplete__popper, .el-dropdown__popper) {
+    backdrop-filter: blur(24px) saturate(120%);
+    -webkit-backdrop-filter: blur(24px) saturate(120%);
+  }
+
+  .el-popper.el-picker__popper:has(.el-picker-panel) {
+    --glass-float-surface: rgba(31, 48, 65, 0.52);
+    --glass-float-edge: rgba(235, 245, 255, 0.48);
+    --el-popper-border-radius: 8px;
+    backdrop-filter: blur(24px) saturate(120%);
+    -webkit-backdrop-filter: blur(24px) saturate(120%);
+
+    .el-picker-panel {
+      --el-datepicker-bg-color: transparent;
+      --el-datepicker-text-color: rgba(255, 255, 255, 0.94);
+      --el-datepicker-header-text-color: rgba(255, 255, 255, 0.80);
+      --el-datepicker-off-text-color: rgba(255, 255, 255, 0.58);
+      --el-datepicker-inner-border-color: var(--glass-dialog-edge);
+      --el-datepicker-hover-text-color: #fff;
+      --el-datepicker-active-color: #176476;
+      --el-datepicker-inrange-bg-color: var(--glass-choice-hover);
+      --el-datepicker-inrange-hover-bg-color: var(--glass-choice-selected);
+    }
+
+    .el-date-table th { border-bottom-color: var(--el-datepicker-inner-border-color); }
+
+    :is(.el-date-table, .el-month-table, .el-quarter-table, .el-year-table) {
+      td:not(.disabled):is(:hover, :focus-visible) .el-date-table-cell__text {
+        box-shadow: inset 0 0 0 1px var(--glass-float-edge);
+      }
+
+      td.today:not(.disabled) .el-date-table-cell__text {
+        box-shadow: inset 0 0 0 1px var(--glass-dialog-focus);
+      }
+    }
+  }
+
+  .el-popper :is(.el-select-dropdown, .el-dropdown-menu, .el-picker-panel, .el-autocomplete-suggestion) {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 
   .el-select-dropdown .el-scrollbar,
@@ -163,28 +292,39 @@ body.theme-glassmorphism {
     background-color: transparent !important;
   }
 
-  .el-select-dropdown__item.hover,
-  .el-select-dropdown__item:hover,
-  .el-dropdown-menu__item:hover,
-  .el-cascader-node:hover,
-  .el-cascader-node.in-active-path,
+  .el-select-dropdown__item:not(.is-disabled):is(:hover, .hover, .is-hovering),
+  .el-dropdown-menu__item:not(.is-disabled):is(:hover, :focus),
+  .el-cascader-node:not(.is-disabled):is(:hover, .in-active-path),
+  .el-tree-select__popper .el-tree-node:not(.is-disabled) > .el-tree-node__content:hover,
+  .el-tree-select__popper .el-tree-node:not(.is-disabled):focus > .el-tree-node__content,
   .el-autocomplete-suggestion li:hover {
     color: #ffffff !important;
-    background: rgba(255, 255, 255, 0.16) !important;
-    background-color: rgba(255, 255, 255, 0.16) !important;
+    background: var(--glass-choice-hover) !important;
   }
 
-  .el-select-dropdown__item.selected,
-  .el-cascader-node.is-active {
+  .el-select-dropdown__item:not(.is-disabled):is(.selected, .is-selected),
+  .el-cascader-node:not(.is-disabled).is-active,
+  .el-tree-select__popper .el-tree-node.is-current:not(.is-disabled) > .el-tree-node__content {
     color: #ffffff !important;
     font-weight: 700 !important;
-    background: rgba(255, 255, 255, 0.22) !important;
-    background-color: rgba(255, 255, 255, 0.22) !important;
+    background: var(--glass-choice-selected) !important;
+  }
+
+  .el-select-dropdown__item.is-disabled,
+  .el-dropdown-menu__item.is-disabled,
+  .el-cascader-node.is-disabled,
+  .el-tree-select__popper .el-tree-node.is-disabled .el-tree-node__label {
+    color: rgba(255, 255, 255, 0.50) !important;
   }
 
   .el-popper .popper__arrow,
   .el-popper .popper__arrow::after {
-    border-bottom-color: var(--glass-readable-panel) !important;
-    border-top-color: var(--glass-readable-panel) !important;
+    border-bottom-color: var(--glass-float-surface) !important;
+    border-top-color: var(--glass-float-surface) !important;
+  }
+
+  .el-popper.is-light > .el-popper__arrow::before {
+    background: var(--glass-float-surface) !important;
+    border-color: var(--glass-float-edge) !important;
   }
 }

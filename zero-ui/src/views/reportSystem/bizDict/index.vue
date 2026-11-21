@@ -706,13 +706,6 @@ export default {
   background: transparent !important;
 }
 
-:deep(.dict-item-table),
-:deep(.dict-item-table tr),
-:deep(.dict-item-table th),
-:deep(.dict-item-table td) {
-  background: transparent !important;
-}
-
 :deep(.dict-item-table th) {
   color: var(--dict-header-color);
   border-bottom-color: var(--dict-border);
@@ -721,14 +714,6 @@ export default {
 :deep(.dict-item-table td) {
   color: var(--dict-cell-color);
   border-bottom-color: var(--dict-border);
-}
-
-:deep(.dict-item-table .el-table__row) {
-  background: var(--dict-row-bg) !important;
-}
-
-:deep(.dict-item-table .el-table__row:hover > td) {
-  background: var(--dict-row-hover-bg) !important;
 }
 
 :deep(.dict-item-table::before),
@@ -773,13 +758,10 @@ body.theme-luxury-business .biz-dict-page,
 
 body.theme-glassmorphism .biz-dict-page,
 .theme-glassmorphism .biz-dict-page {
-  --dict-expanded-bg: rgba(48, 30, 88, 0.82);
+  --dict-expanded-bg: rgba(255, 255, 255, 0.08);
   --dict-border: rgba(255, 255, 255, 0.24);
-  --dict-soft-bg: rgba(48, 30, 88, 0.66);
+  --dict-soft-bg: transparent;
   --dict-title-color: #ffffff;
-  --dict-header-bg: rgba(93, 68, 145, 0.86);
-  --dict-row-bg: rgba(82, 56, 142, 0.74);
-  --dict-row-hover-bg: rgba(105, 72, 170, 0.86);
   --dict-cell-color: #ffffff;
   --dict-header-color: rgba(255, 255, 255, 0.92);
   --dict-tag-bg: rgba(255, 255, 255, 0.12);
@@ -874,23 +856,36 @@ body.theme-dark-premium .biz-dict-page,
   background-color: transparent !important;
 }
 
-.biz-dict-page .dict-item-table .el-table__header-wrapper tr,
-.biz-dict-page .dict-item-table .el-table__header-wrapper th.el-table__cell {
+/* 毛玻璃下由共享表格样式绘制表头和数据行。 */
+:where(body:not(.theme-glassmorphism)) .biz-dict-page :is(.dict-item-table tr, .dict-item-table th, .dict-item-table td) {
+  background: transparent !important;
+}
+
+:where(body:not(.theme-glassmorphism)) .biz-dict-page .dict-item-table .el-table__row {
+  background: var(--dict-row-bg) !important;
+}
+
+:where(body:not(.theme-glassmorphism)) .biz-dict-page .dict-item-table .el-table__row:hover > td {
+  background: var(--dict-row-hover-bg) !important;
+}
+
+:where(body:not(.theme-glassmorphism)) .biz-dict-page .dict-item-table .el-table__header-wrapper tr,
+:where(body:not(.theme-glassmorphism)) .biz-dict-page .dict-item-table .el-table__header-wrapper th.el-table__cell {
   background: var(--dict-header-bg) !important;
   background-color: var(--dict-header-bg) !important;
   color: var(--dict-header-color) !important;
   border-color: var(--dict-border) !important;
 }
 
-.biz-dict-page .dict-item-table .el-table__body-wrapper tr,
-.biz-dict-page .dict-item-table .el-table__body-wrapper td.el-table__cell {
+:where(body:not(.theme-glassmorphism)) .biz-dict-page .dict-item-table .el-table__body-wrapper tr,
+:where(body:not(.theme-glassmorphism)) .biz-dict-page .dict-item-table .el-table__body-wrapper td.el-table__cell {
   background: var(--dict-row-bg) !important;
   background-color: var(--dict-row-bg) !important;
   color: var(--dict-cell-color) !important;
   border-color: var(--dict-border) !important;
 }
 
-.biz-dict-page .dict-item-table.el-table--enable-row-hover .el-table__body tr:hover > td.el-table__cell {
+:where(body:not(.theme-glassmorphism)) .biz-dict-page .dict-item-table.el-table--enable-row-hover .el-table__body tr:hover > td.el-table__cell {
   background: var(--dict-row-hover-bg) !important;
   background-color: var(--dict-row-hover-bg) !important;
 }
