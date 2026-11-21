@@ -90,7 +90,7 @@
             type="warning" :closable="false" show-icon />
         </el-form-item>
         <el-form-item v-else>
-          <el-alert title="私有备忘录仅自己及超级管理员可以查看和维护。" type="info" :closable="false" show-icon />
+          <el-alert title="私有备忘录仅自己可以查看和维护。" type="info" :closable="false" show-icon />
         </el-form-item>
         <el-form-item label="备忘录内容" prop="memoContent">
           <el-input v-model="form.memoContent" type="textarea" :autosize="{ minRows: 8, maxRows: 18 }"

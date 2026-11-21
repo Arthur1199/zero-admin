@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import logoImg from '@/assets/logo/logo.png'
+import logoImg from '@/assets/logo/zero.ico'
 import variables from '@/assets/styles/variables.module.scss'
 
 export default {
@@ -104,6 +104,8 @@ export default {
       height: 32px;
       vertical-align: middle;
       margin-right: 12px;
+      // 保留图标底色和字样，避免主题滤镜将两者染成同一颜色。
+      filter: none !important;
     }
 
     & .sidebar-title {
