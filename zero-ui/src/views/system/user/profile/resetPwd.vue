@@ -10,14 +10,15 @@
       <el-input v-model="user.confirmPassword" placeholder="请确认新密码" type="password" autocomplete="new-password" show-password/>
     </el-form-item>
     <el-form-item>
-      <el-button type="primary" size="small" @click="submit">保存</el-button>
-      <el-button type="danger" size="small" @click="close">关闭</el-button>
+      <el-button type="primary" size="small" :loading="submitting" @click="submit">保存</el-button>
+      <el-button type="danger" size="small" :disabled="submitting" @click="close">关闭</el-button>
     </el-form-item>
   </el-form>
 </template>
 
 <script>
 import { updateUserPwd } from "@/api/system/user"
+import { getToken } from "@/utils/auth"
 
 export default {
   emits: ["close"],
@@ -30,6 +31,7 @@ export default {
       }
     }
     return {
+      submitting: false,
       user: {
         oldPassword: undefined,
         newPassword: undefined,
@@ -53,17 +55,25 @@ export default {
     }
   },
   methods: {
-    submit() {
-      this.$refs["form"].validate(valid => {
-        if (valid) {
-          updateUserPwd(this.user.oldPassword, this.user.newPassword).then(response => {
-            this.$refs.form?.resetFields()
-            this.$modal.msgSuccess("修改成功")
-          }).catch(() => {
-            // 保存失败保留表单，不重复提示接口错误。
-          })
-        }
-      })
+    async submit() {
+      const token = getToken()
+      if (this.submitting || !token || !this.$refs.form) return
+      this.submitting = true
+      try {
+        const valid = await this.$refs.form.validate().catch(() => false)
+        if (!valid || getToken() !== token) return
+        const saved = await updateUserPwd(this.user.oldPassword, this.user.newPassword)
+          .then(() => true, () => false)
+        if (!saved) return
+
+        this.$refs.form?.resetFields()
+        this.$modal.msgSuccess("密码修改成功，请重新登录")
+        // 只退出提交改密时的会话，退出接口失败时仍清理本地登录状态。
+        await this.$store.dispatch("ForceLogOut", token)
+        if (!getToken()) await this.$router.replace({ name: "Index" })
+      } finally {
+        this.submitting = false
+      }
     },
     close() {
       this.$emit("close")

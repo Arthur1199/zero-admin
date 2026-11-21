@@ -37,7 +37,9 @@ test('头像裁剪面板可以打开和旋转缩放', async ({ page }) => {
 
 test('Tab缓存、刷新、双击定位和布局尺寸', async ({ page }) => {
   const errors = []; page.on('pageerror', error => errors.push(error.message))
+  await mockAdminWebSocket(page)
   await authenticated(page)
+  await page.context().addCookies([{ name: 'size', value: 'mini', url: 'http://127.0.0.1:5178' }])
   await page.goto('/system/config')
   await page.getByPlaceholder('请输入参数名称').fill('缓存测试')
   await page.locator('.sidebar-container').getByText('系统管理', { exact: true }).click()
@@ -47,10 +49,16 @@ test('Tab缓存、刷新、双击定位和布局尺寸', async ({ page }) => {
   await expect(page.getByPlaceholder('请输入参数名称')).toHaveValue('缓存测试')
   await page.locator('.tags-view-item.active').dblclick()
   await expect(page.locator('.sidebar-container a[href="/system/config"]')).toBeVisible()
-  for (const label of ['迷你', '较小', '中等', '默认']) {
+  await page.locator('#size-select').click()
+  const sizeMenu = page.locator('.el-dropdown__popper:visible .el-dropdown-menu')
+  await expect(sizeMenu.getByRole('menuitem')).toHaveText(['较大', '默认', '较小'])
+  await expect(sizeMenu.getByRole('menuitem', { name: '较小', exact: true })).toHaveClass(/is-disabled/)
+  await expect(page.locator('.el-table')).toHaveClass(/el-table--small/)
+  await page.locator('#size-select').click()
+  for (const [label, size] of [['较大', 'large'], ['默认', 'default'], ['较小', 'small']]) {
     await page.locator('#size-select').click()
     await page.getByRole('menuitem', { name: label, exact: true }).click()
-    await expect(page.locator('.el-table')).toBeVisible()
+    await expect(page.locator('.el-table')).toHaveClass(new RegExp('el-table--' + size))
     await expect(page).toHaveURL(/\/system\/config$/)
   }
   expect(errors).toEqual([])

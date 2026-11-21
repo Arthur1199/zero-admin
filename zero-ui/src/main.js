@@ -1,6 +1,5 @@
 import { createApp } from 'vue'
 
-import Cookies from 'js-cookie'
 
 import Element from 'element-plus'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
@@ -49,7 +48,7 @@ const app = createApp(App)
 Object.assign(app.config.globalProperties, { getDicts, getConfigKey, parseTime, resetForm, addDateRange, selectDictLabel, selectDictLabels, download, handleTree, resolveIcon, normalizeSize })
 Object.entries({ DictTag, Pagination, RightToolbar, Editor, FileUpload, ImageUpload, ImagePreview, AppIcon }).forEach(([name, component]) => app.component(name, component))
 app.use(store)
-app.use(Element, { locale: zhCn, size: normalizeSize(Cookies.get('size') || 'medium') })
+app.use(Element, { locale: zhCn, size: store.getters.size })
 app.use(directive)
 app.use(plugins)
 DictData.install(app)

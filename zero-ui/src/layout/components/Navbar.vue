@@ -1,9 +1,9 @@
 <template>
-  <div class="navbar">
+  <div class="navbar" :class="{ 'has-top-nav': topNav }">
     <hamburger id="hamburger-container" :is-active="sidebar.opened" class="hamburger-container" @toggleClick="toggleSideBar" />
 
     <breadcrumb v-if="!topNav" id="breadcrumb-container" class="breadcrumb-container" />
-    <top-nav v-if="topNav" id="topmenu-container" class="topmenu-container" />
+    <top-nav v-if="topNav" class="top-nav-slot" />
 
     <div class="right-menu">
       <template v-if="device!=='mobile'">
@@ -122,9 +122,18 @@ export default {
     float: left;
   }
 
-  .topmenu-container {
-    position: absolute;
-    left: 50px;
+  &.has-top-nav {
+    display: flex;
+
+    .hamburger-container,
+    .right-menu {
+      flex: none;
+    }
+
+    .top-nav-slot {
+      flex: 1;
+      min-width: 0;
+    }
   }
 
   .errLog-container {

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { authenticated } from './mock-api'
+import { authenticated, mockAdminWebSocket } from './mock-api'
 
 const user = { userId: 2, userName: 'mock-user', nickName: '模拟用户', phonenumber: '13800000000', email: 'mock@example.test', sex: '0', status: '0', deptId: 100, dept: { deptName: '模拟部门' } }
 const config = { configId: 2, configName: '模拟参数', configKey: 'mock.key', configValue: 'mock-value', configType: 'N' }
@@ -51,8 +51,10 @@ for (const [path, api] of [['/system/config', '/system/config/refreshCache'], ['
 }
 
 async function profile(page) {
-  await authenticated(page)
+  await mockAdminWebSocket(page)
+  const requests = await authenticated(page)
   await page.route('**/dev-api/system/user/profile', route => route.fulfill({ json: { code: 200, data: user, roleGroup: '模拟角色', postGroup: '模拟岗位' } }))
+  return requests
 }
 
 test('个人资料初始读取失败没有未处理拒绝，刷新后恢复资料', async ({ page }) => {
@@ -73,31 +75,43 @@ test('个人资料初始读取失败没有未处理拒绝，刷新后恢复资�
 for (const password of [false, true]) {
   test('个人中心' + (password ? '修改密码' : '基本资料') + '保存失败保留输入且重试字段不变', async ({ page }) => {
     const errors = watchErrors(page), writes = []
-    await profile(page)
+    const requests = await profile(page)
     await page.route('**/dev-api/system/user/profile' + (password ? '/updatePwd' : ''), route => {
       if (route.request().method() === 'GET') return route.fallback()
       writes.push({ method: route.request().method(), data: route.request().postDataJSON() })
       return route.fulfill({ json: writes.length === 1 ? { code: 500, msg: '模拟个人中心保存失败' } : { code: 200 } })
     })
     await page.goto('/user/profile')
-    const pane = page.locator('.el-tab-pane:visible')
+    const pane = page.getByRole('region', { name: password ? '修改密码' : '修改个人信息', exact: true })
     if (password) {
-      await page.getByRole('tab', { name: '修改密码', exact: true }).click()
+      await page.getByRole('button', { name: '修改密码', exact: true }).click()
       await pane.getByPlaceholder('请输入旧密码').fill('mock-old-password')
       await pane.getByPlaceholder('请输入新密码').fill('mock-new-password')
       await pane.getByPlaceholder('请确认新密码').fill('mock-new-password')
     } else {
+      await page.getByRole('button', { name: '修改个人信息', exact: true }).click()
       await expect(pane.locator('.el-form-item').filter({ hasText: '用户昵称' }).locator('input')).toHaveValue(user.nickName)
       await pane.locator('.el-form-item').filter({ hasText: '用户昵称' }).locator('input').fill('失败后保留的昵称')
     }
     await pane.getByRole('button', { name: '保存', exact: true }).click()
     await expect(page.getByText('模拟个人中心保存失败', { exact: true })).toBeVisible()
     expect(errors).toEqual([])
-    if (password) await expect(pane.getByPlaceholder('请输入新密码')).toHaveValue('mock-new-password')
-    else await expect(pane.locator('.el-form-item').filter({ hasText: '用户昵称' }).locator('input')).toHaveValue('失败后保留的昵称')
+    if (password) {
+      await expect(pane.getByPlaceholder('请输入新密码')).toHaveValue('mock-new-password')
+      expect(requests.some(request => request.path === '/logout')).toBe(false)
+    } else await expect(pane.locator('.el-form-item').filter({ hasText: '用户昵称' }).locator('input')).toHaveValue('失败后保留的昵称')
     await page.waitForTimeout(1100)
     await pane.getByRole('button', { name: '保存', exact: true }).click()
-    await expect(page.getByText('修改成功', { exact: true })).toBeVisible()
+    await expect(page.getByText(password ? '密码修改成功，请重新登录' : '修改成功', { exact: true })).toBeVisible()
+    if (password) {
+      await expect(page).toHaveURL(url => url.pathname === '/login' && url.searchParams.get('redirect') === '/index')
+      expect(requests.filter(request => request.path === '/logout')).toHaveLength(1)
+      expect((await page.context().cookies()).some(cookie => cookie.name === 'Admin-Token')).toBe(false)
+      await page.getByPlaceholder('账号', { exact: true }).fill('mock-user')
+      await page.getByPlaceholder('密码', { exact: true }).fill('mock-new-password')
+      await page.getByRole('button', { name: /登\s*录/ }).click()
+      await expect(page).toHaveURL(url => url.pathname === '/index')
+    }
     expect(writes).toHaveLength(2)
     expect(writes[0]).toEqual(writes[1])
     expect(writes[0]).toEqual({ method: 'PUT', data: password

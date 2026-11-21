@@ -113,10 +113,6 @@ body {
     .el-icon { color: inherit; }
   }
 }
-.zero-density-default { --el-component-size: 40px; }
-.zero-density-medium { --el-component-size: 36px; }
-.zero-density-small { --el-component-size-small: 32px; }
-.zero-density-mini { --el-component-size-small: 28px; }
 // 折叠后只保留顶层图标；标题交给菜单title插槽生成提示，不挤出省略号。
 body #app .hideSidebar .sidebar-container .el-menu--collapse > div {
   > a > .submenu-title-noDropdown,

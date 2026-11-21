@@ -1,4 +1,5 @@
 import Cookies from 'js-cookie'
+import { normalizeSize } from '@/utils/icons'
 
 const DEFAULT_SIDEBAR_WIDTH = 225
 const MIN_SIDEBAR_WIDTH = 225
@@ -20,7 +21,7 @@ const state = {
     width: normalizeSidebarWidth(Cookies.get('sidebarWidth'))
   },
   device: 'desktop',
-  size: Cookies.get('size') || 'medium',
+  size: normalizeSize(Cookies.get('size')),
   // 保存菜单展开状态
   menuOpenedKeys: []
 }
@@ -47,8 +48,8 @@ const mutations = {
     state.device = device
   },
   SET_SIZE: (state, size) => {
-    state.size = size
-    Cookies.set('size', size)
+    state.size = normalizeSize(size)
+    Cookies.set('size', state.size)
   },
   SET_SIDEBAR_HIDE: (state, status) => {
     state.sidebar.hide = status

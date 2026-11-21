@@ -6,7 +6,6 @@
 </template>
 
 <script>
-import { normalizeSize } from '@/utils/icons'
 import ThemePicker from "@/components/ThemePicker"
 import { mapState } from 'vuex'
 import { glassmorphismBackgrounds, getGlassmorphismBackground } from '@/assets/styles/themes/glassmorphism-backgrounds'
@@ -26,7 +25,7 @@ export default {
   name: "App",
   components: { ThemePicker },
   computed: {
-    elementSize() { return normalizeSize(this.$store.getters.size) },
+    elementSize() { return this.$store.getters.size },
     tableConfig() {
       // 毛玻璃表格的模糊滤镜会影响浮层定位，将溢出提示挂到 body。
       return this.themeStyle === 'glassmorphism' ? { tooltipOptions: { appendTo: 'body' } } : undefined
