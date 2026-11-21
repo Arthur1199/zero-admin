@@ -1,5 +1,5 @@
 <template>
-  <div :class="[classObj, themeClass, `zero-density-${$store.getters.size}`]" class="app-wrapper" :style="layoutStyle">
+  <div :class="[classObj, themeClass]" class="app-wrapper" :style="layoutStyle">
     <div v-if="device==='mobile'&&sidebar.opened" class="drawer-bg" @click="handleClickOutside"/>
     <sidebar ref="sidebar" v-if="!sidebar.hide" class="sidebar-container"/>
     <div
