@@ -9,11 +9,14 @@ import com.zero.queryDto.FileDetailQuery;
 import com.zero.service.IFileDetailService;
 import com.zero.vo.FileInfo;
 import com.zero.vo.FileStorageService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.StringUtils;
 
 /**
@@ -23,11 +26,25 @@ import org.springframework.util.StringUtils;
  * 说明: 维护 biz_file_detail 文件记录，并为存储链提供记录查询和删除回调。
  */
 @Service
+@Slf4j
 public class FileDetailServiceImpl extends ServiceImpl<FileDetailMapper, FileDetail> implements IFileDetailService
 {
+    private final TransactionTemplate deleteTransaction;
+
     @Lazy
     @Autowired
     private FileStorageService fileStorageService;
+
+    /**
+     * 初始化独立的删除事务，确保访问存储平台前数据库删除已经提交。
+     *
+     * @param transactionManager 文件数据库的事务管理器
+     */
+    public FileDetailServiceImpl(PlatformTransactionManager transactionManager)
+    {
+        deleteTransaction = new TransactionTemplate(transactionManager);
+        deleteTransaction.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+    }
 
     /**
      *
@@ -199,22 +216,42 @@ public class FileDetailServiceImpl extends ServiceImpl<FileDetailMapper, FileDet
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/20 01:36
-     * 说明: 按记录 ID 发起文件删除，先由存储平台删除对象，再处理记录。
+     * 说明: 按主键删除记录并提交，再使用保留的文件信息清理存储对象。
      * @param id 文件记录主键
      * @return
      * 返回值: boolean
-     * 返回值说明: 文件删除结果，记录不存在时抛出参数异常
+     * 返回值说明: 数据库删除成功后返回存储清理结果，数据库删除失败时抛出异常
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public boolean deleteFileById(Integer id)
     {
-        FileDetail detail = selectFileById(id);
-        if (detail == null)
+        FileInfo fileInfo = deleteTransaction.execute(status -> {
+            FileDetail detail = selectFileById(id);
+            if (detail == null)
+            {
+                throw new IllegalArgumentException("文件记录不存在");
+            }
+            FileInfo snapshot = toFileInfo(detail);
+            if (!removeById(id))
+            {
+                throw new IllegalArgumentException("删除文件记录失败");
+            }
+            return snapshot;
+        });
+        try
         {
-            throw new IllegalArgumentException("文件记录不存在");
+            if (fileStorageService.deleteStorageObjects(fileInfo))
+            {
+                return true;
+            }
+            log.warn("文件记录已删除，存储对象清理失败，id={}，platform={}", id, fileInfo.getPlatform());
         }
-        return fileStorageService.delete(detail.getUrl());
+        catch (RuntimeException e)
+        {
+            log.warn("文件记录已删除，存储对象清理异常，id={}，platform={}，errorType={}",
+                    id, fileInfo.getPlatform(), e.getClass().getSimpleName());
+        }
+        return false;
     }
 
     private FileDetail toDetail(FileInfo fileInfo)

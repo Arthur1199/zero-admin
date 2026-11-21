@@ -132,11 +132,11 @@ public class FileManagementController extends BaseController
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/20 01:36
-     * 说明: 具备文件删除权限时按传入顺序逐条调用文件服务并记录删除操作，遇到失败即停止。
+     * 说明: 逐条删除并汇总存储清理提示，遇到数据库删除失败等接口错误时停止。
      * @param ids 以逗号分隔的文件记录主键
      * @return
      * 返回值: AjaxResult
-     * 返回值说明: 全部处理结束时返回成功，失败时返回首个错误，此前已完成的删除不会回滚
+     * 返回值说明: 成功响应的 data 表示存储对象是否全部清理，接口错误时返回首个错误
      */
     @RequiresPermissions("systemTools:fileManagement:remove")
     @Log(title = "文件管理", businessType = BusinessType.DELETE)
@@ -147,6 +147,7 @@ public class FileManagementController extends BaseController
         {
             return AjaxResult.error("文件ID不能为空");
         }
+        String storageWarning = null;
         for (String id : ids.split(","))
         {
             String safeId = id == null ? "" : id.trim();
@@ -160,8 +161,12 @@ public class FileManagementController extends BaseController
             {
                 return result;
             }
+            if (Boolean.FALSE.equals(result.get(AjaxResult.DATA_TAG)))
+            {
+                storageWarning = (String) result.get(AjaxResult.MSG_TAG);
+            }
         }
-        return AjaxResult.success();
+        return storageWarning == null ? AjaxResult.success("删除成功", true) : AjaxResult.success(storageWarning, false);
     }
 
     /**

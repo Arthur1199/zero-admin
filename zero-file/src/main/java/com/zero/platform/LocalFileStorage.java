@@ -139,14 +139,14 @@ public class LocalFileStorage implements FileStorage {
      * @param fileInfo 携带原文件及缩略图路径信息的文件记录
      * @return
      * 返回值: boolean
-     * 返回值说明: 当前平台的删除结果
+     * 返回值说明: 原文件和存在的缩略图均删除成功时返回 true
      */
     @Override
     public boolean delete(FileInfo fileInfo) {
-        if (fileInfo.getThFilename() != null) {   // 删除缩略图
-            FileUtil.del(new File(fileInfo.getBasePath() + fileInfo.getPath(),fileInfo.getThFilename()));
-        }
-        return FileUtil.del(new File(fileInfo.getBasePath() + fileInfo.getPath(),fileInfo.getFilename()));
+        boolean thumbnailDeleted = fileInfo.getThFilename() == null
+                || FileUtil.del(new File(fileInfo.getBasePath() + fileInfo.getPath(),fileInfo.getThFilename()));
+        boolean fileDeleted = FileUtil.del(new File(fileInfo.getBasePath() + fileInfo.getPath(),fileInfo.getFilename()));
+        return fileDeleted && thumbnailDeleted;
     }
 
 

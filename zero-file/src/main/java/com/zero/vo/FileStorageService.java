@@ -241,6 +241,19 @@ public class FileStorageService
     }
 
     /**
+     * 清理已提交删除的记录所对应的原文件和缩略图，沿用原存储平台和删除切面。
+     *
+     * @param fileInfo 删除记录前保留的文件信息
+     * @return 存储平台返回的清理结果
+     */
+    public boolean deleteStorageObjects(FileInfo fileInfo)
+    {
+        FileStorage fileStorage = getFileStorageVerify(fileInfo);
+        return new DeleteAspectChain(aspectList, (info, storage, recorder) -> storage.delete(info))
+                .next(fileInfo, fileStorage, fileRecorder);
+    }
+
+    /**
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/20 01:36

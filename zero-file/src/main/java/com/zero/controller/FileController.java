@@ -229,16 +229,17 @@ public class FileController
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/20 01:36
-     * 说明: 调用文件服务删除存储对象及其文件记录。
+     * 说明: 数据库删除提交后清理存储对象，清理失败时返回成功及提示。
      * @param id 文件记录主键
      * @return
      * 返回值: AjaxResult
-     * 返回值说明: 文件删除结果
+     * 返回值说明: 成功响应的 data 表示存储对象是否清理成功
      */
     @DeleteMapping("/{id}")
     public AjaxResult remove(@PathVariable Integer id)
     {
-        return fileDetailService.deleteFileById(id) ? AjaxResult.success() : AjaxResult.error("删除文件失败");
+        boolean storageDeleted = fileDetailService.deleteFileById(id);
+        return AjaxResult.success(storageDeleted ? "删除成功" : "删除成功，云平台记录删除失败", storageDeleted);
     }
 
     /**
