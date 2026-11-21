@@ -22,7 +22,7 @@
       <!-- 左侧:模拟侧边栏 -->
       <div class="sidebar-preview">
         <div class="sidebar-logo">
-          <AppIcon icon-class="el-icon-s-grid" class=""></AppIcon>
+          <img src="@/assets/logo/zero.ico" width="28" height="28" alt="">
           <span>零号管理系统</span>
         </div>
         <div class="sidebar-menu">
@@ -308,11 +308,7 @@ export default {
       margin-bottom: 12px;
       border-bottom: 1px solid #27272a;
 
-      i {
-        font-size: 28px;
-        background: linear-gradient(135deg, #d4af37 0%, #f5d76e 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+      img {
         margin-right: 12px;
       }
 

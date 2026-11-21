@@ -59,44 +59,19 @@ value-format="YYYY-MM-DD"
           <el-button type="primary" plain :icon="resolveIcon('el-icon-upload')" size="small">上传文件</el-button>
         </el-upload>
       </el-col>
+      <el-col :span="1.5">
+        <el-button type="danger" plain size="small" :icon="resolveIcon('el-icon-delete')"
+          :disabled="loading || deleting || !ids.length" @click="handleDelete()"
+          v-hasPermi="['systemTools:fileManagement:remove']">批量删除</el-button>
+      </el-col>
       <el-col :span="8" class="upload-tip">请上传大小不超过 <b>{{ uploadLimitText }}</b> 的文件</el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" />
     </el-row>
 
     <el-table v-loading="loading" :data="fileList" @selection-change="handleSelectionChange" border>
-      <el-table-column type="selection" width="55" align="center" />
+      <el-table-column v-if="$auth.hasPermi('systemTools:fileManagement:remove')" type="selection" width="55" align="center" />
       <el-table-column label="文件ID" align="center" prop="id" width="90" />
-      <el-table-column label="文件访问地址" align="center" prop="url" min-width="220" :show-overflow-tooltip="true">
-        <template #default="scope">
-          <el-link v-if="scope.row.url" :href="scope.row.url" target="_blank" type="primary">
-            {{ scope.row.url }}
-          </el-link>
-        </template>
-      </el-table-column>
-      <el-table-column label="文件名" align="center" prop="filename" min-width="160" :show-overflow-tooltip="true" />
       <el-table-column label="原始文件名" align="center" prop="originalFilename" min-width="180" :show-overflow-tooltip="true" />
-      <el-table-column label="文件大小" align="center" prop="size" width="120">
-        <template #default="scope">
-          <span>{{ formatFileSize(scope.row.size) }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="基础存储路径" align="center" prop="basePath" min-width="140" :show-overflow-tooltip="true" />
-      <el-table-column label="文件后缀" align="center" prop="ext" width="100" />
-      <el-table-column label="存储平台" align="center" prop="platform" width="130" />
-      <el-table-column label="缩略图地址" align="center" prop="thUrl" min-width="180" :show-overflow-tooltip="true" />
-      <el-table-column label="缩略图名" align="center" prop="thFilename" min-width="140" :show-overflow-tooltip="true" />
-      <el-table-column label="缩略图大小" align="center" prop="thSize" width="120">
-        <template #default="scope">
-          <span>{{ formatFileSize(scope.row.thSize) }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="对象ID" align="center" prop="objectId" width="120" :show-overflow-tooltip="true" />
-      <el-table-column label="对象类型" align="center" prop="objectType" width="150" :show-overflow-tooltip="true" />
-      <el-table-column label="创建时间" align="center" prop="createTime" width="170">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.createTime) }}</span>
-        </template>
-      </el-table-column>
       <el-table-column label="文件预览" align="center" width="160">
         <template #default="scope">
           <el-image
@@ -119,6 +94,42 @@ value-format="YYYY-MM-DD"
           <span v-else>-</span>
         </template>
       </el-table-column>
+      <el-table-column label="文件访问地址" align="center" prop="url" min-width="220" :show-overflow-tooltip="true">
+        <template #default="scope">
+          <el-link v-if="scope.row.url" :href="scope.row.url" target="_blank" type="primary">
+            {{ scope.row.url }}
+          </el-link>
+        </template>
+      </el-table-column>
+      <el-table-column label="文件名" align="center" prop="filename" min-width="160" :show-overflow-tooltip="true" />
+      <el-table-column label="文件大小" align="center" prop="size" width="120">
+        <template #default="scope">
+          <span>{{ formatFileSize(scope.row.size) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="缩略图地址" align="center" prop="thUrl" min-width="180" :show-overflow-tooltip="true">
+        <template #default="scope">
+          <el-link v-if="scope.row.thUrl" :href="scope.row.thUrl" target="_blank" rel="noopener noreferrer" type="primary">
+            {{ scope.row.thUrl }}
+          </el-link>
+        </template>
+      </el-table-column>
+      <el-table-column label="缩略图名" align="center" prop="thFilename" min-width="140" :show-overflow-tooltip="true" />
+      <el-table-column label="缩略图大小" align="center" prop="thSize" width="120">
+        <template #default="scope">
+          <span>{{ formatFileSize(scope.row.thSize) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="基础存储路径" align="center" prop="basePath" min-width="140" :show-overflow-tooltip="true" />
+      <el-table-column label="文件后缀" align="center" prop="ext" width="100" />
+      <el-table-column label="存储平台" align="center" prop="platform" width="130" />
+      <el-table-column label="对象ID" align="center" prop="objectId" width="120" :show-overflow-tooltip="true" />
+      <el-table-column label="对象类型" align="center" prop="objectType" width="150" :show-overflow-tooltip="true" />
+      <el-table-column label="创建时间" align="center" prop="createTime" width="170">
+        <template #default="scope">
+          <span>{{ parseTime(scope.row.createTime) }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="150" fixed="right">
         <template #default="scope">
           <el-button
@@ -131,6 +142,7 @@ size="small"
 size="small"
              link type="primary"
 :icon="resolveIcon('el-icon-delete')"
+            :disabled="loading || deleting"
             @click="handleDelete(scope.row)"
             v-hasPermi="['systemTools:fileManagement:remove']"
           >删除</el-button>
@@ -161,7 +173,12 @@ v-model:limit="queryParams.pageSize"
           </el-col>
         </el-row>
         <el-form-item label="文件访问地址">
-          <el-input v-model="form.url" type="textarea" :rows="2" disabled />
+          <div class="file-address-field">
+            <el-input ref="fileUrlInput" :model-value="form.url" type="textarea" :rows="2" readonly />
+            <el-button link type="primary" size="small" :icon="resolveIcon('el-icon-document-copy')"
+              aria-label="复制文件访问地址" :disabled="!form.url || copyingAddress"
+              @click="copyAddress(form.url, $refs.fileUrlInput)">复制</el-button>
+          </div>
         </el-form-item>
         <el-form-item label="文件名">
           <el-input v-model="form.filename" disabled />
@@ -194,7 +211,12 @@ v-model:limit="queryParams.pageSize"
           </el-col>
         </el-row>
         <el-form-item label="缩略图地址">
-          <el-input v-model="form.thUrl" type="textarea" :rows="2" disabled />
+          <div class="file-address-field">
+            <el-input ref="thumbnailUrlInput" :model-value="form.thUrl" type="textarea" :rows="2" readonly />
+            <el-button link type="primary" size="small" :icon="resolveIcon('el-icon-document-copy')"
+              aria-label="复制缩略图地址" :disabled="!form.thUrl || copyingAddress"
+              @click="copyAddress(form.thUrl, $refs.thumbnailUrlInput)">复制</el-button>
+          </div>
         </el-form-item>
       </el-form>
       <template #footer><div  class="dialog-footer">
@@ -214,13 +236,13 @@ export default {
     return {
       loading: true,
       ids: [],
-      single: true,
-      multiple: true,
+      deleting: false,
       showSearch: true,
       total: 0,
       fileList: [],
       dateRange: [],
       open: false,
+      copyingAddress: false,
       title: "",
       uploadLimitBytes: 30 * 1024 * 1024,
       uploadLimitText: "30MB",
@@ -257,7 +279,7 @@ export default {
     },
     getList() {
       this.loading = true
-      listFile(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
+      return listFile(this.addDateRange(this.queryParams, this.dateRange)).then(response => {
         this.fileList = response.rows || []
         this.total = response.total || 0
       }).catch(() => {
@@ -303,8 +325,6 @@ export default {
     },
     handleSelectionChange(selection) {
       this.ids = selection.map(item => item.id)
-      this.single = selection.length !== 1
-      this.multiple = !selection.length
     },
     handleBeforeUpload(file) {
       if (file.name && file.name.includes(",")) {
@@ -340,15 +360,53 @@ export default {
         this.open = true
       }).catch(() => {})
     },
+    async copyAddress(address, input) {
+      if (!address || this.copyingAddress) return
+      this.copyingAddress = true
+      try {
+        let copied = false
+        try {
+          if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(address)
+            copied = true
+          }
+        } catch {
+          // 浏览器拒绝剪贴板 API 时，改用弹窗内的选区复制。
+        }
+        const textarea = input?.textarea
+        if (!copied && this.open && textarea?.value === address) {
+          textarea.select()
+          copied = document.execCommand("copy")
+        }
+        if (copied) {
+          this.$modal.msgSuccess("复制成功")
+          return
+        }
+      } catch {
+        // 浏览器也可能禁用选区复制，统一提示手动复制。
+      } finally {
+        this.copyingAddress = false
+      }
+      this.$modal.msgError("复制失败，请手动选择地址复制")
+    },
     handleDelete(row) {
-      const ids = row.id || this.ids
-      const idText = Array.isArray(ids) ? ids.join(",") : ids
-      this.$modal.confirm('是否确认删除文件编号为"' + idText + '"的数据项？').then(function() {
-        return delFile(idText)
-      }).then(() => {
-        this.getList()
-        this.$modal.msgSuccess("删除成功")
-      }).catch(() => {})
+      const ids = row ? [row.id] : this.ids
+      if (this.loading || this.deleting || !ids.length || ids.some(id => id == null || id === "")) return
+      const idText = ids.join(",")
+      const confirmation = row
+        ? `是否确认删除文件编号为"${idText}"的数据项？`
+        : `是否确认删除选中的 ${ids.length} 个文件（编号：${idText}）？`
+      this.deleting = true
+      return this.$modal.confirm(confirmation).then(() => {
+        return delFile(idText).then(() => {
+          this.$modal.msgSuccess("删除成功")
+        }).finally(() => {
+          // 服务端逐条删除，部分失败时也需刷新，展示当前实际记录。
+          return this.getList()
+        })
+      }).catch(() => {}).finally(() => {
+        this.deleting = false
+      })
     },
     formatFileSize(size) {
       if (size === undefined || size === null || size === "") {
@@ -383,6 +441,14 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.file-address-field {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  width: 100%;
+}
+
 .file-management-page {
   .upload-tip {
     height: 28px;

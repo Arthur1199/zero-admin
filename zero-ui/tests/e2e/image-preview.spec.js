@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { authenticated } from './mock-api'
+import { WebSocketMessageType } from '../../src/utils/websocketMessageType'
 
 test.beforeEach(async ({ page }) => {
   await page.route('**/preview-test.svg*', route => route.fulfill({
@@ -46,11 +47,20 @@ async function checkViewer(page) {
 test('文件图片在八主题下全屏预览，工具栏及关闭正常', async ({ page }) => {
   test.setTimeout(120000)
   const errors = []; page.on('pageerror', error => errors.push(error.message))
+  // 模拟会话只在测试中有效，避免真实 WebSocket 拒绝后跳回登录页。
+  await page.routeWebSocket('**/ws/admin', socket => {
+    socket.onMessage(() => socket.send(JSON.stringify({
+      msgType: { messageType: WebSocketMessageType.CREATE_CONNECTION },
+      msgData: { heartbeatInterval: 30000, idleTimeout: 60000 }
+    })))
+  })
   await authenticated(page)
   await page.route('**/dev-api/systemTools/fileManagement/list?**', route => route.fulfill({ json: {
     code: 200, rows: [{ id: 1, filename: 'preview.png', originalFilename: 'preview.png', ext: 'png', url: 'http://127.0.0.1:5178/preview-test.svg' }], total: 1
   } }))
   await page.goto('/systemTools/fileManagement')
+  const originalNameColumn = page.getByRole('columnheader', { name: '原始文件名', exact: true })
+  await expect(originalNameColumn.locator('xpath=following-sibling::th[1]')).toHaveText('文件预览')
   for (const label of ['毛玻璃拟态风', '高端暗黑风', '极简未来风', '原始风格', '轻奢商务风', '活力科技风', '温馨自然风', '质感设计风']) {
     await page.locator('.navbar .setting').click()
     await page.locator('.drawer-select').first().click()
@@ -59,19 +69,6 @@ test('文件图片在八主题下全屏预览，工具栏及关闭正常', async
     await expect(page.locator('.app-main .fade-transform-leave-active, .app-main .fade-transform-enter-active')).toHaveCount(0)
     const thumbnail = page.locator('.file-preview-image')
     await expect.poll(() => thumbnail.locator('img').evaluate(element => element.naturalWidth)).toBeGreaterThan(0)
-    await page.locator('.el-table__body-wrapper').hover()
-    const scroll = page.locator('.el-table__body-wrapper .el-scrollbar__wrap')
-    for (let step = 0; step < 5; step++) {
-      const state = await scroll.evaluate(element => ({ left: element.scrollLeft, max: element.scrollWidth - element.clientWidth }))
-      if (state.left >= state.max - 1) break
-      await page.mouse.wheel(3000, 0)
-      await expect.poll(() => scroll.evaluate(element => element.scrollLeft)).toBeGreaterThan(state.left)
-    }
-    // 固定操作列会覆盖未滚到右侧的预览格，先确保点击位置真实落在缩略图上。
-    await expect.poll(() => thumbnail.evaluate(element => {
-      const rect = element.getBoundingClientRect()
-      return element.contains(document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2))
-    })).toBe(true)
     await thumbnail.click()
     await checkViewer(page)
     await thumbnail.click()

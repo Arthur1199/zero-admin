@@ -261,7 +261,7 @@ insert into sys_menu values('1291', '备忘录修改', '129', '2', '#', '', '', 
 insert into sys_menu values('1292', '备忘录删除', '129', '3', '#', '', '', '', 1, 0, 'F', '0', '0', 'systemTools:memo:remove', '#', 'admin', sysdate(), '', null, '创建人或超级管理员可删除');
 -- 文件管理按钮
 insert into sys_menu values('1076', '文件上传', '125', '1', '#', '', '', '', 1, 0, 'F', '0', '0', 'systemTools:fileManagement:add',    '#', 'admin', sysdate(), '', null, '');
-insert into sys_menu values('1078', '文件删除', '125', '2', '#', '', '', '', 1, 0, 'F', '0', '0', 'systemTools:fileManagement:remove', '#', 'admin', sysdate(), '', null, '');
+insert into sys_menu values('1078', '文件删除|批量删除', '125', '2', '#', '', '', '', 1, 0, 'F', '0', '0', 'systemTools:fileManagement:remove', '#', 'admin', sysdate(), '', null, '');
 -- 登录白名单按钮
 insert into sys_menu values('1066', '登录白名单新增', '120', '1', '#', '', '', '', 1, 0, 'F', '0', '0', 'system:ipWhite:add',    '#', 'admin', sysdate(), '', null, '');
 insert into sys_menu values('1067', '登录白名单修改', '120', '2', '#', '', '', '', 1, 0, 'F', '0', '0', 'system:ipWhite:edit',   '#', 'admin', sysdate(), '', null, '');
