@@ -1,5 +1,15 @@
 import { test, expect } from '@playwright/test'
 import { authenticated } from './mock-api'
+import { WebSocketMessageType } from '../../src/utils/websocketMessageType'
+
+test.beforeEach(async ({ page }) => {
+  await page.routeWebSocket('**/ws/admin', socket => {
+    socket.onMessage(() => socket.send(JSON.stringify({
+      msgType: { messageType: WebSocketMessageType.CREATE_CONNECTION },
+      msgData: { heartbeatInterval: 30000, idleTimeout: 60000 }
+    })))
+  })
+})
 
 async function openBuilder(page, expression = '') {
   const errors = [], warnings = []

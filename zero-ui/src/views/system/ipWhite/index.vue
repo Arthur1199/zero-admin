@@ -80,7 +80,7 @@ size="small"
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="ipWhiteList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="ipWhiteList" @selection-change="handleSelectionChange" border>
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="ID" align="center" prop="id" width="80" />
       <el-table-column label="IP地址" align="center" prop="ipAddr" min-width="160" :show-overflow-tooltip="true" />

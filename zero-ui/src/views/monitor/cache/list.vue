@@ -13,6 +13,7 @@
             ></el-button>
           </div></template>
           <el-table
+            border
             v-loading="loading"
             :data="cacheNames"
             :height="tableHeight"
@@ -71,6 +72,7 @@ size="small"
             ></el-button>
           </div></template>
           <el-table
+            border
             v-loading="subLoading"
             :data="cacheKeys"
             :height="tableHeight"

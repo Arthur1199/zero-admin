@@ -97,6 +97,7 @@ size="small"
     </el-row>
 
     <el-table
+      border
       ref="groupTable"
       v-loading="loading"
       :data="groupList"
@@ -126,6 +127,7 @@ size="small"
               </div>
             </div>
             <el-table
+              border
 size="small"
               :data="itemMap[scope.row.id] || []"
               v-loading="itemLoadingMap[scope.row.id]"
