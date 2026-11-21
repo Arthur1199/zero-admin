@@ -25,6 +25,9 @@
 </template>
 
 <script>
+/**
+ * 个人资料编辑草稿；与当前展示信息分离，成功后通知父组件更新摘要，关闭时保留既有恢复行为。
+ */
 import { updateUserProfile } from "@/api/system/user"
 
 export default {
@@ -106,6 +109,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 .profile-form {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));

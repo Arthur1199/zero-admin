@@ -1,3 +1,4 @@
+// 侧栏宽度、折叠结构和移动端布局；交互状态在 sidebar-states.scss，主题配色在 themes/layout/_sidebar.scss，动画在 motion/sidebar-effects.scss。
 @use 'sass:meta';
 @use '../base/variables.scss' as *;
 #app {
@@ -29,7 +30,7 @@
     -webkit-box-shadow: 2px 0 6px rgba(0,21,41,.35);
     box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.1);
 
-    // reset element-ui css
+    // 适配 Element Plus 侧栏结构；业务菜单项与折叠状态在后续规则中展开。
     .horizontal-collapse-transition {
       transition: 0s width ease-in-out, 0s padding-left ease-in-out, 0s padding-right ease-in-out;
     }

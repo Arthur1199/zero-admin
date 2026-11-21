@@ -1,3 +1,6 @@
+/**
+ * 根据设计器配置生成 Vue3 模板、插槽及文件外壳；配置转换不应改变用户保存的字段名称和业务值。
+ */
 import { trigger } from './config'
 
 let confGlobal

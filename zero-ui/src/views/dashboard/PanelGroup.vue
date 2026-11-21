@@ -56,6 +56,9 @@
 </template>
 
 <script>
+/**
+ * 仪表盘概览卡片组；点击卡片向父页面发出切换折线数据的事件。
+ */
 import CountTo from '@/components/CountTo'
 
 export default {
@@ -71,6 +74,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 .panel-group {
   margin-top: 18px;
 

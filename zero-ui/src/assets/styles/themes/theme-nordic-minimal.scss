@@ -1,3 +1,5 @@
+// 历史北欧主题样式；当前不在正式主题入口和设置选项中加载，保留文件不代表启用此主题。
+// 所需 nordic Sass 配色当前未在公共变量中定义；重新启用前必须补齐并单独验证，不能直接加入正式入口。
 @use './_theme-colors.scss' as *;
 @use './theme-variables' as *;
 @use './theme-mixins' as *;

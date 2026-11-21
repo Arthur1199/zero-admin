@@ -3,6 +3,9 @@
 </template>
 
 <script>
+/**
+ * 仪表盘示例堆叠柱状图；数据与系列结构由组件定义，主题外观和容器缩放通过公共 mixin 处理。
+ */
 import { markRaw } from "vue"
 import * as echarts from 'echarts'
 import 'echarts/theme/macarons' // echarts theme

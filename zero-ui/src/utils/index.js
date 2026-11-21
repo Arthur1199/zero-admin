@@ -1,3 +1,6 @@
+/**
+ * 通用格式化、对象处理、DOM 类名和防抖工具；历史工具的输入范围各不相同，不把简化实现当成完整校验或安全清洗。
+ */
 import { parseTime } from './zero'
 
 /**
@@ -16,6 +19,7 @@ export function formatDate(cellValue) {
 }
 
 /**
+ * 按时间差显示相对文本，超出近期范围后使用格式参数或默认月日时分。
  * @param {number} time
  * @param {string} option
  * @returns {string}
@@ -59,6 +63,7 @@ export function formatTime(time, option) {
 }
 
 /**
+ * 提取 URL 中的查询字段；未传地址时读取当前页面地址。
  * @param {string} url
  * @returns {Object}
  */
@@ -78,8 +83,9 @@ export function getQueryObject(url) {
 }
 
 /**
- * @param {string} input value
- * @returns {number} output value
+ * 按当前实现估算字符串的 UTF-8 字节长度。
+ * @param {string} str 待计算的字符串
+ * @returns {number} 字节长度
  */
 export function byteLength(str) {
   // returns the byte length of an utf8 string
@@ -94,6 +100,7 @@ export function byteLength(str) {
 }
 
 /**
+ * 移除数组中的假值，包括 0、false 和空字符串，不只是移除空项。
  * @param {Array} actual
  * @returns {Array}
  */
@@ -108,8 +115,9 @@ export function cleanArray(actual) {
 }
 
 /**
- * @param {Object} json
- * @returns {Array}
+ * 将对象字段编码为查询字符串，忽略 undefined 字段
+ * @param {Object} json 待编码对象
+ * @returns {string} 不含问号的查询字符串，空输入返回空字符串
  */
 export function param(json) {
   if (!json) return ''
@@ -122,6 +130,7 @@ export function param(json) {
 }
 
 /**
+ * 按既有规则把 URL 查询部分转换为对象；重复键由后面的值覆盖。
  * @param {string} url
  * @returns {Object}
  */
@@ -144,6 +153,7 @@ export function param2Obj(url) {
 }
 
 /**
+ * 借助 DOM 提取文本内容，不作为 HTML 安全清洗器。
  * @param {string} val
  * @returns {string}
  */
@@ -154,10 +164,10 @@ export function html2Text(val) {
 }
 
 /**
- * Merges two objects, giving the last one precedence
+ * 递归合并可枚举字段，source 优先；数组只复制当前层，不支持循环引用或任意类型对象
  * @param {Object} target
  * @param {(Object|Array)} source
- * @returns {Object}
+ * @returns {Object|Array} 合并后的目标对象，或 source 为数组时的浅副本
  */
 export function objectMerge(target, source) {
   if (typeof target !== 'object') {
@@ -178,6 +188,7 @@ export function objectMerge(target, source) {
 }
 
 /**
+ * 按历史字符串规则切换类名；严格的单类名操作另见 hasClass/addClass/removeClass。
  * @param {HTMLElement} element
  * @param {string} className
  */
@@ -198,8 +209,9 @@ export function toggleClass(element, className) {
 }
 
 /**
- * @param {string} type
- * @returns {Date}
+ * 按历史查询区约定取得时间边界，两个分支的返回类型不同
+ * @param {string} type start 取 90 天前时间戳，其它值取今天零点
+ * @returns {number|Date} start 返回毫秒时间戳，其它值返回 Date
  */
 export function getTime(type) {
   if (type === 'start') {
@@ -210,6 +222,7 @@ export function getTime(type) {
 }
 
 /**
+ * 合并一段时间内的连续调用，immediate 控制是否在开始边界调用。
  * @param {Function} func
  * @param {number} wait
  * @param {boolean} immediate
@@ -251,11 +264,9 @@ export function debounce(func, wait, immediate) {
 }
 
 /**
- * This is just a simple version of deep copy
- * Has a lot of edge cases bug
- * If you want to use a perfect deep copy, use lodash's _.cloneDeep
- * @param {Object} source
- * @returns {Object}
+ * 复制普通对象和数组的可枚举字段；不支持循环引用，也不保留 Date、Map 等特殊类型语义
+ * @param {Object|Array} source 非空普通对象或数组
+ * @returns {Object|Array} 递归复制后的普通对象或数组
  */
 export function deepClone(source) {
   if (!source && typeof source !== 'object') {
@@ -273,6 +284,7 @@ export function deepClone(source) {
 }
 
 /**
+ * 按 Set 语义去重，保留首次出现的顺序。
  * @param {Array} arr
  * @returns {Array}
  */
@@ -281,6 +293,7 @@ export function uniqueArr(arr) {
 }
 
 /**
+ * 组合时间和随机数生成页面临时标识，不作为安全随机值或持久唯一键。
  * @returns {string}
  */
 export function createUniqueString() {
@@ -291,7 +304,7 @@ export function createUniqueString() {
 
 /**
  * Check if an element has a class
- * @param {HTMLElement} elm
+ * @param {HTMLElement} ele
  * @param {string} cls
  * @returns {boolean}
  */
@@ -301,7 +314,7 @@ export function hasClass(ele, cls) {
 
 /**
  * Add class to element
- * @param {HTMLElement} elm
+ * @param {HTMLElement} ele
  * @param {string} cls
  */
 export function addClass(ele, cls) {
@@ -310,7 +323,7 @@ export function addClass(ele, cls) {
 
 /**
  * Remove class from element
- * @param {HTMLElement} elm
+ * @param {HTMLElement} ele
  * @param {string} cls
  */
 export function removeClass(ele, cls) {

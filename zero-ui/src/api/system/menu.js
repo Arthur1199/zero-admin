@@ -1,3 +1,6 @@
+/**
+ * 菜单、按钮及角色菜单树的请求封装；复用公共 request 的认证和错误处理，由页面负责交互及加载状态。
+ */
 import request from '@/utils/request'
 
 // 查询菜单列表

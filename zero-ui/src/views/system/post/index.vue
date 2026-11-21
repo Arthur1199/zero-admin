@@ -157,6 +157,9 @@ v-model:limit="queryParams.pageSize"
 </template>
 
 <script>
+/**
+ * 岗位列表、查询、表单维护及导出；布局和主题外观继续复用全局组件样式。
+ */
 import { listPost, getPost, delPost, addPost, updatePost } from "@/api/system/post"
 
 export default {

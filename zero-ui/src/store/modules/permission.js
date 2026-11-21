@@ -1,3 +1,6 @@
+/**
+ * 把后端菜单转换成前端路由及顶部、侧栏菜单；仅从已知页面模块加载组件，并按现有权限规则过滤独立路由。
+ */
 import { loadView } from '@/utils/viewLoader'
 import auth from '@/plugins/auth'
 import { isExternal } from '@/utils/validate'
@@ -78,6 +81,7 @@ function filterAsyncRouter(asyncRouterMap, lastRouter = false, type = false) {
   })
 }
 
+// 仅为可注册路由展开 ParentView 中间层；侧栏树使用独立副本，保留原菜单层级。
 function filterChildren(childrenMap, lastRouter = false) {
   var children = []
   childrenMap.forEach(el => {

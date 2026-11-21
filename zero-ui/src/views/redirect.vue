@@ -3,6 +3,9 @@
 </template>
 
 <script>
+/**
+ * 页签刷新使用的中间路由；挂载后将目标路径和查询参数重新交给 Router 解析。
+ */
 export default {
   mounted() {
     const { params, query } = this.$route

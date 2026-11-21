@@ -1,3 +1,6 @@
+/**
+ * 根据表单组件配置收集并去重所需的导出 CSS，不影响构建器页面自身样式。
+ */
 const styles = {
   'el-rate': '.el-rate{display: inline-block; vertical-align: text-top;}',
   'el-upload': '.el-upload__tip{line-height: 1.2;}'

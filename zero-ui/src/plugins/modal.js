@@ -1,3 +1,6 @@
+/**
+ * 统一消息、通知、确认框、输入框和加载遮罩的调用入口；外观由全局主题样式负责，Promise 的取消与失败由调用方消费。
+ */
 import { ElMessage as Message, ElMessageBox as MessageBox, ElNotification as Notification, ElLoading as Loading } from 'element-plus'
 
 let loadingInstance

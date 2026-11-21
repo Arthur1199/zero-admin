@@ -5,6 +5,9 @@
 </template>
 
 <script>
+/**
+ * 项目文档入口按钮；按既有地址打开外部文档。
+ */
 export default {
   name: 'ZeroDoc',
   data() {

@@ -19,6 +19,9 @@
 </template>
 
 <script>
+/**
+ * Quill 富文本编辑器与图片上传桥接；通过 modelValue 同步正文，上传和粘贴沿用当前认证及内容处理逻辑。
+ */
 import axios from "axios"
 import Quill from "quill"
 import { markRaw } from "vue"
@@ -256,6 +259,7 @@ export default {
 </script>
 
 <style>
+/* 随组件加载的全局样式；修改时需同时核对组件选择器范围及主题覆盖顺序。 */
 .editor, .ql-toolbar {
   white-space: pre-wrap !important;
   line-height: normal !important;

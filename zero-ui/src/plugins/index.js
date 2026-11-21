@@ -1,3 +1,6 @@
+/**
+ * 将页签、权限、缓存、弹窗和下载能力挂到应用实例，业务页面通过同一入口调用。
+ */
 import tab from './tab'
 import auth from './auth'
 import cache from './cache'

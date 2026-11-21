@@ -24,6 +24,9 @@
 </template>
 
 <script>
+/**
+ * 已访问页面的页签操作及菜单定位；管理右键菜单和定位反馈，关闭页签时联动路由与缓存。
+ */
 import ScrollPane from './ScrollPane'
 import path from '@/utils/path'
 import { playSound, SoundType } from '@/utils/audio'
@@ -447,7 +450,7 @@ export default {
               }, 300)
             })
           } else {
-            // 降级方案：直接使用 Element UI 的 open 方法
+            // 未找到自定义展开入口时，回退到 Element Plus 菜单实例的 open 方法。
             // console.log('[Tab双击] 使用降级方案展开菜单')
             const menuIndex = menuRoute._fullPath
             if (menu._originalOpen) {
@@ -609,6 +612,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 .tags-view-container {
   height: 34px;
   width: 100%;
@@ -664,6 +668,7 @@ export default {
 </style>
 
 <style lang="scss">
+// 页签公共动画的按需入口；动画定义与当前组件的局部布局分开维护。
 @use 'sass:meta';
 //reset element css of el-icon-close
 .tags-view-wrapper {

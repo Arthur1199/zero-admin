@@ -26,6 +26,9 @@
 </template>
 
 <script>
+/**
+ * 按字典值匹配标签及其展示类型；未匹配值按现有兼容规则显示，不改变提交值。
+ */
 export default {
   name: "DictTag",
   props: {
@@ -73,6 +76,7 @@ export default {
 }
 </script>
 <style scoped>
+/* 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。 */
 .el-tag + .el-tag {
   margin-left: 10px;
 }

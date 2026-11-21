@@ -204,6 +204,9 @@ v-model:limit="queryParams.pageSize"
 </template>
 
 <script>
+/**
+ * 接口谷歌验证配置维护；保存成功后刷新本地验证规则，真实接口校验仍由全局请求层与后端执行。
+ */
 import { listApiAuth, getApiAuth, delApiAuth, addApiAuth, updateApiAuth, getGoogleAuthApis } from "@/api/system/apiAuth"
 
 const googleAuthApisKey = "google_auth_apis"
@@ -427,6 +430,7 @@ export default {
 </script>
 
 <style scoped>
+/* 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。 */
 :deep(.api-auth-query-form) {
   display: flex;
   flex-wrap: wrap;

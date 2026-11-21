@@ -133,6 +133,9 @@ v-model="dialogVisible"
 </template>
 
 <script>
+/**
+ * 可视化表单构建器入口；管理画布草稿、组件 ID 与拖动，导出模板和脚本由 generator 工具负责。
+ */
 import draggable from 'vuedraggable'
 import { markRaw } from 'vue'
 import beautifier from 'js-beautify'
@@ -408,6 +411,7 @@ export default {
 </script>
 
 <style lang='scss'>
+// 构建器画布、组件面板及属性区布局；末尾加载独立主题覆盖，避免影响其它业务页面。
 @use 'sass:meta';
 .editor-tabs{
   background: #121315;

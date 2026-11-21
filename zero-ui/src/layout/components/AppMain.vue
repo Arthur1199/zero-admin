@@ -13,6 +13,9 @@
 </template>
 
 <script>
+/**
+ * 主路由内容与缓存入口；缓存键包含主题，另行维护内嵌路由及版权区。
+ */
 import copyright from "./Copyright/index"
 import iframeToggle from "./IframeToggle/index"
 
@@ -53,6 +56,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 .app-main {
   /* 50= navbar  50  */
   min-height: calc(100vh - 50px);

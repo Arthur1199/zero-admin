@@ -110,6 +110,9 @@
 </template>
 
 <script>
+/**
+ * 备忘录列表、正文查看与编辑；打开时读取详情，关闭或离开时释放正文，维护按钮按既有权限和归属规则显示。
+ */
 import { listMemo, getMemo, addMemo, updateMemo, delMemo } from '@/api/systemTools/memo'
 
 const emptyForm = () => ({
@@ -309,6 +312,7 @@ export default {
 </script>
 
 <style scoped>
+/* 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。 */
 .memo-open-button {
   margin-left: 8px;
 }

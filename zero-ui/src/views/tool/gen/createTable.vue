@@ -11,6 +11,9 @@
 </template>
 
 <script>
+/**
+ * 执行建表 SQL 的输入弹窗；仅在用户提交后调用后台建表入口，不在页面初始化时执行。
+ */
 import { createTable } from "@/api/tool/gen"
 export default {
   data() {

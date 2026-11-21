@@ -113,6 +113,9 @@ v-model="googleBindOpen"
 </template>
 
 <script>
+/**
+ * 登录、验证码和首次谷歌绑定交互；校验配置准备完成后提交，成功后由路由守卫初始化账号与菜单。
+ */
 import { bindGoogle, getCodeImg } from "@/api/login"
 import Cookies from "js-cookie"
 import { encrypt, decrypt } from '@/utils/jsencrypt'
@@ -288,6 +291,7 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 .login {
   display: flex;
   justify-content: center;

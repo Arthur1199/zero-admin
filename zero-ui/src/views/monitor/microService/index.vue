@@ -161,6 +161,9 @@
 </template>
 
 <script>
+/**
+ * 微服务运行状态列表；按用户配置轮询刷新，离开页面时停止定时器。
+ */
 import { listMicroService } from '@/api/monitor/microService'
 
 export default {
@@ -290,6 +293,7 @@ export default {
 </script>
 
 <style scoped>
+/* 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。 */
 .service-card-grid {
   min-height: 220px;
   display: grid;

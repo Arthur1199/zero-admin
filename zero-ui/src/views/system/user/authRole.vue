@@ -44,6 +44,9 @@
 </template>
 
 <script>
+/**
+ * 为指定账号分配角色；等待账号及角色列表就绪后允许选择，提交仍由对应后台接口校验。
+ */
 import { getAuthRole, updateAuthRole } from "@/api/system/user"
 
 export default {
@@ -136,6 +139,7 @@ export default {
 </script>
 
 <style scoped>
+/* 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。 */
 .auth-role-actions {
   display: flex;
   justify-content: center;

@@ -26,6 +26,9 @@
 </template>
 
 <script>
+/**
+ * 无访问权限提示页；提供返回操作，不在页面内放宽账号或路由权限。
+ */
 import errGif from '@/assets/401_images/401.gif'
 
 export default {
@@ -48,6 +51,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
   .errPage-container {
     width: 800px;
     max-width: 100%;

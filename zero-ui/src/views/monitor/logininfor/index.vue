@@ -130,6 +130,9 @@ v-model:limit="queryParams.pageSize"
 </template>
 
 <script>
+/**
+ * 登录日志列表；维护排序、日期范围、账号解锁及导出交互，查询状态由页面收尾。
+ */
 import { list, delLogininfor, cleanLogininfor, unlockLogininfor } from "@/api/monitor/logininfor"
 
 export default {

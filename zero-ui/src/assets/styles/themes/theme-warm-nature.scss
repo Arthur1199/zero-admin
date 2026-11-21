@@ -1,3 +1,4 @@
+// 增强主题的基础外观与局部装饰；公共结构、任意层级菜单状态和组件兼容由 index.scss 后置模块统一补充。
 @use './_theme-colors.scss' as *;
 @use './theme-variables' as *;
 @use './theme-mixins' as *;
@@ -1245,7 +1246,7 @@ body.theme-warm-nature {
     }
   }
 
-  // 强制覆盖方案（最高优先级）
+  // 本主题菜单兼容覆盖；公共交互状态仍由后置模块补充
   > .el-menu--popup {
     background-color: #f5f0e8 !important;
     border: 1px solid #d4c4b0 !important;
@@ -1391,7 +1392,7 @@ body.theme-warm-nature {
 }
 
 // ========== 温馨自然风弹出菜单激活样式全局强制覆盖 ==========
-// 使用最高优先级选择器，直接针对 body 下的弹出菜单
+// 直接覆盖挂载到 body 的菜单表面，不替代后置公共交互规则
 body.theme-warm-nature .el-menu--popup.el-menu--vertical li.el-menu-item.is-active,
 body.theme-warm-nature > .el-menu--popup.el-menu--vertical li.el-menu-item.is-active,
 body.theme-warm-nature .el-menu--popup li.el-menu-item.is-active {

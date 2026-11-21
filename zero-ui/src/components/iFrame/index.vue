@@ -9,6 +9,9 @@
   </div>
 </template>
 <script>
+/**
+ * 通用内嵌页面容器；接收调用方提供的地址，负责加载展示，不把内嵌页面当成后台 API 调用。
+ */
 export default {
   props: {
     src: {

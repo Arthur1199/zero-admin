@@ -190,6 +190,9 @@ v-model:limit="queryParams.pageSize"
 </template>
 
 <script>
+/**
+ * 指定系统字典类型下的数据维护；首次查询等待路由字典信息准备完成，不把失败回退为查询全部字典。
+ */
 import { listData, getData, delData, addData, updateData } from "@/api/system/dict/data"
 import { optionselect as getDictOptionselect, getType } from "@/api/system/dict/type"
 

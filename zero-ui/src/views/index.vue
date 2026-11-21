@@ -122,6 +122,9 @@
 </template>
 
 <script>
+/**
+ * 当前后台首页入口；展示项目与功能导航信息，不承担读取运行统计的业务。
+ */
 import { version } from '../../package.json'
 
 export default {
@@ -176,6 +179,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 .zero-home {
   --home-panel: var(--zero-fixed-table-panel-bg);
   --home-text: var(--zero-fixed-table-text);

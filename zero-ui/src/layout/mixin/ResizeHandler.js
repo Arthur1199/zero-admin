@@ -1,3 +1,6 @@
+/**
+ * 根据视口断点切换移动端布局并收起侧栏；统一注册和释放窗口 resize 监听。
+ */
 import store from '@/store'
 
 const { body } = document

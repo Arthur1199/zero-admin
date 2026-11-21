@@ -13,6 +13,9 @@
 </template>
 
 <script>
+/**
+ * 图片地址和预览列表适配；相对地址补齐 API 前缀，全屏预览挂到 body 以避开表格与主题滤镜裁剪。
+ */
 import { isExternal } from "@/utils/validate"
 
 export default {
@@ -67,6 +70,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 .el-image {
   border-radius: 5px;
   background-color: #ebeef5;

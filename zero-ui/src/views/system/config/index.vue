@@ -181,6 +181,9 @@ v-model:limit="queryParams.pageSize"
 </template>
 
 <script>
+/**
+ * 后台参数维护页；沿用列表、弹窗及参数缓存刷新流程，不在页面实现独立配置缓存。
+ */
 import { listConfig, getConfig, delConfig, addConfig, updateConfig, refreshCache } from "@/api/system/config"
 
 export default {

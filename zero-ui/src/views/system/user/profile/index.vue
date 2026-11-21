@@ -48,6 +48,9 @@
 </template>
 
 <script>
+/**
+ * 当前账号的个人中心入口；汇总基本资料并切换资料、密码及统计面板。
+ */
 import userAvatar from "./userAvatar"
 import userInfo from "./userInfo"
 import resetPwd from "./resetPwd"
@@ -119,6 +122,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 .profile-layout {
   display: grid;
   container: profile-layout / inline-size;

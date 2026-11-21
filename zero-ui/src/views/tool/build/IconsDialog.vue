@@ -34,6 +34,9 @@ size="small"
   </div>
 </template>
 <script>
+/**
+ * 构建器使用的 Element 图标选择弹窗；筛选配置标识并回传，不修改全局图标定义。
+ */
 import iconList from '@/utils/generator/icon.json'
 
 const originList = iconList.map(name => `el-icon-${name}`)
@@ -72,6 +75,7 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 .icon-ul {
   margin: 0;
   padding: 0;

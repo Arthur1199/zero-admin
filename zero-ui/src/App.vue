@@ -6,6 +6,9 @@
 </template>
 
 <script>
+/**
+ * 应用根组件：提供 Element Plus 全局配置，并同步 body、布局容器及毛玻璃背景的主题状态。页面专有样式只通过明确的路由标识启用。
+ */
 import ThemePicker from "@/components/ThemePicker"
 import { mapState } from 'vuex'
 import { glassmorphismBackgrounds, getGlassmorphismBackground } from '@/assets/styles/themes/glassmorphism-backgrounds'

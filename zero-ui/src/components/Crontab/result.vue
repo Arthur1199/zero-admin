@@ -11,6 +11,9 @@
 </template>
 
 <script>
+/**
+ * 根据 Cron 草稿预览后续执行时间；这里只做前端推演，不向调度中心创建或执行任务。
+ */
 export default {
 	data() {
 		return {

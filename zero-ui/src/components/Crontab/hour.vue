@@ -34,6 +34,9 @@
 </template>
 
 <script>
+/**
+ * Quartz Cron 的小时配置面板；在草稿选项和表达式片段之间转换，由父编辑器统一确认回填。
+ */
 export default {
 	data() {
 		return {

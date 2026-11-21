@@ -170,6 +170,9 @@ v-model:limit="queryParams.pageSize"
 </template>
 
 <script>
+/**
+ * 持久化通知公告维护页；使用公共富文本编辑器录入正文，与在线系统通知的发送页分开。
+ */
 import { listNotice, getNotice, delNotice, addNotice, updateNotice } from "@/api/system/notice"
 
 export default {

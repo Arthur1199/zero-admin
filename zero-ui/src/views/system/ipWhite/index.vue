@@ -170,6 +170,9 @@ class="ip-white-dialog"
 </template>
 
 <script>
+/**
+ * 登录 IP 白名单维护；地区解析仅补充当前草稿的当前 IP，不覆盖后续手填内容或新弹窗。
+ */
 import { listIpWhite, getIpWhite, getIpWhiteRegion, delIpWhite, addIpWhite, updateIpWhite } from "@/api/system/ipWhite"
 
 export default {
@@ -358,6 +361,7 @@ export default {
 </script>
 
 <style scoped>
+/* 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。 */
 :deep(.ip-white-dialog) {
   min-height: 0 !important;
   max-height: none !important;

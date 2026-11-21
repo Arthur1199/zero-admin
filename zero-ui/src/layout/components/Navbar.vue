@@ -40,6 +40,9 @@
 </template>
 
 <script>
+/**
+ * 顶部公共操作入口；组合面包屑、顶部菜单、主题设置及账号操作，退出复用全局会话清理流程。
+ */
 import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import TopNav from '@/components/TopNav'
@@ -99,6 +102,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 .navbar {
   height: 50px;
   overflow: hidden;

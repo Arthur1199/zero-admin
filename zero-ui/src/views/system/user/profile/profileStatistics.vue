@@ -84,6 +84,9 @@
 </template>
 
 <script>
+/**
+ * 个人操作与备忘录统计面板；分别读取各类统计，失败和加载状态各自维护。
+ */
 import { getProfileMemoStatistics, getProfileOperationStatistics } from "@/api/system/user"
 import profileSession from "./profileSession"
 
@@ -179,6 +182,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 .profile-statistics {
   --statistics-gap: 20px;
   display: grid;

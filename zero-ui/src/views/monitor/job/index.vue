@@ -291,6 +291,9 @@ v-model:limit="queryParams.pageSize"
 </template>
 
 <script>
+/**
+ * 既有 Quartz 任务维护页；编辑、状态切换、立即运行及 Cron 回填均沿用现有调度接口，不混用独立 XXL-JOB 调度中心。
+ */
 import { listJob, getJob, delJob, addJob, updateJob, runJob, changeJobStatus } from "@/api/monitor/job"
 import Crontab from '@/components/Crontab'
 

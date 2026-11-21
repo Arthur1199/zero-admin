@@ -1,3 +1,6 @@
+/**
+ * 跨组件读取 Vuex 状态的统一别名；这里只映射状态，不发请求或修改业务数据。
+ */
 const getters = {
   sidebar: state => state.app.sidebar,
   size: state => state.app.size,

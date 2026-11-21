@@ -61,6 +61,9 @@
 </template>
 
 <script>
+/**
+ * 后台运行统计页；协调概览、趋势、排行和分页明细的独立查询，并处理刷新、北京时间日期推进和失败重试。
+ */
 import StatisticsChart from './StatisticsChart.vue'
 import { getStatisticsOverview, getStatisticsTrend, getStatisticsDistribution, getStatisticsRanking, listStatistics } from '@/api/monitor/statistics'
 
@@ -220,6 +223,7 @@ export default {
 </script>
 
 <style scoped>
+/* 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。 */
 .statistics-page { color: inherit; }
 .statistics-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
 .statistics-heading h2 { margin: 0 0 8px; font-size: 24px; font-weight: 600; color: inherit; }

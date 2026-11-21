@@ -17,6 +17,11 @@ body.theme-glassmorphism {
   --glass-float-edge: var(--glass-dialog-edge);
   --glass-choice-hover: rgba(255, 255, 255, 0.12);
   --glass-choice-selected: rgba(255, 255, 255, 0.20);
+  --glass-confirm-bg: #{rgba(theme.$theme-glassmorphism-primary, 0.70)};
+  --glass-confirm-hover-bg: #{rgba(theme.$theme-glassmorphism-primary, 0.86)};
+  --glass-confirm-active-bg: #{rgba(theme.$theme-glassmorphism-primary, 0.96)};
+  --glass-confirm-border: rgba(235, 229, 255, 0.55);
+  --glass-confirm-shadow: 0 4px 14px #{rgba(theme.$theme-glassmorphism-primary, 0.24)};
 
   .el-table {
     background: rgba(62, 42, 124, 0.44) !important;
@@ -130,13 +135,26 @@ body.theme-glassmorphism {
     }
   }
 
-  :is(.el-dialog__footer, .el-message-box__btns) .el-button.el-button--primary:not(.is-disabled, .is-plain) {
-    background: #176476 !important;
-    border-color: #82c4d5 !important;
+  // 表单弹窗与 MessageBox 共用主题主色；排除朴素、文字和链接按钮，避免覆盖其它操作语义。
+  :is(.el-dialog .el-dialog__footer, .el-message-box .el-message-box__btns)
+    .el-button.el-button--primary:not(.is-plain, .is-link, .is-text) {
+    background: var(--glass-confirm-bg) !important;
+    border-color: var(--glass-confirm-border) !important;
     color: #ffffff !important;
+    box-shadow: var(--glass-confirm-shadow) !important;
 
-    &:hover, &:focus-visible {
-      background: #1b7184 !important;
+    &:not(.is-disabled):is(:hover, :focus-visible) {
+      background: var(--glass-confirm-hover-bg) !important;
+      box-shadow: var(--glass-confirm-shadow) !important;
+    }
+
+    &:not(.is-disabled):active {
+      background: var(--glass-confirm-active-bg) !important;
+    }
+
+    &.is-disabled {
+      opacity: 0.45;
+      box-shadow: none !important;
     }
   }
 

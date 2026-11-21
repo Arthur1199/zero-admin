@@ -1,3 +1,6 @@
+/**
+ * 构建器的 Vue3 运行时渲染器；过滤设计元数据后创建实际控件，并通过 update:modelValue 回传草稿值。
+ */
 import { h, resolveComponent } from 'vue'
 import { normalizeField } from './normalize'
 

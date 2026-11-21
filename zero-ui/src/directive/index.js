@@ -1,3 +1,6 @@
+/**
+ * 公共指令注册入口；集中声明权限、剪贴板与历史弹窗拖动指令的公开名称。
+ */
 import hasRole from './permission/hasRole'
 import hasPermi from './permission/hasPermi'
 import dialogDrag from './dialog/drag'

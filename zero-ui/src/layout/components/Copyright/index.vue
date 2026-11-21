@@ -7,6 +7,9 @@
 </template>
 
 <script>
+/**
+ * 读取全局开关与版权文本并展示；位置由公共布局样式负责，不随业务表格高度单独定位。
+ */
 export default {
   computed: {
     visible() {
@@ -20,6 +23,7 @@ export default {
 </script>
 
 <style scoped>
+/* 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。 */
 .copyright {
   position: fixed;
   bottom: 0;

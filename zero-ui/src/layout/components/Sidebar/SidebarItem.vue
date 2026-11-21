@@ -38,6 +38,9 @@
 </template>
 
 <script>
+/**
+ * 递归渲染任意层级菜单；区分外链和内部路由，触发菜单音效与点击特效，并在卸载时释放效果实例。
+ */
 import path from '@/utils/path'
 import { isExternal } from '@/utils/validate'
 import Item from './Item'

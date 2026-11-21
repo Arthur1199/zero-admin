@@ -10,6 +10,9 @@
 </template>
 
 <script>
+/**
+ * 单个内嵌链接页面的容器，接收路由提供的地址与页面标识。
+ */
 export default {
   props: {
     src: {

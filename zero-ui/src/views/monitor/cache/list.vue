@@ -154,6 +154,9 @@ size="small"
 </template>
 
 <script>
+/**
+ * 缓存名称、键和值的分级浏览；忽略旧请求返回的数据，清理操作走明确的后台接口。
+ */
 import { listCacheName, listCacheKey, getCacheValue, clearCacheName, clearCacheKey, clearCacheAll } from "@/api/monitor/cache"
 
 export default {

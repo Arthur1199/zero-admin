@@ -69,6 +69,9 @@ class="header-search-dialog"
 </template>
 
 <script>
+/**
+ * 按当前可见菜单生成本地检索索引，支持键盘选择并跳转；不绕过登录后的菜单范围。
+ */
 import Fuse from 'fuse.js/dist/fuse.min.js'
 import path from '@/utils/path'
 import { isHttp } from '@/utils/validate'
@@ -238,6 +241,7 @@ export default {
 </script>
 
 <style lang='scss' scoped>
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 :deep(*) {
   .header-search-dialog {
     max-width: calc(100vw - 32px);

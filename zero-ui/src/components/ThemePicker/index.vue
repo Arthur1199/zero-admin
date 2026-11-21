@@ -1,5 +1,8 @@
 <template><el-color-picker v-if="showPicker" v-model="theme" :predefine="colors" class="theme-picker" :popper-class="popperClass" @change="setTheme" /></template>
 <script>
+/**
+ * 应用主色选择与 CSS 变量更新；不负责切换八种布局主题或毛玻璃背景。
+ */
 export default {
   props: {
     showPicker: { type: Boolean, default: true },

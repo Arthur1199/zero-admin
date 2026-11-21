@@ -22,6 +22,8 @@
 - 修改侧栏交互时，公共状态在 layout/sidebar-states.scss，主题配色在 themes/layout/_sidebar.scss，动画在 motion/sidebar-effects.scss。当前分支由 Sidebar 递归计算，不按菜单层数添加选择器。
 - 页面特有的尺寸和布局留在 Vue 的 scoped 样式中。页面主题取值放到 themes/pages，由页面显式导入，避免在全局入口提前加载整个业务页面的覆盖。
 - 挂载到 body 的菜单、日期框和消息卡片使用全局组件类与 body 主题类限定范围。主题特有效果应以对应主题类作为边界。
+- 图标选择器的网格及悬浮状态在 IconSelect 组件中维护，body 弹层表面在 components/icon-select.scss 中维护；其它入口复用时，为 Popover 设置 `popper-class="zero-icon-select-popper"`。单色 SVG 使用 currentColor，避免固定色覆盖主题文字色。
+- 极简未来风的图标弹层表面由 themes/components/_minimalist.scss 去掉卡片色透明度，遮住后方表单文字；毛玻璃继续使用透明表面。毛玻璃弹窗及 MessageBox 主按钮统一读取 glassmorphism-readable.scss 的 `--glass-confirm-*` 状态变量，不在业务页面重复配色。
 - JavaScript 维护弹窗位置、拖动尺寸、动画触发和状态切换。静态背景、边框、字体及悬浮状态交给 SCSS 和主题变量。
 
 ## 加载与兼容

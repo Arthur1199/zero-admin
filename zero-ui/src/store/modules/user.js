@@ -1,3 +1,6 @@
+/**
+ * 登录账号、角色、权限及令牌生命周期；区分主动退出、强制退出和前端清理，避免旧会话回调影响新身份。
+ */
 import router, { resetRouter } from '@/router'
 import { confirm } from '@/plugins/modal'
 import { login, logout, getInfo } from '@/api/login'

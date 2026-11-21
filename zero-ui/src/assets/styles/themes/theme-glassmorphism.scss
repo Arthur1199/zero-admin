@@ -1,3 +1,4 @@
+// 增强主题的基础外观与局部装饰；公共结构、任意层级菜单状态和组件兼容由 index.scss 后置模块统一补充。
 @use './theme-variables' as *;
 @use './theme-mixins' as *;
 // ==========================================
@@ -11,8 +12,8 @@
 // 公用动画定义统一放在 motion/theme-effects.scss。
 
 // ========================================== 
-// 全局最高优先级：移除毛玻璃主题下所有菜单hover背景色
-// 必须放在文件最前面，确保被正确编译
+// 清理基础菜单的旧背景；可见的悬浮与选中效果由后置侧栏状态模块绘制。
+// 保持此重置早于侧栏专项模块，避免两套背景叠加。
 // ==========================================
 body.theme-glassmorphism #app .sidebar-container .submenu-title-noDropdown:hover,
 body.theme-glassmorphism #app .sidebar-container .el-sub-menu__title:hover,
@@ -27,8 +28,8 @@ body.theme-glassmorphism .el-menu--vertical .el-menu-item:hover {
 }
 
 // ==========================================
-// 全局最高优先级:弹出菜单层级控制（直接挂载到body下）
-// 【关键修复】移除backdrop-filter，使用主题色背景避免层叠上下文问题
+// 挂在 body 的菜单基础表面；弹层定位和动态层级由 Plus 外壳处理。
+// 此处保留无滤镜的基础回退，最终菜单表面由后置主题模块接管。
 // ==========================================
 body.theme-glassmorphism {
   > .el-menu--popup.el-menu--vertical {
@@ -2485,7 +2486,7 @@ body.theme-glassmorphism {
   }
 }
 
-// ========== 全局最高优先级覆盖：子菜单激活状态 + hover背景色 ==========
+// ========== 菜单背景兼容重置：后置公共规则再绘制选中与悬浮状态 ==========
 // 使用body标签提高选择器优先级，确保覆盖所有可能的样式
 body.theme-glassmorphism {
   // ========== 弹出菜单全局样式（确保在最上层） ==========

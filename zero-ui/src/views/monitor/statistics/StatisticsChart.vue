@@ -6,6 +6,9 @@
 </template>
 
 <script>
+/**
+ * 运行统计的通用 ECharts 容器；页面传入业务选项，组件维护尺寸监听和空态，外观由公共图表 mixin 适配。
+ */
 import { markRaw } from 'vue'
 import * as echarts from 'echarts'
 import chartAppearance from '@/mixins/chartAppearance'
@@ -50,6 +53,7 @@ export default {
 </script>
 
 <style scoped>
+/* 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。 */
 .statistics-chart { position: relative; width: 100%; height: 300px; color: inherit; }
 .chart-canvas { height: 100%; width: 100%; }
 .chart-empty { position: absolute; inset: 45% 0 auto; text-align: center; color: inherit; opacity: .65; pointer-events: none; }

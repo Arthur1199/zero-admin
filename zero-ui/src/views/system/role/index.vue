@@ -333,6 +333,9 @@ v-model:limit="queryParams.pageSize"
 </template>
 
 <script>
+/**
+ * 角色基础信息、菜单及数据范围维护；区分新增时的初始数据范围和已有角色的独立数据权限操作。
+ */
 import { listRole, getRole, delRole, addRole, updateRole, dataScope, changeRoleStatus, deptTreeSelect, creationDeptTreeSelect, getNextRoleSort } from "@/api/system/role"
 import { treeselect as menuTreeselect, roleMenuTreeselect } from "@/api/system/menu"
 
@@ -818,6 +821,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 .data-scope-label {
   display: inline-flex;
   align-items: center;

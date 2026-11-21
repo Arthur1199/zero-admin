@@ -1,4 +1,11 @@
+@use 'sass:color';
+@use '../_theme-variables.scss' as theme;
 // 极简未来风的表单、弹层和通用组件覆盖。这里保留同一主题各阶段的兼容规则及其原有级联顺序。
+
+// 图标选择器覆盖在表单文字上方，卡片底色需去掉透明度，不能直接复用半透明页面表面。
+body.theme-minimalist-future .el-popper.el-popover.zero-icon-select-popper {
+  --zero-icon-select-surface: #{color.change(theme.$theme-minimalist-future-bg-card, $alpha: 1)};
+}
 
 body.theme-minimalist-future {
   .el-select-dropdown.el-popper,

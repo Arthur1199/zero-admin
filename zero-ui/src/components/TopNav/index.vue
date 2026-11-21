@@ -37,6 +37,9 @@
 </template>
 
 <script>
+/**
+ * 按实际可用宽度排列顶层菜单，溢出项进入更多菜单；路由选中和侧栏分组保持同步。
+ */
 import { ArrowDown } from '@element-plus/icons-vue'
 import { resolvePath } from '@/utils/path'
 import { isExternal } from '@/utils/validate'
@@ -155,6 +158,7 @@ export default {
 </script>
 
 <style lang="scss">
+// 顶部导航按需样式入口；实际结构和主题覆盖在 layout/top-nav.scss 中维护。
 @use 'sass:meta';
 @include meta.load-css("@/assets/styles/layout/top-nav.scss");
 </style>

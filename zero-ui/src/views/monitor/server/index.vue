@@ -119,6 +119,9 @@
 </template>
 
 <script>
+/**
+ * 服务器资源概览；加载 CPU、内存、JVM 和磁盘信息，页面负责加载提示及数值格式化。
+ */
 import { getServer } from "@/api/monitor/server"
 
 function formatMetric(value, unit) {

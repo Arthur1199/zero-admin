@@ -1,6 +1,8 @@
+// 历史通用按钮类及其悬浮装饰；Element Plus 按钮结构兼容与主题按钮配色由各自模块维护。
 @use '../base/variables.scss' as *;
 
 
+// 根据传入颜色配对按钮底色与悬浮伪元素，具体类名复用同一实现。
 @mixin colorBtn($color) {
   background: $color;
 

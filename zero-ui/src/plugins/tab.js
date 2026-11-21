@@ -1,3 +1,6 @@
+/**
+ * 页签刷新、关闭及路由跳转操作；联动 tagsView 缓存，保留固定页签的既有行为。
+ */
 import store from '@/store'
 import router from '@/router'
 

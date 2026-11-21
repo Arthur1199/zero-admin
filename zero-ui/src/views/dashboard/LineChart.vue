@@ -3,6 +3,9 @@
 </template>
 
 <script>
+/**
+ * 仪表盘折线图；随父级 chartData 更新数据，主题与尺寸变化复用公共图表逻辑。
+ */
 import { markRaw } from "vue"
 import * as echarts from 'echarts'
 import 'echarts/theme/macarons' // echarts theme

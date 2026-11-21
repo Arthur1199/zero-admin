@@ -227,6 +227,9 @@ v-model:limit="queryParams.pageSize"
 </template>
 
 <script>
+/**
+ * 文件服务的管理页面；经 admin 代理查询记录和删除文件，上传前读取统一限制配置，图片预览使用 body 弹层。
+ */
 import { delFile, getFile, getUploadConfig as getFileUploadConfig, listFile } from "@/api/systemTools/fileManagement"
 import { getToken } from "@/utils/auth"
 
@@ -445,6 +448,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 .file-address-field {
   display: flex;
   flex-direction: column;

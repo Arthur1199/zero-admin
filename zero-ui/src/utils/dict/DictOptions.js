@@ -1,3 +1,6 @@
+/**
+ * 字典插件的默认数据源、字段候选名和响应转换器；具体业务通过 mergeOptions 追加配置。
+ */
 import { mergeRecursive } from "@/utils/zero"
 import dictConverter from './DictConverter'
 
@@ -12,7 +15,7 @@ export const options = {
         return Promise.resolve([])
       },
       /**
-       * 字典响应数据转换器，方法签名为function(response: Object, dictMeta: DictMeta): DictData
+       * 字典响应数据转换器，方法签名为 function(response: Object, dictMeta: DictMeta): DictData[]
        */
       responseConverter,
       labelField: 'label',
@@ -33,7 +36,7 @@ export const options = {
  * 映射字典
  * @param {Object} response 字典数据
  * @param {DictMeta} dictMeta 字典元数据
- * @returns {DictData}
+ * @returns {DictData[]} 转换后的字典选项数组；没有数据时返回空数组
  */
 function responseConverter(response, dictMeta) {
   const dicts = response.content instanceof Array ? response.content : response
@@ -44,6 +47,7 @@ function responseConverter(response, dictMeta) {
   return dicts.map(d => dictConverter(d, dictMeta))
 }
 
+// 合并到插件级默认选项，影响后续创建的字典实例，不在此直接发起数据请求。
 export function mergeOptions(src) {
   mergeRecursive(options, src)
 }

@@ -1,4 +1,4 @@
-// 基础语义变量由主题赋值，组件适配读取这些变量。表格固定列沿用下方兼容别名。
+// 运行时语义配色入口：组件和 body 弹层共用表面、文字、边框及交互取值，固定列兼容别名在 components/table.scss。
 // Element Plus固定列使用sticky单元格，统一面板、表头、行和空数据区域的主题变量。
 :root {
   --zero-surface: #ffffff;

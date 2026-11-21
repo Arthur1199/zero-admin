@@ -138,6 +138,9 @@
 </template>
 
 <script>
+/**
+ * 布局与主题设置面板；只修改 Vuex 设置并按需保存到本地，主题类名和背景变量由 App 统一同步。
+ */
 import ThemePicker from '@/components/ThemePicker'
 import { getBackgroundOptions } from '@/assets/styles/themes/glassmorphism-backgrounds'
 
@@ -350,6 +353,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
   .setting-drawer-content {
     .setting-drawer-title {
       display: flex;

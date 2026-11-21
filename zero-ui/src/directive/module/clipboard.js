@@ -1,4 +1,7 @@
 /**
+ * 基于 Clipboard 的复制指令；随元素创建和销毁实例，并把复制结果交给绑定的回调。
+ */
+/**
 * v-clipboard 文字复制剪贴
 * Copyright (c) 2021 zero
 */

@@ -1,3 +1,6 @@
+/**
+ * 在线消息展示队列：管理顶部提示、右侧卡片和独立详情弹窗；退出只清理本模块创建的实例，不关闭其它业务弹窗。
+ */
 import { isWebSocketBusinessType, WebSocketMessageType } from '@/utils/websocketMessageType'
 import { h, render } from 'vue'
 import { ElNotification, ElMessage, ElDialog, ElButton } from 'element-plus'
@@ -76,7 +79,7 @@ function openDialog(options) {
   return { close }
 }
 
-// 仅展示后端明确声明形式的业务消息；所有文本按纯文本渲染，不执行HTML或自动跳转。
+// 只展示声明了有效形式的业务消息；摘要为纯文本，详情使用清洗后的富文本，且不按消息地址自动跳转。
 export function createWebSocketPresenter({ notify = ElNotification, toast = ElMessage, dialog = openDialog } = {}) {
   const handles = new Set()
   const pending = []

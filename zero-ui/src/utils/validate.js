@@ -1,4 +1,7 @@
 /**
+ * 前端表单和路由的轻量校验工具；各方法只覆盖其声明的匹配范围，不替代服务端校验。
+ */
+/**
  * 路径匹配器
  * @param {string} pattern
  * @param {string} path
@@ -11,8 +14,8 @@ export function isPathMatch(pattern, path) {
 }
 
 /**
- * 判断value字符串是否为空 
- * @param {string} value
+ * 按既有宽松比较规则判断空值，也将字符串 undefined 视为空
+ * @param {*} value 待判断值
  * @returns {Boolean}
  */
 export function isEmpty(value) {
@@ -23,7 +26,7 @@ export function isEmpty(value) {
 }
 
 /**
- * 判断url是否是http或https 
+ * 检查字符串是否包含 http:// 或 https://；仅作历史界面判断，不是严格 URL 安全校验
  * @param {string} url
  * @returns {Boolean}
  */
@@ -41,7 +44,8 @@ export function isExternal(path) {
 }
 
 /**
- * @param {string} str
+ * 仅匹配历史示例账号名称，不参与真实账号的登录鉴权
+ * @param {string} str 待匹配名称
  * @returns {Boolean}
  */
 export function validUsername(str) {

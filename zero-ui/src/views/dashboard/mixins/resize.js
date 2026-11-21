@@ -1,3 +1,6 @@
+/**
+ * 图表容器尺寸联动：监听窗口及侧栏宽度过渡，缓存页面恢复时重新测量，停用和卸载时释放监听。
+ */
 import { debounce } from '@/utils'
 
 export default {

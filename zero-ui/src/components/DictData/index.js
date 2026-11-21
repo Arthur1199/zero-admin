@@ -1,3 +1,6 @@
+/**
+ * 系统字典的数据源适配：优先使用 Vuex 缓存，未命中时经公共 API 加载，再接入组件 dicts 配置。
+ */
 import store from '@/store'
 import DataDict from '@/utils/dict'
 import { getDicts as getDicts } from '@/api/system/dict/data'

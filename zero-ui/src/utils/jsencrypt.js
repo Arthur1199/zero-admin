@@ -1,3 +1,6 @@
+/**
+ * 既有 RSA 加解密及 UMD 构造器兼容封装；不在这里管理登录会话或网络传输安全。
+ */
 import JSEncryptModule from 'jsencrypt/bin/jsencrypt.min'
 
 // 旧版本UMD导出的是模块对象，Vite不会自动取内部的构造函数。

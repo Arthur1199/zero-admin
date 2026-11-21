@@ -1,3 +1,6 @@
+/**
+ * 构建器首次进入时的初始画布配置；与左侧可选组件目录分开维护。
+ */
 export default [
   {
     layout: 'colFormItem',

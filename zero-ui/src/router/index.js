@@ -1,3 +1,6 @@
+/**
+ * 静态路由及动态路由注册入口。菜单路由由权限模块生成；退出时按登记的移除函数清理，避免上一账号的路由残留。
+ */
 import { createRouter, createWebHistory } from 'vue-router'
 
 /* Layout */
@@ -214,6 +217,7 @@ const removeDynamicRoutes = []
 export function resetRouter() {
   removeDynamicRoutes.splice(0).forEach(remove => remove())
 }
+// 登记 Router 返回的卸载函数，退出时无需重建整个 Router 或删除静态页面。
 export function addDynamicRoutes(routes) {
   routes.forEach(route => removeDynamicRoutes.push(router.addRoute(route)))
 }

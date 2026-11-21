@@ -122,6 +122,9 @@
 </template>
 
 <script>
+/**
+ * 代码生成配置编辑页；等待表、字典和菜单信息齐备后展示，并汇总子表单校验结果再提交。
+ */
 import { getGenTable, updateGenTable } from "@/api/tool/gen"
 import { optionselect as getDictOptionselect } from "@/api/system/dict/type"
 import { listMenu as getMenuTreeselect } from "@/api/system/menu"

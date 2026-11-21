@@ -17,6 +17,9 @@
 </template>
 
 <script>
+/**
+ * 当前账号会话统计；维护会话时长刷新与停止会话操作，卸载时释放计时器。
+ */
 import { getProfileSessionStatistics } from "@/api/system/user"
 
 export default {
@@ -114,6 +117,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 .profile-session {
   padding-bottom: 6px;
   border-bottom: 1px solid var(--el-border-color-lighter);

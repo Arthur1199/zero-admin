@@ -5,6 +5,9 @@
 </template>
 
 <script>
+/**
+ * 页签横向滚动容器；把鼠标滚轮转换为横向滚动，并将当前页签移动到可见区域。
+ */
 const tagAndTagSpacing = 4 // tagAndTagSpacing
 
 export default {
@@ -77,6 +80,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 .scroll-container {
   white-space: nowrap;
   position: relative;

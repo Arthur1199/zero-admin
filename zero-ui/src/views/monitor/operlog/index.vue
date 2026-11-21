@@ -207,6 +207,9 @@ v-model:limit="queryParams.pageSize"
 </template>
 
 <script>
+/**
+ * 操作审计日志列表；处理筛选、排序、详情及导出，不在前端生成审计记录。
+ */
 import { list, delOperlog, cleanOperlog } from "@/api/monitor/operlog"
 
 export default {

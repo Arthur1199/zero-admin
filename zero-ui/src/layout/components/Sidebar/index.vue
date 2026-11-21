@@ -30,6 +30,9 @@
 </template>
 
 <script>
+/**
+ * 侧栏菜单根节点：根据路由树计算任意深度的当前分支，并协调折叠、手动展开及页签定位。
+ */
 import { mapGetters, mapState } from "vuex"
 import Logo from "./Logo"
 import SidebarItem from "./SidebarItem"
@@ -52,6 +55,7 @@ export default {
             }
             return path
         },
+        // 返回当前叶子路由的祖先节点集合，递归组件直接复用，不依赖弹层是否已经挂载。
         activeBranches() {
             const activePath = resolvePath(this.activeMenu)
             const branches = new Set()
@@ -91,7 +95,7 @@ export default {
         menuBackgroundColor() {
             const themeStyle = this.$store.state.settings.themeStyle
 
-            // 毛玻璃拟态风:直接返回透明,阻止Element UI注入内联样式
+            // 显式向 Plus 菜单传入透明底，避免默认背景盖住主题表面。
             if (themeStyle === 'glassmorphism') {
                 return 'transparent'
             }
@@ -145,7 +149,7 @@ export default {
         this.$store.dispatch('app/saveMenuOpenedKeys', [])
     },
     mounted() {
-        // 立即启用拦截，阻止 Element UI 的自动展开
+        // 挂载后先关闭已有展开项；后续是否允许展开由 openMenuItem 与状态标记共同决定。
 
         // 等待下一帧，强制关闭所有已展开的菜单
         this.$nextTick(() => {
@@ -153,6 +157,7 @@ export default {
         })
     },
     methods: {
+        // 遍历整棵路由树关闭各级子菜单，不以二级或三级作为固定上限。
         forceCloseAllMenus() {
             const closeTree = (routes, prefix = '') => (routes || []).forEach(route => {
                 const index = (prefix + '/' + route.path).replace(/\/+/g, '/')

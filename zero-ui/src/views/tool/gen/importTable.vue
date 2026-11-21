@@ -47,6 +47,9 @@ v-model:limit="queryParams.pageSize"
 </template>
 
 <script>
+/**
+ * 待导入数据库表的选择弹窗；查询表清单，确认后将勾选表交给后台生成配置入口。
+ */
 import { listDbTable, importTable } from "@/api/tool/gen"
 export default {
   data() {

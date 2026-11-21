@@ -1,3 +1,6 @@
+/**
+ * 将构建时收集的 SVG 转成项目图标 sprite，并注册 SvgIcon；解析失败的内容不能作为图标节点插入。
+ */
 import SvgIcon from '@/components/SvgIcon'
 const sources = import.meta.glob('./svg/*.svg', { eager: true, query: '?raw', import: 'default' })
 export default function registerIcons(app) {

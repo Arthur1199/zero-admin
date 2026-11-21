@@ -1,4 +1,7 @@
 <script>
+/**
+ * 递归渲染构建器的行布局与普通控件；拖动调整配置结构，值变更回传给画布草稿。
+ */
 import { h, resolveComponent } from 'vue'
 import draggable from 'vuedraggable'
 import FormRender from '@/utils/generator/render.jsx'

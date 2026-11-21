@@ -1,3 +1,6 @@
+/**
+ * 表单构建器的全局默认值及组件配置目录；保存历史配置字段，渲染和导出时再做 Vue3/Plus 兼容转换。
+ */
 export const formConf = {
   formRef: 'elForm',
   formModel: 'formData',

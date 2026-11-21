@@ -17,6 +17,9 @@
 </template>
 
 <script>
+/**
+ * 当前账号修改密码表单；提交成功后通过全局退出流程清理会话并跳转，失败时保留重试入口。
+ */
 import { updateUserPwd } from "@/api/system/user"
 import { getToken } from "@/utils/auth"
 

@@ -18,6 +18,9 @@
 </template>
 
 <script>
+/**
+ * 项目 SVG 图标的筛选与选择面板；回传图标标识，不改写实际 SVG 文件。
+ */
 import icons from './requireIcons'
 export default {
   name: 'IconSelect',
@@ -52,9 +55,11 @@ export default {
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
   .icon-body {
     width: 100%;
     padding: 10px;
+    color: var(--zero-text);
     .icon-search {
       position: relative;
       margin-bottom: 5px;
@@ -74,14 +79,20 @@ export default {
           .icon-item {
             display: flex;
             max-width: 100%;
+            width: 100%;
+            min-width: 0;
             height: 100%;
             padding: 0 5px;
-            &:hover {
-              background: #ececec;
-              border-radius: 5px;
+            border-radius: 5px;
+            // 图标和名称共用主题色，悬浮与当前选择使用同一组状态变量。
+            &:hover,
+            &.active {
+              background: var(--zero-surface-hover);
+              color: var(--zero-text-heading);
             }
             .icon {
               flex-shrink: 0;
+              color: inherit;
             }
             span {
               display: inline-block;
@@ -92,10 +103,6 @@ export default {
               text-overflow: ellipsis;
               white-space: nowrap;
             }
-          }
-          .icon-item.active {
-            background: #ececec;
-            border-radius: 5px;
           }
         }
       }

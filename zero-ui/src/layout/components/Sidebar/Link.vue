@@ -5,6 +5,9 @@
 </template>
 
 <script>
+/**
+ * 根据路径类型选择 RouterLink 或外链元素；外链与内部路由分别生成所需属性。
+ */
 import { isExternal } from '@/utils/validate'
 
 export default {

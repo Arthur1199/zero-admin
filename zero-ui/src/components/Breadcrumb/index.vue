@@ -14,6 +14,9 @@
 </template>
 
 <script>
+/**
+ * 根据当前路由生成面包屑，并在跳转时处理对应菜单定位反馈；展示路径与实际可跳转路由分别判断。
+ */
 export default {
   data() {
     return {
@@ -106,6 +109,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// 组件局部布局与展示样式；跨页面主题及 body 弹层规则在 assets/styles 中统一维护。
 .app-breadcrumb.el-breadcrumb {
   display: inline-block;
   font-size: 14px;
