@@ -25,7 +25,7 @@ import com.zero.common.utils.StringUtils;
  * 时间: 2026/11/20 01:36
  * 说明: IP地址解析工具
  *
- * 优先调用太平洋网络接口获取实时地址；远程不可用或返回无效时，
+ * 优先查询 IP.cn，其次查询太平洋网络。两者均未返回有效地址时，
  * 使用 classpath 下的 ip2region/ip2region.xdb 离线库兜底，避免登录日志地址长期为空。
  */
 @Slf4j
@@ -40,7 +40,7 @@ public class AddressUtils
     public static final String IP_URL = "https://whois.pconline.com.cn/ipJson.jsp";
 
     /**
-     * IP.cn地址查询接口，页面中的tab0_address节点包含地址文本。
+     * IP.cn地址查询接口，当前页面在“所在地理位置”表格行中展示地址。
      */
     public static final String IP_CN_URL = "http://www.ip.cn/ip";
 
@@ -49,6 +49,13 @@ public class AddressUtils
      */
     private static final Pattern IP_CN_ADDRESS_PATTERN = Pattern.compile(
             "<span\\s+[^>]*id=[\"']tab0_address[\"'][^>]*>(.*?)</span>", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+
+    /**
+     * IP.cn当前页面地址匹配表达式，只提取地区span，避免混入“查看区县”链接文案。
+     */
+    private static final Pattern IP_CN_LOCATION_PATTERN = Pattern.compile(
+            "<th\\b[^>]*>\\s*(?:<span\\b[^>]*>\\s*)?所在地理位置\\s*(?:</span>\\s*)?</th>\\s*"
+                    + "<td\\b[^>]*>\\s*<span\\b[^>]*>(.*?)</span>", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
     /**
      * ip2region离线库在classpath中的位置。
@@ -131,16 +138,16 @@ public class AddressUtils
             return internal(ip);
         }
 
-        IpAddressInfo remoteInfo = queryRemote(ip);
-        if (isValidAddress(remoteInfo))
-        {
-            return remoteInfo;
-        }
-
         IpAddressInfo ipCnInfo = queryIpCn(ip);
         if (isValidAddress(ipCnInfo))
         {
             return ipCnInfo;
+        }
+
+        IpAddressInfo remoteInfo = queryRemote(ip);
+        if (isValidAddress(remoteInfo))
+        {
+            return remoteInfo;
         }
 
         IpAddressInfo localInfo = queryLocal(ip);
@@ -486,7 +493,17 @@ public class AddressUtils
      */
     private static String extractIpCnAddress(String html)
     {
-        Matcher matcher = IP_CN_ADDRESS_PATTERN.matcher(html);
+        if (StringUtils.isBlank(html))
+        {
+            return StringUtils.EMPTY;
+        }
+        Matcher matcher = IP_CN_LOCATION_PATTERN.matcher(html);
+        if (matcher.find())
+        {
+            return cleanHtmlText(matcher.group(1));
+        }
+        // 兼容历史页面的地址节点。
+        matcher = IP_CN_ADDRESS_PATTERN.matcher(html);
         if (!matcher.find())
         {
             return StringUtils.EMPTY;
