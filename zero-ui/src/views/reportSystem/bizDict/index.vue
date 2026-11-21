@@ -660,18 +660,7 @@ export default {
 </script>
 
 <style scoped>
-.biz-dict-page {
-  --dict-border: #e5e7eb;
-  --dict-soft-bg: #f8fafc;
-  --dict-title-color: #303133;
-  --dict-header-bg: #f5f7fa;
-  --dict-row-bg: #ffffff;
-  --dict-row-hover-bg: #f5f7fa;
-  --dict-cell-color: #303133;
-  --dict-header-color: #606266;
-  --dict-tag-bg: #ffffff;
-  --dict-tag-color: #606266;
-}
+
 
 .dict-item-panel {
   padding: 12px 14px 16px 46px;
@@ -726,122 +715,8 @@ export default {
 }
 </style>
 
-<style>
-.biz-dict-page {
-  --dict-expanded-bg: #f8fafc;
-  --dict-border: #e5e7eb;
-  --dict-soft-bg: #f8fafc;
-  --dict-title-color: #303133;
-  --dict-header-bg: #f5f7fa;
-  --dict-row-bg: #ffffff;
-  --dict-row-hover-bg: #f5f7fa;
-  --dict-cell-color: #303133;
-  --dict-header-color: #606266;
-  --dict-tag-bg: #ffffff;
-  --dict-tag-color: #606266;
-}
-
-body.theme-luxury-business .biz-dict-page,
-.theme-luxury-business .biz-dict-page {
-  --dict-expanded-bg: #141925;
-  --dict-border: #2a3142;
-  --dict-soft-bg: #1a1f2e;
-  --dict-title-color: #e8eaf0;
-  --dict-header-bg: #20273a;
-  --dict-row-bg: #171d2b;
-  --dict-row-hover-bg: rgba(212, 175, 55, 0.12);
-  --dict-cell-color: #e8eaf0;
-  --dict-header-color: #d4af37;
-  --dict-tag-bg: rgba(212, 175, 55, 0.10);
-  --dict-tag-color: #d4af37;
-}
-
-body.theme-glassmorphism .biz-dict-page,
-.theme-glassmorphism .biz-dict-page {
-  --dict-expanded-bg: rgba(255, 255, 255, 0.08);
-  --dict-border: rgba(255, 255, 255, 0.24);
-  --dict-soft-bg: transparent;
-  --dict-title-color: #ffffff;
-  --dict-cell-color: #ffffff;
-  --dict-header-color: rgba(255, 255, 255, 0.92);
-  --dict-tag-bg: rgba(255, 255, 255, 0.12);
-  --dict-tag-color: rgba(255, 255, 255, 0.94);
-}
-
-body.theme-vibrant-tech .biz-dict-page,
-.theme-vibrant-tech .biz-dict-page {
-  --dict-expanded-bg: #101730;
-  --dict-border: #2a3552;
-  --dict-soft-bg: #141a35;
-  --dict-title-color: #ffffff;
-  --dict-header-bg: rgba(102, 126, 234, 0.18);
-  --dict-row-bg: rgba(20, 26, 53, 0.96);
-  --dict-row-hover-bg: rgba(0, 242, 254, 0.10);
-  --dict-cell-color: #ffffff;
-  --dict-header-color: #00f2fe;
-  --dict-tag-bg: rgba(0, 242, 254, 0.10);
-  --dict-tag-color: #00f2fe;
-}
-
-body.theme-minimalist-future .biz-dict-page,
-.theme-minimalist-future .biz-dict-page {
-  --dict-expanded-bg: rgba(244, 251, 255, 0.96);
-  --dict-border: rgba(0, 188, 212, 0.18);
-  --dict-soft-bg: rgba(255, 255, 255, 0.90);
-  --dict-title-color: #172033;
-  --dict-header-bg: rgba(232, 250, 255, 0.96);
-  --dict-row-bg: #ffffff;
-  --dict-row-hover-bg: rgba(0, 188, 212, 0.07);
-  --dict-cell-color: #172033;
-  --dict-header-color: #365065;
-  --dict-tag-bg: rgba(0, 188, 212, 0.08);
-  --dict-tag-color: #006c9a;
-}
-
-body.theme-warm-nature .biz-dict-page,
-.theme-warm-nature .biz-dict-page {
-  --dict-expanded-bg: #fbf7f0;
-  --dict-border: #d4c4b0;
-  --dict-soft-bg: #fffaf3;
-  --dict-title-color: #4a3f35;
-  --dict-header-bg: #f6ecdd;
-  --dict-row-bg: #fffaf3;
-  --dict-row-hover-bg: #f9f4ed;
-  --dict-cell-color: #4a3f35;
-  --dict-header-color: #8b6f47;
-  --dict-tag-bg: #faf7f0;
-  --dict-tag-color: #8b6f47;
-}
-
-body.theme-material-design .biz-dict-page,
-.theme-material-design .biz-dict-page {
-  --dict-expanded-bg: #f7f2ff;
-  --dict-border: #e7e0ec;
-  --dict-soft-bg: #ffffff;
-  --dict-title-color: #1c1b1f;
-  --dict-header-bg: #f3edf7;
-  --dict-row-bg: #ffffff;
-  --dict-row-hover-bg: rgba(103, 80, 164, 0.08);
-  --dict-cell-color: #1c1b1f;
-  --dict-header-color: #49454f;
-  --dict-tag-bg: rgba(103, 80, 164, 0.08);
-  --dict-tag-color: #6750a4;
-}
-
-body.theme-dark-premium .biz-dict-page,
-.theme-dark-premium .biz-dict-page {
-  --dict-expanded-bg: #0f0f12;
-  --dict-border: #27272a;
-  --dict-soft-bg: #18181b;
-  --dict-title-color: #e4e4e7;
-  --dict-header-bg: #202024;
-  --dict-row-bg: #151518;
-  --dict-row-hover-bg: rgba(212, 175, 55, 0.12);
-  --dict-cell-color: #e4e4e7;
-  --dict-header-color: #d4af37;
-  --dict-tag-bg: rgba(212, 175, 55, 0.10);
-  --dict-tag-color: #d4af37;
-}
+<style lang="scss">
+@import "@/assets/styles/themes/pages/_biz-dict.scss";
 
 .biz-dict-page .el-table__body-wrapper td.el-table__expanded-cell.el-table__cell {
   padding: 0 !important;

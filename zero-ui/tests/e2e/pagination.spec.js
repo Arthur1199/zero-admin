@@ -1,5 +1,9 @@
 import { test, expect } from '@playwright/test'
-import { authenticated } from './mock-api'
+import { authenticated, mockAdminWebSocket } from './mock-api'
+
+test.beforeEach(async ({ page }) => {
+  await mockAdminWebSocket(page)
+})
 
 test('八主题跳页框没有双层背景，页码与每页条数请求正确', async ({ page }) => {
   test.setTimeout(120000)

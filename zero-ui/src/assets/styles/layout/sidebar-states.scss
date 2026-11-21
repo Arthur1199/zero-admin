@@ -1,0 +1,68 @@
+// 展开侧栏和任意层级弹层共用状态规则，配色来自 themes/layout/sidebar。
+body #app .app-wrapper .sidebar-container .el-menu--vertical,
+body .sidebar-menu-popper.el-menu--popup-container.el-menu--vertical > .el-menu--popup {
+  .el-menu-item:not(.is-active, .is-disabled):is(:hover, :focus-visible),
+  .el-sub-menu:not(.is-active, .sidebar-current-branch, .is-disabled) > .el-sub-menu__title:is(:hover, :focus-visible) {
+    background: var(--sidebar-menu-hover-background,
+      color-mix(in srgb, var(--el-color-primary) 18%, transparent)) !important;
+    color: var(--sidebar-menu-hover-text, var(--el-menu-text-color)) !important;
+
+    .sidebar-menu-title,
+    .svg-icon,
+    .el-sub-menu__icon-arrow {
+      color: inherit !important;
+    }
+  }
+
+  .el-menu-item.is-active:not(.is-disabled),
+  .el-sub-menu:is(.is-active, .sidebar-current-branch):not(.is-disabled) > .el-sub-menu__title {
+    background: var(--sidebar-menu-active-background,
+      linear-gradient(90deg, color-mix(in srgb, var(--el-color-primary) 26%, transparent), transparent)) !important;
+    color: var(--sidebar-menu-active-text, var(--el-menu-text-color)) !important;
+    font-weight: 600;
+
+    &:not(.menu-clicking) {
+      animation: menu-shake-breath 2.5s ease-in-out infinite !important;
+    }
+
+    .sidebar-menu-title,
+    .svg-icon,
+    .el-sub-menu__icon-arrow {
+      color: inherit !important;
+    }
+  }
+}
+
+body .sidebar-menu-popper.el-menu--popup-container.el-menu--vertical > .el-menu--popup {
+  // 指针移入下一层弹窗时，当前展开分组仍要保留反馈。
+  .el-sub-menu.is-opened:not(.is-active, .sidebar-current-branch, .is-disabled) > .el-sub-menu__title:not(:hover, :focus-visible) {
+    background: var(--sidebar-menu-open-background,
+      color-mix(in srgb, var(--el-color-primary) 10%, transparent)) !important;
+    color: var(--sidebar-menu-hover-text, var(--el-menu-text-color)) !important;
+
+    .sidebar-menu-title,
+    .svg-icon,
+    .el-sub-menu__icon-arrow {
+      color: inherit !important;
+    }
+  }
+
+  .el-menu-item.is-active {
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0 auto 0 0 !important;
+      width: 4px !important;
+      height: auto !important;
+      transform: none !important;
+      background: var(--sidebar-menu-active-mark, var(--el-color-primary)) !important;
+      box-shadow: none !important;
+    }
+
+    &::after {
+      content: none !important;
+    }
+  }
+}

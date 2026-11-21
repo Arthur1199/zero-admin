@@ -1,0 +1,8 @@
+// 高端暗黑风弹窗允许下拉弹层超出正文区域。旧 VueTreeselect 专属选择器已移除。
+body.theme-dark-premium {
+  .el-dialog,
+  .el-dialog__body {
+    overflow: visible !important;
+  }
+
+}

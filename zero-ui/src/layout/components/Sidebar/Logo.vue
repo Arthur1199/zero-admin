@@ -18,7 +18,7 @@
 
 <script>
 import logoImg from '@/assets/logo/zero.ico'
-import variables from '@/assets/styles/variables.module.scss'
+import variables from '@/assets/styles/base/variables.module.scss'
 
 export default {
   name: 'SidebarLogo',

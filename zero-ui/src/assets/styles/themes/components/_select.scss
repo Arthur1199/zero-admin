@@ -1,0 +1,147 @@
+// 下拉和树选择弹层的基础主题覆盖，按 body 主题类匹配挂载到 body 的弹层。
+// 这里保留 Element Plus 下拉与旧版 VueTreeselect 的选择器。后续的专项弹层覆盖按原顺序加载。
+
+// 轻奢商务风
+body.theme-luxury-business .el-select-dropdown {
+  background-color: #1a1f2e !important;
+  border: 1px solid #2a3142 !important;
+
+  .el-select-dropdown__item {
+    color: #e8eaf0 !important;
+
+    &.hover, &:hover {
+      background-color: rgba(212, 175, 55, 0.1) !important;
+      color: #d4af37 !important;
+    }
+
+    &.selected {
+      color: #d4af37 !important;
+      background-color: rgba(212, 175, 55, 0.15) !important;
+    }
+  }
+}
+
+// 活力科技风
+body.theme-vibrant-tech .el-select-dropdown {
+  background-color: #141a35 !important;
+  border: 1px solid #2a3552 !important;
+
+  .el-select-dropdown__item {
+    color: #ffffff !important;
+
+    &.hover, &:hover {
+      background-color: rgba(0, 242, 254, 0.1) !important;
+      color: #00f2fe !important;
+    }
+
+    &.selected {
+      color: #00f2fe !important;
+      background-color: rgba(0, 242, 254, 0.15) !important;
+    }
+  }
+}
+
+// 极简未来风
+body.theme-minimalist-future .el-select-dropdown {
+  background-color: #ffffff !important;
+  border: 1px solid rgba(0, 188, 212, 0.26) !important;
+
+  .el-select-dropdown__item {
+    color: #172033 !important;
+
+    &.hover, &:hover {
+      background-color: rgba(0, 188, 212, 0.10) !important;
+      color: #006c9a !important;
+    }
+
+    &.selected {
+      color: #006c9a !important;
+      background-color: rgba(0, 188, 212, 0.14) !important;
+    }
+  }
+}
+
+// 温馨自然风
+body.theme-warm-nature .el-select-dropdown {
+  background-color: #ffffff !important;
+  border: 1px solid #d4c4b0 !important;
+
+  .el-select-dropdown__item {
+    color: #4a3f35 !important;
+
+    &.hover, &:hover {
+      background-color: #f9f4ed !important;
+      color: #8b6f47 !important;
+    }
+
+    &.selected {
+      color: #8b6f47 !important;
+      background-color: #faf7f0 !important;
+    }
+  }
+}
+
+// 毛玻璃拟态风
+body.theme-glassmorphism .el-select-dropdown {
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+
+  .el-select-dropdown__item {
+    color: #ffffff !important;
+
+    &.hover, &:hover {
+      background: rgba(255, 255, 255, 0.15) !important;
+    }
+
+    &.selected {
+      color: #ffffff !important;
+      background: rgba(255, 255, 255, 0.25) !important;
+    }
+  }
+}
+
+// 质感设计风
+body.theme-material-design .el-select-dropdown {
+  background-color: #ffffff !important;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+  .el-select-dropdown__item {
+    color: #212121 !important;
+
+    &.hover, &:hover {
+      background-color: rgba(94, 53, 177, 0.08) !important;
+    }
+
+    &.selected {
+      color: #5e35b1 !important;
+      background-color: rgba(94, 53, 177, 0.12) !important;
+    }
+  }
+}
+
+// 高端暗黑风
+body.theme-dark-premium .el-select-dropdown {
+  background-color: #0a0e27 !important;
+  border: 1px solid #1a1f3a !important;
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+
+  .el-select-dropdown__item {
+    color: #ffffff !important;
+
+    &.hover, &:hover {
+      background: linear-gradient(90deg, rgba(255, 215, 0, 0.15) 0%, transparent 100%) !important;
+      color: #ffd700 !important;
+    }
+
+    &.selected {
+      color: #ffd700 !important;
+      background: linear-gradient(90deg, rgba(255, 215, 0, 0.2) 0%, transparent 100%) !important;
+    }
+  }
+}
+

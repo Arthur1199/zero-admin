@@ -1,0 +1,70 @@
+// 顶部导航结构及测量容器。随组件按需加载，保持实际字体与测量布局一致。
+
+.top-nav {
+  position: relative;
+
+  > #topmenu-container {
+    height: 100%;
+    border-bottom: 0;
+  }
+}
+
+// 使用与实际菜单相同的字体和间距测量，不参与导航布局或交互。
+.top-nav-measure.el-menu--horizontal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: max-content;
+  visibility: hidden;
+  // 子菜单箭头有全局可见性覆盖，整组透明才能保留测量且不露出图标。
+  opacity: 0;
+  pointer-events: none;
+}
+
+.topmenu-container.el-menu--horizontal > .el-menu-item {
+  float: left;
+  height: 50px !important;
+  line-height: 50px !important;
+  color: rgba(255, 255, 255, 0.8) !important;  /* 默认白色半透明 */
+  padding: 0 5px !important;
+  margin: 0 10px !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease;
+}
+
+.topmenu-container.el-menu--horizontal > .el-menu-item.is-active {
+  border-bottom: 4px solid #{'var(--theme)'} !important;
+  color: rgba(255, 255, 255, 1) !important;  /* 激活时全白 */
+  font-weight: 600 !important;
+}
+
+.topmenu-container.el-menu--horizontal > .el-sub-menu.is-active .el-sub-menu__title {
+  border-bottom: 4px solid #{'var(--theme)'} !important;
+  color: rgba(255, 255, 255, 1) !important;  /* 激活时全白 */
+  font-weight: 600 !important;
+}
+
+/* submenu item */
+.topmenu-container.el-menu--horizontal > .el-sub-menu .el-sub-menu__title {
+  float: left;
+  height: 50px !important;
+  line-height: 50px !important;
+  color: rgba(255, 255, 255, 0.8) !important;  /* 默认白色半透明 */
+  padding: 0 5px !important;
+  margin: 0 10px !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease;
+}
+
+.topmenu-container.el-menu--horizontal > .top-nav-more .el-sub-menu__title {
+  font-weight: 600 !important;
+}
+
+/* hover状态 */
+.topmenu-container.el-menu--horizontal > .el-menu-item:hover,
+.topmenu-container.el-menu--horizontal > .el-sub-menu .el-sub-menu__title:hover {
+  color: rgba(255, 255, 255, 1) !important;
+}
+
+
+@import '../themes/layout/top-nav';

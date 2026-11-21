@@ -15,7 +15,7 @@
       v-else 
       ref="subMenu" 
       :index="resolvePathString(item.path)" 
-      :class="{ 'sidebar-current-branch': isCurrentBranch }"
+      :class="{ 'sidebar-current-branch': activeBranches.has(item) }"
       :data-menu-id="item.menuId"
       teleported @click="handleSubmenuClick">
       <template #title>
@@ -30,6 +30,7 @@
         :is-nest="true"
         :item="child"
         :base-path="resolvePath(child.path)"
+        :active-branches="activeBranches"
         class="nest-menu"
       />
     </el-sub-menu>
@@ -61,6 +62,10 @@ export default {
     basePath: {
       type: String,
       default: ''
+    },
+    activeBranches: {
+      type: Set,
+      required: true
     }
   },
   data() {
@@ -71,10 +76,6 @@ export default {
     }
   },
   computed: {
-    isCurrentBranch() {
-      const activePath = this.$route.meta.activeMenu || this.$route.path
-      return this.isNest && activePath.startsWith(this.basePath + '/')
-    },
     menuClickEffect() {
       return this.$store.state.settings.menuClickEffect || 'gradient-gorgeous'
     }

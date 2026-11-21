@@ -1,7 +1,6 @@
-@use './themes/theme-variables' as theme;
+@use './theme-variables' as theme;
 
-// 毛玻璃主题浮层可读性兜底
-// 固定列、弹窗、抽屉、下拉层会覆盖在正文上方，底色太透明会透出后方文字。
+// 毛玻璃主题的可读性覆盖。在主题基础样式之后加载，为表格、弹窗、下拉和其他浮层统一对比度。
 body.theme-glassmorphism {
   --glass-readable-panel: rgba(48, 30, 88, 0.94);
   --glass-readable-header: rgba(93, 68, 145, 0.96);
@@ -18,24 +17,6 @@ body.theme-glassmorphism {
   --glass-float-edge: var(--glass-dialog-edge);
   --glass-choice-hover: rgba(255, 255, 255, 0.12);
   --glass-choice-selected: rgba(255, 255, 255, 0.20);
-  --glass-sidebar-hover-bg: rgba(186, 230, 253, 0.22);
-  --glass-sidebar-hover-text: #cffafe;
-
-  // 侧栏子菜单挂载到 body，展开菜单和各级弹出菜单共用悬浮样式。
-  #app .app-wrapper .sidebar-container,
-  .sidebar-menu-popper.el-menu--vertical > .el-menu--popup {
-    .el-menu-item:not(.is-active, .is-disabled):is(:hover, :focus-visible),
-    .el-sub-menu:not(.is-active, .sidebar-current-branch, .is-disabled) > .el-sub-menu__title:is(:hover, :focus-visible) {
-      background: var(--glass-sidebar-hover-bg) !important;
-      color: var(--glass-sidebar-hover-text) !important;
-
-      .sidebar-menu-title,
-      .svg-icon,
-      .el-sub-menu__icon-arrow {
-        color: inherit !important;
-      }
-    }
-  }
 
   .el-table {
     background: rgba(62, 42, 124, 0.44) !important;

@@ -95,7 +95,6 @@ export default {
       })
       this.removeLayoutThemeClasses()
       this.removeGlassmorphismBackgroundClasses()
-      this.removeGlassmorphismRuntimeStyles()
     },
     removeLayoutThemeClasses() {
       const layout = document.querySelector('#app .app-wrapper')
@@ -152,12 +151,6 @@ export default {
         document.body.classList.remove(`glass-bg-${key}`)
       })
       document.documentElement.style.removeProperty('--glassmorphism-bg-gradient')
-    },
-    removeGlassmorphismRuntimeStyles() {
-      const style = document.getElementById('glassmorphism-hover-override')
-      if (style) {
-        style.remove()
-      }
     }
   },
   mounted() {

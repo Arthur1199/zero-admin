@@ -13,6 +13,7 @@
 - 以最小改动修复问题，格式与文件现有写法一致。
 - 列表页沿用既有若依结构（`queryParams`、`getList`、分页等）。
 - 样式改动前先阅读 `src/assets/styles` 与主题相关 SCSS，避免破坏多主题。
+- 样式入口和职责见 `src/assets/styles/README.md`。公共结构放在 base、layout、components，主题差异放在 themes，动画放在 motion；页面独立布局继续使用 scoped 样式。
 - 不新增全局依赖、不升级框架，除非单独评审并说明影响。
 - 普通权限按钮沿用v-hasPermi；没有原生元素根节点的Element Plus下拉菜单项使用现有$auth.hasPermi控制v-if，权限标识不变。
 - 菜单图标与标题保持独立根节点，叶子项标题放title插槽，折叠图标按el-menu-tooltip__trigger居中；折叠结构覆盖只作用顶层侧栏，不影响弹出子菜单和点击特效。各级子菜单用teleported挂到body，避免父层裁剪；二级标题使用主题文字变量。

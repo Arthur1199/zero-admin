@@ -1,7 +1,7 @@
 import { isWebSocketBusinessType, WebSocketMessageType } from '@/utils/websocketMessageType'
 import { h, render } from 'vue'
 import { ElNotification, ElMessage, ElDialog, ElButton } from 'element-plus'
-import '@/assets/styles/websocket-notice.scss'
+import '@/assets/styles/components/notice.scss'
 import { noticeContent, noticeDetailsHtml } from '@/utils/noticeRichContent'
 
 // 按实际排版判断摘要是否溢出，短消息不显示详情入口；窗口变化时重新测量。

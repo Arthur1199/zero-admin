@@ -1,0 +1,22 @@
+// Element Plus弹层挂在body下，与业务页面使用同一套主题变量。
+body {
+  --el-bg-color: var(--zero-surface);
+  --el-bg-color-overlay: var(--zero-surface);
+  --el-fill-color-blank: var(--zero-surface);
+  --el-fill-color-light: var(--zero-surface-muted);
+  --el-fill-color-lighter: var(--zero-surface-hover);
+  --el-text-color-primary: var(--zero-text);
+  --el-text-color-regular: var(--zero-text);
+  --el-border-color: var(--zero-border);
+  --el-border-color-light: var(--zero-border);
+  --el-border-color-lighter: var(--zero-border);
+  --el-disabled-bg-color: var(--zero-surface-muted);
+  --el-disabled-text-color: var(--zero-text);
+  --el-disabled-border-color: var(--zero-border);
+
+}
+
+@import './_table-compat.scss';
+@import './_form-compat.scss';
+@import './_overlay-compat.scss';
+@import './_menu-compat.scss';

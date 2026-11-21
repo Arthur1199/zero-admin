@@ -1,0 +1,12 @@
+// 原始风格由公共样式和 Element Plus 基础样式组成。
+// App.vue 选择原始风格时移除主题类，顶部栏和页签补用这里的默认背景。
+
+body:not([class*="theme-"]) {
+  .navbar {
+    background: #fff;
+  }
+
+  .tags-view-container {
+    background: #fff;
+  }
+}

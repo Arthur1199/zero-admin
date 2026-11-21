@@ -1,0 +1,27 @@
+// 表格操作列和 sticky 固定单元格兼容，复用主题表格变量。
+body {
+  .el-table {
+    --el-table-bg-color: var(--zero-surface);
+    --el-table-tr-bg-color: var(--zero-table-row);
+    --el-table-header-bg-color: var(--zero-surface-muted);
+    --el-table-row-hover-bg-color: var(--zero-surface-hover);
+    --el-table-border-color: var(--zero-border);
+    --el-table-text-color: var(--zero-text);
+    --el-table-header-text-color: var(--zero-text-heading);
+    .cell .el-dropdown { vertical-align: middle; }
+    // 操作列不继承主题普通按钮的大内边距，避免更多按钮换行。
+    .cell .el-button.is-link {
+      padding: 2px 0 !important;
+      font-size: 12px;
+      letter-spacing: normal;
+    }
+    .cell > .el-button + .el-button,
+    .cell > .el-button + .el-dropdown { margin-left: 4px; }
+  }
+  .el-table th.el-table-fixed-column--left,
+  .el-table th.el-table-fixed-column--right { background: var(--zero-surface-muted) !important; }
+  .el-table td.el-table-fixed-column--left,
+  .el-table td.el-table-fixed-column--right { background: var(--zero-table-row) !important; }
+  .el-table tr:hover > td.el-table-fixed-column--left,
+  .el-table tr:hover > td.el-table-fixed-column--right { background: var(--zero-surface-hover) !important; }
+}

@@ -519,20 +519,7 @@ export default {
       // 创建ul元素
       const menuEl = document.createElement('ul')
       menuEl.className = 'tags-view-contextmenu'
-      menuEl.style.cssText = `
-        margin: 0;
-        background: #fff;
-        z-index: 9999;
-        position: fixed;
-        list-style-type: none;
-        padding: 5px 0;
-        border-radius: 4px;
-        font-size: 12px;
-        font-weight: 400;
-        color: #333;
-        box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, .3);
-        display: none;
-      `
+
 
       // 创建菜单项
       const menuItems = [
@@ -568,20 +555,8 @@ export default {
         }
 
         const li = document.createElement('li')
-        li.style.cssText = `
-          margin: 0;
-          padding: 7px 16px;
-          cursor: pointer;
-        `
-        li.innerHTML = `<i class="${item.icon}"></i> ${item.label}`
 
-        // 添加悬停效果
-        li.addEventListener('mouseenter', () => {
-          li.style.background = '#eee'
-        })
-        li.addEventListener('mouseleave', () => {
-          li.style.background = 'transparent'
-        })
+        li.innerHTML = `<i class="${item.icon}"></i> ${item.label}`
 
         // 添加点击事件
         li.addEventListener('click', () => {
@@ -713,82 +688,5 @@ export default {
   }
 }
 
-/* Tab标签双击视觉反馈效果 */
-.tags-view-wrapper {
-  .tags-view-item.tag-dblclick-flash {
-    animation: tag-dblclick-pulse 0.6s ease-out;
-  }
-}
-
-/* Tab双击脉冲动画 */
-@keyframes tag-dblclick-pulse {
-  0% {
-    transform: scale(1);
-    box-shadow: 0 0 0 rgba(64, 158, 255, 0);
-  }
-  30% {
-    transform: scale(1.05);
-    box-shadow: 0 0 15px rgba(64, 158, 255, 0.5);
-  }
-  60% {
-    transform: scale(0.98);
-    box-shadow: 0 0 8px rgba(64, 158, 255, 0.3);
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 rgba(64, 158, 255, 0);
-  }
-}
-
-/* ========================================
-   Tab标签激活项抖动效果（全局默认）
-   注意：各主题的火焰发光效果会覆盖此动画
-   默认主题下，Tab标签拥有独立的抖动效果，与菜单不同步
-======================================== */
-
-/* 激活的Tab标签抖动（仅用于默认主题） */
-body:not(.theme-glassmorphism):not(.theme-dark-premium):not(.theme-luxury-business):not(.theme-vibrant-tech):not(.theme-minimalist-future):not(.theme-warm-nature):not(.theme-material-design) {
-  .tags-view-wrapper .tags-view-item.active {
-    animation: tab-shake-independent 3.5s ease-in-out infinite !important;
-  }
-}
-
-/* Tab标签独立抖动动画（与菜单不同步） */
-@keyframes tab-shake-independent {
-  0% {
-    transform: translateX(0);
-  }
-  1% {
-    transform: translateX(1.5px);
-  }
-  2% {
-    transform: translateX(3px);
-  }
-  3% {
-    transform: translateX(1.5px);
-  }
-  8% {
-    transform: translateX(0);
-  }
-  5% {
-    transform: translateX(-1.5px);
-  }
-  6% {
-    transform: translateX(-3px);
-  }
-  7% {
-    transform: translateX(-1.5px);
-  }
-  8% {
-    transform: translateX(0);
-  }
-  95% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(0);
-  }
-}
-
-
+@import "@/assets/styles/motion/tags.scss";
 </style>

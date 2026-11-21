@@ -1,0 +1,36 @@
+// Element Plus wrapper 绘制边框和背景，内层 input 只承载文字。
+body {
+  .el-input__wrapper, .el-select__wrapper, .el-textarea__inner {
+    background-color: var(--el-fill-color-blank);
+    color: var(--el-text-color-regular);
+    box-shadow: 0 0 0 1px var(--el-border-color) inset;
+  }
+  .el-input__inner { color: var(--el-text-color-regular); background: transparent; }
+  // Element Plus的边框和背景由wrapper绘制，内层input只承载文字。
+  // 覆盖旧主题的inner装饰，避免弹窗、查询栏、分页出现两层输入框。
+  // 输入提示框的主题选择器层级更深，需要显式覆盖其内层输入框。
+  .el-input .el-input__wrapper > input.el-input__inner,
+  .el-input .el-input__wrapper > input.el-input__inner:hover,
+  .el-input .el-input__wrapper > input.el-input__inner:focus,
+  .el-message-box .el-message-box__input .el-input .el-input__wrapper > input.el-input__inner,
+  .el-message-box .el-message-box__input .el-input .el-input__wrapper > input.el-input__inner:hover,
+  .el-message-box .el-message-box__input .el-input .el-input__wrapper > input.el-input__inner:focus,
+  .el-input-number .el-input .el-input__wrapper > input.el-input__inner,
+  .el-input-number .el-input .el-input__wrapper > input.el-input__inner:hover,
+  .el-input-number .el-input .el-input__wrapper > input.el-input__inner:focus,
+  .el-pagination .el-pagination__jump .el-input .el-input__wrapper > input.el-input__inner,
+  .el-pagination .el-pagination__jump .el-input .el-input__wrapper > input.el-input__inner:hover,
+  .el-pagination .el-pagination__jump .el-input .el-input__wrapper > input.el-input__inner:focus {
+    width: 100%;
+    min-width: 0;
+    height: var(--el-input-inner-height) !important;
+    line-height: var(--el-input-inner-height) !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
