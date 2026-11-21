@@ -1,0 +1,16 @@
+// 指令只计算位置和尺寸，拖动手柄的静态外观由这里统一维护。
+.zero-dialog-draggable > .el-dialog__header { cursor: move; }
+body .el-dialog.zero-dialog-interacting {
+  // 旧主题用 !important 设置顶部留白；进入拖拽后改由视口坐标定位，避免叠加留白跳动。
+  margin: 0 !important;
+  transform: none !important;
+}
+.zero-dialog-resize-handle {
+  position: absolute;
+  right: 0;
+  z-index: 1;
+  touch-action: none;
+
+  &--width { top: 10%; bottom: 10%; width: 6px; cursor: ew-resize; }
+  &--height { bottom: 0; width: 12px; height: 12px; cursor: nwse-resize; }
+}

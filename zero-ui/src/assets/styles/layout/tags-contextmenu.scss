@@ -3,7 +3,7 @@
   margin: 0;
   background: var(--zero-surface, #fff);
   border: 1px solid var(--zero-border, #dcdfe6);
-  z-index: 9999;
+  z-index: var(--zero-layer-contextmenu);
   position: fixed;
   list-style-type: none;
   padding: 5px 0;

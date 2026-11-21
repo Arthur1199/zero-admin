@@ -1,0 +1,6 @@
+@use 'sass:color';
+
+// 沿用旧 lighten/darken 的 RGB 边界裁剪，避免亮度超出范围时输出新的广色域颜色。
+@function shift-lightness($value, $amount) {
+  @return color.to-gamut(color.adjust($value, $lightness: $amount), $space: rgb, $method: clip);
+}

@@ -408,6 +408,7 @@ export default {
 </script>
 
 <style lang='scss'>
+@use 'sass:meta';
 .editor-tabs{
   background: #121315;
   .el-tabs__header{
@@ -915,5 +916,5 @@ $lighterBlue: #409EFF;
 }
 
 
-@import "@/assets/styles/themes/pages/_form-builder.scss";
+@include meta.load-css("@/assets/styles/themes/pages/_form-builder.scss");
 </style>

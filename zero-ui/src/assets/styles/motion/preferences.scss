@@ -1,0 +1,22 @@
+// 键盘焦点独立于鼠标 hover；覆盖基础 reset 中的 outline:none。
+body :is(#app, .el-popper, .el-overlay, .tags-view-contextmenu) :is(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--zero-text-heading, var(--el-color-primary));
+  outline-offset: 2px;
+}
+
+// 系统减少动态效果时，保留当前菜单的颜色与标记，只停止动画。
+@media (prefers-reduced-motion: reduce) {
+  body #app,
+  body #app *,
+  body #app *::before,
+  body #app *::after,
+  body :is(.el-popper, .el-overlay, .el-message, .el-notification, .tags-view-contextmenu),
+  body :is(.el-popper, .el-overlay, .el-message, .el-notification, .tags-view-contextmenu) *,
+  body :is(.el-popper, .el-overlay) *::before,
+  body :is(.el-popper, .el-overlay) *::after {
+    // !important 用于覆盖各主题内的动画声明，不覆盖选中与悬浮配色。
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

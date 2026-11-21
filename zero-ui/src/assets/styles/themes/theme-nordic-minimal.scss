@@ -1,10 +1,13 @@
+@use './_theme-colors.scss' as *;
+@use './theme-variables' as *;
+@use './theme-mixins' as *;
 // ==========================================
 // 北欧极简风主题样式
 // Theme: Nordic Minimal
 // ==========================================
 
-@import './theme-variables';
-@import './theme-mixins';
+
+
 
 .theme-nordic-minimal:not(.form-builder-page) {
   // ========== 全局背景与文字 ==========
@@ -64,7 +67,7 @@
       }
 
       &.is-active {
-        background-color: lighten($theme-nordic-minimal-accent, 45%) !important;
+        background-color: shift-lightness($theme-nordic-minimal-accent, 45%) !important;
         color: $theme-nordic-minimal-menu-active !important;
         font-weight: 500;
 
@@ -123,7 +126,7 @@
         }
 
         &.is-active {
-          background-color: lighten($theme-nordic-minimal-accent, 45%) !important;
+          background-color: shift-lightness($theme-nordic-minimal-accent, 45%) !important;
           color: $theme-nordic-minimal-menu-active !important;
         }
       }
@@ -217,7 +220,7 @@
         }
 
         &.is-active {
-          background: lighten($theme-nordic-minimal-accent, 45%) !important;
+          background: shift-lightness($theme-nordic-minimal-accent, 45%) !important;
           color: $theme-nordic-minimal-menu-active !important;
           font-weight: 500;
           position: relative;
@@ -277,12 +280,12 @@
       
       .el-tree-node__content {
         &:hover {
-          background-color: lighten($theme-nordic-minimal-accent, 45%);
+          background-color: shift-lightness($theme-nordic-minimal-accent, 45%);
         }
       }
       
       .is-current > .el-tree-node__content {
-        background-color: lighten($theme-nordic-minimal-accent, 45%);
+        background-color: shift-lightness($theme-nordic-minimal-accent, 45%);
         color: $theme-nordic-minimal-accent;
       }
     }
@@ -307,9 +310,9 @@
   // 表格样式
   @include theme-table(
     $theme-nordic-minimal-bg-card,
-    lighten($theme-nordic-minimal-bg-base, 1%),
+    shift-lightness($theme-nordic-minimal-bg-base, 1%),
     $theme-nordic-minimal-border,
-    lighten($theme-nordic-minimal-bg-base, 2%),
+    shift-lightness($theme-nordic-minimal-bg-base, 2%),
     $theme-nordic-minimal-text-primary
   );
 
@@ -324,19 +327,19 @@
 
     &:hover,
     &:focus {
-      background-color: lighten($theme-nordic-minimal-accent, 8%);
-      border-color: lighten($theme-nordic-minimal-accent, 8%);
+      background-color: shift-lightness($theme-nordic-minimal-accent, 8%);
+      border-color: shift-lightness($theme-nordic-minimal-accent, 8%);
     }
   }
 
   .el-button--success {
-    background-color: lighten($theme-nordic-minimal-accent, 10%);
-    border-color: lighten($theme-nordic-minimal-accent, 10%);
+    background-color: shift-lightness($theme-nordic-minimal-accent, 10%);
+    border-color: shift-lightness($theme-nordic-minimal-accent, 10%);
 
     &:hover,
     &:focus {
-      background-color: lighten($theme-nordic-minimal-accent, 15%);
-      border-color: lighten($theme-nordic-minimal-accent, 15%);
+      background-color: shift-lightness($theme-nordic-minimal-accent, 15%);
+      border-color: shift-lightness($theme-nordic-minimal-accent, 15%);
     }
   }
 
@@ -553,7 +556,7 @@
             font-weight: 500 !important;
 
             &:hover {
-              color: lighten($theme-nordic-minimal-accent, 10%) !important;
+              color: shift-lightness($theme-nordic-minimal-accent, 10%) !important;
             }
           }
 
@@ -588,7 +591,7 @@
       &.active {
         background: linear-gradient(135deg, 
           $theme-nordic-minimal-accent 0%, 
-          darken($theme-nordic-minimal-accent, 5%) 100%);
+          shift-lightness($theme-nordic-minimal-accent, -5%) 100%);
         border-color: $theme-nordic-minimal-accent;
         color: #ffffff;
         box-shadow: 0 2px 6px rgba($theme-nordic-minimal-accent, 0.3);
@@ -607,7 +610,7 @@
       color: $theme-nordic-minimal-text-primary;
 
       &:hover {
-        background-color: lighten($theme-nordic-minimal-accent, 45%);
+        background-color: shift-lightness($theme-nordic-minimal-accent, 45%);
         color: $theme-nordic-minimal-accent;
       }
     }
@@ -672,7 +675,7 @@ body.theme-nordic-minimal {
       &:not(.disabled):hover {
         color: $theme-nordic-minimal-accent !important;
         border-color: $theme-nordic-minimal-accent !important;
-        background-color: lighten($theme-nordic-minimal-accent, 45%) !important;
+        background-color: shift-lightness($theme-nordic-minimal-accent, 45%) !important;
       }
 
       &.active {
@@ -863,7 +866,7 @@ body.theme-nordic-minimal {
       color: $theme-nordic-minimal-text-primary;
 
       &:hover {
-        background-color: lighten($theme-nordic-minimal-accent, 45%);
+        background-color: shift-lightness($theme-nordic-minimal-accent, 45%);
       }
 
       &.is-active {
@@ -879,11 +882,11 @@ body.theme-nordic-minimal {
     color: $theme-nordic-minimal-text-primary;
 
     .el-tree-node__content:hover {
-      background-color: lighten($theme-nordic-minimal-accent, 45%);
+      background-color: shift-lightness($theme-nordic-minimal-accent, 45%);
     }
 
     .el-tree-node:focus > .el-tree-node__content {
-      background-color: lighten($theme-nordic-minimal-accent, 45%);
+      background-color: shift-lightness($theme-nordic-minimal-accent, 45%);
     }
   }
 
@@ -895,7 +898,7 @@ body.theme-nordic-minimal {
     color: $theme-nordic-minimal-text-primary;
 
     &.el-message--success {
-      background-color: lighten($theme-nordic-minimal-accent, 40%);
+      background-color: shift-lightness($theme-nordic-minimal-accent, 40%);
       border-color: $theme-nordic-minimal-accent;
     }
   }
@@ -972,13 +975,13 @@ body.theme-nordic-minimal {
 
   // ========== 标签样式 ==========
   .el-tag {
-    background-color: lighten($theme-nordic-minimal-accent, 42%);
-    border: 1px solid lighten($theme-nordic-minimal-accent, 30%);
+    background-color: shift-lightness($theme-nordic-minimal-accent, 42%);
+    border: 1px solid shift-lightness($theme-nordic-minimal-accent, 30%);
     color: $theme-nordic-minimal-accent;
     border-radius: 2px;
 
     &.el-tag--info {
-      background-color: lighten($theme-nordic-minimal-bg-base, 2%);
+      background-color: shift-lightness($theme-nordic-minimal-bg-base, 2%);
       border-color: $theme-nordic-minimal-border;
       color: $theme-nordic-minimal-text-secondary;
     }

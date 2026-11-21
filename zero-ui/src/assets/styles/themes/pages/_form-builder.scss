@@ -6,6 +6,8 @@ body.theme-glassmorphism.form-builder-page .form-build-container {
   --form-build-header-bg: rgba(255, 255, 255, 0.16);
   --form-build-canvas-bg: rgba(255, 255, 255, 0.08);
   --form-build-input-bg: rgba(255, 255, 255, 0.92);
+  --form-build-input-text: #303133;
+  --form-build-input-muted: #606266;
   --form-build-text: #ffffff;
   --form-build-muted: rgba(255, 255, 255, 0.76);
   --form-build-border: rgba(255, 255, 255, 0.24);
@@ -85,9 +87,40 @@ body.theme-glassmorphism.form-builder-page .form-build-container {
     }
   }
 
-  .el-input__inner,
-  .el-textarea__inner {
-    color: #303133;
+}
+
+// 构建器拥有独立表面：Plus 的 wrapper 绘制背景，输入文字与其表面变量配对。
+// !important 覆盖历史主题内层装饰；#app 限定只影响构建器，不改变 body 下的选择弹层。
+body.form-builder-page #app .form-build-container {
+  .el-input__wrapper,
+  .el-select__wrapper,
+  .el-textarea__inner,
+  .el-input-group__append,
+  .el-input-number__decrease,
+  .el-input-number__increase {
+    background: var(--form-build-input-bg, #fff) !important;
+    border-color: var(--form-build-border) !important;
+    color: var(--form-build-input-text, var(--form-build-text)) !important;
+  }
+
+  .el-input .el-input__wrapper > input.el-input__inner,
+  .el-select__selected-item {
+    color: var(--form-build-input-text, var(--form-build-text)) !important;
+    background: transparent !important;
+  }
+
+  .el-input__inner::placeholder,
+  .el-textarea__inner::placeholder,
+  .el-select__placeholder.is-transparent,
+  .el-input__icon,
+  .el-select__caret,
+  .el-input__count-inner {
+    color: var(--form-build-input-muted, var(--form-build-muted)) !important;
+  }
+
+  .el-input__count,
+  .el-input__count-inner {
+    background: transparent !important;
   }
 }
 

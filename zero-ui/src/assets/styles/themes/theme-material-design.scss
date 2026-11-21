@@ -1,10 +1,13 @@
+@use './_theme-colors.scss' as *;
+@use './theme-variables' as *;
+@use './theme-mixins' as *;
 // ==========================================
 // 质感设计风主题样式
 // 浅色表面、阴影和紫色强调组成主题层级。菜单交互沿用共用侧栏规则。
 // ==========================================
 
-@import './theme-variables';
-@import './theme-mixins';
+
+
 
 .theme-material-design:not(.form-builder-page) {
   // ========== 全局背景与文字 ==========
@@ -348,7 +351,7 @@
       background-color: transparent;
       
       .el-input__inner {
-        background-color: lighten($theme-material-design-bg-base, 2%);
+        background-color: shift-lightness($theme-material-design-bg-base, 2%);
         border-color: $theme-material-design-border;
         color: $theme-material-design-text-primary;
       }
@@ -397,9 +400,9 @@
   // 表格样式
   @include theme-table(
     $theme-material-design-bg-card,
-    lighten($theme-material-design-bg-base, 2%),
+    shift-lightness($theme-material-design-bg-base, 2%),
     $theme-material-design-border,
-    lighten($theme-material-design-bg-base, 3%),
+    shift-lightness($theme-material-design-bg-base, 3%),
     $theme-material-design-text-primary
   );
 
@@ -421,7 +424,7 @@
 
     &:hover,
     &:focus {
-      background: linear-gradient(135deg, lighten($theme-material-design-primary, 5%) 0%, #8e6bc5 100%);
+      background: linear-gradient(135deg, shift-lightness($theme-material-design-primary, 5%) 0%, #8e6bc5 100%);
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.24);
       transform: translateY(-2px);
     }
@@ -442,7 +445,7 @@
 
     &:hover,
     &:focus {
-      background-color: lighten($theme-material-design-accent, 8%);
+      background-color: shift-lightness($theme-material-design-accent, 8%);
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.24);
       transform: translateY(-2px);
     }
@@ -767,7 +770,7 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 
     .tags-view-item {
-      background-color: lighten($theme-material-design-bg-base, 2%);
+      background-color: shift-lightness($theme-material-design-bg-base, 2%);
       border: none;
       color: $theme-material-design-text-secondary;
       border-radius: 16px;
@@ -776,7 +779,7 @@
       &.active {
         background: linear-gradient(135deg, 
           $theme-material-design-primary 0%, 
-          darken($theme-material-design-primary, 8%) 100%);
+          shift-lightness($theme-material-design-primary, -8%) 100%);
         color: #ffffff;
         animation: tab-flame-material 3s ease-in-out infinite;
       }

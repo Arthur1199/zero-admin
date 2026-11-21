@@ -7,11 +7,12 @@ import { markRaw } from "vue"
 import * as echarts from 'echarts'
 import 'echarts/theme/macarons' // echarts theme
 import resize from './mixins/resize'
+import chartAppearance from '@/mixins/chartAppearance'
 
 const animationDuration = 6000
 
 export default {
-  mixins: [resize],
+  mixins: [resize, chartAppearance],
   props: {
     className: {
       type: String,
@@ -97,6 +98,7 @@ export default {
           animationDuration
         }]
       })
+      this.applyChartAppearance()
     }
   }
 }

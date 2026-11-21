@@ -1,51 +1,52 @@
+@use 'sass:meta';
 // 维护指南见本目录 README.md。顺序依次包含基础样式、主题、组件专项兼容。
-@import './components/element-plus-variables.scss';
+@include meta.load-css('./components/element-plus-variables.scss');
+@include meta.load-css('./base/metrics.scss');
 // 全局样式入口。公共变量、混入、布局和组件结构位于当前目录。
 // themes 目录维护主题配色、原始风格补充规则和跨主题组件覆盖。
 // App.vue 把主题类同步到 body 和布局容器，挂到 body 的弹层通过 body 主题类取色。
-@import './base/variables.scss';
-@import './base/mixins.scss';
-@import './motion/transitions.scss';
-@import './components/element-plus.scss';
-@import './layout/sidebar.scss';
-@import './components/buttons.scss';
+
+@include meta.load-css('./motion/transitions.scss');
+@include meta.load-css('./components/element-plus.scss');
+@include meta.load-css('./layout/sidebar.scss');
+@include meta.load-css('./components/buttons.scss');
 
 // 七种增强主题按现有顺序加载，原始风格由公共样式和下面的默认补充规则组成。
 // 涉及同一组件的规则依赖加载顺序，跨主题模块继续在原位置加载。
-@import './themes/theme-variables';
-@import './themes/theme-mixins';
-@import './motion/theme-effects.scss';
-@import './themes/theme-luxury-business.scss';
-@import './themes/theme-vibrant-tech.scss';
-@import './themes/theme-minimalist-future.scss';
-@import './themes/theme-warm-nature.scss';
-@import './themes/theme-glassmorphism.scss';
-@import './themes/theme-material-design.scss';
-@import './themes/theme-dark-premium.scss';
 
-@import './themes/theme-default';
-@import './themes/layout/_copyright.scss';
+@include meta.load-css('./motion/theme-effects.scss');
+@include meta.load-css('./themes/theme-luxury-business.scss');
+@include meta.load-css('./themes/theme-vibrant-tech.scss');
+@include meta.load-css('./themes/theme-minimalist-future.scss');
+@include meta.load-css('./themes/theme-warm-nature.scss');
+@include meta.load-css('./themes/theme-glassmorphism.scss');
+@include meta.load-css('./themes/theme-material-design.scss');
+@include meta.load-css('./themes/theme-dark-premium.scss');
 
-@import './base/document.scss';
+@include meta.load-css('./themes/theme-default');
+@include meta.load-css('./themes/layout/_copyright.scss');
 
-@import './themes/components/_dark-dialog.scss';
+@include meta.load-css('./base/document.scss');
 
-@import './themes/layout/_minimalist.scss';
+@include meta.load-css('./themes/components/_dark-dialog.scss');
 
-@import './layout/content.scss';
+@include meta.load-css('./themes/layout/_minimalist.scss');
+
+@include meta.load-css('./layout/content.scss');
 
 // 组件覆盖保持基础下拉、树选择与专项弹层原有的级联顺序。
-@import './themes/components/_select.scss';
-@import './themes/components/_minimalist.scss';
-@import './themes/layout/_sidebar.scss';
-@import './layout/sidebar-states.scss';
-
+@include meta.load-css('./themes/components/_select.scss');
+@include meta.load-css('./themes/components/_minimalist.scss');
+@include meta.load-css('./themes/layout/_sidebar.scss');
+@include meta.load-css('./layout/sidebar-states.scss');
 
 // 组件专项适配在主题基础样式之后加载，保留兼容规则的优先级。
-@import './base/utilities.scss';
-@import './components/pagination.scss';
-@import './themes/glassmorphism-readable.scss';
-@import './themes/tokens';
-@import './components/element-plus-compat.scss';
-@import './components/table.scss';
-@import './layout/tags-contextmenu.scss';
+@include meta.load-css('./base/utilities.scss');
+@include meta.load-css('./components/pagination.scss');
+@include meta.load-css('./themes/glassmorphism-readable.scss');
+@include meta.load-css('./themes/tokens');
+@include meta.load-css('./components/element-plus-compat.scss');
+@include meta.load-css('./components/table.scss');
+@include meta.load-css('./layout/tags-contextmenu.scss');
+@include meta.load-css('./components/dialog-interaction.scss');
+@include meta.load-css('./motion/preferences.scss');

@@ -1,10 +1,13 @@
+@use './_theme-colors.scss' as *;
+@use './theme-variables' as *;
+@use './theme-mixins' as *;
 // ==========================================
 // 温馨自然风主题样式
 // 暖白表面与棕色文字提供基础对比，暖色用于按钮和菜单状态。
 // ==========================================
 
-@import './theme-variables';
-@import './theme-mixins';
+
+
 
 .theme-warm-nature:not(.form-builder-page) {
   // ========== 全局背景与文字 ==========
@@ -30,7 +33,7 @@
 
     // Logo区域
     .sidebar-logo-container {
-      background: linear-gradient(135deg, $theme-warm-nature-primary 0%, darken($theme-warm-nature-primary, 5%) 100%) !important;
+      background: linear-gradient(135deg, $theme-warm-nature-primary 0%, shift-lightness($theme-warm-nature-primary, -5%) 100%) !important;
       border-bottom: 1px solid $theme-warm-nature-border;
 
       .sidebar-title {
@@ -80,7 +83,7 @@
       }
 
       &.is-active {
-        background-color: lighten($theme-warm-nature-accent, 25%) !important;
+        background-color: shift-lightness($theme-warm-nature-accent, 25%) !important;
         color: $theme-warm-nature-menu-active !important;
         box-shadow: 0 2px 8px rgba($theme-warm-nature-primary, 0.2);
       }
@@ -129,7 +132,7 @@
 
     // 子菜单容器 - 与毛玻璃拟态风保持一致
     .el-menu--inline {
-      background-color: lighten($theme-warm-nature-menu-bg, 2%) !important;
+      background-color: shift-lightness($theme-warm-nature-menu-bg, 2%) !important;
       margin: 0 6px !important;  // 左右边距从12px减少到6px，子菜单整体向左移动6px
 
       .el-menu-item {
@@ -146,7 +149,7 @@
         position: relative;
 
         &:hover {
-          background-color: lighten($theme-warm-nature-accent, 35%) !important;
+          background-color: shift-lightness($theme-warm-nature-accent, 35%) !important;
           color: $theme-warm-nature-primary !important;
         }
 
@@ -313,7 +316,7 @@
     .hero-section {
       background: linear-gradient(135deg, 
         $theme-warm-nature-primary 0%, 
-        lighten($theme-warm-nature-primary, 8%) 100%);
+        shift-lightness($theme-warm-nature-primary, 8%) 100%);
       border-radius: 0;
       
       .hero-content {
@@ -361,12 +364,12 @@
       
       .el-tree-node__content {
         &:hover {
-          background-color: lighten($theme-warm-nature-accent, 30%);
+          background-color: shift-lightness($theme-warm-nature-accent, 30%);
         }
       }
       
       .is-current > .el-tree-node__content {
-        background-color: lighten($theme-warm-nature-accent, 30%);
+        background-color: shift-lightness($theme-warm-nature-accent, 30%);
         color: $theme-warm-nature-primary;
       }
     }
@@ -407,9 +410,9 @@
   // 表格样式
   @include theme-table(
     $theme-warm-nature-bg-card,
-    lighten($theme-warm-nature-bg-base, 2%),
+    shift-lightness($theme-warm-nature-bg-base, 2%),
     $theme-warm-nature-border,
-    lighten($theme-warm-nature-accent, 30%),
+    shift-lightness($theme-warm-nature-accent, 30%),
     $theme-warm-nature-text-primary
   );
 
@@ -665,12 +668,6 @@
     font-size: 13px;
   }
 
-  .el-button--mini {
-    border-radius: 18px;
-    padding: 7px 15px;
-    font-size: 12px;
-  }
-
   // 按钮组间距优化
   .el-button + .el-button {
     margin-left: 12px;
@@ -754,7 +751,7 @@
   // ========== 对话框样式 ==========
   @include theme-dialog(
     $theme-warm-nature-bg-card,
-    lighten($theme-warm-nature-bg-base, 2%),
+    shift-lightness($theme-warm-nature-bg-base, 2%),
     $theme-warm-nature-text-primary,
     $theme-warm-nature-border
   );
@@ -940,7 +937,7 @@
   .navbar {
     background: linear-gradient(90deg, 
       $theme-warm-nature-primary 0%, 
-      lighten($theme-warm-nature-primary, 5%) 100%);
+      shift-lightness($theme-warm-nature-primary, 5%) 100%);
     box-shadow: 0 2px 8px rgba($theme-warm-nature-primary, 0.2);
     border-bottom: 1px solid rgba($theme-warm-nature-primary, 0.3);
 
@@ -1072,7 +1069,7 @@
     border-bottom: 1px solid $theme-warm-nature-border;
 
     .tags-view-item {
-      background-color: lighten($theme-warm-nature-bg-base, 3%);
+      background-color: shift-lightness($theme-warm-nature-bg-base, 3%);
       border: 1px solid $theme-warm-nature-border;
       color: $theme-warm-nature-text-secondary;
       border-radius: 4px;
@@ -1080,7 +1077,7 @@
       &.active {
         background: linear-gradient(135deg, 
           $theme-warm-nature-primary 0%, 
-          lighten($theme-warm-nature-primary, 5%) 100%);
+          shift-lightness($theme-warm-nature-primary, 5%) 100%);
         border-color: $theme-warm-nature-primary;
         color: $theme-warm-nature-bg-card;
         animation: tab-flame-warm 3s ease-in-out infinite;
@@ -1941,57 +1938,6 @@ body.theme-warm-nature .el-menu--popup li.el-menu-item.is-active {
     .el-upload__tip {
       color: rgba($theme-warm-nature-text-primary, 0.85) !important;
     }
-  }
-
-  // ========== Vue-TreeSelect 组件主题适配 ==========
-  .vue-treeselect__control {
-    background-color: $theme-warm-nature-bg-card;
-    border-color: #e8e0d5;
-    border-radius: 12px;
-    transition: all 0.3s;
-
-    &:hover {
-      border-color: #d4c4b0;
-    }
-  }
-
-  .vue-treeselect--focused {
-    .vue-treeselect__control {
-      border-color: #e89c5c;
-      box-shadow: 0 0 0 2px rgba(232, 156, 92, 0.1);
-    }
-  }
-
-  .vue-treeselect__placeholder,
-  .vue-treeselect__single-value {
-    color: $theme-warm-nature-text-primary;
-  }
-
-  .vue-treeselect__menu {
-    background-color: $theme-warm-nature-bg-card;
-    border: 1px solid #e8e0d5;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(139, 115, 85, 0.15);
-  }
-
-  .vue-treeselect__option {
-    color: $theme-warm-nature-text-primary;
-    transition: all 0.3s;
-
-    &:hover {
-      background-color: rgba(232, 156, 92, 0.1);
-      color: #e89c5c;
-    }
-
-    &--selected {
-      background-color: rgba(232, 156, 92, 0.15);
-      color: #e89c5c;
-      font-weight: 600;
-    }
-  }
-
-  .vue-treeselect__label {
-    color: inherit;
   }
 
   // ========== 上传组件样式 ==========

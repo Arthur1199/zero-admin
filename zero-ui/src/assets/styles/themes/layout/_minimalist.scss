@@ -78,9 +78,7 @@ body.theme-minimalist-future:not(.form-builder-page) #app {
 body.theme-minimalist-future:not(.form-builder-page) #app .app-main {
   .el-table,
   .el-table__header-wrapper,
-  .el-table__fixed-header-wrapper,
   .el-table__header,
-  .el-table__fixed-header-wrapper .el-table__header,
   .el-table__header thead,
   .el-table__header tr,
   .el-table__header th,
@@ -101,9 +99,7 @@ body.theme-minimalist-future:not(.form-builder-page) #app .app-main {
   .el-table__header-wrapper::before,
   .el-table__header-wrapper::after,
   .el-table::before,
-  .el-table::after,
-  .el-table__fixed::before,
-  .el-table__fixed-right::before {
+  .el-table::after {
     background: rgba(0, 188, 212, 0.14) !important;
     background-color: rgba(0, 188, 212, 0.14) !important;
   }

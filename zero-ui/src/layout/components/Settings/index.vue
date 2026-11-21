@@ -277,8 +277,6 @@ export default {
           key: 'glassmorphismBgStyle',
           value: val
         })
-        // 切换背景风格后，动态更新CSS变量
-        this.updateGlassmorphismBackground(val)
       }
     }
   },
@@ -316,14 +314,6 @@ export default {
       // 设置下拉层挂在 body 下，选择主题或颜色时仍属于设置栏内部操作。
       if (drawer?.contains(event.target) || event.target.closest('.zero-settings-popper, .navbar .setting')) return
       this.closeSetting()
-    },
-    updateGlassmorphismBackground(styleKey) {
-      // 动态更新CSS变量
-      import('@/assets/styles/themes/glassmorphism-backgrounds').then(module => {
-        const gradient = module.getGlassmorphismBackground(styleKey)
-        const root = document.documentElement
-        root.style.setProperty('--glassmorphism-bg-gradient', gradient)
-      })
     },
     saveSetting() {
       this.$modal.loading("正在保存到本地，请稍候...")

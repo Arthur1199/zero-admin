@@ -1,0 +1,21 @@
+// 公共尺寸与层级只在此声明；配色仍由 themes/_tokens.scss 负责。
+// 三档沿用 Element Plus 的尺寸，显式 size="small" 的局部控件仍由组件控制。
+:root {
+  --zero-control-large: 40px;
+  --zero-control-default: 32px;
+  --zero-control-small: 24px;
+  --el-component-size-large: var(--zero-control-large);
+  --el-component-size: var(--zero-control-default);
+  --el-component-size-small: var(--zero-control-small);
+  --zero-layer-header: 9;
+  --zero-layer-sidebar-mask: 999;
+  --zero-layer-sidebar: 1001;
+  --zero-layer-sidebar-resizer: 1002;
+  --zero-layer-contextmenu: calc(var(--el-index-popper, 2000) + 1);
+  --zero-layer-notice: var(--el-index-popper, 2000);
+  --zero-layer-notice-detail: calc(var(--zero-layer-notice) + 1);
+  --zero-dialog-min-width: 240px;
+  --zero-dialog-min-height: 160px;
+}
+
+// Dialog / MessageBox / 图片预览保留 Plus 的动态层级，不能用固定大数压住后打开的弹层。

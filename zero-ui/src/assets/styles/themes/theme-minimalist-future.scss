@@ -1,10 +1,13 @@
+@use './_theme-colors.scss' as *;
+@use './theme-variables' as *;
+@use './theme-mixins' as *;
 // ==========================================
 // 极简未来风主题样式
 // 冷白表面以青蓝区分层级和状态，旧弹层选择器的兼容规则由主题覆盖模块后置处理。
 // ==========================================
 
-@import './theme-variables';
-@import './theme-mixins';
+
+
 
 .theme-minimalist-future:not(.form-builder-page) {
   // ========== 全局背景与文字 ==========
@@ -434,14 +437,6 @@
     
     .el-table__empty-text {
       color: #999999;
-    }
-    
-    // 固定列阴影
-    .el-table__fixed,
-    .el-table__fixed-right {
-      &::before {
-        background-color: #e0e0e0;
-      }
     }
   }
 
@@ -904,8 +899,8 @@
 
       &.active {
         background: linear-gradient(135deg, 
-          lighten($theme-minimalist-future-primary, 15%) 0%, 
-          lighten($theme-minimalist-future-primary, 10%) 100%);
+          shift-lightness($theme-minimalist-future-primary, 15%) 0%,
+          shift-lightness($theme-minimalist-future-primary, 10%) 100%);
         border-color: $theme-minimalist-future-accent;
         color: $theme-minimalist-future-accent;
         animation: tab-flame-minimal 3s ease-in-out infinite;

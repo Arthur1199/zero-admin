@@ -24,9 +24,7 @@ body.theme-glassmorphism {
   }
 
   .el-table__header-wrapper th.el-table__cell,
-  .el-table__fixed-header-wrapper th.el-table__cell,
-  .el-table__header-wrapper tr,
-  .el-table__fixed-header-wrapper tr {
+  .el-table__header-wrapper tr {
     background: var(--glass-readable-header) !important;
     background-color: var(--glass-readable-header) !important;
     color: rgba(255, 255, 255, 0.96) !important;
@@ -52,69 +50,6 @@ body.theme-glassmorphism {
     > td.el-table__cell:where(:not(.el-table-fixed-column--left, .el-table-fixed-column--right)) {
       background: var(--glass-table-cell-color) !important;
     }
-  }
-
-  .el-table__fixed,
-  .el-table__fixed-right {
-    background: var(--glass-readable-panel) !important;
-    background-color: var(--glass-readable-panel) !important;
-    border-color: var(--glass-readable-border) !important;
-    box-shadow: var(--glass-readable-shadow) !important;
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    overflow: hidden;
-  }
-
-  .el-table__fixed-right {
-    box-shadow: -14px 0 28px rgba(31, 16, 72, 0.32) !important;
-  }
-
-  .el-table__fixed::before,
-  .el-table__fixed-right::before {
-    background: rgba(255, 255, 255, 0.28) !important;
-  }
-
-  .el-table__fixed-right-patch {
-    background: var(--glass-readable-header) !important;
-    background-color: var(--glass-readable-header) !important;
-  }
-
-  .el-table__fixed .el-table__fixed-header-wrapper th.el-table__cell,
-  .el-table__fixed-right .el-table__fixed-header-wrapper th.el-table__cell,
-  .el-table__fixed .el-table__header-wrapper th.el-table__cell,
-  .el-table__fixed-right .el-table__header-wrapper th.el-table__cell {
-    background: var(--glass-readable-header) !important;
-    background-color: var(--glass-readable-header) !important;
-  }
-
-  .el-table__fixed .el-table__fixed-body-wrapper,
-  .el-table__fixed-right .el-table__fixed-body-wrapper,
-  .el-table__fixed .el-table__body,
-  .el-table__fixed-right .el-table__body,
-  .el-table__fixed tr,
-  .el-table__fixed-right tr,
-  .el-table__fixed td.el-table__cell,
-  .el-table__fixed-right td.el-table__cell {
-    background: var(--glass-readable-row) !important;
-    background-color: var(--glass-readable-row) !important;
-  }
-
-  .el-table__fixed .el-table__body tr.hover-row > td.el-table__cell,
-  .el-table__fixed-right .el-table__body tr.hover-row > td.el-table__cell {
-    background: var(--glass-readable-row) !important;
-    background-color: var(--glass-readable-row) !important;
-  }
-
-  .el-table__fixed .el-table__body tr:hover > td.el-table__cell,
-  .el-table__fixed-right .el-table__body tr:hover > td.el-table__cell {
-    background: var(--glass-readable-row-hover) !important;
-    background-color: var(--glass-readable-row-hover) !important;
-  }
-
-  .el-table__fixed .cell,
-  .el-table__fixed-right .cell {
-    color: rgba(255, 255, 255, 0.98) !important;
-    text-shadow: 0 1px 2px rgba(18, 8, 45, 0.38);
   }
 
   .el-overlay:not(.zero-settings-overlay, .admin-ws-notice-dialog-overlay) {

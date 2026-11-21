@@ -137,8 +137,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  @import "@/assets/styles/base/mixins.scss";
-  @import "@/assets/styles/base/variables.scss";
+  @use "@/assets/styles/base" as *;
 
   .app-wrapper {
     @include clearfix;
@@ -159,14 +158,14 @@ export default {
     top: 0;
     height: 100%;
     position: absolute;
-    z-index: 999;
+    z-index: var(--zero-layer-sidebar-mask);
   }
 
   .fixed-header {
     position: fixed;
     top: 0;
     right: 0;
-    z-index: 9;
+    z-index: var(--zero-layer-header);
     width: calc(100% - var(--sidebar-width, #{$base-sidebar-width}));
     transition: width 0.28s;
   }
@@ -176,7 +175,7 @@ export default {
     top: 0;
     bottom: 0;
     left: calc(var(--sidebar-width, #{$base-sidebar-width}) - 4px);
-    z-index: 1002;
+    z-index: var(--zero-layer-sidebar-resizer);
     width: 8px;
     cursor: col-resize;
     display: flex;

@@ -1,3 +1,4 @@
+@use 'sass:meta';
 // 顶部导航结构及测量容器。随组件按需加载，保持实际字体与测量布局一致。
 
 .top-nav {
@@ -67,4 +68,4 @@
 }
 
 
-@import '../themes/layout/top-nav';
+@include meta.load-css('../themes/layout/top-nav');

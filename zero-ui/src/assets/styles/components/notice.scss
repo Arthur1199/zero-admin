@@ -214,8 +214,8 @@ body.theme-glassmorphism .system-notice-editor {
 // 固定本模块内的层级关系，后到的通知不能利用递增z-index盖住已打开的详情。
 .el-message.admin-ws-notice-message,
 .el-notification.admin-ws-notice-card {
-  z-index: var(--el-index-popper, 2000) !important;
+  z-index: var(--zero-layer-notice) !important;
 }
 .el-overlay.admin-ws-notice-dialog-overlay {
-  z-index: calc(var(--el-index-popper, 2000) + 1) !important;
+  z-index: var(--zero-layer-notice-detail) !important;
 }
