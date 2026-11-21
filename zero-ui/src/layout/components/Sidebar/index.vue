@@ -22,6 +22,7 @@
                     :key="route.path  + index"
                     :item="route"
                     :base-path="route.path"
+                    :active-branches="activeBranches"
                 />
             </el-menu>
         </el-scrollbar>
@@ -32,8 +33,10 @@
 import { mapGetters, mapState } from "vuex"
 import Logo from "./Logo"
 import SidebarItem from "./SidebarItem"
-import variables from '@/assets/styles/variables.module.scss'
+import variables from '@/assets/styles/base/variables.module.scss'
 import { playSound, SoundType } from '@/utils/audio'
+import { resolvePath } from '@/utils/path'
+import { isExternal } from '@/utils/validate'
 
 export default {
     components: { SidebarItem, Logo },
@@ -48,6 +51,22 @@ export default {
                 return meta.activeMenu
             }
             return path
+        },
+        activeBranches() {
+            const activePath = resolvePath(this.activeMenu)
+            const branches = new Set()
+            // 弹出菜单可能尚未挂载，直接从可见菜单树确定当前路由的各级父项。
+            const findActive = (routes, basePath) => routes.some(route => {
+                if (route.hidden || isExternal(route.path)) return false
+                const menuPath = resolvePath(basePath, route.path)
+                if (route.children?.length && findActive(route.children, menuPath)) {
+                    branches.add(route)
+                    return true
+                }
+                return menuPath === activePath
+            })
+            findActive(this.sidebarRouters, '/')
+            return branches
         },
         showLogo() {
             return this.$store.state.settings.sidebarLogo

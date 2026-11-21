@@ -1,0 +1,110 @@
+// 极简未来风的侧栏及内容区覆盖。作用域限制在后台布局，表单构建页面保留自己的布局。
+
+body.theme-minimalist-future:not(.form-builder-page) #app {
+  .sidebar-container {
+    background: rgba(246, 252, 255, 0.96) !important;
+
+    .el-scrollbar,
+    .el-scrollbar__view,
+    .el-menu,
+    .el-menu--inline,
+    .el-sub-menu,
+    .nest-menu,
+    .nest-menu .el-sub-menu,
+    .nest-menu .el-menu-item,
+    .nest-menu .el-sub-menu > .el-sub-menu__title,
+    .el-sub-menu .el-menu-item,
+    .el-sub-menu__title,
+    .el-menu-item {
+      background: transparent !important;
+      background-color: transparent !important;
+      background-image: none !important;
+      color: #5c6b82 !important;
+      box-shadow: none !important;
+    }
+
+    .el-menu-item,
+    .el-sub-menu__title,
+    .nest-menu .el-sub-menu > .el-sub-menu__title,
+    .el-sub-menu .el-menu-item {
+      border-radius: 8px !important;
+      margin: 3px 10px !important;
+      border-left: 3px solid transparent !important;
+      min-width: auto !important;
+    }
+
+    .el-menu-item:hover,
+    .el-sub-menu__title:hover,
+    .nest-menu .el-sub-menu > .el-sub-menu__title:hover,
+    .el-sub-menu .el-menu-item:hover {
+      background: rgba(0, 188, 212, 0.09) !important;
+      background-color: rgba(0, 188, 212, 0.09) !important;
+      color: #006c9a !important;
+      border-left-color: rgba(0, 188, 212, 0.55) !important;
+    }
+
+    .el-menu-item.is-active,
+    .el-sub-menu.is-active > .el-sub-menu__title,
+    .el-sub-menu.is-opened > .el-sub-menu__title {
+      background: linear-gradient(90deg, rgba(0, 188, 212, 0.16) 0%, rgba(108, 99, 255, 0.08) 100%) !important;
+      background-color: rgba(0, 188, 212, 0.10) !important;
+      color: #006c9a !important;
+      border-left-color: #00bcd4 !important;
+      box-shadow: 0 8px 18px rgba(0, 188, 212, 0.10) !important;
+    }
+
+    .el-menu-item i,
+    .el-sub-menu__title i,
+    .svg-icon,
+    .el-sub-menu__icon-arrow {
+      color: #7a8aa0 !important;
+      fill: #7a8aa0 !important;
+    }
+
+    .el-menu-item.is-active i,
+    .el-sub-menu.is-active > .el-sub-menu__title i,
+    .el-sub-menu.is-opened > .el-sub-menu__title i,
+    .el-menu-item.is-active .svg-icon,
+    .el-sub-menu.is-active > .el-sub-menu__title .svg-icon,
+    .el-sub-menu.is-opened > .el-sub-menu__title .svg-icon,
+    .el-sub-menu.is-active > .el-sub-menu__title .el-sub-menu__icon-arrow,
+    .el-sub-menu.is-opened > .el-sub-menu__title .el-sub-menu__icon-arrow {
+      color: #00a7bd !important;
+      fill: #00a7bd !important;
+    }
+  }
+}
+
+body.theme-minimalist-future:not(.form-builder-page) #app .app-main {
+  .el-table,
+  .el-table__header-wrapper,
+  .el-table__fixed-header-wrapper,
+  .el-table__header,
+  .el-table__fixed-header-wrapper .el-table__header,
+  .el-table__header thead,
+  .el-table__header tr,
+  .el-table__header th,
+  .el-table__header th.el-table__cell,
+  .el-table__header th.gutter,
+  .el-table__header .cell {
+    background: rgba(232, 247, 255, 0.98) !important;
+    background-color: rgba(232, 247, 255, 0.98) !important;
+    color: #365065 !important;
+    border-color: rgba(0, 188, 212, 0.14) !important;
+  }
+
+  .el-table__header-wrapper {
+    border-top: 1px solid rgba(0, 188, 212, 0.18) !important;
+    border-bottom: 1px solid rgba(0, 188, 212, 0.18) !important;
+  }
+
+  .el-table__header-wrapper::before,
+  .el-table__header-wrapper::after,
+  .el-table::before,
+  .el-table::after,
+  .el-table__fixed::before,
+  .el-table__fixed-right::before {
+    background: rgba(0, 188, 212, 0.14) !important;
+    background-color: rgba(0, 188, 212, 0.14) !important;
+  }
+}

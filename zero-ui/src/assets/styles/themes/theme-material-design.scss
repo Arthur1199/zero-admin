@@ -1,6 +1,6 @@
 // ==========================================
 // 质感设计风主题样式
-// Theme: Material Design
+// 浅色表面、阴影和紫色强调组成主题层级。菜单交互沿用共用侧栏规则。
 // ==========================================
 
 @import './theme-variables';
@@ -805,45 +805,7 @@
 }
 
 // 质感设计风 - Material Design紫色火焰跳动效果（同时包含发光和抖动效果）
-@keyframes tab-flame-material {
-  0%, 100% { 
-    box-shadow: 0 0 10px rgba($theme-material-design-primary, 0.5),
-                0 0 20px rgba($theme-material-design-primary, 0.4),
-                0 0 30px rgba($theme-material-design-primary, 0.3),
-                0 2px 6px rgba($theme-material-design-primary, 0.4);
-    transform: translateX(0);
-  }
-  1% { transform: translateX(1.5px); }
-  2% { transform: translateX(3px); }
-  3% { transform: translateX(1.5px); }
-  4% { transform: translateX(0); }
-  5% { transform: translateX(-1.5px); }
-  6% { transform: translateX(-3px); }
-  7% { transform: translateX(-1.5px); }
-  8% { transform: translateX(0); }
-  25% { 
-    box-shadow: 0 0 15px rgba($theme-material-design-primary, 0.7),
-                0 0 25px rgba($theme-material-design-primary, 0.6),
-                0 0 35px rgba($theme-material-design-primary, 0.5),
-                0 2px 6px rgba($theme-material-design-primary, 0.4);
-    transform: translateX(0);
-  }
-  50% { 
-    box-shadow: 0 0 12px rgba($theme-material-design-primary, 0.6),
-                0 0 22px rgba($theme-material-design-primary, 0.5),
-                0 0 32px rgba($theme-material-design-primary, 0.4),
-                0 2px 6px rgba($theme-material-design-primary, 0.4);
-    transform: translateX(0);
-  }
-  75% { 
-    box-shadow: 0 0 18px rgba($theme-material-design-primary, 0.8),
-                0 0 28px rgba($theme-material-design-primary, 0.7),
-                0 0 38px rgba($theme-material-design-primary, 0.6),
-                0 2px 6px rgba($theme-material-design-primary, 0.4);
-    transform: translateX(0);
-  }
-  95% { transform: translateX(0); }
-}
+
 
 body.theme-material-design {
   // ========== 侧边栏折叠状态下图标左边距调整（Logo居中问题修复）==========

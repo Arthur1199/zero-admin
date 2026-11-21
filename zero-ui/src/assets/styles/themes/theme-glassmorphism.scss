@@ -1,36 +1,17 @@
 // ==========================================
-// ==========================================
 // 毛玻璃拟态风主题样式
-// Theme: Glassmorphism
+// 渐变由 App.vue 写入 CSS 变量，表面使用透明叠层，浮层对比度由后置覆盖补充。
 // ==========================================
 
 @import './theme-variables';
 @import './theme-mixins';
 
 // ========================================== 
-// 全局动画定义（必须在最前面，确保所有地方都能使用）
+// 毛玻璃主题复用的动画定义。
 // ==========================================
 // 方案A：炫彩脉冲动画
-@keyframes glassmorphism-pulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
-  }
-  50% {
-    transform: scale(1.02);
-    box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
-  }
-}
 
 // 方案B：极光呼吸动画
-@keyframes glassmorphism-breathe {
-  0%, 100% {
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 25px rgba(255, 255, 255, 0.6);
-  }
-}
 
 // ========================================== 
 // 全局最高优先级：移除毛玻璃主题下所有菜单hover背景色
@@ -465,58 +446,12 @@ body.theme-glassmorphism {
     }
     
     // ========== 菜单折叠状态下的激活样式增强 ==========
-    // 提供三种方案供选择，请只保留一种，注释掉其他两种
+    // 折叠侧栏的主题强调效果，公共选中状态由 layout/sidebar-states 统一处理
     &.hideSidebar {
       
       // ==================== 方案A：炫彩脉冲 ⚡（最醒目） ====================
       // 特点：彩色渐变背景 + 持续脉冲动画 + 超强发光 + 彩色边框
-      /*
-      .el-menu-item.is-active {
-        background: linear-gradient(90deg, 
-          rgba(102, 126, 234, 0.4) 0%,
-          rgba(118, 75, 162, 0.3) 50%,
-          rgba(237, 100, 166, 0.2) 100%) !important;
-        animation: glassmorphism-pulse 2s ease-in-out infinite;
-        
-        i, svg {
-          filter: drop-shadow(0 0 12px rgba(102, 126, 234, 1)) 
-                  drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
-          color: #ffffff !important;
-          transform: scale(1.1);
-        }
-        
-        &::before {
-          width: 6px !important;
-          background: linear-gradient(180deg, #667eea 0%, #ed64a6 100%);
-          box-shadow: 0 0 20px rgba(102, 126, 234, 0.8),
-                      0 0 40px rgba(237, 100, 166, 0.6);
-        }
-      }
-      
-      .el-sub-menu.is-active > .el-sub-menu__title {
-        background: linear-gradient(90deg, 
-          rgba(102, 126, 234, 0.4) 0%,
-          rgba(118, 75, 162, 0.3) 50%,
-          rgba(237, 100, 166, 0.2) 100%) !important;
-        animation: glassmorphism-pulse 2s ease-in-out infinite;
-        
-        i, svg {
-          filter: drop-shadow(0 0 12px rgba(102, 126, 234, 1)) 
-                  drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
-          color: #ffffff !important;
-          transform: scale(1.1);
-        }
-        
-        &::before {
-          width: 6px !important;
-          background: linear-gradient(180deg, #667eea 0%, #ed64a6 100%);
-          box-shadow: 0 0 20px rgba(102, 126, 234, 0.8),
-                      0 0 40px rgba(237, 100, 166, 0.6);
-        }
-      }
-      */
-      
-      
+
       // ==================== 方案B：极光高亮 🌟（平衡推荐） ====================
       // 特点：强烈白色高亮背景 + 图标放大发光 + 宽边框 + 轻微呼吸动画
       
@@ -597,47 +532,7 @@ body.theme-glassmorphism {
       
       // ==================== 方案C：边框加强 📍（简约风格） ====================
       // 特点：超宽边框 + 双色渐变 + 超强发光 + 无动画
-      /*
-      .el-menu-item.is-active {
-        background: linear-gradient(90deg, rgba(255, 255, 255, 0.15) 0%, transparent 100%) !important;
-        
-        i, svg {
-          filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.9));
-          color: #ffffff !important;
-        }
-        
-        &::before {
-          width: 8px !important;  // 超宽边框
-          background: linear-gradient(180deg, 
-            #ffffff 0%, 
-            #667eea 50%,
-            #00f2fe 100%);
-          box-shadow: 0 0 25px rgba(255, 255, 255, 0.9),
-                      0 0 40px rgba(102, 126, 234, 0.7),
-                      inset 0 0 15px rgba(255, 255, 255, 0.4);
-        }
-      }
       
-      .el-sub-menu.is-active > .el-sub-menu__title {
-        background: linear-gradient(90deg, rgba(255, 255, 255, 0.15) 0%, transparent 100%) !important;
-        
-        i, svg {
-          filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.9));
-          color: #ffffff !important;
-        }
-        
-        &::before {
-          width: 8px !important;  // 超宽边框
-          background: linear-gradient(180deg, 
-            #ffffff 0%, 
-            #667eea 50%,
-            #00f2fe 100%);
-          box-shadow: 0 0 25px rgba(255, 255, 255, 0.9),
-                      0 0 40px rgba(102, 126, 234, 0.7),
-                      inset 0 0 15px rgba(255, 255, 255, 0.4);
-        }
-      }
-      */
     }
 
     // 子菜单标题

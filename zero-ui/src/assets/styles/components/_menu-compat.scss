@@ -1,0 +1,38 @@
+// 折叠图标、弹层菜单文字和非模态设置抽屉的公共兼容。
+// 折叠后只保留顶层图标；标题交给菜单title插槽生成提示，不挤出省略号。
+body #app .hideSidebar .sidebar-container .el-menu--collapse > div {
+  > a > .submenu-title-noDropdown,
+  > .el-sub-menu > .el-sub-menu__title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 !important;
+    text-overflow: clip !important;
+
+    .el-menu-tooltip__trigger {
+      justify-content: center;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    .svg-icon {
+      flex-shrink: 0;
+      margin: 0 !important;
+    }
+    > .sidebar-menu-title { display: none !important; }
+    > .el-sub-menu__icon-arrow { display: none !important; }
+  }
+}
+// 极简未来风的展开菜单留白不参与折叠后顶层图标的行距。
+body.theme-minimalist-future #app .hideSidebar .sidebar-container .el-menu--collapse > div {
+  > a > .submenu-title-noDropdown,
+  > .el-sub-menu > .el-sub-menu__title {
+    margin-block: 0 !important;
+  }
+}
+// 弹出菜单的二级标题也使用主题文字色，避免深色/毛玻璃下沿用Plus默认黑字。
+body .el-menu--popup .el-sub-menu__title { color: var(--el-text-color-primary); }
+// 原始风格的深/浅侧栏配色独立于主页面，沿用菜单自己传给弹层的文字色。
+body:not([class*="theme-"]) .el-menu--popup .el-sub-menu__title { color: var(--el-menu-text-color); }
+// 设置抽屉保持非模态，透明遮罩不拦截页面按钮和表单。
+.zero-settings-overlay { pointer-events: none; }
+.zero-settings-overlay .el-drawer { pointer-events: auto; }

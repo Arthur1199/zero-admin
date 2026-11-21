@@ -1,6 +1,6 @@
 // ==========================================
 // 极简未来风主题样式
-// Theme: Minimalist Future
+// 冷白表面以青蓝区分层级和状态，旧弹层选择器的兼容规则由主题覆盖模块后置处理。
 // ==========================================
 
 @import './theme-variables';
@@ -937,45 +937,7 @@
 }
 
 // 极简未来风 - 简洁白色火焰跳动效果（同时包含发光和抖动效果）
-@keyframes tab-flame-minimal {
-  0%, 100% { 
-    box-shadow: 0 0 8px rgba($theme-minimalist-future-accent, 0.4),
-                0 0 16px rgba($theme-minimalist-future-accent, 0.3),
-                0 0 24px rgba($theme-minimalist-future-accent, 0.2),
-                0 2px 6px rgba(0, 0, 0, 0.2);
-    transform: translateX(0);
-  }
-  1% { transform: translateX(1.5px); }
-  2% { transform: translateX(3px); }
-  3% { transform: translateX(1.5px); }
-  4% { transform: translateX(0); }
-  5% { transform: translateX(-1.5px); }
-  6% { transform: translateX(-3px); }
-  7% { transform: translateX(-1.5px); }
-  8% { transform: translateX(0); }
-  25% { 
-    box-shadow: 0 0 12px rgba($theme-minimalist-future-accent, 0.6),
-                0 0 20px rgba($theme-minimalist-future-accent, 0.5),
-                0 0 28px rgba($theme-minimalist-future-accent, 0.4),
-                0 2px 6px rgba(0, 0, 0, 0.2);
-    transform: translateX(0);
-  }
-  50% { 
-    box-shadow: 0 0 10px rgba($theme-minimalist-future-accent, 0.5),
-                0 0 18px rgba($theme-minimalist-future-accent, 0.4),
-                0 0 26px rgba($theme-minimalist-future-accent, 0.3),
-                0 2px 6px rgba(0, 0, 0, 0.2);
-    transform: translateX(0);
-  }
-  75% { 
-    box-shadow: 0 0 14px rgba($theme-minimalist-future-accent, 0.7),
-                0 0 22px rgba($theme-minimalist-future-accent, 0.6),
-                0 0 30px rgba($theme-minimalist-future-accent, 0.5),
-                0 2px 6px rgba(0, 0, 0, 0.2);
-    transform: translateX(0);
-  }
-  95% { transform: translateX(0); }
-}
+
 
 body.theme-minimalist-future {
   // ========== 侧边栏 popup 子菜单样式（挂载到 body 下）==========

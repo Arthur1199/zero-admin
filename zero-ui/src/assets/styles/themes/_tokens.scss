@@ -1,0 +1,114 @@
+// 基础语义变量由主题赋值，组件适配读取这些变量。表格固定列沿用下方兼容别名。
+// Element Plus固定列使用sticky单元格，统一面板、表头、行和空数据区域的主题变量。
+:root {
+  --zero-surface: #ffffff;
+  --zero-surface-muted: #f8f8f9;
+  --zero-table-row: #ffffff;
+  --zero-surface-hover: #f5f7fa;
+  --zero-border: #ebeef5;
+  --zero-text: #606266;
+  --zero-text-heading: #515a6e;
+  --zero-table-shadow-left: 10px 0 18px rgba(31, 45, 61, 0.08);
+  --zero-table-shadow-right: -10px 0 18px rgba(31, 45, 61, 0.08);
+}
+
+// 固定列的主题色变量。公共表格样式负责固定单元格的定位和绘制，原始风格沿用公共文件中的变量默认值。
+
+body.theme-luxury-business {
+  --zero-surface: #1a1f2e;
+  --zero-surface-muted: #151924;
+  --zero-table-row: #1a1f2e;
+  --zero-surface-hover: rgba(212, 175, 55, 0.12);
+  --zero-border: #2a3142;
+  --zero-text: #b8bcc8;
+  --zero-text-heading: #d4af37;
+  --zero-table-shadow-left: 12px 0 24px rgba(0, 0, 0, 0.28);
+  --zero-table-shadow-right: -12px 0 24px rgba(0, 0, 0, 0.28);
+}
+
+body.theme-glassmorphism {
+  --zero-surface: rgba(72, 48, 134, 0.58);
+  --zero-surface-muted: rgba(93, 68, 145, 0.96);
+  --zero-table-row: rgba(72, 48, 134, 0.58);
+  --zero-surface-hover: rgba(102, 70, 168, 0.74);
+  --zero-border: rgba(255, 255, 255, 0.24);
+  --zero-text: rgba(255, 255, 255, 0.94);
+  --zero-text-heading: rgba(255, 255, 255, 0.98);
+  --zero-table-shadow-left: 1px 0 0 rgba(255, 255, 255, 0.22), 8px 0 16px rgba(31, 16, 72, 0.10);
+  --zero-table-shadow-right: -1px 0 0 rgba(255, 255, 255, 0.22), -8px 0 16px rgba(31, 16, 72, 0.10);
+}
+
+body.theme-vibrant-tech {
+  --zero-surface: #141a35;
+  --zero-surface-muted: #0f1228;
+  --zero-table-row: #141a35;
+  --zero-surface-hover: rgba(0, 242, 254, 0.12);
+  --zero-border: #2a3552;
+  --zero-text: #c0c9ff;
+  --zero-text-heading: #00f2fe;
+  --zero-table-shadow-left: 12px 0 24px rgba(0, 242, 254, 0.10);
+  --zero-table-shadow-right: -12px 0 24px rgba(0, 242, 254, 0.10);
+}
+
+body.theme-minimalist-future {
+  --zero-surface: rgba(255, 255, 255, 0.90);
+  --zero-surface-muted: rgba(232, 247, 255, 0.98);
+  --zero-table-row: rgba(255, 255, 255, 0.78);
+  --zero-surface-hover: rgba(0, 188, 212, 0.08);
+  --zero-border: rgba(0, 188, 212, 0.16);
+  --zero-text: #172033;
+  --zero-text-heading: #365065;
+  --zero-table-shadow-left: 12px 0 24px rgba(26, 73, 105, 0.10);
+  --zero-table-shadow-right: -12px 0 24px rgba(26, 73, 105, 0.10);
+}
+
+body.theme-warm-nature {
+  --zero-surface: #ffffff;
+  --zero-surface-muted: #f5f0e8;
+  --zero-table-row: #ffffff;
+  --zero-surface-hover: rgba(139, 111, 71, 0.08);
+  --zero-border: #d4c4b0;
+  --zero-text: #4a3f35;
+  --zero-text-heading: #8b6f47;
+  --zero-table-shadow-left: 12px 0 24px rgba(139, 111, 71, 0.12);
+  --zero-table-shadow-right: -12px 0 24px rgba(139, 111, 71, 0.12);
+}
+
+body.theme-material-design {
+  --zero-surface: #ffffff;
+  --zero-surface-muted: #fafafa;
+  --zero-table-row: #ffffff;
+  --zero-surface-hover: #fbfbfb;
+  --zero-border: #e5e5e5;
+  --zero-text: #49454f;
+  --zero-text-heading: #1c1b1f;
+  --zero-table-shadow-left: 8px 0 18px rgba(0, 0, 0, 0.12);
+  --zero-table-shadow-right: -8px 0 18px rgba(0, 0, 0, 0.12);
+}
+
+body.theme-dark-premium {
+  --zero-surface: #18181b;
+  --zero-surface-muted: #131316;
+  --zero-table-row: #18181b;
+  --zero-surface-hover: rgba(212, 175, 55, 0.12);
+  --zero-border: #27272a;
+  --zero-text: #a1a1aa;
+  --zero-text-heading: #d4af37;
+  --zero-table-shadow-left: 12px 0 26px rgba(0, 0, 0, 0.45);
+  --zero-table-shadow-right: -12px 0 26px rgba(0, 0, 0, 0.45);
+}
+
+// 北欧极简是历史主题，保留其固定列兼容值，设置面板仅提供正式主题。
+body.theme-nordic-minimal {
+  --zero-surface: #ffffff;
+  --zero-surface-muted: #f1f5f9;
+  --zero-table-row: #ffffff;
+  --zero-surface-hover: rgba(59, 130, 246, 0.08);
+  --zero-border: #d8e1ec;
+  --zero-text: #334155;
+  --zero-text-heading: #1e293b;
+  --zero-table-shadow-left: 10px 0 22px rgba(15, 23, 42, 0.08);
+  --zero-table-shadow-right: -10px 0 22px rgba(15, 23, 42, 0.08);
+}
+
+

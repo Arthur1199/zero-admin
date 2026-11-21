@@ -6,14 +6,9 @@ import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import AppIcon from '@/components/AppIcon'
 import { resolveIcon, normalizeSize } from '@/utils/icons'
 import 'element-plus/dist/index.css'
-import './assets/styles/element-variables.scss'
 
-import '@/assets/styles/index.scss' // global css
-import '@/assets/styles/zero.scss' // zero css
-import '@/assets/styles/pagination-override.scss' // pagination theme override
-import '@/assets/styles/glassmorphism-readable.scss' // glassmorphism readable overlay override
-import '@/assets/styles/vue3-compat.scss'
-import '@/assets/styles/table-fixed-column.scss' // final table fixed column hover override
+// 项目样式统一从此入口加载，加载顺序在 SCSS 入口集中维护。
+import '@/assets/styles/index.scss'
 import App from './App'
 import store from './store'
 import router from './router'
@@ -23,7 +18,6 @@ import { download } from '@/utils/request'
 
 import registerIcons from './assets/icons' // icon
 import './permission' // permission control
-import { watchThemeChange } from '@/utils/removeMenuHover' // 移除毛玻璃主题菜单hover背景色
 import { getDicts } from "@/api/system/dict/data"
 import { getConfigKey } from "@/api/system/config"
 import { parseTime, resetForm, addDateRange, selectDictLabel, selectDictLabels, handleTree } from "@/utils/zero"
@@ -53,6 +47,5 @@ app.use(directive)
 app.use(plugins)
 DictData.install(app)
 registerIcons(app)
-watchThemeChange()
 app.use(router)
 app.mount('#app')

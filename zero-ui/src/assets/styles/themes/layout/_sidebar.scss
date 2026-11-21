@@ -1,0 +1,33 @@
+// 八种主题共用侧栏交互，增强主题提供独立配色，原始风格使用 Element Plus 变量兜底。
+// 展开侧栏使用布局内的纵向菜单，折叠后的各级弹层挂载到 body。两处共用悬浮、选中和抖动。
+// 选中样式读取 Element Plus 的激活状态和侧栏计算出的当前分支。点击特效播放期间优先使用点击动画。
+
+$sidebar-menu-palettes: (
+  (luxury-business, $theme-luxury-business-accent, $theme-luxury-business-menu-active),
+  (vibrant-tech, $theme-vibrant-tech-accent, $theme-vibrant-tech-menu-active),
+  (minimalist-future, $theme-minimalist-future-accent, $theme-minimalist-future-menu-active),
+  (warm-nature, $theme-warm-nature-accent, $theme-warm-nature-text-primary),
+  (material-design, $theme-material-design-primary, $theme-material-design-menu-active),
+  (dark-premium, $theme-dark-premium-accent, $theme-dark-premium-menu-active)
+);
+
+@each $theme, $accent, $text in $sidebar-menu-palettes {
+  body.theme-#{$theme} {
+    --sidebar-menu-hover-background: #{rgba($accent, 0.18)};
+    --sidebar-menu-open-background: #{rgba($accent, 0.10)};
+    --sidebar-menu-hover-text: #{$text};
+    --sidebar-menu-active-background: linear-gradient(90deg, #{rgba($accent, 0.24)}, #{rgba($accent, 0.10)});
+    --sidebar-menu-active-text: #{$text};
+    --sidebar-menu-active-mark: #{$accent};
+  }
+}
+
+body.theme-glassmorphism {
+  --sidebar-menu-hover-background: rgba(186, 230, 253, 0.22);
+  --sidebar-menu-open-background: rgba(186, 230, 253, 0.10);
+  --sidebar-menu-hover-text: #cffafe;
+  --sidebar-menu-active-background: linear-gradient(90deg, rgba(56, 189, 248, 0.26), #{rgba($theme-glassmorphism-accent, 0.22)});
+  --sidebar-menu-active-text: #{$theme-glassmorphism-text-primary};
+  --sidebar-menu-active-mark: linear-gradient(180deg, #38bdf8, #{$theme-glassmorphism-accent});
+}
+

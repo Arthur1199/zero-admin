@@ -1,0 +1,157 @@
+// Element Plus 公共组件样式和兼容规则。主题专有覆盖由对应模块在原位置加载。
+
+@import '../themes/components/_glass-menu-popup.scss';
+
+// 注释掉面包屑的全局样式覆盖，让主题样式生效
+// .el-breadcrumb__inner,
+// .el-breadcrumb__inner a {
+//   font-weight: 400 !important;
+// }
+
+.el-upload {
+  input[type="file"] {
+    display: none !important;
+  }
+}
+
+.el-upload__input {
+  display: none;
+}
+
+.cell {
+  .el-tag {
+    margin-right: 0px;
+  }
+}
+
+.small-padding {
+  .cell {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+}
+
+.fixed-width {
+  .el-button--mini {
+    padding: 7px 10px;
+    width: 60px;
+  }
+}
+
+.status-col {
+  .cell {
+    padding: 0 10px;
+    text-align: center;
+
+    .el-tag {
+      margin-right: 0px;
+    }
+  }
+}
+
+// to fixed https://github.com/ElemeFE/element/issues/2461
+.el-dialog {
+  transform: none;
+  left: 0;
+  position: relative;
+  margin: 0 auto;
+}
+
+.el-dialog__wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 0;
+  box-sizing: border-box;
+}
+
+.el-dialog__wrapper .el-dialog {
+  display: flex;
+  flex-direction: column;
+  min-height: 68vh;
+  max-height: calc(100vh - 20px);
+  margin: 0 auto !important;
+}
+
+.el-dialog__wrapper .el-dialog__body {
+  flex: 1;
+  overflow: auto;
+}
+
+.el-dialog.is-fullscreen {
+  min-height: 100vh;
+  max-height: none;
+  margin: 0 !important;
+}
+
+// refine element ui upload
+.upload-container {
+  .el-upload {
+    width: 100%;
+
+    .el-upload-dragger {
+      width: 100%;
+      height: 200px;
+    }
+  }
+}
+
+// dropdown
+.el-dropdown-menu {
+  a {
+    display: block
+  }
+}
+
+// fix date-picker ui bug in filter-item
+.el-range-editor.el-input__inner {
+  display: inline-flex !important;
+}
+
+// to fix el-date-picker css style
+.el-range-separator {
+  box-sizing: content-box;
+}
+
+/* 注释掉这条规则，否则会导致菜单折叠时箭头不可见 */
+/* 
+.el-menu--collapse
+  > div
+  > .el-sub-menu
+  > .el-sub-menu__title
+  .el-sub-menu__icon-arrow {
+  display: none;
+}
+*/
+
+// ========== 分页组件强制样式覆盖 ==========
+// 解决分页组件白色背景问题
+// 默认主题样式（浅色）
+.el-pagination {
+  .el-pager li {
+    background-color: #f4f4f5 !important;
+    border: 1px solid #dcdfe6 !important;
+    
+    &:hover {
+      color: #409eff !important;
+    }
+    
+    &.active {
+      background-color: #409eff !important;
+      color: #ffffff !important;
+    }
+  }
+  
+  button.btn-prev,
+  button.btn-next {
+    background-color: #f4f4f5 !important;
+    border: 1px solid #dcdfe6 !important;
+    
+    &:hover:not(:disabled) {
+      color: #409eff !important;
+    }
+  }
+}
+
+
+@import '../themes/components/_menu-popup.scss';

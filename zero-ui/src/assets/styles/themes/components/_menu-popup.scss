@@ -1,0 +1,166 @@
+// 各主题菜单弹层的基础背景和文字色。侧栏多级交互的最终状态在 theme-sidebar 中统一维护。
+
+// 高端暗黑风弹出菜单
+body.theme-dark-premium {
+  // 方式1: 直接覆盖弹出菜单容器
+  .el-menu--popup.el-menu--vertical,
+  > .el-menu--popup.el-menu--vertical {
+    background-color: #18181b !important;
+    border: 1px solid #27272a !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 1px rgba(212, 175, 55, 0.2) !important;
+    border-radius: 8px !important;
+  }
+
+  // 方式2: 覆盖菜单项样式
+  .el-menu--popup .el-menu-item {
+    background-color: transparent !important;
+    color: #a1a1aa !important;
+
+    &:hover {
+      background-color: #27272a !important;
+      color: #e4e4e7 !important;
+    }
+
+    &.is-active {
+      background: linear-gradient(90deg, rgba(212, 175, 55, 0.15) 0%, transparent 100%) !important;
+      color: #d4af37 !important;
+    }
+  }
+
+  // 弹出菜单中的子菜单样式
+  .el-menu--popup .el-sub-menu__title {
+    background-color: transparent !important;
+    color: #a1a1aa !important;
+
+    &:hover {
+      background-color: #27272a !important;
+      color: #e4e4e7 !important;
+    }
+  }
+
+  .el-menu--popup .el-sub-menu.is-opened > .el-sub-menu__title {
+    background: rgba(212, 175, 55, 0.12) !important;
+    color: #d4af37 !important;
+  }
+}
+
+// 轻奢商务风弹出菜单
+body.theme-luxury-business {
+  .el-menu--popup.el-menu--vertical,
+  > .el-menu--popup.el-menu--vertical {
+    background-color: rgba(21, 25, 36, 0.98) !important;
+    border: 1px solid #2a3142 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+    border-radius: 6px !important;
+  }
+
+  .el-menu--popup .el-menu-item {
+    background-color: transparent !important;
+    color: #b8bcc8 !important;
+
+    &:hover {
+      background-color: rgba(212, 175, 55, 0.08) !important;
+      color: #d4af37 !important;
+    }
+
+    &.is-active {
+      background: linear-gradient(90deg, rgba(212, 175, 55, 0.15) 0%, transparent 100%) !important;
+      color: #d4af37 !important;
+    }
+  }
+
+  // 弹出菜单中的子菜单样式
+  .el-menu--popup .el-sub-menu__title {
+    background-color: transparent !important;
+    color: #b8bcc8 !important;
+
+    &:hover {
+      background-color: rgba(212, 175, 55, 0.08) !important;
+      color: #d4af37 !important;
+    }
+  }
+
+  .el-menu--popup .el-sub-menu.is-opened > .el-sub-menu__title {
+    background: rgba(212, 175, 55, 0.12) !important;
+    color: #d4af37 !important;
+  }
+}
+
+// 活力科技风弹出菜单
+body.theme-vibrant-tech {
+  .el-menu--popup.el-menu--vertical,
+  > .el-menu--popup.el-menu--vertical {
+    background-color: rgba(10, 14, 39, 0.98) !important;
+    border: 1px solid rgba(0, 242, 254, 0.2) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 1px rgba(0, 242, 254, 0.3) !important;
+    border-radius: 8px !important;
+  }
+
+  .el-menu--popup .el-menu-item {
+    background-color: transparent !important;
+    color: #c0c9ff !important;
+
+    &:hover {
+      background-color: rgba(0, 242, 254, 0.1) !important;
+      color: #00f2fe !important;
+    }
+
+    &.is-active {
+      background: rgba(0, 242, 254, 0.12) !important;
+      color: #00f2fe !important;
+    }
+  }
+
+  // 弹出菜单中的子菜单样式
+  .el-menu--popup .el-sub-menu__title {
+    background-color: transparent !important;
+    color: #c0c9ff !important;
+
+    &:hover {
+      background-color: rgba(0, 242, 254, 0.1) !important;
+      color: #00f2fe !important;
+    }
+  }
+
+  .el-menu--popup .el-sub-menu.is-opened > .el-sub-menu__title {
+    background: rgba(0, 242, 254, 0.12) !important;
+    color: #00f2fe !important;
+  }
+}
+
+// 极简未来风弹出菜单
+body.theme-minimalist-future {
+  .el-menu--popup.el-menu--vertical,
+  > .el-menu--popup.el-menu--vertical {
+    background-color: #1a1a1a !important;
+    border: 2px solid #333333 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+    border-radius: 0 !important;
+  }
+
+  .el-menu--popup .el-menu-item {
+    background-color: transparent !important;
+    color: #999999 !important;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.08) !important;
+      color: #ffffff !important;
+    }
+
+    &.is-active {
+      background: rgba(255, 255, 255, 0.12) !important;
+      color: #ffffff !important;
+    }
+  }
+
+  // 弹出菜单中的子菜单样式
+  .el-menu--popup .el-sub-menu__title {
+    background-color: transparent !important;
+    color: #999999 !important;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.08) !important;
+      color: #ffffff !important;
+    }
+  }
+}

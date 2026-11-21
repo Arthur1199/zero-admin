@@ -1,0 +1,23 @@
+// 右键菜单挂载到 body，外观读取主题变量，JavaScript 只维护位置和显示状态。
+.tags-view-contextmenu {
+  margin: 0;
+  background: var(--zero-surface, #fff);
+  border: 1px solid var(--zero-border, #dcdfe6);
+  z-index: 9999;
+  position: fixed;
+  list-style-type: none;
+  padding: 5px 0;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--zero-text, #333);
+  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.3);
+  display: none;
+
+  > li {
+    margin: 0;
+    padding: 7px 16px;
+    cursor: pointer;
+    &:hover { background: var(--zero-surface-hover, #eee); }
+  }
+}

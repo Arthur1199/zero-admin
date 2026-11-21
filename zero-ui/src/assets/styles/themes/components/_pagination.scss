@@ -1,32 +1,4 @@
-// ========== 分页组件强制覆盖样式 ==========
-// 这个文件必须在 main.js 中最后导入，确保覆盖 Element UI 的默认样式
-
-// 默认主题
-.el-pagination {
-  .el-pager li {
-    background-color: #f4f4f5 !important;
-    border: 1px solid #dcdfe6 !important;
-    
-    &:hover {
-      color: #409eff !important;
-    }
-    
-    &.active {
-      background-color: #409eff !important;
-      color: #ffffff !important;
-    }
-  }
-  
-  button.btn-prev,
-  button.btn-next {
-    background-color: #f4f4f5 !important;
-    border: 1px solid #dcdfe6 !important;
-    
-    &:hover:not(:disabled) {
-      color: #409eff !important;
-    }
-  }
-}
+// 分页的主题状态覆盖，随公共分页样式在 index.scss 之后加载。
 
 // 轻奢商务风
 body.theme-luxury-business .el-pagination {
@@ -34,26 +6,26 @@ body.theme-luxury-business .el-pagination {
     background-color: #1a1f2e !important;
     border: 1px solid #2a3142 !important;
     color: #b8bcc8 !important;
-    
+
     &:hover:not(.disabled) {
       background-color: rgba(212, 175, 55, 0.1) !important;
       color: #d4af37 !important;
       border-color: #d4af37 !important;
     }
-    
+
     &.active {
       background-color: #2c3e7a !important;
       border-color: #d4af37 !important;
       color: #d4af37 !important;
     }
   }
-  
+
   button.btn-prev,
   button.btn-next {
     background-color: #1a1f2e !important;
     border: 1px solid #2a3142 !important;
     color: #b8bcc8 !important;
-    
+
     &:hover:not(:disabled) {
       color: #d4af37 !important;
       background-color: rgba(212, 175, 55, 0.1) !important;
@@ -67,26 +39,26 @@ body.theme-vibrant-tech .el-pagination {
     background-color: #0f1419 !important;
     border: 1px solid #1e2836 !important;
     color: #e0e6f0 !important;
-    
+
     &:hover:not(.disabled) {
       background-color: rgba(0, 194, 255, 0.1) !important;
       color: #00c2ff !important;
       border-color: #00c2ff !important;
     }
-    
+
     &.active {
       background-color: #1a4d8f !important;
       border-color: #00c2ff !important;
       color: #00c2ff !important;
     }
   }
-  
+
   button.btn-prev,
   button.btn-next {
     background-color: #0f1419 !important;
     border: 1px solid #1e2836 !important;
     color: #e0e6f0 !important;
-    
+
     &:hover:not(:disabled) {
       color: #00c2ff !important;
       background-color: rgba(0, 194, 255, 0.1) !important;
@@ -100,26 +72,26 @@ body.theme-minimalist-future .el-pagination {
     background-color: #0a0e14 !important;
     border: 1px solid #1a1f2e !important;
     color: #b0b8c8 !important;
-    
+
     &:hover:not(.disabled) {
       background-color: rgba(127, 90, 240, 0.1) !important;
       color: #7f5af0 !important;
       border-color: #7f5af0 !important;
     }
-    
+
     &.active {
       background-color: rgba(127, 90, 240, 0.2) !important;
       border-color: #7f5af0 !important;
       color: #7f5af0 !important;
     }
   }
-  
+
   button.btn-prev,
   button.btn-next {
     background-color: #0a0e14 !important;
     border: 1px solid #1a1f2e !important;
     color: #b0b8c8 !important;
-    
+
     &:hover:not(:disabled) {
       color: #7f5af0 !important;
       background-color: rgba(127, 90, 240, 0.1) !important;
@@ -133,26 +105,26 @@ body.theme-warm-nature .el-pagination {
     background-color: #faf8f5 !important;
     border: 1px solid #e8dcc8 !important;
     color: #5a4a3a !important;
-    
+
     &:hover:not(.disabled) {
       background-color: #fff5e6 !important;
       color: #d4895f !important;
       border-color: #d4895f !important;
     }
-    
+
     &.active {
       background-color: #fff5e6 !important;
       border-color: #d4895f !important;
       color: #d4895f !important;
     }
   }
-  
+
   button.btn-prev,
   button.btn-next {
     background-color: #faf8f5 !important;
     border: 1px solid #e8dcc8 !important;
     color: #5a4a3a !important;
-    
+
     &:hover:not(:disabled) {
       color: #d4895f !important;
       background-color: #fff5e6 !important;
@@ -167,27 +139,27 @@ body.theme-glassmorphism .el-pagination {
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
     color: rgba(255, 255, 255, 0.9) !important;
     backdrop-filter: blur(10px);
-    
+
     &:hover:not(.disabled) {
       background-color: rgba(138, 180, 248, 0.2) !important;
       color: #8ab4f8 !important;
       border-color: rgba(138, 180, 248, 0.5) !important;
     }
-    
+
     &.active {
       background-color: rgba(138, 180, 248, 0.3) !important;
       border-color: #8ab4f8 !important;
       color: #8ab4f8 !important;
     }
   }
-  
+
   button.btn-prev,
   button.btn-next {
     background-color: rgba(255, 255, 255, 0.1) !important;
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
     color: rgba(255, 255, 255, 0.9) !important;
     backdrop-filter: blur(10px);
-    
+
     &:hover:not(:disabled) {
       color: #8ab4f8 !important;
       background-color: rgba(138, 180, 248, 0.2) !important;
@@ -203,25 +175,25 @@ body.theme-material-design .el-pagination {
     color: rgba(255, 255, 255, 0.7) !important;
     border-radius: 4px;
     margin: 0 4px;
-    
+
     &:hover:not(.disabled) {
       background-color: rgba(187, 134, 252, 0.2) !important;
       color: #bb86fc !important;
     }
-    
+
     &.active {
       background-color: #bb86fc !important;
       color: #000000 !important;
     }
   }
-  
+
   button.btn-prev,
   button.btn-next {
     background-color: #1e1e1e !important;
     border: none !important;
     color: rgba(255, 255, 255, 0.7) !important;
     border-radius: 4px;
-    
+
     &:hover:not(:disabled) {
       color: #bb86fc !important;
       background-color: rgba(187, 134, 252, 0.2) !important;
@@ -235,26 +207,26 @@ body.theme-dark-premium .el-pagination {
     background-color: #0d0d0d !important;
     border: 1px solid #1a1a1a !important;
     color: #a0a0a0 !important;
-    
+
     &:hover:not(.disabled) {
       background-color: rgba(255, 215, 0, 0.1) !important;
       color: #ffd700 !important;
       border-color: #ffd700 !important;
     }
-    
+
     &.active {
       background-color: rgba(255, 215, 0, 0.2) !important;
       border-color: #ffd700 !important;
       color: #ffd700 !important;
     }
   }
-  
+
   button.btn-prev,
   button.btn-next {
     background-color: #0d0d0d !important;
     border: 1px solid #1a1a1a !important;
     color: #a0a0a0 !important;
-    
+
     &:hover:not(:disabled) {
       color: #ffd700 !important;
       background-color: rgba(255, 215, 0, 0.1) !important;

@@ -29,6 +29,171 @@ async function waitForSidebarPopup(page, item) {
   await expect(popup).not.toHaveClass(/el-zoom-in-left-(enter|leave)-/)
 }
 
+async function expectCurrentMenu(item) {
+  await expect(item).toHaveCSS('background-image', /linear-gradient/)
+  await expect(item).toHaveCSS('animation-name', 'menu-shake-breath')
+}
+
+async function expectSidebarHover(item) {
+  const initialBackground = await item.evaluate(element => getComputedStyle(element).backgroundColor)
+  await item.hover()
+  await expect(item).not.toHaveCSS('background-color', initialBackground)
+  await expect(item).not.toHaveCSS('animation-name', 'menu-shake-breath')
+  await expect.poll(() => item.evaluate(element => {
+    return getComputedStyle(element).color === getComputedStyle(element.querySelector('.svg-icon')).color
+  })).toBe(true)
+  return initialBackground
+}
+
+for (const [theme, label] of themes) {
+  test(label + '四级和五级菜单按真实层级高亮和抖动', async ({ page }) => {
+    const fourLevelPath = '/deep/reports/history/archive/role'
+    const fiveLevelPath = '/deep/reports/history/archive/post'
+    const branchTitles = ['业务中心', '报表中心', '历史报表', '报表归档']
+    const group = (path, title, children, component = 'ParentView') => ({
+      path, component, alwaysShow: true, meta: { title, icon: 'tree' }, children
+    })
+    const deepMenus = [group('/deep', branchTitles[0], [
+      group('reports', branchTitles[1], [
+        group('history', branchTitles[2], [
+          group('archive', branchTitles[3], [
+            { path: 'post', name: 'DeepPost', component: 'system/post/index', meta: { title: '归档岗位', icon: 'post' } }
+          ]),
+          { path: 'archive/role', name: 'DeepRole', component: 'system/role/index', meta: { title: '历史角色', icon: 'peoples' } }
+        ])
+      ])
+    ], 'Layout')]
+
+    await mockAdminWebSocket(page)
+    await authenticated(page, { menus: deepMenus })
+    await page.addInitScript(themeStyle => {
+      localStorage.setItem('layout-setting', JSON.stringify({ themeStyle, topNav: false }))
+    }, theme)
+    await page.goto(fourLevelPath)
+    const sidebar = page.locator('.sidebar-container')
+    const popup = page.locator('.sidebar-menu-popper.el-menu--vertical')
+    const title = (container, name) => container.locator('.el-sub-menu__title').filter({ hasText: name })
+    const leaf = (container, path) => container.locator(`a[href="${path}"] .el-menu-item`)
+    const root = title(sidebar, branchTitles[0])
+    const fourLevel = leaf(sidebar, fourLevelPath)
+    const archive = title(sidebar, branchTitles[3])
+
+    for (const name of branchTitles.slice(0, 3)) {
+      const parent = title(sidebar, name)
+      await expect(parent).toBeVisible()
+      await expectCurrentMenu(parent)
+      if (await parent.locator('..').getAttribute('aria-expanded') !== 'true') await parent.click()
+      await expect(parent.locator('..')).toHaveAttribute('aria-expanded', 'true')
+    }
+    await expectCurrentMenu(fourLevel)
+    await expect(archive).not.toHaveCSS('animation-name', 'menu-shake-breath')
+    await archive.click()
+    await leaf(sidebar, fiveLevelPath).click()
+    await expect(page).toHaveURL(fiveLevelPath)
+    await expectCurrentMenu(leaf(sidebar, fiveLevelPath))
+    for (const name of branchTitles) await expectCurrentMenu(title(sidebar, name))
+    await expect(fourLevel).not.toHaveCSS('animation-name', 'menu-shake-breath')
+
+    await page.locator('#hamburger-container').click()
+    await expect(sidebar.locator('.el-menu')).toHaveClass(/el-menu--collapse/)
+    await root.hover()
+    const popupAncestors = branchTitles.slice(1).map(name => title(popup, name))
+    for (const parent of popupAncestors) {
+      await waitForSidebarPopup(page, parent)
+      await expectCurrentMenu(parent)
+      await parent.hover()
+    }
+    const fifth = leaf(popup, fiveLevelPath)
+    await waitForSidebarPopup(page, fifth)
+    await fifth.hover()
+    for (const parent of [root, ...popupAncestors, fifth]) {
+      await expect(parent).toBeVisible()
+      await expectCurrentMenu(parent)
+    }
+    await expect(leaf(popup, fourLevelPath)).not.toHaveCSS('animation-name', 'menu-shake-breath')
+    await page.goBack()
+    await expect(page).toHaveURL(fourLevelPath)
+    await root.hover()
+    for (const parent of popupAncestors.slice(0, 2)) {
+      await waitForSidebarPopup(page, parent)
+      await parent.hover()
+    }
+    await expectCurrentMenu(leaf(popup, fourLevelPath))
+    await expect(popupAncestors[2]).not.toHaveCSS('animation-name', 'menu-shake-breath')
+  })
+}
+
+for (const [theme, label] of themes) {
+  test(label + '侧栏展开和收起时的多级菜单交互一致', async ({ page }) => {
+    await mockAdminWebSocket(page)
+    await authenticated(page, { menus })
+    await page.addInitScript(themeStyle => {
+      localStorage.setItem('layout-setting', JSON.stringify({ themeStyle, topNav: false }))
+    }, theme)
+    await page.goto('/system/config')
+    const sidebar = page.locator('.sidebar-container')
+    const root = sidebar.locator('.el-sub-menu__title').filter({ hasText: '系统管理' })
+    const branch = sidebar.locator('.el-sub-menu__title').filter({ hasText: '嵌套菜单' })
+    const config = sidebar.locator('a[href="/system/config"] .el-menu-item')
+    const post = sidebar.locator('a[href="/system/branch/post"] .el-menu-item')
+    const popup = page.locator('.sidebar-menu-popper.el-menu--vertical')
+    const popupBranch = popup.locator('.el-sub-menu__title').filter({ hasText: '嵌套菜单' })
+    const popupConfig = popup.locator('a[href="/system/config"] .el-menu-item')
+    const popupPost = popup.locator('a[href="/system/branch/post"] .el-menu-item')
+
+    await expectCurrentMenu(root)
+    if (await root.locator('..').getAttribute('aria-expanded') !== 'true') await root.click()
+    await expect(root.locator('..')).toHaveAttribute('aria-expanded', 'true')
+    await expectCurrentMenu(config)
+    await expectSidebarHover(branch)
+    await branch.click()
+    await expect(branch.locator('..')).toHaveAttribute('aria-expanded', 'true')
+    const idle = await expectSidebarHover(post)
+    await page.mouse.move(900, 80)
+    await expect(post).toHaveCSS('background-color', idle)
+    await expect(branch).not.toHaveCSS('animation-name', 'menu-shake-breath')
+    await branch.click()
+    await expect(post).toBeHidden()
+    await branch.click()
+    await post.click()
+    await expect(page).toHaveURL(/\/system\/branch\/post$/)
+    await expect(post).not.toHaveClass(/menu-clicking/)
+    await expectCurrentMenu(post)
+    await expectCurrentMenu(branch)
+    await expect(config).not.toHaveCSS('animation-name', 'menu-shake-breath')
+
+    await page.goBack()
+    await expect(page).toHaveURL(/\/system\/config$/)
+    await expectCurrentMenu(config)
+    await page.locator('#hamburger-container').click()
+    await expect(sidebar.locator('.el-menu')).toHaveClass(/el-menu--collapse/)
+    await expectCurrentMenu(root)
+    await root.hover()
+    await waitForSidebarPopup(page, popupBranch)
+    await expectCurrentMenu(popupConfig)
+    await expectSidebarHover(popupBranch)
+    await waitForSidebarPopup(page, popupPost)
+    await expectSidebarHover(popupPost)
+    await expect(popupBranch.locator('..')).toHaveAttribute('aria-expanded', 'true')
+    await expect(popupBranch).not.toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
+    await expect(popupBranch).not.toHaveCSS('animation-name', 'menu-shake-breath')
+    await popupPost.click()
+    await expect(page).toHaveURL(/\/system\/branch\/post$/)
+
+    await root.hover()
+    await waitForSidebarPopup(page, popupBranch)
+    await expectCurrentMenu(popupBranch)
+    await expectSidebarHover(popupConfig)
+    await popupBranch.hover()
+    await waitForSidebarPopup(page, popupPost)
+    await expectCurrentMenu(popupPost)
+    await expectCurrentMenu(popupBranch)
+    await page.mouse.move(900, 80)
+    await expect(popupPost).toBeHidden()
+    await expect(popupBranch).toBeHidden()
+  })
+}
+
 for (const [theme, label] of themes) {
   test(label + '折叠侧栏的二三级选中菜单使用同一高亮和抖动', async ({ page }) => {
     await mockAdminWebSocket(page)

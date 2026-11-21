@@ -1,0 +1,28 @@
+// 分页公共样式和原始风格默认值。在 main.js 中排在 index.scss 之后。
+.el-pagination {
+  .el-pager li {
+    background-color: #f4f4f5 !important;
+    border: 1px solid #dcdfe6 !important;
+    
+    &:hover {
+      color: #409eff !important;
+    }
+    
+    &.active {
+      background-color: #409eff !important;
+      color: #ffffff !important;
+    }
+  }
+  
+  button.btn-prev,
+  button.btn-next {
+    background-color: #f4f4f5 !important;
+    border: 1px solid #dcdfe6 !important;
+    
+    &:hover:not(:disabled) {
+      color: #409eff !important;
+    }
+  }
+}
+
+@import '../themes/components/_pagination.scss';

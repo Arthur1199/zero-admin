@@ -1,0 +1,30 @@
+// 顶部导航的主题透明表面和焦点反馈，作用于顶部导航及其溢出菜单。
+/* 移除自定义主题下的顶部菜单栏白色背景 */
+body[class*="theme-"] .topmenu-container.el-menu--horizontal {
+  background-color: transparent !important;
+}
+
+/* 移除自定义主题下的激活菜单项白色背景 */
+body[class*="theme-"] .topmenu-container.el-menu--horizontal > .el-menu-item.is-active {
+  background-color: transparent !important;
+}
+
+body[class*="theme-"] .topmenu-container.el-menu--horizontal > .el-sub-menu.is-active .el-sub-menu__title {
+  background-color: transparent !important;
+}
+
+/* 外链打开新标签页后，原菜单可能保留焦点。 */
+body[class*="theme-"] .topmenu-container.el-menu--horizontal > .el-menu-item:is(:hover, :focus),
+body[class*="theme-"] .top-nav-overflow-popper .el-menu-item:focus:not(:hover, .is-active) {
+  background-color: transparent !important;
+}
+
+body[class*="theme-"] .topmenu-container.el-menu--horizontal > .el-menu-item:focus-visible,
+body[class*="theme-"] .top-nav-overflow-popper .el-menu-item:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -3px;
+}
+
+body[class*="theme-"] .el-menu--horizontal > .el-sub-menu .el-sub-menu__title:hover {
+  background-color: transparent !important;
+}

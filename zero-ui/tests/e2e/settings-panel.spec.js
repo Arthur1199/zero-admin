@@ -1,5 +1,9 @@
 import { test, expect } from '@playwright/test'
-import { authenticated } from './mock-api'
+import { authenticated, mockAdminWebSocket } from './mock-api'
+
+test.beforeEach(async ({ page }) => {
+  await mockAdminWebSocket(page)
+})
 
 test('刷新不渲染左上角颜色选择器，已保存的主色仍生效', async ({ page }) => {
   const errors = []

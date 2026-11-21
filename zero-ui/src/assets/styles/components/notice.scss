@@ -1,5 +1,5 @@
 @use 'sass:list';
-@use './themes/theme-variables' as notice-theme;
+@use '../themes/_theme-variables.scss' as notice-theme;
 
 // 仅系统通知摘要使用，颜色与背景继续由Element Plus及当前主题控制。
 .el-message.admin-ws-notice-message {

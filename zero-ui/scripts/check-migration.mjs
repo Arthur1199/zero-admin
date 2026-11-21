@@ -26,6 +26,8 @@ for (const file of files) {
     if (!found) { errors.push('本地导入不存在：' + request); continue }
     let current = resolve('src')
     for (const part of relative(current, found).split(sep)) {
+      // package.json 等入口允许位于 src 上级，先导航目录再检查真实文件名。
+      if (part === '..') { current = resolve(current, part); continue }
       if (!readdirSync(current).includes(part)) { errors.push('导入大小写不一致：' + request); break }
       current = resolve(current, part)
     }
