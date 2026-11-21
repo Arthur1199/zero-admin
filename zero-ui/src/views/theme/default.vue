@@ -10,7 +10,10 @@
 
     <div class="preview-layout">
       <aside class="preview-sidebar">
-        <strong><AppIcon icon-class="el-icon-menu" /> Zero 管理系统</strong>
+        <strong>
+          <img src="@/assets/logo/zero.ico" width="24" height="24" alt="">
+          Zero 管理系统
+        </strong>
         <ul aria-label="示例菜单">
           <li><AppIcon icon-class="el-icon-house" />系统首页</li>
           <li class="preview-menu-group"><AppIcon icon-class="el-icon-setting" />系统管理</li>
@@ -224,7 +227,9 @@ export default {
   color: #e6eaf0;
 
   strong {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     padding-inline: 16px;
   }
 

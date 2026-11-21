@@ -22,7 +22,7 @@
       <!-- 左侧：模拟侧边栏 -->
       <div class="sidebar-preview">
         <div class="sidebar-logo">
-          <AppIcon icon-class="el-icon-s-grid" class=""></AppIcon>
+          <img src="@/assets/logo/zero.ico" width="24" height="24" alt="">
           <span>零号管理系统</span>
         </div>
         <div class="sidebar-menu">
@@ -269,10 +269,6 @@ export default {
         color: #ffffff;
         font-weight: 600;
         font-size: 16px;
-        
-        i {
-          font-size: 24px;
-        }
       }
       
       .sidebar-menu {
