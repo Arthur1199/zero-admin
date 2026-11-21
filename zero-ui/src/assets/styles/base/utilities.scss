@@ -81,15 +81,8 @@
   margin-top: 10vh !important;
 }
 
-.el-dialog__wrapper.scrollbar .el-dialog .el-dialog__body {
-  overflow: auto;
-  overflow-x: hidden;
-  max-height: 70vh;
-  padding: 10px 20px 0;
-}
-
 .el-table {
-  .el-table__header-wrapper, .el-table__fixed-header-wrapper {
+  .el-table__header-wrapper {
     th {
       word-break: break-word;
       background-color: #f8f8f9;
@@ -137,12 +130,6 @@
   .pagination-container .el-pagination > .el-pagination__sizes {
     display: none !important;
   }
-}
-
-.el-table .fixed-width .el-button--mini {
-  padding-left: 0;
-  padding-right: 0;
-  width: inherit;
 }
 
 /** 表格更多操作下拉样式 */

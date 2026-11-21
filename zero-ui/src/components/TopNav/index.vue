@@ -155,5 +155,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@/assets/styles/layout/top-nav.scss";
+@use 'sass:meta';
+@include meta.load-css("@/assets/styles/layout/top-nav.scss");
 </style>

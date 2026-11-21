@@ -7,9 +7,10 @@ import { markRaw } from "vue"
 import * as echarts from 'echarts'
 import 'echarts/theme/macarons' // echarts theme
 import resize from './mixins/resize'
+import chartAppearance from '@/mixins/chartAppearance'
 
 export default {
-  mixins: [resize],
+  mixins: [resize, chartAppearance],
   props: {
     className: {
       type: String,
@@ -74,6 +75,7 @@ export default {
           }
         ]
       })
+      this.applyChartAppearance()
     }
   }
 }

@@ -716,7 +716,8 @@ export default {
 </style>
 
 <style lang="scss">
-@import "@/assets/styles/themes/pages/_biz-dict.scss";
+@use 'sass:meta';
+@include meta.load-css("@/assets/styles/themes/pages/_biz-dict.scss");
 
 .biz-dict-page .el-table__body-wrapper td.el-table__expanded-cell.el-table__cell {
   padding: 0 !important;

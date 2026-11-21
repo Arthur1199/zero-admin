@@ -664,6 +664,7 @@ export default {
 </style>
 
 <style lang="scss">
+@use 'sass:meta';
 //reset element css of el-icon-close
 .tags-view-wrapper {
   .tags-view-item {
@@ -688,5 +689,5 @@ export default {
   }
 }
 
-@import "@/assets/styles/motion/tags.scss";
+@include meta.load-css("@/assets/styles/motion/tags.scss");
 </style>

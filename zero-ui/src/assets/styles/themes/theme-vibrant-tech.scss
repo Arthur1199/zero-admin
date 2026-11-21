@@ -1,10 +1,13 @@
+@use './_theme-colors.scss' as *;
+@use './theme-variables' as *;
+@use './theme-mixins' as *;
 // ==========================================
 // 活力科技风主题样式
 // 深蓝表面搭配青色交互强调和紫色主操作，折叠侧栏保留公共图标布局。
 // ==========================================
 
-@import './theme-variables';
-@import './theme-mixins';
+
+
 
 .theme-vibrant-tech:not(.form-builder-page) {
   // ========== 全局背景与文字 ==========
@@ -947,7 +950,7 @@
             text-shadow: 0 0 8px rgba($theme-vibrant-tech-accent, 0.6);
 
             &:hover {
-              color: lighten($theme-vibrant-tech-accent, 10%) !important;
+              color: shift-lightness($theme-vibrant-tech-accent, 10%) !important;
               text-shadow: 0 0 12px rgba($theme-vibrant-tech-accent, 0.8);
             }
           }
@@ -975,14 +978,14 @@
       text-shadow: 0 0 8px rgba($theme-vibrant-tech-accent, 0.6);
       
       &:hover {
-        color: lighten($theme-vibrant-tech-accent, 10%) !important;
+        color: shift-lightness($theme-vibrant-tech-accent, 10%) !important;
         text-shadow: 0 0 12px rgba($theme-vibrant-tech-accent, 0.8);
       }
     }
 
     .topmenu-container.el-menu--horizontal > .el-menu-item.is-active,
     .el-menu--horizontal > .el-sub-menu.is-active .el-sub-menu__title {
-      color: lighten($theme-vibrant-tech-accent, 5%) !important;  // 激活时更亮
+      color: shift-lightness($theme-vibrant-tech-accent, 5%) !important;  // 激活时更亮
       border-bottom-color: $theme-vibrant-tech-accent !important;
       box-shadow: 0 2px 8px rgba($theme-vibrant-tech-accent, 0.5);
     }
@@ -1382,36 +1385,6 @@ body.theme-vibrant-tech {
 
     .el-radio__label {
       color: $theme-vibrant-tech-text-primary;
-    }
-  }
-
-  // ========== 日期选择器样式 ==========
-  .el-date-editor.el-range-editor.el-input__inner {
-    background: rgba(20, 26, 53, 0.88) !important;
-    border: 1px solid rgba($theme-vibrant-tech-accent, 0.34) !important;
-    border-radius: 8px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28), 0 0 18px rgba($theme-vibrant-tech-accent, 0.12);
-
-    &:hover,
-    &.is-active {
-      border-color: rgba($theme-vibrant-tech-accent, 0.68) !important;
-      box-shadow: 0 0 0 1px rgba($theme-vibrant-tech-accent, 0.20), 0 0 22px rgba($theme-vibrant-tech-accent, 0.18);
-    }
-
-    .el-range-input {
-      background: transparent !important;
-      color: $theme-vibrant-tech-text-primary !important;
-      font-weight: 500;
-
-      &::placeholder {
-        color: rgba($theme-vibrant-tech-text-secondary, 0.76) !important;
-      }
-    }
-
-    .el-range-separator,
-    .el-range__icon,
-    .el-range__close-icon {
-      color: rgba($theme-vibrant-tech-accent, 0.86) !important;
     }
   }
 

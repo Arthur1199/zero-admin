@@ -1,3 +1,4 @@
+@use '../base/variables.scss' as *;
 // 菜单定位提示、点击特效和当前项抖动。颜色由主题状态覆盖，播放和清理由 SidebarItem 管理。
 // Tab双击定位后的菜单高亮闪烁效果
 .menu-flash-highlight {
@@ -518,8 +519,8 @@
 .menu-effect-ripple-gorgeous,
 .menu-effect-pulse-gorgeous,
 .menu-effect-gradient-gorgeous {
-  .el-menu-item,
-  .el-sub-menu__title {
+  .el-menu-item.menu-clicking,
+  .el-sub-menu__title.menu-clicking {
     will-change: transform, box-shadow, background-color;
   }
 }

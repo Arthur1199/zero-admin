@@ -1,9 +1,10 @@
 import { test, expect } from '@playwright/test'
-import { authenticated } from './mock-api'
+import { authenticated, mockAdminWebSocket } from './mock-api'
 
 const menus = [{ path: '/monitor', component: 'Layout', meta: { title: '系统监控' }, children: [{ path: 'admin', component: 'ParentView', meta: { title: '管理后台' }, children: [{ path: 'statistics', name: 'Statistics', component: 'monitor/statistics/index', meta: { title: '运行统计', noCache: true } }] }] }]
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
 async function setup(page) {
+  await mockAdminWebSocket(page)
   const requests = await authenticated(page, { menus })
   const calls = []
   await page.route('**/dev-api/monitor/statistics/**', async route => {

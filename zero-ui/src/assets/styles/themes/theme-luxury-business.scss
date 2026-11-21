@@ -1,10 +1,13 @@
+@use './_theme-colors.scss' as *;
+@use './theme-variables' as *;
+@use './theme-mixins' as *;
 // ==========================================
 // 轻奢商务风主题样式
 // 深蓝灰为基础底色，金色用于菜单选中、交互反馈和重点信息。
 // ==========================================
 
-@import './theme-variables';
-@import './theme-mixins';
+
+
 
 .theme-luxury-business:not(.form-builder-page) {
   // ========== 全局背景与文字 ==========
@@ -344,7 +347,7 @@
     .hero-section {
       background: linear-gradient(135deg, 
         $theme-luxury-business-primary 0%, 
-        darken($theme-luxury-business-primary, 8%) 100%);
+        shift-lightness($theme-luxury-business-primary, -8%) 100%);
       
       .hero-content {
         .main-title {
@@ -857,7 +860,7 @@
 
   // ========== 顶部导航栏样式 ==========
   .navbar {
-    background: linear-gradient(90deg, $theme-luxury-business-primary 0%, darken($theme-luxury-business-primary, 5%) 100%);
+    background: linear-gradient(90deg, $theme-luxury-business-primary 0%, shift-lightness($theme-luxury-business-primary, -5%) 100%);
     box-shadow: 0 2px 8px $theme-luxury-business-shadow;
 
     // 汉堡菜单
@@ -883,7 +886,7 @@
             font-weight: 600 !important;
 
             &:hover {
-              color: lighten($theme-luxury-business-accent, 10%) !important;
+              color: shift-lightness($theme-luxury-business-accent, 10%) !important;
             }
           }
 
@@ -909,13 +912,13 @@
       color: $theme-luxury-business-accent !important;  // 使用金色强调色
       
       &:hover {
-        color: lighten($theme-luxury-business-accent, 10%) !important;
+        color: shift-lightness($theme-luxury-business-accent, 10%) !important;
       }
     }
 
     .topmenu-container.el-menu--horizontal > .el-menu-item.is-active,
     .el-menu--horizontal > .el-sub-menu.is-active .el-sub-menu__title {
-      color: lighten($theme-luxury-business-accent, 5%) !important;  // 激活时更亮
+      color: shift-lightness($theme-luxury-business-accent, 5%) !important;  // 激活时更亮
       border-bottom-color: $theme-luxury-business-accent !important;
     }
 
@@ -982,7 +985,7 @@
       &.active {
         background: linear-gradient(135deg, 
           $theme-luxury-business-primary 0%, 
-          darken($theme-luxury-business-primary, 5%) 100%);
+          shift-lightness($theme-luxury-business-primary, -5%) 100%);
         border-color: $theme-luxury-business-accent;
         color: $theme-luxury-business-accent;
         animation: tab-flame-luxury 3s ease-in-out infinite;
@@ -1344,36 +1347,6 @@ body.theme-luxury-business {
     }
   }
 
-  // ========== 日期选择器样式 ==========
-  .el-date-editor.el-range-editor.el-input__inner {
-    background: rgba(26, 31, 46, 0.88) !important;
-    border: 1px solid rgba($theme-luxury-business-accent, 0.34) !important;
-    border-radius: 8px;
-    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba($theme-luxury-business-accent, 0.12);
-
-    &:hover,
-    &.is-active {
-      border-color: rgba($theme-luxury-business-accent, 0.62) !important;
-      box-shadow: 0 0 0 1px rgba($theme-luxury-business-accent, 0.18), 0 10px 26px rgba(0, 0, 0, 0.28);
-    }
-
-    .el-range-input {
-      background: transparent !important;
-      color: $theme-luxury-business-text-primary !important;
-      font-weight: 500;
-
-      &::placeholder {
-        color: rgba($theme-luxury-business-text-secondary, 0.78) !important;
-      }
-    }
-
-    .el-range-separator,
-    .el-range__icon,
-    .el-range__close-icon {
-      color: rgba($theme-luxury-business-accent, 0.82) !important;
-    }
-  }
-
   .el-picker-panel {
     background-color: $theme-luxury-business-bg-card;
     border-color: $theme-luxury-business-border;
@@ -1463,7 +1436,7 @@ body.theme-luxury-business {
     color: $theme-luxury-business-text-primary;
 
     &.el-message--success {
-      background-color: lighten($theme-luxury-business-accent, 35%);
+      background-color: shift-lightness($theme-luxury-business-accent, 35%);
       border-color: $theme-luxury-business-accent;
     }
   }

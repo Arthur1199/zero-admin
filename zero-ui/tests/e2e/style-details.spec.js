@@ -1,0 +1,123 @@
+import { test, expect } from '@playwright/test'
+
+test('拖拽限制在视口内，缩放有上下限，禁用和卸载释放事件', async ({ page }) => {
+  await page.goto('/tests/fixtures/style-details.html')
+  const dialog = page.locator('.el-dialog')
+  await expect(dialog).toBeVisible()
+  // 页面其它鼠标监听不能被指令覆盖。
+  await page.evaluate(() => {
+    window.otherMoves = 0
+    document.onmousemove = () => { window.otherMoves++ }
+  })
+  const header = page.locator('.el-dialog__header')
+  const original = await dialog.boundingBox()
+  await page.locator('.header-button').click()
+  expect(await dialog.boundingBox()).toEqual(original)
+  await header.hover({ position: { x: 12, y: 8 } })
+  await page.mouse.down()
+  await page.mouse.move(0, 0)
+  await page.mouse.up()
+  const moved = await dialog.boundingBox()
+  expect(moved.x).toBe(0)
+  expect(moved.y).toBe(0)
+  expect(await page.evaluate(() => window.otherMoves)).toBeGreaterThan(0)
+
+  const edge = page.locator('.zero-dialog-resize-handle--width')
+  await edge.hover()
+  await page.mouse.down()
+  await page.mouse.move(20, 80)
+  await page.mouse.up()
+  expect((await dialog.boundingBox()).width).toBe(240)
+  const corner = page.locator('.zero-dialog-resize-handle--height')
+  await corner.hover()
+  await page.mouse.down()
+  await page.mouse.move(page.viewportSize().width - 1, page.viewportSize().height - 1)
+  await page.mouse.up()
+  const resized = await dialog.boundingBox()
+  expect(resized.width).toBe(page.viewportSize().width)
+  expect(resized.height).toBe(page.viewportSize().height)
+
+  await page.evaluate(() => { window.styleDetails.state.enabled = false })
+  await expect(page.locator('.zero-dialog-resize-handle')).toHaveCount(0)
+  await expect(dialog).not.toHaveClass(/zero-dialog-draggable/)
+  await page.evaluate(() => { window.styleDetails.state.enabled = true })
+  await header.hover({ position: { x: 12, y: 8 } })
+  await page.mouse.down()
+  await page.evaluate(() => {
+    window.removedDialog = document.querySelector('.el-dialog')
+    window.styleDetails.state.visible = false
+  })
+  await expect(dialog).toHaveCount(0)
+  const oldStyle = await page.evaluate(() => window.removedDialog.style.cssText)
+  await page.mouse.move(900, 600)
+  await page.mouse.up()
+  expect(await page.evaluate(() => window.removedDialog.style.cssText)).toBe(oldStyle)
+})
+
+test('八主题图表文字和提示层读取主题，切换不丢数据，减少动态效果停止动画', async ({ page }) => {
+  const errors = []
+  page.on('pageerror', error => errors.push(error.message))
+  await page.goto('/tests/fixtures/style-details.html')
+  await expect(page.locator('canvas')).toHaveCount(5)
+  const seriesBefore = await page.evaluate(() => window.styleDetails.options().map(option => option.series.map(series => series.data)))
+  for (const theme of ['glassmorphism', 'dark-premium', 'minimalist-future', 'default', 'luxury-business', 'vibrant-tech', 'warm-nature', 'material-design']) {
+    await page.evaluate(value => window.styleDetails.setTheme(value), theme)
+    await expect.poll(() => page.evaluate(() => {
+      const expected = getComputedStyle(document.body).getPropertyValue('--zero-text').trim()
+      return window.styleDetails.options().every(option => option.textStyle.color === expected && option.tooltip[0].textStyle.color === expected)
+    }), { message: theme }).toBe(true)
+    expect(await page.evaluate(() => window.styleDetails.options().map(option => option.series.map(series => series.data)))).toEqual(seriesBefore)
+  }
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await expect.poll(() => page.evaluate(() => window.styleDetails.options().every(option => option.animation === false))).toBe(true)
+  await expect(page.locator('.el-menu-item')).toHaveCSS('animation-name', 'none')
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await expect.poll(() => page.evaluate(() => window.styleDetails.options().every(option => option.animation === true))).toBe(true)
+  expect(errors).toEqual([])
+})
+
+test('键盘焦点有可见轮廓，缩放后的低视口仍能操作拖动手柄', async ({ page }) => {
+  await page.setViewportSize({ width: 800, height: 480 })
+  await page.goto('/tests/fixtures/style-details.html')
+  await page.keyboard.press('Tab')
+  await expect(page.locator('#keyboard-target')).toBeFocused()
+  await expect(page.locator('#keyboard-target')).toHaveCSS('outline-style', 'solid')
+  await page.evaluate(() => { document.documentElement.style.zoom = '1.25' })
+  await expect(page.locator('.zero-dialog-resize-handle--height')).toBeVisible()
+  const before = await page.locator('.el-dialog').boundingBox()
+  await page.locator('.el-dialog__header').hover({ position: { x: 12, y: 8 } })
+  await page.mouse.down()
+  const started = await page.locator('.el-dialog').boundingBox()
+  expect(Math.abs(started.x - before.x)).toBeLessThan(1)
+  expect(Math.abs(started.width - before.width)).toBeLessThan(1)
+  await page.mouse.move(80, 50)
+  await page.mouse.up()
+  const moved = await page.locator('.el-dialog').boundingBox()
+  expect(moved.x).toBeGreaterThanOrEqual(0)
+  expect(moved.y).toBeGreaterThanOrEqual(0)
+})
+
+test('八主题确认框、消息、图片预览遵循动态层级，低视口不超出可视区', async ({ page }) => {
+  await page.setViewportSize({ width: 800, height: 480 })
+  await page.goto('/tests/fixtures/style-details.html')
+  for (const theme of ['glassmorphism', 'dark-premium', 'minimalist-future', 'default', 'luxury-business', 'vibrant-tech', 'warm-nature', 'material-design']) {
+    await page.evaluate(value => { window.styleDetails.state.visible = false; window.styleDetails.setTheme(value); window.styleDetails.openLayers() }, theme)
+    const confirm = page.locator('.el-overlay.is-message-box')
+    await expect(confirm).toBeVisible()
+    const frame = await page.locator('.el-message-box').boundingBox()
+    expect(frame.x, theme).toBeGreaterThanOrEqual(0)
+    expect(frame.y, theme).toBeGreaterThanOrEqual(0)
+    expect(frame.x + frame.width, theme).toBeLessThanOrEqual(800)
+    expect(frame.y + frame.height, theme).toBeLessThanOrEqual(480)
+    const confirmLayer = await confirm.evaluate(el => Number(getComputedStyle(el).zIndex))
+    await page.evaluate(() => { window.styleDetails.state.preview = true })
+    const preview = page.locator('.el-image-viewer__wrapper')
+    await expect(preview).toBeVisible()
+    expect(await preview.evaluate(el => Number(getComputedStyle(el).zIndex)), theme).toBeGreaterThan(confirmLayer)
+    await preview.locator('.el-image-viewer__close').click()
+    await expect(preview).toHaveCount(0)
+    await page.getByRole('button', { name: 'Cancel', exact: true }).click()
+    await expect(confirm).toHaveCount(0)
+    await page.evaluate(() => window.styleDetails.closeLayers())
+  }
+})

@@ -1,17 +1,14 @@
+@use './theme-variables' as *;
+@use './theme-mixins' as *;
 // ==========================================
 // 毛玻璃拟态风主题样式
 // 渐变由 App.vue 写入 CSS 变量，表面使用透明叠层，浮层对比度由后置覆盖补充。
 // ==========================================
 
-@import './theme-variables';
-@import './theme-mixins';
 
-// ========================================== 
-// 毛玻璃主题复用的动画定义。
-// ==========================================
-// 方案A：炫彩脉冲动画
 
-// 方案B：极光呼吸动画
+
+// 公用动画定义统一放在 motion/theme-effects.scss。
 
 // ========================================== 
 // 全局最高优先级：移除毛玻璃主题下所有菜单hover背景色
@@ -41,7 +38,6 @@ body.theme-glassmorphism {
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important;
     border-radius: 8px !important;
-    z-index: 99999 !important;
     position: fixed !important;  // 确保固定定位
     
     // 菜单项文字颜色
@@ -111,7 +107,6 @@ body.theme-glassmorphism {
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important;
     border-radius: 8px !important;
-    z-index: 99999 !important;
     position: fixed !important;
     
     // 菜单项文字颜色
@@ -828,7 +823,6 @@ body.theme-glassmorphism {
       border: 1px solid rgba(255, 255, 255, 0.2) !important;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important;
       border-radius: 8px;
-      z-index: 99999 !important;  // 确保在最上层显示
       position: fixed !important;  // 确保固定定位
 
       .el-menu-item {
@@ -2137,38 +2131,6 @@ body.theme-glassmorphism {
     }
   }
 
-  // ========== 日期选择器样式 ==========
-  .el-date-editor.el-range-editor.el-input__inner {
-    background: rgba(255, 255, 255, 0.14) !important;
-    border: 1px solid rgba(255, 255, 255, 0.26) !important;
-    border-radius: 8px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.16);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-
-    &:hover,
-    &.is-active {
-      border-color: rgba(255, 255, 255, 0.46) !important;
-      box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.18), 0 10px 26px rgba(0, 0, 0, 0.14);
-    }
-
-    .el-range-input {
-      background: transparent !important;
-      color: $theme-glassmorphism-text-primary !important;
-      font-weight: 500;
-
-      &::placeholder {
-        color: rgba(255, 255, 255, 0.68) !important;
-      }
-    }
-
-    .el-range-separator,
-    .el-range__icon,
-    .el-range__close-icon {
-      color: rgba(255, 255, 255, 0.82) !important;
-    }
-  }
-
   .el-picker-panel {
     background: $theme-glassmorphism-bg-card !important;
     backdrop-filter: blur(20px);
@@ -2494,28 +2456,7 @@ body.theme-glassmorphism {
     animation: theme-glass-pulse 1.5s infinite;
   }
   
-  // ========== 折叠菜单激活状态动画 ==========
-  // 方案A：炫彩脉冲动画
-  @keyframes glassmorphism-pulse {
-    0%, 100% {
-      transform: scale(1);
-      box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
-    }
-    50% {
-      transform: scale(1.02);
-      box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
-    }
-  }
-  
-  // 方案B：极光呼吸动画
-  @keyframes glassmorphism-breathe {
-    0%, 100% {
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
-    }
-    50% {
-      box-shadow: 0 0 25px rgba(255, 255, 255, 0.6);
-    }
-  }
+  // 折叠菜单公用动画由 motion/theme-effects.scss 维护。
 
   // ========== 对话框底部提示文字优化 ==========
   // 解决导入弹窗下方提示文字不可见问题
@@ -2556,7 +2497,6 @@ body.theme-glassmorphism {
     border: 1px solid rgba(255, 255, 255, 0.2) !important;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6) !important;
     border-radius: 8px !important;
-    z-index: 99999 !important;  // 确保在最上层
     position: fixed !important;  // 确保固定定位，脱离文档流
     
     // 菜单项文字颜色

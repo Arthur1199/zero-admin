@@ -1,6 +1,7 @@
+@use 'sass:meta';
 // Element Plus 公共组件样式和兼容规则。主题专有覆盖由对应模块在原位置加载。
 
-@import '../themes/components/_glass-menu-popup.scss';
+@include meta.load-css('../themes/components/_glass-menu-popup.scss');
 
 // 注释掉面包屑的全局样式覆盖，让主题样式生效
 // .el-breadcrumb__inner,
@@ -31,13 +32,6 @@
   }
 }
 
-.fixed-width {
-  .el-button--mini {
-    padding: 7px 10px;
-    width: 60px;
-  }
-}
-
 .status-col {
   .cell {
     padding: 0 10px;
@@ -55,27 +49,6 @@
   left: 0;
   position: relative;
   margin: 0 auto;
-}
-
-.el-dialog__wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 0;
-  box-sizing: border-box;
-}
-
-.el-dialog__wrapper .el-dialog {
-  display: flex;
-  flex-direction: column;
-  min-height: 68vh;
-  max-height: calc(100vh - 20px);
-  margin: 0 auto !important;
-}
-
-.el-dialog__wrapper .el-dialog__body {
-  flex: 1;
-  overflow: auto;
 }
 
 .el-dialog.is-fullscreen {
@@ -101,11 +74,6 @@
   a {
     display: block
   }
-}
-
-// fix date-picker ui bug in filter-item
-.el-range-editor.el-input__inner {
-  display: inline-flex !important;
 }
 
 // to fix el-date-picker css style
@@ -154,4 +122,4 @@
 }
 
 
-@import '../themes/components/_menu-popup.scss';
+@include meta.load-css('../themes/components/_menu-popup.scss');

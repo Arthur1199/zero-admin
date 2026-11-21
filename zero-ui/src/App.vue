@@ -130,7 +130,7 @@ export default {
     // 更新表单构建页面标识
     updateFormBuilderFlag(path) {
       // 判断是否是表单构建页面
-      if (path === '/tool/build' || path.startsWith('/tool/build/') || path.includes('build')) {
+      if (path === '/tool/build' || path.startsWith('/tool/build/')) {
         document.body.classList.add('form-builder-page')
       } else {
         document.body.classList.remove('form-builder-page')

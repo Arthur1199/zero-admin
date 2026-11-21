@@ -1,3 +1,4 @@
+@use 'sass:meta';
 // 分页公共样式和原始风格默认值。在 main.js 中排在 index.scss 之后。
 .el-pagination {
   .el-pager li {
@@ -25,4 +26,4 @@
   }
 }
 
-@import '../themes/components/_pagination.scss';
+@include meta.load-css('../themes/components/_pagination.scss');

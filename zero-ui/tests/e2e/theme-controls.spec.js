@@ -95,6 +95,19 @@ test('八主题表单构建器按需样式可加载并保持画布和面板可�
     await expect(page.locator('.form-build-container .left-board')).toBeVisible()
     await expect(page.locator('.form-build-container .right-board')).toBeVisible()
     await expect(page.locator('.form-build-container .drawing-board')).toBeVisible()
+    const contrast = await page.locator('.right-board .el-input__inner').first().evaluate(input => {
+      const foreground = getComputedStyle(input).color.match(/[\d.]+/g).map(Number)
+      const background = getComputedStyle(input.closest('.el-input__wrapper')).backgroundColor.match(/[\d.]+/g).map(Number)
+      const luminance = rgb => rgb.map(value => value / 255).map(value => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4).reduce((sum, value, index) => sum + value * [0.2126, 0.7152, 0.0722][index], 0)
+      // 透明背景分别合成到黑、白底，取最差情况，避免只按单一背景误判。
+      const text = luminance(foreground.slice(0, 3))
+      return Math.min(...[0, 255].map(base => {
+        const alpha = background[3] ?? 1
+        const surface = luminance(background.slice(0, 3).map(value => value * alpha + base * (1 - alpha)))
+        return (Math.max(text, surface) + 0.05) / (Math.min(text, surface) + 0.05)
+      }))
+    })
+    expect(contrast, label).toBeGreaterThanOrEqual(4.5)
     await page.screenshot({ path: testInfo.outputPath(label + '-form-builder.png') })
   }
   expect(errors).toEqual([])

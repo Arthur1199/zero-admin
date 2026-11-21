@@ -1,11 +1,6 @@
 // 极简未来风的表单、弹层和通用组件覆盖。这里保留同一主题各阶段的兼容规则及其原有级联顺序。
 
 body.theme-minimalist-future {
-  .vue-treeselect__menu-container,
-  .vue-treeselect__menu,
-  .vue-treeselect__list,
-  .vue-treeselect__list-item,
-  .vue-treeselect__indent,
   .el-select-dropdown.el-popper,
   .el-select-dropdown.el-popper .el-scrollbar,
   .el-select-dropdown.el-popper .el-select-dropdown__wrap,
@@ -30,7 +25,6 @@ body.theme-minimalist-future {
     -webkit-backdrop-filter: none !important;
   }
 
-  .vue-treeselect__menu-container,
   .el-select-dropdown.el-popper,
   .el-cascader__dropdown,
   .el-picker-panel,
@@ -43,10 +37,6 @@ body.theme-minimalist-future {
     overflow: hidden;
   }
 
-  .vue-treeselect__menu *,
-  .vue-treeselect__option,
-  .vue-treeselect__label,
-  .vue-treeselect__count,
   .el-select-dropdown__item,
   .el-cascader-node,
   .el-cascader-node__label,
@@ -64,8 +54,6 @@ body.theme-minimalist-future {
     opacity: 1 !important;
   }
 
-  .vue-treeselect__option:hover,
-  .vue-treeselect__option--hover,
   .el-select-dropdown__item.hover,
   .el-select-dropdown__item:hover,
   .el-cascader-node:hover,
@@ -84,8 +72,6 @@ body.theme-minimalist-future {
     color: #006c9a !important;
   }
 
-  .vue-treeselect__option--selected,
-  .vue-treeselect__option--selected .vue-treeselect__label,
   .el-select-dropdown__item.selected,
   .el-cascader-node.is-active,
   .el-date-table td.current:not(.disabled) span,
@@ -98,32 +84,9 @@ body.theme-minimalist-future {
     font-weight: 700 !important;
   }
 
-  .vue-treeselect__control {
-    background: rgba(255, 255, 255, 0.86) !important;
-    border: 1px solid rgba(0, 188, 212, 0.28) !important;
-    border-radius: 10px !important;
-    color: #172033 !important;
-  }
-
-  .vue-treeselect--focused .vue-treeselect__control {
-    border-color: #00bcd4 !important;
-    box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.12) !important;
-  }
-
-  .vue-treeselect__placeholder,
-  .vue-treeselect__input,
   .el-input__inner::placeholder,
   .el-textarea__inner::placeholder {
     color: #7c91a6 !important;
-  }
-
-  .vue-treeselect__single-value {
-    color: #172033 !important;
-  }
-
-  .vue-treeselect__control-arrow,
-  .vue-treeselect__x {
-    fill: #7c91a6 !important;
   }
 
   .el-popper .popper__arrow,
@@ -265,9 +228,7 @@ body.theme-minimalist-future {
     }
   }
 
-  .el-table,
-  .el-table__fixed,
-  .el-table__fixed-right {
+  .el-table {
     background: rgba(255, 255, 255, 0.88) !important;
     border: 1px solid rgba(0, 188, 212, 0.18) !important;
     border-radius: 8px !important;
@@ -276,8 +237,7 @@ body.theme-minimalist-future {
     overflow: hidden;
   }
 
-  .el-table__header-wrapper,
-  .el-table__fixed-header-wrapper {
+  .el-table__header-wrapper {
     th,
     th.el-table__cell,
     tr,
@@ -326,9 +286,7 @@ body.theme-minimalist-future {
 
   .el-input__inner,
   .el-textarea__inner,
-  .el-date-editor.el-input__inner,
-  .el-date-editor.el-range-editor.el-input__inner,
-  .vue-treeselect__control {
+  .el-date-editor.el-input__inner {
     background: rgba(255, 255, 255, 0.84) !important;
     border: 1px solid rgba(0, 188, 212, 0.24) !important;
     border-radius: 8px !important;
@@ -337,17 +295,13 @@ body.theme-minimalist-future {
   }
 
   .el-input__inner:focus,
-  .el-textarea__inner:focus,
-  .vue-treeselect--focused .vue-treeselect__control {
+  .el-textarea__inner:focus {
     border-color: #00bcd4 !important;
     box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.12) !important;
   }
 
   .el-select-dropdown,
   .el-dropdown-menu,
-  .vue-treeselect__menu-container,
-  .vue-treeselect__menu,
-  .vue-treeselect__list,
   .el-menu--popup,
   > .el-menu--popup {
     background: rgba(255, 255, 255, 0.96) !important;
@@ -359,8 +313,6 @@ body.theme-minimalist-future {
 
   .el-select-dropdown__item,
   .el-dropdown-menu__item,
-  .vue-treeselect__option,
-  .vue-treeselect__label,
   .el-menu--popup .el-menu-item,
   .el-menu--popup .el-sub-menu__title {
     background: transparent !important;
@@ -370,8 +322,6 @@ body.theme-minimalist-future {
   .el-select-dropdown__item.hover,
   .el-select-dropdown__item:hover,
   .el-dropdown-menu__item:hover,
-  .vue-treeselect__option:hover,
-  .vue-treeselect__option--hover,
   .el-menu--popup .el-menu-item:hover,
   .el-menu--popup .el-sub-menu__title:hover {
     background: rgba(0, 188, 212, 0.10) !important;
@@ -379,7 +329,6 @@ body.theme-minimalist-future {
   }
 
   .el-select-dropdown__item.selected,
-  .vue-treeselect__option--selected,
   .el-menu--popup .el-menu-item.is-active {
     background: rgba(0, 188, 212, 0.14) !important;
     color: #006c9a !important;
@@ -566,9 +515,7 @@ body.theme-minimalist-future {
   .el-input__inner,
   .el-textarea__inner,
   .el-select .el-input__inner,
-  .el-date-editor.el-input__inner,
-  .el-date-editor.el-range-editor.el-input__inner,
-  .vue-treeselect__control {
+  .el-date-editor.el-input__inner {
     background: rgba(255, 255, 255, 0.82) !important;
     border: 1px solid rgba(0, 188, 212, 0.24) !important;
     border-radius: 8px !important;
@@ -577,17 +524,13 @@ body.theme-minimalist-future {
   }
 
   .el-input__inner:focus,
-  .el-textarea__inner:focus,
-  .vue-treeselect--focused .vue-treeselect__control {
+  .el-textarea__inner:focus {
     border-color: #00bcd4 !important;
     box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.12) !important;
   }
 
   .el-input__inner::placeholder,
-  .el-textarea__inner::placeholder,
-  .vue-treeselect__placeholder,
-  .vue-treeselect__single-value,
-  .vue-treeselect__input {
+  .el-textarea__inner::placeholder {
     color: #8aa1b4 !important;
   }
 
@@ -718,10 +661,7 @@ body.theme-minimalist-future {
   }
 
   .el-select-dropdown,
-  .el-dropdown-menu,
-  .vue-treeselect__menu-container,
-  .vue-treeselect__menu,
-  .vue-treeselect__list {
+  .el-dropdown-menu {
     background: rgba(255, 255, 255, 0.96) !important;
     border: 1px solid rgba(0, 188, 212, 0.20) !important;
     border-radius: 8px !important;
@@ -729,23 +669,18 @@ body.theme-minimalist-future {
   }
 
   .el-select-dropdown__item,
-  .el-dropdown-menu__item,
-  .vue-treeselect__option,
-  .vue-treeselect__label {
+  .el-dropdown-menu__item {
     color: #172033 !important;
   }
 
   .el-select-dropdown__item.hover,
   .el-select-dropdown__item:hover,
-  .el-dropdown-menu__item:hover,
-  .vue-treeselect__option:hover,
-  .vue-treeselect__option--hover {
+  .el-dropdown-menu__item:hover {
     background: rgba(0, 188, 212, 0.10) !important;
     color: #006c9a !important;
   }
 
-  .el-select-dropdown__item.selected,
-  .vue-treeselect__option--selected {
+  .el-select-dropdown__item.selected {
     background: rgba(0, 188, 212, 0.14) !important;
     color: #006c9a !important;
     font-weight: 700 !important;
@@ -769,8 +704,7 @@ body.theme-minimalist-future {
 
 body.theme-minimalist-future {
   .el-table th,
-  .el-table__header-wrapper th,
-  .el-table__fixed-header-wrapper th {
+  .el-table__header-wrapper th {
     background: linear-gradient(90deg, rgba(232, 250, 255, 0.96) 0%, rgba(244, 248, 255, 0.96) 100%) !important;
     background-color: #eaf8ff !important;
     color: #365065 !important;
@@ -779,9 +713,7 @@ body.theme-minimalist-future {
 
   .el-table tr,
   .el-table td,
-  .el-table__body-wrapper,
-  .el-table__fixed,
-  .el-table__fixed-right {
+  .el-table__body-wrapper {
     background-color: #ffffff !important;
     color: #172033 !important;
     border-color: rgba(0, 188, 212, 0.12) !important;
@@ -823,7 +755,6 @@ body.theme-minimalist-future {
     color: #00a7bd !important;
   }
 
-  .vue-treeselect__control,
   .el-input__inner,
   .el-textarea__inner,
   .el-input-number,
@@ -835,36 +766,17 @@ body.theme-minimalist-future {
     color: #172033 !important;
   }
 
-  .vue-treeselect--focused .vue-treeselect__control,
   .el-input__inner:focus,
   .el-textarea__inner:focus {
     border-color: #00bcd4 !important;
     box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.12) !important;
   }
 
-  .vue-treeselect__placeholder,
-  .vue-treeselect__single-value,
-  .vue-treeselect__input,
   .el-input__inner::placeholder,
   .el-textarea__inner::placeholder {
     color: #7c91a6 !important;
   }
 
-  .vue-treeselect__control-arrow,
-  .vue-treeselect__x {
-    fill: #7c91a6 !important;
-  }
-
-  .el-dialog .vue-treeselect,
-  .vue-treeselect {
-    position: relative !important;
-  }
-
-  .vue-treeselect__menu-container,
-  .vue-treeselect__menu,
-  .vue-treeselect__list,
-  .vue-treeselect__list-item,
-  .vue-treeselect__indent,
   .el-select-dropdown.el-popper,
   .el-select-dropdown.el-popper .el-scrollbar,
   .el-select-dropdown.el-popper .el-select-dropdown__wrap,
@@ -889,26 +801,6 @@ body.theme-minimalist-future {
     -webkit-backdrop-filter: none !important;
   }
 
-  .vue-treeselect__menu-container {
-    z-index: 4000 !important;
-    overflow: visible !important;
-  }
-
-  .vue-treeselect--open .vue-treeselect__menu-container {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    top: calc(100% + 6px) !important;
-  }
-
-  .vue-treeselect__menu {
-    display: block !important;
-    min-height: 42px !important;
-    max-height: 280px !important;
-    overflow-y: auto !important;
-  }
-
-  .vue-treeselect__menu-container,
   .el-select-dropdown.el-popper,
   .el-cascader__dropdown,
   .el-picker-panel,
@@ -921,14 +813,6 @@ body.theme-minimalist-future {
     overflow: hidden;
   }
 
-  .vue-treeselect__menu-container {
-    overflow: visible !important;
-  }
-
-  .vue-treeselect__menu *,
-  .vue-treeselect__option,
-  .vue-treeselect__label,
-  .vue-treeselect__count,
   .el-select-dropdown__item,
   .el-cascader-node,
   .el-cascader-node__label,
@@ -946,8 +830,6 @@ body.theme-minimalist-future {
     opacity: 1 !important;
   }
 
-  .vue-treeselect__option:hover,
-  .vue-treeselect__option--hover,
   .el-select-dropdown__item.hover,
   .el-select-dropdown__item:hover,
   .el-cascader-node:hover,
@@ -965,8 +847,6 @@ body.theme-minimalist-future {
     color: #006c9a !important;
   }
 
-  .vue-treeselect__option--selected,
-  .vue-treeselect__option--selected .vue-treeselect__label,
   .el-select-dropdown__item.selected,
   .el-cascader-node.is-active,
   .el-date-table td.current:not(.disabled) span,

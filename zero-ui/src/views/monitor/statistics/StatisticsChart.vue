@@ -8,19 +8,19 @@
 <script>
 import { markRaw } from 'vue'
 import * as echarts from 'echarts'
+import chartAppearance from '@/mixins/chartAppearance'
 
 export default {
   name: 'StatisticsChart',
+  mixins: [chartAppearance],
   props: {
     options: { type: Object, required: true },
     label: { type: String, required: true },
     empty: { type: Boolean, default: false }
   },
   data() { return { chart: null, observer: null } },
-  computed: { themeStyle() { return this.$store.state.settings.themeStyle } },
   watch: {
-    options: { deep: true, handler() { this.renderChart() } },
-    themeStyle() { this.$nextTick(this.renderChart) }
+    options: { deep: true, handler() { this.renderChart() } }
   },
   mounted() {
     this.chart = markRaw(echarts.init(this.$refs.canvas))
@@ -36,18 +36,14 @@ export default {
   methods: {
     renderChart() {
       if (!this.chart) return
-      const color = getComputedStyle(this.$el).color
       this.chart.setOption({
-        backgroundColor: 'transparent',
-        color: ['#409eff', '#67c23a', '#e6a23c', '#f56c6c', '#909399', '#9b80ff'],
-        textStyle: { color },
         tooltip: { trigger: 'axis', confine: true, renderMode: 'richText' },
         grid: { left: 16, right: 20, bottom: 28, top: 42, containLabel: true },
         ...this.options,
-        legend: { top: 2, ...this.options.legend, textStyle: { color } },
-        xAxis: this.options.xAxis ? { ...this.options.xAxis, axisLabel: { ...this.options.xAxis.axisLabel, color, hideOverlap: true }, splitLine: { lineStyle: { color, opacity: 0.12 } } } : undefined,
-        yAxis: this.options.yAxis ? { ...this.options.yAxis, axisLabel: { ...this.options.yAxis.axisLabel, color }, splitLine: { lineStyle: { color, opacity: 0.12 } } } : undefined
+        legend: { top: 2, ...this.options.legend },
+        xAxis: this.options.xAxis ? { ...this.options.xAxis, axisLabel: { ...this.options.xAxis.axisLabel, hideOverlap: true } } : undefined
       }, true)
+      this.applyChartAppearance()
     }
   }
 }

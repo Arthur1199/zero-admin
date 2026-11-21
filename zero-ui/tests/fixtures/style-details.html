@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>公共样式交互验收</title></head>
+<body>
+  <div id="app"></div>
+  <script type="module">
+    import { createApp, h, reactive, withDirectives } from 'vue'
+    import { createStore } from 'vuex'
+    import { ElMessage, ElNotification, ElMessageBox, ElImageViewer } from 'element-plus'
+    import 'element-plus/dist/index.css'
+    import '../../src/assets/styles/index.scss'
+    import drag from '../../src/directive/dialog/drag'
+    import width from '../../src/directive/dialog/dragWidth'
+    import height from '../../src/directive/dialog/dragHeight'
+    import BarChart from '../../src/views/dashboard/BarChart.vue'
+    import LineChart from '../../src/views/dashboard/LineChart.vue'
+    import PieChart from '../../src/views/dashboard/PieChart.vue'
+    import RadarChart from '../../src/views/dashboard/RaddarChart.vue'
+    import StatisticsChart from '../../src/views/monitor/statistics/StatisticsChart.vue'
+
+    const state = reactive({ enabled: true, visible: true, preview: false })
+    const store = createStore({ state: { settings: { themeStyle: 'default' } } })
+    const charts = {}
+    const app = createApp({
+      render() {
+        const dialog = h('div', { class: 'el-dialog', style: { position: 'fixed', left: '200px', top: '120px', width: '400px', height: '240px', margin: '0', background: 'var(--zero-surface)', zIndex: 100 } }, [
+          h('header', { class: 'el-dialog__header' }, [h('span', '拖动标题'), h('button', { class: 'header-button' }, '关闭')]),
+          h('div', '拖动边缘调整大小')
+        ])
+        const dashboard = [BarChart, LineChart, PieChart, RadarChart, StatisticsChart].map((component, index) => h(component, {
+          ref: value => { if (value) charts[index] = value },
+          style: { display: 'inline-block', width: '300px', height: '250px' },
+          chartData: { expectedData: [1, 2, 3], actualData: [3, 2, 1] },
+          ...(index === 4 ? { label: '统计测试', options: { xAxis: { type: 'category', data: ['甲', '乙'] }, yAxis: { type: 'value' }, series: [{ name: '请求', type: 'line', data: [2, 4] }] } } : {})
+        }))
+        return h('main', [h('button', { id: 'keyboard-target' }, '键盘焦点'),
+          h('div', { class: 'el-menu-item is-active', style: { width: '150px' } }, '选中菜单'),
+          ...dashboard, state.visible ? withDirectives(dialog, [[drag, state.enabled], [width, state.enabled], [height, state.enabled]]) : null,
+          state.preview ? h(ElImageViewer, { teleported: true, urlList: ['data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="120" height="120"%3E%3Crect width="120" height="120" fill="royalblue"/%3E%3C/svg%3E'], onClose: () => { state.preview = false } }) : null])
+      }
+    })
+    app.use(store).mount('#app')
+    window.styleDetails = {
+      state,
+      setTheme(theme) {
+        document.body.className = theme === 'default' ? '' : `theme-${theme}`
+        store.state.settings.themeStyle = theme
+      },
+      openLayers() {
+        ElMessage({ message: '顶部提示', duration: 0 })
+        ElNotification({ title: '通知卡片', message: '提示内容', duration: 0 })
+        ElMessageBox.confirm('确认内容', '系统提示').catch(action => {
+          if (action !== 'cancel' && action !== 'close') throw action
+        })
+      },
+      closeLayers() { ElMessageBox.close(); ElMessage.closeAll(); ElNotification.closeAll() },
+      options() { return Object.values(charts).map(value => value.chart.getOption()) }
+    }
+  </script>
+</body>
+</html>

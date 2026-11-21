@@ -1,3 +1,4 @@
+@use 'sass:meta';
 // Element Plus弹层挂在body下，与业务页面使用同一套主题变量。
 body {
   --el-bg-color: var(--zero-surface);
@@ -16,7 +17,7 @@ body {
 
 }
 
-@import './_table-compat.scss';
-@import './_form-compat.scss';
-@import './_overlay-compat.scss';
-@import './_menu-compat.scss';
+@include meta.load-css('./_table-compat.scss');
+@include meta.load-css('./_form-compat.scss');
+@include meta.load-css('./_overlay-compat.scss');
+@include meta.load-css('./_menu-compat.scss');
