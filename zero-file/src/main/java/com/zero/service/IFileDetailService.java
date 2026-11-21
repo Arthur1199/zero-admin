@@ -68,11 +68,11 @@ public interface IFileDetailService extends IService<FileDetail>, FileRecorder
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/20 01:36
-     * 说明: 按记录 ID 发起文件删除，先由存储平台删除对象，再处理记录。
+     * 说明: 按记录 ID 删除并提交数据库记录，再清理原存储对象。
      * @param id 文件记录主键
      * @return
      * 返回值: boolean
-     * 返回值说明: 文件删除结果，记录不存在时抛出参数异常
+     * 返回值说明: 数据库删除成功后返回存储清理结果，数据库删除失败时抛出异常
      */
     boolean deleteFileById(Integer id);
 }

@@ -106,7 +106,7 @@ public class UpyunUssFileStorage implements FileStorage {
      * @param fileInfo 携带原文件及缩略图路径信息的文件记录
      * @return
      * 返回值: boolean
-     * 返回值说明: 当前平台的删除结果
+     * 返回值说明: 原文件和存在的缩略图均删除成功时返回 true
      */
     @Override
     public boolean delete(FileInfo fileInfo) {
@@ -114,9 +114,9 @@ public class UpyunUssFileStorage implements FileStorage {
         String file = fileInfo.getBasePath() + fileInfo.getPath() + fileInfo.getFilename();
         String thFile = fileInfo.getBasePath() + fileInfo.getPath() + fileInfo.getThFilename();
 
-        try (Response ignored = fileInfo.getThFilename() != null ? manager.deleteFile(thFile,null) : null;
+        try (Response thumbnailResponse = fileInfo.getThFilename() != null ? manager.deleteFile(thFile,null) : null;
              Response response = manager.deleteFile(file,null)) {
-            return response.isSuccessful();
+            return response.isSuccessful() && (thumbnailResponse == null || thumbnailResponse.isSuccessful());
         } catch (IOException | UpException e) {
             throw new FileStorageRuntimeException("文件存储操作失败", e);
         }

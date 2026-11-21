@@ -142,7 +142,7 @@
 - 上传限制同时受 admin、file、反向代理及前端校验影响。文件管理页面读取 admin 的 `/upload/config`，不能只修改页面默认提示。file 本地单文件/整请求默认 30MB/300MB，admin Nacos common 源文件为 30MB/60MB；实际限制按运行配置核对。
 - 文件记录使用 `biz_file_detail`，默认数据源 key 为 `zeroBiz`；`FileDetailServiceImpl` 继承 MyBatis-Plus `ServiceImpl` 并通过 `IFileDetailService` 实现 `FileRecorder`。不要套用 `ReportBaseService` 或报表业务的软删除规则。
 - `FileStorageProperties` 配置前缀为 `spring.file-storage`；存储平台的启用、默认平台、域名、磁盘目录和云存储配置以当前配置为准。`DefaultFileRecorder` 仅为空实现兜底，不能宣称能持久化或查询文件记录。
-- 文件删除通过 `FileStorageService` 删除实际存储对象，再由 `FileRecorder` 清理数据库记录；数据库事务不能回滚外部磁盘/对象存储。admin 多 ID 删除逐个调用，前面成功后后续失败可能部分完成，不能宣称批量原子性或套用字典恢复逻辑。
+- 文件管理按 ID 删除时，先保存存储对象信息并提交数据库记录删除，再调用原存储平台清理原文件及缩略图。清理失败仍返回成功，`data=false`，并提示“删除成功，云平台记录删除失败”。admin 多 ID 删除逐个调用，存储清理失败后继续处理，数据库删除失败等接口错误会中止后续操作，已提交的删除不会回滚。
 - 当前管理页面仅提供列表、详情、上传、删除；file 服务仍存在 `PUT /file/{id}` 修改记录接口。页面不提供编辑不等于下游没有编辑接口，不自行删除接口或新增编辑菜单权限。
 - file/report 的内部接口不自动继承 admin 的 JWT 和按钮权限。透传请求头不等于完成服务间鉴权，公网访问边界须按实际部署核对。
 

@@ -398,10 +398,14 @@ export default {
         : `是否确认删除选中的 ${ids.length} 个文件（编号：${idText}）？`
       this.deleting = true
       return this.$modal.confirm(confirmation).then(() => {
-        return delFile(idText).then(() => {
-          this.$modal.msgSuccess("删除成功")
+        return delFile(idText).then(response => {
+          if (response.data === false) {
+            this.$modal.msgWarning(response.msg)
+          } else {
+            this.$modal.msgSuccess(response.msg || "删除成功")
+          }
         }).finally(() => {
-          // 服务端逐条删除，部分失败时也需刷新，展示当前实际记录。
+          // 数据库已提交的删除会立即反映在列表中，包括存储清理失败的记录。
           return this.getList()
         })
       }).catch(() => {}).finally(() => {
