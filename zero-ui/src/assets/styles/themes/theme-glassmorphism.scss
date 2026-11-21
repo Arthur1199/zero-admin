@@ -78,7 +78,6 @@ body.theme-glassmorphism {
         background: linear-gradient(90deg, 
           rgba(255, 255, 255, 0.35) 0%,
           rgba(255, 255, 255, 0.15) 100%) !important;
-        animation: glassmorphism-breathe 3s ease-in-out infinite !important;
         color: #ffffff !important;
         position: relative;
         
@@ -149,7 +148,6 @@ body.theme-glassmorphism {
         background: linear-gradient(90deg, 
           rgba(255, 255, 255, 0.35) 0%,
           rgba(255, 255, 255, 0.15) 100%) !important;
-        animation: glassmorphism-breathe 3s ease-in-out infinite !important;
         color: #ffffff !important;
         position: relative;
         
@@ -2719,14 +2717,6 @@ body.theme-glassmorphism {
     }
   }
   
-  // 同时覆盖弹出菜单
-  .el-menu--popup.el-menu--vertical {
-    .el-menu-item.is-active {
-      background-color: transparent !important;
-      background: transparent !important;
-    }
-  }
-
   // ========== hover背景色覆盖 ==========
   #app .sidebar-container {
     // 覆盖所有可能的菜单项hover样式
@@ -2792,6 +2782,7 @@ body.theme-glassmorphism {
     background-color: transparent !important;
     background: transparent !important;
   }
+
 }
 
 // ========== 毛玻璃背景风格：左侧菜单栏专属适配 ==========

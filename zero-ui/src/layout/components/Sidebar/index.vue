@@ -9,6 +9,7 @@
                 :background-color="menuBackgroundColor"
                 :text-color="menuTextColor"
                 :active-text-color="menuActiveTextColor"
+                popper-class="sidebar-menu-popper"
                 :unique-opened="false"
                 :default-openeds="savedOpenedKeys"
                 :collapse-transition="false"
