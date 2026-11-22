@@ -190,8 +190,10 @@ body.theme-minimalist-future {
 
     .el-menu-item,
     .el-sub-menu__title {
-      margin: 3px 10px !important;
-      border-left: 3px solid transparent !important;
+      // 外边距保持 0：图标距侧栏左边 20px，与其它主题和原始风格一致
+      margin: 0 !important;
+      // 不再用透明左边框占位：border 会挤占宽度，使图标比原始风格右移 3px
+      border-left: 0 !important;
     }
 
     .el-menu-item:hover,
@@ -393,9 +395,11 @@ body.theme-minimalist-future {
     .el-sub-menu__title {
       background: transparent !important;
       color: #5c6b82 !important;
-      border-left: 3px solid transparent !important;
+      // 不再用透明左边框占位：border 会挤占宽度，使图标比原始风格右移 3px
+      border-left: 0 !important;
       border-radius: 8px !important;
-      margin: 3px 10px !important;
+      // 外边距保持 0：图标距侧栏左边 20px，与其它主题和原始风格一致
+      margin: 0 !important;
       font-weight: 500 !important;
 
       i,
