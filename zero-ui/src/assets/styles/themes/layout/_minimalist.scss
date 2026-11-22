@@ -28,8 +28,10 @@ body.theme-minimalist-future:not(.form-builder-page) #app {
     .nest-menu .el-sub-menu > .el-sub-menu__title,
     .el-sub-menu .el-menu-item {
       border-radius: 8px !important;
-      margin: 3px 10px !important;
-      border-left: 3px solid transparent !important;
+      // 外边距保持 0：图标距侧栏左边 20px，与其它主题和原始风格一致
+      margin: 0 !important;
+      // 不再用透明左边框占位：border 会挤占宽度，使图标比原始风格右移 3px
+      border-left: 0 !important;
       min-width: auto !important;
     }
 

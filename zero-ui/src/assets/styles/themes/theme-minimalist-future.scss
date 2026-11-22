@@ -60,9 +60,8 @@
       background-color: $theme-minimalist-future-menu-bg !important;
       color: $theme-minimalist-future-text-secondary !important;
       margin: 0 !important;
-      padding: 0 20px !important;
       font-size: 14px !important;
-      border-left: 2px solid transparent;
+      border-left: 0;
       transition: all 0.2s ease;
 
       &:hover {
@@ -83,7 +82,6 @@
       background-color: #1a1a1a !important;
       color: $theme-minimalist-future-text-secondary !important;
       margin: 0 !important;
-      padding: 0 20px !important;
       font-size: 14px !important;
 
       &:hover {
@@ -96,9 +94,8 @@
       }
     }
 
-    // 展开状态的父菜单（重要！）
+    // 展开状态的父菜单（重要！）：底色由 layout/sidebar-states.scss 统一提供，这里只维护文字配色
     .el-sub-menu.is-opened > .el-sub-menu__title {
-      background-color: $theme-minimalist-future-menu-hover !important;
       color: $theme-minimalist-future-accent !important;
       font-weight: 600;
 
@@ -122,18 +119,15 @@
     // 子菜单容器 - 与毛玻璃拟态风保持一致
     .el-menu--inline {
       background-color: $theme-minimalist-future-primary !important;
-      margin: 0 6px !important;  // 左右边距从12px减少到6px，子菜单整体向左移动6px
 
       .el-menu-item {
         background-color: transparent !important;  // 与毛玻璃风一致：透明背景
         background: transparent !important;
         background-image: none !important;
-        padding-left: 28px !important;  // 统一规范：相对父菜单递增20px缩进
         margin: 0 !important;  // 与毛玻璃风一致：无margin
         border-radius: 0 !important;  // 与毛玻璃风一致：无圆角
-        height: 48px !important;
-        line-height: 48px !important;
-        border-left: 2px solid transparent;
+        // 行高沿用 Element Plus 默认（一级 56px、二级 50px），与原始风格保持一致
+        border-left: 0;
         border: none !important;
         box-shadow: none !important;
         position: relative;
@@ -156,7 +150,6 @@
       // 二级子菜单
       .el-menu--inline {
         .el-menu-item {
-          padding-left: 48px !important;
           font-size: 14px !important;  // 与主菜单保持一致
           position: relative;
           
@@ -182,7 +175,6 @@
         // 三级子菜单
         .el-menu--inline {
           .el-menu-item {
-            padding-left: 68px !important;
             font-size: 14px !important;  // 与主菜单保持一致
             
             &::after {
@@ -202,7 +194,6 @@
           // 四级子菜单
           .el-menu--inline {
             .el-menu-item {
-              padding-left: 88px !important;
               font-size: 14px !important;
               
               &::after {
@@ -233,7 +224,7 @@
       .el-menu-item {
         background-color: transparent !important;
         color: $theme-minimalist-future-text-secondary !important;
-        border-left: 2px solid transparent;
+        border-left: 0;
         transition: all 0.2s ease;  // 更快速
 
         &:hover {
@@ -254,7 +245,7 @@
       .el-sub-menu__title {
         background-color: transparent !important;
         color: $theme-minimalist-future-text-secondary !important;
-        border-left: 2px solid transparent;
+        border-left: 0;
         transition: all 0.2s ease;
 
         &:hover {
@@ -918,7 +909,7 @@
 
     .el-dropdown-menu__item {
       color: #000000;
-      border-left: 2px solid transparent;
+      border-left: 0;
       font-weight: 500;
 
       &:hover {
@@ -1036,7 +1027,7 @@ body.theme-minimalist-future {
 
     .el-select-dropdown__item {
       color: #000000 !important;
-      border-left: 2px solid transparent;
+      border-left: 0;
 
       &.hover,
       &:hover {
@@ -1353,7 +1344,7 @@ body.theme-minimalist-future {
 
     .el-cascader-node {
       color: #000000;
-      border-left: 2px solid transparent;
+      border-left: 0;
       font-weight: 500;
 
       &:hover {
@@ -1374,7 +1365,7 @@ body.theme-minimalist-future {
     color: #000000;
 
     .el-tree-node__content {
-      border-left: 2px solid transparent;
+      border-left: 0;
       transition: all 0.2s;
       
       &:hover {

@@ -65,7 +65,6 @@
       background-color: transparent !important;
       color: #c0c9ff !important;
       margin: 0 !important;
-      padding: 0 20px !important;
       font-size: 14px !important;
       transition: all 0.3s;
 
@@ -114,7 +113,6 @@
       background-color: rgba(10, 14, 39, 0.98) !important;
       color: #c0c9ff !important;
       margin: 0 !important;
-      padding: 0 20px !important;
       font-size: 14px !important;
       transition: all 0.3s;
 
@@ -137,9 +135,8 @@
       }
     }
 
-    // 展开状态的父菜单（重要！）
+    // 展开状态的父菜单（重要！）：底色由 layout/sidebar-states.scss 统一提供，这里保留青色发光和文字配色
     .el-sub-menu.is-opened > .el-sub-menu__title {
-      background: rgba(0, 242, 254, 0.1) !important;
       color: #00f2fe !important;
       font-weight: 600;
       box-shadow: 0 0 18px rgba(0, 242, 254, 0.25);
@@ -186,17 +183,14 @@
     // 子菜单容器 - 与毛玻璃拟态风保持一致
     .el-menu--inline {
       background-color: rgba(10, 14, 39, 0.5) !important;
-      margin: 0 6px !important;  // 左右边距从12px减少到6px，子菜单整体向左移动6px
 
       .el-menu-item {
         background-color: transparent !important;  // 与毛玻璃风一致：透明背景
         background: transparent !important;
         background-image: none !important;
-        padding-left: 28px !important;  // 统一规范：相对父菜单递增20px缩进
         margin: 0 !important;  // 与毛玻璃风一致：无margin
         border-radius: 0 !important;  // 与毛玻璃风一致：无圆角
-        height: 48px !important;
-        line-height: 48px !important;
+        // 行高沿用 Element Plus 默认（一级 56px、二级 50px），与原始风格保持一致
         color: #c0c9ff !important;
         border: none !important;
         box-shadow: none !important;
@@ -230,7 +224,6 @@
       // 二级子菜单
       .el-menu--inline {
         .el-menu-item {
-          padding-left: 48px !important;
           font-size: 14px !important;  // 与主菜单保持一致
           color: rgba(192, 201, 255, 0.9) !important;
           position: relative;
@@ -264,7 +257,6 @@
         // 三级子菜单
         .el-menu--inline {
           .el-menu-item {
-            padding-left: 68px !important;
             font-size: 14px !important;  // 与主菜单保持一致
             color: rgba(192, 201, 255, 0.85) !important;
             
@@ -290,7 +282,6 @@
           // 四级子菜单
           .el-menu--inline {
             .el-menu-item {
-              padding-left: 88px !important;
               font-size: 14px !important;
               color: rgba(192, 201, 255, 0.8) !important;
               
