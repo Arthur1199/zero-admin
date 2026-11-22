@@ -21,7 +21,7 @@ public class StatEvent
     private long durationUs;
     /** HTTP请求方式。 */
     private String method;
-    /** 归一化映射模板，不包含路径参数和查询字符串。 */
+    /** 已匹配接口使用映射模板，其余使用最长512字符的实际路径，均不含查询字符串。 */
     private String route;
     /** 接口名称，来源于映射方法。 */
     private String name;

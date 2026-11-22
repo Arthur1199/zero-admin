@@ -31,6 +31,8 @@ public class StatisticsFilter implements Filter
     private final AntPathMatcher matcher=new AntPathMatcher();
     /** 安全链直接输出的JSON只做有界观察，不缓存完整响应或下载流。 */
     private static final int MAX_RESPONSE_PREFIX = 2048;
+    /** 未匹配请求的路径最大长度，与统计接口表的route列长度一致。 */
+    private static final int MAX_REQUEST_PATH_LENGTH = 512;
     /** 流式读取顶层业务码，禁止将data中的code误认为整个请求的结果。 */
     private static final JsonFactory JSON_FACTORY = new JsonFactory();
     /** 登录入口，仅POST构成登录尝试。 */
@@ -81,8 +83,10 @@ public class StatisticsFilter implements Filter
         StatEvent event=context.event;
         event.setEventId(UUID.randomUUID().toString());
         event.setMethod(HTTP_METHODS.contains(http.getMethod())?http.getMethod():"OTHER");
-        event.setRoute("/__unmapped__"); event.setName("未匹配接口或安全链路拒绝"); event.setModule("other");
+        // requestURI不含查询字符串，避免查询参数中的凭据进入统计；MVC识别成功后会替换为接口模板。
         String path = http.getRequestURI().substring(http.getContextPath().length());
+        event.setRoute(path.length()>MAX_REQUEST_PATH_LENGTH ? path.substring(0,MAX_REQUEST_PATH_LENGTH-3)+"..." : path);
+        event.setName("未匹配接口或安全链路拒绝"); event.setModule("other");
         event.setLogin("POST".equals(http.getMethod()) && LOGIN_PATH.equals(path));
         if (event.isLogin()) { event.setRoute(LOGIN_PATH); event.setName("后台登录"); event.setModule("login"); }
         if (LOGOUT_PATH.equals(path)) { event.setRoute(LOGOUT_PATH); event.setName("退出登录"); event.setModule("login"); }
@@ -151,7 +155,7 @@ public class StatisticsFilter implements Filter
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/16 20:46
-     * 说明: 先排除统计自身、实时日志轮询、OPTIONS及静态路径，再读取后台参数开关，避免无须采集的请求额外访问参数缓存。
+     * 说明: 先排除WebSocket握手、统计自身、实时日志轮询、OPTIONS及静态路径，再读取后台参数开关，避免无须采集的请求额外访问参数缓存。
      * @param request HTTP请求
      * @return 是否需要采集
      * 返回值: boolean
@@ -161,6 +165,8 @@ public class StatisticsFilter implements Filter
     {
         if ("OPTIONS".equals(request.getMethod())) return false;
         String route=request.getRequestURI().substring(request.getContextPath().length());
+        // WebSocket升级成功返回101，不参与普通HTTP接口的成功和失败统计。
+        if (com.zero.common.constant.AdminWebSocketConstants.PATH.equals(route)) return false;
         // 每秒日志轮询不触发统计持久化，避免产生轮询自身日志。
         if (com.zero.framework.realtimelog.RealtimeLogBuffer.EVENTS_PATH.equals(route)) return false;
         if (route.equals("/monitor/statistics") || route.startsWith("/monitor/statistics/")) return false;

@@ -90,7 +90,7 @@ export default {
   name: 'Statistics',
   components: { StatisticsChart },
   data() {
-    return { overview: {}, trends: [], distribution: [], rankings: {}, rows: [], total: 0, pageNum: 1, pageSize: 20, keyword: '', appliedKeyword: '', period: 'today', appliedPeriod: 'today', dateRange: [beijingToday(), beijingToday()], appliedRange: [beijingToday(), beijingToday()], rankingType: 'calls', autoRefresh: true, loading: false, tableLoading: false, refreshFailed: false, listFailed: false, now: Date.now(), serverOffset: 0, updatedAt: '', timer: null, disposed: false, isActive: true, listVersion: 0 }
+    return { overview: {}, trends: [], distribution: [], rankings: {}, rows: [], total: 0, pageNum: 1, pageSize: 10, keyword: '', appliedKeyword: '', period: 'today', appliedPeriod: 'today', dateRange: [beijingToday(), beijingToday()], appliedRange: [beijingToday(), beijingToday()], rankingType: 'calls', autoRefresh: true, loading: false, tableLoading: false, refreshFailed: false, listFailed: false, now: Date.now(), serverOffset: 0, updatedAt: '', timer: null, disposed: false, isActive: true, listVersion: 0 }
   },
   computed: {
     failed() { return this.refreshFailed || this.listFailed },

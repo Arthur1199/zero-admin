@@ -9,7 +9,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import com.zero.common.constant.HttpStatus;
 import com.zero.common.core.domain.AjaxResult;
 import com.zero.common.core.text.Convert;
@@ -28,6 +31,17 @@ import com.zero.common.utils.html.EscapeUtil;
 @RestControllerAdvice
 public class GlobalExceptionHandler
 {
+    /**
+     * 不存在的接口或静态资源统一返回HTTP 404及业务码404，避免被通用异常处理误报为系统故障。
+     * @return 资源不存在的统一响应，不包含请求参数或底层异常详情
+     */
+    @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
+    @ResponseStatus(org.springframework.http.HttpStatus.NOT_FOUND)
+    public AjaxResult handleNotFoundException()
+    {
+        return AjaxResult.error(HttpStatus.NOT_FOUND, "请求的接口或资源不存在");
+    }
+
     /**
      * log字段
      */
