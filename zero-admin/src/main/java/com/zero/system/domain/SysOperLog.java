@@ -23,9 +23,9 @@ public class SysOperLog extends BaseEntity
     private Long operId;
 
     /**
-     * 操作模块
+     * 功能模块，导出列头与后台操作日志页面「功能模块」保持一致
      */
-    @Excel(name = "操作模块")
+    @Excel(name = "功能模块")
     private String title;
 
     /**

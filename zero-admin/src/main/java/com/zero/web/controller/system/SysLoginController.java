@@ -20,6 +20,8 @@ import com.zero.common.exception.ServiceException;
 import com.zero.common.utils.DateUtils;
 import com.zero.common.utils.SecurityUtils;
 import com.zero.common.utils.StringUtils;
+import com.zero.common.annotation.SystemModule;
+import com.zero.common.enums.SystemModuleEnum;
 import com.zero.framework.web.service.SysLoginService;
 import com.zero.framework.web.service.SysPermissionService;
 import com.zero.framework.web.service.TokenService;
@@ -34,6 +36,7 @@ import com.zero.system.service.ISysMenuService;
  * 说明: 登录验证
  */
 @RestController
+@SystemModule(SystemModuleEnum.AUTH)
 public class SysLoginController
 {
     /**

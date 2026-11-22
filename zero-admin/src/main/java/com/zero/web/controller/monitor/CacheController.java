@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import com.zero.common.annotation.RequiresPermissions;
+import com.zero.common.annotation.SystemModule;
+import com.zero.common.enums.SystemModuleEnum;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,6 +32,7 @@ import com.zero.system.domain.SysCache;
  */
 @RestController
 @RequestMapping("/monitor/cache")
+@SystemModule(SystemModuleEnum.MONITOR)
 public class CacheController
 {
     /**

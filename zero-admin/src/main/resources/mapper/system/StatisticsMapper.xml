@@ -109,6 +109,8 @@
 
     <sql id="whereRange">a.stat_day&gt;=#{beginDay} AND a.stat_day&lt;#{endDay}
         <if test="keyword != null and keyword != ''">AND (e.route LIKE CONCAT('%',#{keyword},'%') OR e.endpoint_name LIKE CONCAT('%',#{keyword},'%'))</if>
+        <!-- 模块筛选取接口登记表中的模块名，参数已由服务层按枚举白名单校验。 -->
+        <if test="module != null and module != ''">AND e.module_name=#{module}</if>
     </sql>
     <select id="list" resultType="map">
         SELECT e.endpoint_id endpointId,e.route,e.request_method method,e.endpoint_name name,e.module_name module,COALESCE(SUM(a.total_count),0) total,COALESCE(SUM(a.success_count),0) success,

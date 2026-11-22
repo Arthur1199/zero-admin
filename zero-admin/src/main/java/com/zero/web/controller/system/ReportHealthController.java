@@ -3,6 +3,8 @@ package com.zero.web.controller.system;
 import lombok.extern.slf4j.Slf4j;
 import com.zero.common.core.controller.BaseController;
 import com.zero.common.core.domain.AjaxResult;
+import com.zero.common.annotation.SystemModule;
+import com.zero.common.enums.SystemModuleEnum;
 import com.zero.feign.RemoteReportHealthService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping("/system/report/health")
+@SystemModule(SystemModuleEnum.REPORT)
 public class ReportHealthController extends BaseController
 {
     /**

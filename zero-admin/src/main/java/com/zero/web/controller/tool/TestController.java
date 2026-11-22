@@ -3,6 +3,8 @@ package com.zero.web.controller.tool;
 import com.zero.common.core.controller.BaseController;
 import com.zero.common.core.domain.R;
 import com.zero.common.utils.StringUtils;
+import com.zero.common.annotation.SystemModule;
+import com.zero.common.enums.SystemModuleEnum;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -26,6 +28,7 @@ import java.util.Map;
 @Tag(name = "用户信息管理", description = "用户相关API接口")
 @RestController
 @RequestMapping("/test/user")
+@SystemModule(SystemModuleEnum.TOOLS)
 public class TestController extends BaseController
 {
     /**

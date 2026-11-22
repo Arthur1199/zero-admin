@@ -13,10 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.zero.common.annotation.Log;
 import com.zero.common.annotation.RequiresPermissions;
+import com.zero.common.annotation.SystemModule;
 import com.zero.common.core.controller.BaseController;
 import com.zero.common.core.domain.AjaxResult;
 import com.zero.common.core.page.TableDataInfo;
 import com.zero.common.enums.BusinessType;
+import com.zero.common.enums.SystemModuleEnum;
 import com.zero.common.utils.StringUtils;
 import com.zero.common.utils.ip.AddressUtils;
 import com.zero.common.utils.ip.IpUtils;
@@ -31,6 +33,7 @@ import com.zero.system.service.ISysIpWhiteService;
  */
 @RestController
 @RequestMapping("/system/ipWhite")
+@SystemModule(SystemModuleEnum.SYSTEM)
 public class SysIpWhiteController extends BaseController
 {
     /**

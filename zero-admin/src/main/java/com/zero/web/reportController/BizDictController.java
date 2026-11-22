@@ -2,10 +2,12 @@ package com.zero.web.reportController;
 
 import com.zero.common.annotation.Log;
 import com.zero.common.annotation.RequiresPermissions;
+import com.zero.common.annotation.SystemModule;
 import com.zero.common.core.controller.BaseController;
 import com.zero.common.core.domain.AjaxResult;
 import com.zero.common.core.page.TableDataInfo;
 import com.zero.common.enums.BusinessType;
+import com.zero.common.enums.SystemModuleEnum;
 import com.zero.feign.ReportRestService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/reportSystem/bizDict")
+@SystemModule(SystemModuleEnum.REPORT)
 public class BizDictController extends BaseController
 {
     /**

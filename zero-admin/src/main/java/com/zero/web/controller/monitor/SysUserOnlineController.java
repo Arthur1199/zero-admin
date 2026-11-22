@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.zero.common.annotation.Log;
+import com.zero.common.annotation.SystemModule;
 import com.zero.common.constant.CacheConstants;
 import com.zero.common.core.controller.BaseController;
 import com.zero.common.core.domain.AjaxResult;
@@ -20,6 +21,7 @@ import com.zero.common.core.domain.model.LoginUser;
 import com.zero.common.core.page.TableDataInfo;
 import com.zero.common.core.redis.RedisCache;
 import com.zero.common.enums.BusinessType;
+import com.zero.common.enums.SystemModuleEnum;
 import com.zero.common.utils.StringUtils;
 import com.zero.system.domain.SysUserOnline;
 import com.zero.system.service.ISysUserOnlineService;
@@ -33,6 +35,7 @@ import com.zero.system.service.AdminUserLogoutService;
  */
 @RestController
 @RequestMapping("/monitor/online")
+@SystemModule(SystemModuleEnum.MONITOR)
 public class SysUserOnlineController extends BaseController
 {
     /**

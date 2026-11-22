@@ -13,8 +13,9 @@ async function setup(page) {
     let data
     if (action === 'overview') data = { databaseAvailable: true, status: { enabled: true, redisAvailable: true, lostSinceStart: 0, lastSuccessAt: Date.now(), lastErrorAt: 0 }, health: { sampledAt: Date.now(), collectedSince: Date.now(), lastConsumedAt: Date.now(), onlineUsers: 6, onlineSessions: 8, recentActive: 4 }, metrics: { loginSuccess: 31, loginAttempts: 33, loginFailed: 2, loginUsers: 12, activeUsers: 18, total: 1234, success: 1200, failed: 34, successRate: 97.24, avgMs: 42.5, maxMs: 1600, slow: 8, peakMinute: 95 } }
     else if (action === 'trend') data = [{ kind: 'api', bucket: today() + ' 10:00', total: 80, success: 75, failed: 5 }, { kind: 'online', bucket: today() + ' 10:00', onlineUsers: 6, active: 4, peak: 7 }, { kind: 'login', bucket: today(), loginSuccess: 31, loginFailed: 2 }]
-    else if (action === 'distribution') data = [{ module: 'system', total: 900, business: 12, auth: 8, system: 2, http: 1, unknown: 1 }, { module: 'reportSystem', total: 334, business: 5, auth: 3, system: 2, http: 0, unknown: 0 }]
-    else data = [{ name: 'SysUserController.list', route: '/system/user/list', method: 'GET', module: 'system', total: 900, success: 876, failed: 24, successRate: 97.33, avgMs: 38.2, maxMs: 1500, slow: 4 }]
+    else if (action === 'distribution') data = [{ module: 'system', total: 900, business: 12, auth: 8, system: 2, http: 1, unknown: 1 }, { module: 'report', total: 334, business: 5, auth: 3, system: 2, http: 0, unknown: 0 }]
+    else if (action === 'modules') data = [{ code: 'system', label: '系统' }, { code: 'report', label: '报表' }, { code: 'user', label: '用户' }]
+    else data = [{ name: 'SysUserController.list', route: '/system/user/list', method: 'GET', module: 'user', total: 900, success: 876, failed: 24, successRate: 97.33, avgMs: 38.2, maxMs: 1500, slow: 4 }]
     return route.fulfill({ json: action === 'list' ? { code: 200, rows: data, total: 25 } : { code: 200, data } })
   })
   return { calls, requests }
@@ -150,4 +151,21 @@ test('接口表格查询失败后单独重试成功即清除失败提示', async
   await page.unroute('**/dev-api/monitor/statistics/list?**')
   await page.locator('.detail-card').getByRole('button', { name: '查询', exact: true }).click()
   await expect(page.locator('.health-alert')).not.toContainText('部分统计查询失败')
+})
+
+test('模块下拉按后端选项筛选明细，表格展示中文名称', async ({ page }) => {
+  const { calls } = await setup(page)
+  await page.goto('/monitor/admin/statistics')
+  await expect(page.locator('.el-table__body')).toContainText('SysUserController.list')
+  // 模块筛选排在接口关键字之前，明细表「模块」列紧跟接口名称，保持筛选与结果列同序。
+  const moduleBox = await page.locator('.detail-card .el-form .el-select').boundingBox()
+  const keywordBox = await page.getByPlaceholder('接口路径或名称').boundingBox()
+  expect(moduleBox.x).toBeLessThan(keywordBox.x)
+  const headers = await page.locator('.detail-card .el-table__header-wrapper th').allInnerTexts()
+  expect(headers.slice(0, 4)).toEqual(['接口名称', '模块', '请求方式', '接口路径'])
+  await page.locator('.detail-card .el-form .el-select').click()
+  await expect(page.locator('.el-select-dropdown__item').filter({ hasText: '报表' })).toBeVisible()
+  await page.locator('.el-select-dropdown__item').filter({ hasText: '用户' }).click()
+  await expect.poll(() => calls.filter(call => call.action === 'list').at(-1)?.params.module).toBe('user')
+  await expect(page.locator('.el-table__body')).toContainText('用户')
 })

@@ -41,12 +41,16 @@
     </div>
     <el-card shadow="never" class="detail-card">
       <template #header>接口统计明细</template>
-      <el-form :inline="true" @submit.prevent="searchList"><el-form-item label="接口"><el-input v-model="keyword" placeholder="接口路径或名称" clearable maxlength="100" @keyup.enter="searchList" /></el-form-item><el-form-item><el-button type="primary" :disabled="loading || tableLoading" @click="searchList">查询</el-button><el-button :disabled="loading || tableLoading" @click="resetList">重置</el-button></el-form-item></el-form>
+      <el-form :inline="true" @submit.prevent="searchList">
+        <el-form-item label="模块"><el-select v-model="queryModule" placeholder="全部模块" clearable filterable style="width: 150px" @change="changeModule"><el-option v-for="item in moduleOptions" :key="item.code" :label="item.label" :value="item.code" /></el-select></el-form-item>
+        <el-form-item label="接口"><el-input v-model="keyword" placeholder="接口路径或名称" clearable maxlength="100" @keyup.enter="searchList" /></el-form-item>
+        <el-form-item><el-button type="primary" :disabled="loading || tableLoading" @click="searchList">查询</el-button><el-button :disabled="loading || tableLoading" @click="resetList">重置</el-button></el-form-item>
+      </el-form>
       <el-table v-loading="tableLoading" :data="rows" empty-text="所选时段暂无采集数据" border>
         <el-table-column label="接口名称" prop="name" min-width="230" :show-overflow-tooltip="true" />
+        <el-table-column label="模块" width="120"><template #default="scope">{{ moduleLabel(scope.row.module) }}</template></el-table-column>
         <el-table-column label="请求方式" prop="method" width="100" />
         <el-table-column label="接口路径" prop="route" min-width="260" :show-overflow-tooltip="true" />
-        <el-table-column label="模块" prop="module" width="120" />
         <el-table-column label="调用次数" prop="total" width="110" align="right" />
         <el-table-column label="成功次数" prop="success" width="110" align="right" />
         <el-table-column label="失败次数" prop="failed" width="110" align="right" />
@@ -65,7 +69,7 @@
  * 后台运行统计页；协调概览、趋势、排行和分页明细的独立查询，并处理刷新、北京时间日期推进和失败重试。
  */
 import StatisticsChart from './StatisticsChart.vue'
-import { getStatisticsOverview, getStatisticsTrend, getStatisticsDistribution, getStatisticsRanking, listStatistics } from '@/api/monitor/statistics'
+import { getStatisticsOverview, getStatisticsTrend, getStatisticsDistribution, getStatisticsRanking, listStatistics, listStatisticsModules } from '@/api/monitor/statistics'
 
 // 日历运算使用UTC作为无时区日期容器，标签始终表达北京时间。
 function dateText(date) { return date.toISOString().slice(0, 10) }
@@ -90,7 +94,7 @@ export default {
   name: 'Statistics',
   components: { StatisticsChart },
   data() {
-    return { overview: {}, trends: [], distribution: [], rankings: {}, rows: [], total: 0, pageNum: 1, pageSize: 10, keyword: '', appliedKeyword: '', period: 'today', appliedPeriod: 'today', dateRange: [beijingToday(), beijingToday()], appliedRange: [beijingToday(), beijingToday()], rankingType: 'calls', autoRefresh: true, loading: false, tableLoading: false, refreshFailed: false, listFailed: false, now: Date.now(), serverOffset: 0, updatedAt: '', timer: null, disposed: false, isActive: true, listVersion: 0 }
+    return { overview: {}, trends: [], distribution: [], rankings: {}, rows: [], total: 0, pageNum: 1, pageSize: 10, keyword: '', appliedKeyword: '', moduleOptions: [], queryModule: '', appliedModule: '', period: 'today', appliedPeriod: 'today', dateRange: [beijingToday(), beijingToday()], appliedRange: [beijingToday(), beijingToday()], rankingType: 'calls', autoRefresh: true, loading: false, tableLoading: false, refreshFailed: false, listFailed: false, now: Date.now(), serverOffset: 0, updatedAt: '', timer: null, disposed: false, isActive: true, listVersion: 0 }
   },
   computed: {
     failed() { return this.refreshFailed || this.listFailed },
@@ -134,7 +138,7 @@ export default {
       const labels = buckets(this.appliedRange, false), by = new Map(this.loginRows.map(row => [row.bucket, row]))
       return { xAxis: { type: 'category', data: labels }, yAxis: { type: 'value', min: 0 }, series: [['loginSuccess', '成功'], ['loginFailed', '失败']].map(([key, name]) => ({ type: 'bar', name, itemStyle: { color: key === 'loginFailed' ? '#f56c6c' : '#67c23a' }, data: labels.map(label => by.get(label)?.[key] ?? null), barMaxWidth: 32 })) }
     },
-    moduleChart() { return donut(this.distribution.map(row => ({ name: row.module, value: row.total }))) },
+    moduleChart() { return donut(this.distribution.map(row => ({ name: this.moduleLabel(row.module), value: row.total }))) },
     failureItems() { return [['business', '业务拒绝'], ['auth', '认证/权限拒绝'], ['system', '系统异常'], ['http', '其他HTTP失败'], ['unknown', '未知结果']].map(([key, name]) => ({ name, value: this.distribution.reduce((sum, row) => sum + Number(row[key] || 0), 0) })).filter(item => item.value > 0) },
     failureChart() { return donut(this.failureItems) },
     currentRanking() { return this.rankings[this.rankingType] || [] },
@@ -143,8 +147,8 @@ export default {
       return { grid: { left: 10, right: 25, top: 10, bottom: 25, containLabel: true }, legend: { show: false }, tooltip: { trigger: 'axis', renderMode: 'richText', confine: true }, xAxis: { type: 'value' }, yAxis: { type: 'category', data: rows.map(row => row.method + ' ' + row.route), axisLabel: { width: 160, overflow: 'truncate' } }, series: [{ name: this.rankingType === 'slow' ? '平均耗时(ms)' : '次数', type: 'bar', barMaxWidth: 18, data: rows.map(row => row[key]), itemStyle: { borderRadius: [0, 4, 4, 0] } }] }
     }
   },
-  mounted() { this.refresh(); this.timer = setInterval(() => { this.now = Date.now(); if (this.autoRefresh && this.isActive && !document.hidden) this.refresh() }, 30000) },
-  activated() { this.isActive = true; this.refresh() },
+  mounted() { this.loadModules(); this.refresh(); this.timer = setInterval(() => { this.now = Date.now(); if (this.autoRefresh && this.isActive && !document.hidden) this.refresh() }, 30000) },
+  activated() { this.isActive = true; if (!this.moduleOptions.length) this.loadModules(); this.refresh() },
   deactivated() { this.isActive = false },
   beforeUnmount() { this.disposed = true; this.listVersion++; clearInterval(this.timer) },
   methods: {
@@ -206,7 +210,7 @@ export default {
       const version = ++this.listVersion
       this.tableLoading = true
       try {
-        const response = await listStatistics({ beginTime: this.appliedRange[0], endTime: this.appliedRange[1], keyword: this.appliedKeyword, pageNum: this.pageNum, pageSize: this.pageSize })
+        const response = await listStatistics({ beginTime: this.appliedRange[0], endTime: this.appliedRange[1], keyword: this.appliedKeyword, module: this.appliedModule, pageNum: this.pageNum, pageSize: this.pageSize })
         if (!this.disposed && version === this.listVersion) {
           const total = Number(response.total) || 0, maximum = Math.max(1, Math.ceil(total / this.pageSize))
           if (this.pageNum > maximum) { this.pageNum = maximum; return await this.loadList() }
@@ -216,8 +220,19 @@ export default {
       } catch { if (!this.disposed && version === this.listVersion) this.listFailed = true }
       finally { if (!this.disposed && version === this.listVersion) this.tableLoading = false }
     },
-    searchList() { if (this.loading || this.tableLoading) return; this.appliedKeyword = this.keyword.trim(); this.pageNum = 1; this.loadList() },
-    resetList() { this.keyword = ''; this.searchList() }
+    // 模块下拉项来自后端枚举，加载失败只清空选项，不影响明细按关键字查询。
+    async loadModules() {
+      try {
+        const response = await listStatisticsModules()
+        if (!this.disposed) this.moduleOptions = Array.isArray(response.data) ? response.data : []
+      } catch { if (!this.disposed) this.moduleOptions = [] }
+    },
+    // 历史遗留或未识别的模块值直接显示原值，避免旧数据在页面上变成空白。
+    moduleLabel(value) { const item = this.moduleOptions.find(option => option.code === value); return item ? item.label : value || '—' },
+    // 模块切换立即生效并回到第一页；并发请求由 loadList 的版本号丢弃旧响应。
+    changeModule() { this.appliedModule = this.queryModule || ''; this.pageNum = 1; this.loadList() },
+    searchList() { if (this.loading || this.tableLoading) return; this.appliedKeyword = this.keyword.trim(); this.appliedModule = this.queryModule || ''; this.pageNum = 1; this.loadList() },
+    resetList() { this.keyword = ''; this.queryModule = ''; this.searchList() }
   }
 }
 </script>

@@ -19,6 +19,8 @@ public class StatisticsQuery
     private String endTime;
     /** 接口模板或名称关键字，最多100字符。 */
     private String keyword;
+    /** 模块编码，取SystemModuleEnum的code，空表示不限模块；仅接口明细使用。 */
+    private String module;
     /** 页码，默认1。 */
     private Integer pageNum=1;
     /** 每页条数，默认20，最大100。 */

@@ -2,6 +2,7 @@ package com.zero.system.service.impl;
 
 import com.zero.common.exception.ServiceException;
 import com.zero.common.core.page.TableDataInfo;
+import com.zero.common.enums.SystemModuleEnum;
 import com.zero.framework.statistics.*;
 import com.zero.system.domain.statistics.StatisticsQuery;
 import com.zero.system.mapper.StatisticsMapper;
@@ -27,6 +28,9 @@ public class StatisticsQueryService
     private static final LocalDate MIN_DATE = LocalDate.of(1000, 1, 1);
     /** 保证结束日期加一天后仍能作为合法MySQL DATETIME查询边界。 */
     private static final LocalDate MAX_DATE = LocalDate.of(9999, 12, 30);
+    /** 允许筛选的模块编码，来自SystemModuleEnum，拒绝未知模块避免以筛选参数探测维度。 */
+    private static final Set<String> MODULE_CODES = Arrays.stream(SystemModuleEnum.values())
+            .map(SystemModuleEnum::getCode).collect(java.util.stream.Collectors.toUnmodifiableSet());
     /**
      *
      * 作者: Arthur 亚瑟
@@ -40,7 +44,7 @@ public class StatisticsQueryService
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/16 20:46
-     * 说明: 校验时间、分页及排序白名单，不接受任意SQL排序字段。
+     * 说明: 校验时间、模块、分页及排序白名单，不接受任意SQL排序字段。
      * @param input 页面查询条件
      * @return SQL查询参数
      * 返回值: Map<String,Object>
@@ -57,6 +61,9 @@ public class StatisticsQueryService
             long days=ChronoUnit.DAYS.between(begin,end)+1;
             if (days<1 || days>366) throw new ServiceException("统计日期范围必须为1至366天");
             if (input.getKeyword()!=null && input.getKeyword().length()>100) throw new ServiceException("接口关键字不能超过100字符");
+            // 空值表示不限模块；非空必须是枚举编码，避免任意字符串进入SQL条件。
+            String module=input.getModule()==null || input.getModule().isBlank()?null:input.getModule().trim();
+            if (module!=null && !MODULE_CODES.contains(module)) throw new ServiceException("不支持的统计模块");
             if (!Set.of("calls","slow","failed").contains(input.getRanking()==null?"calls":input.getRanking())) throw new ServiceException("不支持的排行类型");
             int size=input.getPageSize()==null?20:Math.max(1,Math.min(100,input.getPageSize()));
             int page=input.getPageNum()==null?1:Math.max(1,Math.min(100000,input.getPageNum()));
@@ -64,6 +71,7 @@ public class StatisticsQueryService
             query.put("beginDay",begin); query.put("endDay",end.plusDays(1));
             query.put("beginAt",begin.atStartOfDay()); query.put("endAt",end.plusDays(1).atStartOfDay());
             query.put("minute",days<=7); query.put("keyword",input.getKeyword()==null?null:input.getKeyword().trim());
+            query.put("module",module);
             query.put("ranking",input.getRanking()); query.put("minCalls",input.getMinCalls()==null?10:Math.max(1,input.getMinCalls()));
             query.put("limit",size); query.put("offset",(page-1)*size); return query;
         }
@@ -121,6 +129,21 @@ public class StatisticsQueryService
     public List<Map<String,Object>> ranking(StatisticsQuery query)
     {
         Map<String,Object> params=parameters(query); params.put("limit",10); params.put("offset",0); return mapper.list(params);
+    }
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/22 19:10
+     * 说明: 返回明细筛选用的模块选项，编码与名称统一取自SystemModuleEnum，避免后台和页面各维护一份
+     * @return
+     * 返回值: List<Map<String,String>>
+     * 返回值说明: 按枚举顺序排列的code和label选项
+     */
+    public List<Map<String,String>> moduleOptions()
+    {
+        List<Map<String,String>> options=new ArrayList<>();
+        for (SystemModuleEnum module:SystemModuleEnum.values()) options.add(Map.of("code",module.getCode(),"label",module.getLabel()));
+        return options;
     }
     /**
      *

@@ -3,6 +3,7 @@ package com.zero.framework.statistics;
 import com.zero.system.domain.statistics.StatisticsOutcome;
 import com.zero.system.domain.statistics.StatEvent;
 import com.zero.system.service.IStatisticsSwitchService;
+import com.zero.common.enums.SystemModuleEnum;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -86,10 +87,13 @@ public class StatisticsFilter implements Filter
         // requestURI不含查询字符串，避免查询参数中的凭据进入统计；MVC识别成功后会替换为接口模板。
         String path = http.getRequestURI().substring(http.getContextPath().length());
         event.setRoute(path.length()>MAX_REQUEST_PATH_LENGTH ? path.substring(0,MAX_REQUEST_PATH_LENGTH-3)+"..." : path);
-        event.setName("未匹配接口或安全链路拒绝"); event.setModule("other");
+        // 未进入MVC的请求没有控制器注解可用，按安全链语义归入固定模块，避免任意路径产生新维度。
+        event.setName("未匹配接口或安全链路拒绝"); event.setModule(SystemModuleEnum.OTHER.getCode());
         event.setLogin("POST".equals(http.getMethod()) && LOGIN_PATH.equals(path));
-        if (event.isLogin()) { event.setRoute(LOGIN_PATH); event.setName("后台登录"); event.setModule("login"); }
-        if (LOGOUT_PATH.equals(path)) { event.setRoute(LOGOUT_PATH); event.setName("退出登录"); event.setModule("login"); }
+        if (event.isLogin()) { event.setRoute(LOGIN_PATH); event.setName("后台登录"); event.setModule(SystemModuleEnum.AUTH.getCode()); }
+        // 退出由安全链的LogoutFilter直接处理和写响应，不进入MVC因而没有Controller方法可取名，
+        // 按实际写出响应的处理器命名，与其它明细行的类名.方法名口径保持一致。
+        if (LOGOUT_PATH.equals(path)) { event.setRoute(LOGOUT_PATH); event.setName("LogoutSuccessHandlerImpl.onLogoutSuccess"); event.setModule(SystemModuleEnum.AUTH.getCode()); }
         ObservedResponse observed=new ObservedResponse(original,context);
         try { chain.doFilter(request,observed); }
         catch (IOException | ServletException | RuntimeException | Error error) { context.systemError=true; throw error; }

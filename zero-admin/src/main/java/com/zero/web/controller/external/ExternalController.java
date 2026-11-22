@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.zero.common.annotation.Anonymous;
+import com.zero.common.annotation.SystemModule;
+import com.zero.common.enums.SystemModuleEnum;
 import com.zero.common.constant.ExternalApiConstants;
 import com.zero.common.constant.IpWhiteConstants;
 import com.zero.common.core.controller.BaseController;
@@ -24,6 +26,7 @@ import com.zero.system.service.ISysIpWhiteService;
 @Anonymous
 @RestController
 @RequestMapping("/external")
+@SystemModule(SystemModuleEnum.SYSTEM)
 public class ExternalController extends BaseController
 {
     /**

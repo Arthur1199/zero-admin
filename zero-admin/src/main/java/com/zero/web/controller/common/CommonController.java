@@ -15,6 +15,8 @@ import com.zero.common.config.ZeroConfig;
 import com.zero.common.core.domain.AjaxResult;
 import com.zero.common.utils.StringUtils;
 import com.zero.common.utils.file.FileUtils;
+import com.zero.common.annotation.SystemModule;
+import com.zero.common.enums.SystemModuleEnum;
 import com.zero.system.service.IAdminFileUploadService;
 
 /**
@@ -26,6 +28,7 @@ import com.zero.system.service.IAdminFileUploadService;
 @Slf4j
 @RestController
 @RequestMapping("/common")
+@SystemModule(SystemModuleEnum.FILE)
 public class CommonController
 {
     /**

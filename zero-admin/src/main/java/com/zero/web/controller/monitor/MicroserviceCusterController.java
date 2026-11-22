@@ -2,6 +2,8 @@ package com.zero.web.controller.monitor;
 
 import java.util.List;
 import com.zero.common.annotation.RequiresPermissions;
+import com.zero.common.annotation.SystemModule;
+import com.zero.common.enums.SystemModuleEnum;
 import com.zero.common.core.controller.BaseController;
 import com.zero.common.core.page.TableDataInfo;
 import com.zero.system.domain.MicroserviceInstanceStatus;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/monitor/microService")
+@SystemModule(SystemModuleEnum.MONITOR)
 public class MicroserviceCusterController extends BaseController
 {
     /**

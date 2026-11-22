@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.zero.common.annotation.Log;
 import com.zero.common.annotation.RequiresPermissions;
+import com.zero.common.annotation.SystemModule;
 import com.zero.common.core.controller.BaseController;
 import com.zero.common.core.domain.AjaxResult;
 import com.zero.common.core.page.TableDataInfo;
 import com.zero.common.enums.BusinessType;
+import com.zero.common.enums.SystemModuleEnum;
 import com.zero.common.utils.StringUtils;
 import com.zero.system.domain.GoogleBindBody;
 import com.zero.system.domain.SysGoogle;
@@ -28,6 +30,7 @@ import com.zero.system.service.ISysUserService;
  * 说明: 管理用户的谷歌动态码绑定，并提供登录页首次绑定所需接口。
  */
 @RestController
+@SystemModule(SystemModuleEnum.USER)
 public class SysGoogleController extends BaseController
 {
     @Autowired
@@ -112,6 +115,8 @@ public class SysGoogleController extends BaseController
      * 返回值: void
      * 返回值说明: 向响应流写入二维码并设置禁止缓存的响应头
      */
+    // 登录页绑定不经过后台菜单权限，归入认证模块，避免与后台谷歌绑定管理混在同一统计分组。
+    @SystemModule(SystemModuleEnum.AUTH)
     @GetMapping("/google/generateGaImage")
     public void generateGaImage(String userName, HttpServletResponse response) throws Exception
     {
@@ -132,6 +137,8 @@ public class SysGoogleController extends BaseController
      * 返回值: AjaxResult
      * 返回值说明: 绑定结果或验证失败原因
      */
+    // 登录页提交绑定属于登录链路，与后台解绑分开统计。
+    @SystemModule(SystemModuleEnum.AUTH)
     @PostMapping("/google/bind")
     public AjaxResult bind(@RequestBody GoogleBindBody bindBody)
     {

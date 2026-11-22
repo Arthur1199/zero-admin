@@ -23,3 +23,7 @@ export function getStatisticsRanking(params) {
 export function listStatistics(params) {
   return request({ url: '/monitor/statistics/list', method: 'get', params })
 }
+// 读取明细筛选的模块选项，页面读取 data 中的 code 与 label。
+export function listStatisticsModules() {
+  return request({ url: '/monitor/statistics/modules', method: 'get' })
+}

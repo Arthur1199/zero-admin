@@ -12,10 +12,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.zero.common.annotation.Log;
+import com.zero.common.annotation.SystemModule;
 import com.zero.common.core.controller.BaseController;
 import com.zero.common.core.domain.AjaxResult;
 import com.zero.common.core.page.TableDataInfo;
 import com.zero.common.enums.BusinessType;
+import com.zero.common.enums.SystemModuleEnum;
 import com.zero.common.utils.poi.ExcelUtil;
 import com.zero.system.domain.SysOperLog;
 import com.zero.system.service.ISysOperLogService;
@@ -28,6 +30,7 @@ import com.zero.system.service.ISysOperLogService;
  */
 @RestController
 @RequestMapping("/monitor/operlog")
+@SystemModule(SystemModuleEnum.MONITOR)
 public class SysOperlogController extends BaseController
 {
     /**

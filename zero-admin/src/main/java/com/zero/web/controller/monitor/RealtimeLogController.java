@@ -1,6 +1,8 @@
 package com.zero.web.controller.monitor;
 
 import com.zero.common.annotation.RequiresPermissions;
+import com.zero.common.annotation.SystemModule;
+import com.zero.common.enums.SystemModuleEnum;
 import com.zero.common.core.controller.BaseController;
 import com.zero.common.core.domain.AjaxResult;
 import com.zero.framework.realtimelog.RealtimeLogBuffer;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/monitor/realtimeLog")
+@SystemModule(SystemModuleEnum.MONITOR)
 public class RealtimeLogController extends BaseController
 {
     /**

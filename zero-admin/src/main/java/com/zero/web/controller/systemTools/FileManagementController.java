@@ -2,10 +2,12 @@ package com.zero.web.controller.systemTools;
 
 import com.zero.common.annotation.Log;
 import com.zero.common.annotation.RequiresPermissions;
+import com.zero.common.annotation.SystemModule;
 import com.zero.common.core.controller.BaseController;
 import com.zero.common.core.domain.AjaxResult;
 import com.zero.common.core.page.TableDataInfo;
 import com.zero.common.enums.BusinessType;
+import com.zero.common.enums.SystemModuleEnum;
 import com.zero.feign.FileRestService;
 import com.zero.system.service.IAdminFileUploadService;
 import org.springframework.boot.autoconfigure.web.servlet.MultipartProperties;
@@ -32,6 +34,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/systemTools/fileManagement")
+@SystemModule(SystemModuleEnum.FILE)
 public class FileManagementController extends BaseController
 {
     /** 文件服务内部文件管理路径前缀。 */

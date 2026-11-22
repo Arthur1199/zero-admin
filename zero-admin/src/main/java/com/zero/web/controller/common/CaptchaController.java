@@ -19,6 +19,8 @@ import com.zero.common.core.domain.AjaxResult;
 import com.zero.common.core.redis.RedisCache;
 import com.zero.common.utils.sign.Base64;
 import com.zero.common.utils.uuid.IdUtils;
+import com.zero.common.annotation.SystemModule;
+import com.zero.common.enums.SystemModuleEnum;
 import com.zero.system.service.ISysConfigService;
 
 /**
@@ -28,6 +30,7 @@ import com.zero.system.service.ISysConfigService;
  * 说明: 验证码操作处理
  */
 @RestController
+@SystemModule(SystemModuleEnum.AUTH)
 public class CaptchaController
 {
     /**

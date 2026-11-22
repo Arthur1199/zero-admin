@@ -5,6 +5,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 import com.zero.common.annotation.Log;
 import com.zero.common.annotation.RequiresPermissions;
+import com.zero.common.annotation.SystemModule;
 import com.zero.common.core.controller.BaseController;
 import com.zero.common.core.domain.AjaxResult;
 import com.zero.common.core.page.TableDataInfo;
@@ -12,6 +13,7 @@ import com.zero.common.core.page.PageDomain;
 import com.zero.common.core.page.TableSupport;
 import com.github.pagehelper.PageHelper;
 import com.zero.common.enums.BusinessType;
+import com.zero.common.enums.SystemModuleEnum;
 import com.zero.common.exception.ServiceException;
 import com.zero.system.domain.SysMemoQuery;
 import com.zero.system.domain.SysMemoRequest;
@@ -25,6 +27,7 @@ import com.zero.system.service.ISysMemoService;
  */
 @RestController
 @RequestMapping("/systemTools/memo")
+@SystemModule(SystemModuleEnum.TOOLS)
 public class SysMemoController extends BaseController
 {
     /** 备忘录单页最多500条，禁止用零值或超大pageSize绕过分页。 */
