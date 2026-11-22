@@ -21,6 +21,34 @@ import static org.mockito.Mockito.*;
 class StatisticsCaptureTest
 {
     /**
+     * 未匹配请求保留实际路径，剥离应用上下文且不采集查询参数，超长路径限制为512字符。
+     */
+    @Test void unmatchedPathsExcludeQueriesAndRespectLength() throws Exception
+    {
+        StatisticsPipeline pipeline=mock(StatisticsPipeline.class);
+        StatisticsFilter filter=new StatisticsFilter(new StatisticsProperties(),pipeline,StatisticsTestSwitch.enabled());
+        String longPath="/missing/"+"a".repeat(600);
+        for (String path:List.of("/missing/first","/missing/second",longPath))
+        {
+            MockHttpServletRequest request=new MockHttpServletRequest("GET","/admin"+path);
+            request.setContextPath("/admin"); request.setQueryString("token=isolated-query-value");
+            MockHttpServletResponse response=new MockHttpServletResponse();
+            filter.doFilter(request,response,(req,res)->((jakarta.servlet.http.HttpServletResponse)res).setStatus(404));
+            assertThat(response.getStatus()).isEqualTo(404);
+        }
+        ArgumentCaptor<StatEvent> events=ArgumentCaptor.forClass(StatEvent.class);
+        verify(pipeline,times(3)).publish(events.capture());
+        assertThat(events.getAllValues()).extracting(StatEvent::getRoute)
+            .containsExactly("/missing/first","/missing/second",longPath.substring(0,509)+"...");
+        for (StatEvent event:events.getAllValues())
+        {
+            assertThat(event.getOutcome()).isEqualTo("HTTP");
+            assertThat(event.getRoute().length()).isLessThanOrEqualTo(512);
+            assertThat(event.getPayload()).doesNotContain("isolated-query-value","token=","/admin");
+        }
+    }
+
+    /**
      *
      * 作者: Arthur 亚瑟
      * 时间: 2026/11/16 20:46
@@ -40,6 +68,7 @@ class StatisticsCaptureTest
         });
         ArgumentCaptor<StatEvent> event=ArgumentCaptor.forClass(StatEvent.class); verify(pipeline).publish(event.capture());
         assertThat(event.getValue().getOutcome()).isEqualTo("AUTH");
+        assertThat(event.getValue().getRoute()).isEqualTo("/system/user/list");
         assertThat(response.getContentAsString()).isEqualTo("{\"code\":401,\"msg\":\"denied\"}");
         assertThat(event.getValue().getPayload()).doesNotContain("denied","Authorization");
         assertThat(StatisticsResult.classify(200,500,false,null,true)).isEqualTo("BUSINESS");
@@ -60,7 +89,7 @@ class StatisticsCaptureTest
     {
         StatisticsProperties p=new StatisticsProperties(); StatisticsPipeline pipeline=mock(StatisticsPipeline.class);
         StatisticsFilter filter=new StatisticsFilter(p,pipeline,StatisticsTestSwitch.enabled());
-        for (String uri:List.of("/monitor/statistics/overview","/actuator/health","/profile/a.png"))
+        for (String uri:List.of("/monitor/statistics/overview","/actuator/health","/profile/a.png","/ws/admin"))
             filter.doFilter(new MockHttpServletRequest("GET",uri),new MockHttpServletResponse(),(req,res)->{});
         filter.doFilter(new MockHttpServletRequest("OPTIONS","/system/user/list"),new MockHttpServletResponse(),(req,res)->{});
         verifyNoInteractions(pipeline);

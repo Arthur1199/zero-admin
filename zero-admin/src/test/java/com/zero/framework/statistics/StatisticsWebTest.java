@@ -33,6 +33,36 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 class StatisticsWebTest
 {
+    /** 不存在的接口和资源均返回HTTP 404、业务码404，并保留失败统计路径。 */
+    @Test void missingEndpointsReturnHttp404() throws Exception
+    {
+        StatisticsPipeline pipeline=mock(StatisticsPipeline.class);
+        AspectJProxyFactory advice=new AspectJProxyFactory(new GlobalExceptionHandler()); advice.addAspect(new StatisticsAspect());
+        var mvc=MockMvcBuilders.standaloneSetup(new MissingResourceController()).addInterceptors(new StatisticsMvc())
+            .setControllerAdvice(advice.getProxy(),new StatisticsMvc())
+            .addFilters(new StatisticsFilter(new StatisticsProperties(),pipeline,StatisticsTestSwitch.enabled())).build();
+        mvc.perform(get("/missing-endpoint").queryParam("probe","ignored"))
+            .andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value(404));
+        mvc.perform(get("/missing-resource"))
+            .andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value(404));
+        ArgumentCaptor<StatEvent> events=ArgumentCaptor.forClass(StatEvent.class);
+        verify(pipeline,times(2)).publish(events.capture());
+        assertThat(events.getAllValues()).extracting(StatEvent::getOutcome).containsExactly("HTTP","HTTP");
+        assertThat(events.getAllValues()).extracting(StatEvent::getRoute).containsExactly("/missing-endpoint","/missing-resource");
+    }
+
+    /** 模拟Spring静态资源处理器报告资源不存在。 */
+    @RestController
+    static class MissingResourceController
+    {
+        /** 触发资源不存在分支以验证全局异常映射。 */
+        @GetMapping("/missing-resource")
+        public void missingResource() throws org.springframework.web.servlet.resource.NoResourceFoundException
+        {
+            throw new org.springframework.web.servlet.resource.NoResourceFoundException(org.springframework.http.HttpMethod.GET,"missing-resource");
+        }
+    }
+
     /**
      *
      * 作者: Arthur 亚瑟
