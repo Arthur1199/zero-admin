@@ -4,6 +4,7 @@ import org.springframework.validation.annotation.Validated;
 import lombok.RequiredArgsConstructor;
 import com.zero.common.annotation.*;
 import com.zero.common.enums.BusinessType;
+import com.zero.common.enums.SystemModuleEnum;
 import com.zero.common.core.controller.BaseController;
 import com.zero.common.core.domain.AjaxResult;
 import com.zero.common.core.page.TableDataInfo;
@@ -17,6 +18,7 @@ import com.zero.system.service.SystemNoticeService;
  */
 
 @RestController @RequestMapping("/systemTools/systemNotice") @RequiredArgsConstructor
+@SystemModule(SystemModuleEnum.TOOLS)
 public class SystemNoticeController extends BaseController {
     /** 在线通知业务，不提供匿名推送。 */ private final SystemNoticeService service;
     /**

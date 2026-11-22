@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import com.zero.common.annotation.Log;
+import com.zero.common.annotation.SystemModule;
 import com.zero.common.core.controller.BaseController;
 import com.zero.common.core.domain.AjaxResult;
 import com.zero.common.core.domain.entity.SysDept;
@@ -25,6 +26,7 @@ import com.zero.common.core.domain.entity.SysRole;
 import com.zero.common.core.domain.entity.SysUser;
 import com.zero.common.core.page.TableDataInfo;
 import com.zero.common.enums.BusinessType;
+import com.zero.common.enums.SystemModuleEnum;
 import com.zero.common.utils.SecurityUtils;
 import com.zero.common.utils.StringUtils;
 import com.zero.common.utils.poi.ExcelUtil;
@@ -42,6 +44,7 @@ import com.zero.system.service.ISysUserService;
  */
 @RestController
 @RequestMapping("/system/user")
+@SystemModule(SystemModuleEnum.USER)
 public class SysUserController extends BaseController
 {
     /**

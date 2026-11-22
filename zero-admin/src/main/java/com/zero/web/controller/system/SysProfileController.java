@@ -13,12 +13,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import com.zero.common.annotation.Log;
+import com.zero.common.annotation.SystemModule;
 import com.zero.common.config.ZeroConfig;
 import com.zero.common.core.controller.BaseController;
 import com.zero.common.core.domain.AjaxResult;
 import com.zero.common.core.domain.entity.SysUser;
 import com.zero.common.core.domain.model.LoginUser;
 import com.zero.common.enums.BusinessType;
+import com.zero.common.enums.SystemModuleEnum;
 import com.zero.common.utils.DateUtils;
 import com.zero.common.utils.SecurityUtils;
 import com.zero.common.utils.StringUtils;
@@ -37,6 +39,7 @@ import com.zero.system.service.impl.SysProfileStatisticsService;
  */
 @RestController
 @RequestMapping("/system/user/profile")
+@SystemModule(SystemModuleEnum.USER)
 public class SysProfileController extends BaseController
 {
     /** 备忘录菜单的查看权限标识。 */

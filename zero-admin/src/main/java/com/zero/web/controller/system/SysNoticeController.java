@@ -13,10 +13,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.zero.common.annotation.Log;
+import com.zero.common.annotation.SystemModule;
 import com.zero.common.core.controller.BaseController;
 import com.zero.common.core.domain.AjaxResult;
 import com.zero.common.core.page.TableDataInfo;
 import com.zero.common.enums.BusinessType;
+import com.zero.common.enums.SystemModuleEnum;
 import com.zero.system.domain.SysNotice;
 import com.zero.system.service.ISysNoticeService;
 
@@ -28,6 +30,7 @@ import com.zero.system.service.ISysNoticeService;
  */
 @RestController
 @RequestMapping("/system/notice")
+@SystemModule(SystemModuleEnum.SYSTEM)
 public class SysNoticeController extends BaseController
 {
     /**

@@ -14,11 +14,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.zero.common.annotation.Log;
+import com.zero.common.annotation.SystemModule;
 import com.zero.common.constant.UserConstants;
 import com.zero.common.core.controller.BaseController;
 import com.zero.common.core.domain.AjaxResult;
 import com.zero.common.core.domain.entity.SysDept;
 import com.zero.common.enums.BusinessType;
+import com.zero.common.enums.SystemModuleEnum;
 import com.zero.common.utils.StringUtils;
 import com.zero.system.service.ISysDeptService;
 
@@ -30,6 +32,7 @@ import com.zero.system.service.ISysDeptService;
  */
 @RestController
 @RequestMapping("/system/dept")
+@SystemModule(SystemModuleEnum.SYSTEM)
 public class SysDeptController extends BaseController
 {
     /**

@@ -1,5 +1,6 @@
 package com.zero.framework.statistics;
 
+import com.zero.common.enums.SystemModuleEnum;
 import com.zero.system.domain.statistics.StatEvent;
 import com.zero.system.domain.statistics.StatisticsQuery;
 import com.zero.system.mapper.StatisticsMapper;
@@ -79,6 +80,26 @@ class StatisticsCaptureTest
     /**
      *
      * 作者: Arthur 亚瑟
+     * 时间: 2026/11/22 18:45
+     * 说明: 未进入MVC的登录和退出请求归入认证模块，未匹配路径仍归其他模块
+     * @return
+     * 返回值: void
+     * 返回值说明: 断言安全链兜底的模块值
+     */
+    @Test void authModuleFallback() throws Exception
+    {
+        StatisticsPipeline pipeline=mock(StatisticsPipeline.class);
+        StatisticsFilter filter=new StatisticsFilter(new StatisticsProperties(),pipeline,StatisticsTestSwitch.enabled());
+        filter.doFilter(new MockHttpServletRequest("POST","/login"),new MockHttpServletResponse(),(req,res)->((jakarta.servlet.http.HttpServletResponse)res).setStatus(401));
+        filter.doFilter(new MockHttpServletRequest("POST","/logout"),new MockHttpServletResponse(),(req,res)->((jakarta.servlet.http.HttpServletResponse)res).setStatus(200));
+        filter.doFilter(new MockHttpServletRequest("GET","/missing/auth-probe"),new MockHttpServletResponse(),(req,res)->((jakarta.servlet.http.HttpServletResponse)res).setStatus(404));
+        ArgumentCaptor<StatEvent> events=ArgumentCaptor.forClass(StatEvent.class);
+        verify(pipeline,times(3)).publish(events.capture());
+        assertThat(events.getAllValues()).extracting(StatEvent::getModule).containsExactly("auth","auth","other");
+    }
+    /**
+     *
+     * 作者: Arthur 亚瑟
      * 时间: 2026/11/16 20:46
      * 说明: 验证二进制下载透传、请求失败及自身排除不干扰业务。
      * @return 断言流式输出与排除规则
@@ -135,6 +156,45 @@ class StatisticsCaptureTest
         query.setEndTime("2026-01-08"); assertThat(service.parameters(query)).containsEntry("minute",false);
         query.setRanking("total desc; drop table x"); assertThatThrownBy(()->service.parameters(query)).hasMessage("不支持的排行类型");
         query.setRanking("calls"); query.setEndTime("2027-12-31"); assertThatThrownBy(()->service.parameters(query)).hasMessage("统计日期范围必须为1至366天");
+        query.setEndTime("2026-01-07"); query.setModule(" user ");
+        assertThat(service.parameters(query)).containsEntry("module","user");
+        query.setModule(" "); assertThat(service.parameters(query)).containsEntry("module",null);
+        query.setModule("unknown"); assertThatThrownBy(()->service.parameters(query)).hasMessage("不支持的统计模块");
+    }
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/22 19:10
+     * 说明: 明细按模块筛选时，模块条件必须同时进入列表查询和总数统计，避免分页与总数口径不一致
+     * @return
+     * 返回值: void
+     * 返回值说明: 断言Mapper收到的查询参数包含模块编码
+     */
+    @Test void listFiltersByModule()
+    {
+        StatisticsMapper mapper=mock(StatisticsMapper.class);
+        when(mapper.list(anyMap())).thenReturn(List.of());
+        when(mapper.countEndpoints(anyMap())).thenReturn(0L);
+        StatisticsQueryService service=new StatisticsQueryService(mapper,mock(StatisticsPipeline.class));
+        StatisticsQuery query=new StatisticsQuery(); query.setBeginTime("2026-01-01"); query.setEndTime("2026-01-07"); query.setModule(" user ");
+        service.list(query);
+        verify(mapper).list(argThat(values->"user".equals(values.get("module"))));
+        verify(mapper).countEndpoints(argThat(values->"user".equals(values.get("module"))));
+    }
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/22 19:10
+     * 说明: 模块下拉选项必须完整覆盖枚举编码，避免页面缺少可筛选模块
+     * @return
+     * 返回值: void
+     * 返回值说明: 断言选项编码与SystemModuleEnum一致
+     */
+    @Test void moduleOptionsCoverEnum()
+    {
+        StatisticsQueryService service=new StatisticsQueryService(mock(StatisticsMapper.class),mock(StatisticsPipeline.class));
+        assertThat(service.moduleOptions()).extracting(option->option.get("code"))
+            .containsExactlyInAnyOrder("file","system","user","report","monitor","tools","auth","other");
     }
     /**
      *
@@ -215,6 +275,8 @@ class StatisticsCaptureTest
             });
         ArgumentCaptor<StatEvent> captured=ArgumentCaptor.forClass(StatEvent.class); verify(pipeline).publish(captured.capture());
         assertThat(captured.getValue().getRoute()).isEqualTo("/logout"); assertThat(captured.getValue().isLogin()).isFalse();
+        // 退出由安全过滤器处理，没有Controller方法可取名，按实际写出响应的处理器命名，与其它行的类名.方法名口径一致。
+        assertThat(captured.getValue().getName()).isEqualTo("LogoutSuccessHandlerImpl.onLogoutSuccess"); assertThat(captured.getValue().getModule()).isEqualTo(SystemModuleEnum.AUTH.getCode());
         assertThat(captured.getValue().getUserId()).isEqualTo(2L); assertThat(captured.getValue().getPayload()).doesNotContain("isolated-never-store");
     }
     /**

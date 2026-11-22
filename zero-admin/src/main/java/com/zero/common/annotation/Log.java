@@ -26,7 +26,7 @@ public @interface Log
      * 说明: 模块
      * @return
      * 返回值: String
-     * 返回值说明: 模块
+     * 返回值说明: 菜单功能模块名称,例如用户管理,菜单管理,参数设置等
      */
     public String title() default "";
 

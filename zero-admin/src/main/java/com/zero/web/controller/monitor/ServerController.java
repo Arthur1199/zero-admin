@@ -1,6 +1,8 @@
 package com.zero.web.controller.monitor;
 
 import com.zero.common.annotation.RequiresPermissions;
+import com.zero.common.annotation.SystemModule;
+import com.zero.common.enums.SystemModuleEnum;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +17,7 @@ import com.zero.framework.web.domain.Server;
  */
 @RestController
 @RequestMapping("/monitor/server")
+@SystemModule(SystemModuleEnum.MONITOR)
 public class ServerController
 {
     /**

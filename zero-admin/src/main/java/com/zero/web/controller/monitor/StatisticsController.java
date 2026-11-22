@@ -1,6 +1,8 @@
 package com.zero.web.controller.monitor;
 
 import com.zero.common.annotation.RequiresPermissions;
+import com.zero.common.annotation.SystemModule;
+import com.zero.common.enums.SystemModuleEnum;
 import com.zero.common.core.controller.BaseController;
 import com.zero.common.core.domain.AjaxResult;
 import com.zero.common.core.page.TableDataInfo;
@@ -17,6 +19,7 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/monitor/statistics")
+@SystemModule(SystemModuleEnum.MONITOR)
 public class StatisticsController extends BaseController
 {
     /** 统计查询服务。 */
@@ -87,6 +90,20 @@ public class StatisticsController extends BaseController
     @GetMapping("/ranking")
     public AjaxResult ranking(StatisticsQuery query)
     { return AjaxResult.success(service.ranking(query)); }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/22 19:10
+     * 说明: 查询明细筛选用的模块选项，要求登录且具备monitor:statistics:list权限，选项来自后端枚举
+     * @return data承载code和label选项
+     * 返回值: AjaxResult
+     * 返回值说明: data承载code和label选项
+     */
+    @RequiresPermissions("monitor:statistics:list")
+    @GetMapping("/modules")
+    public AjaxResult modules()
+    { return AjaxResult.success(service.moduleOptions()); }
 
     /**
      *

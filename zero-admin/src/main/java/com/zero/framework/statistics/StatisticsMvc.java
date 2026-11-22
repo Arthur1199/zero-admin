@@ -51,9 +51,9 @@ public class StatisticsMvc implements HandlerInterceptor, ResponseBodyAdvice<Obj
                 context.event.setRoute(route.length()>512 ? "/__oversized_mapping__" : route);
                 String name = method.getBeanType().getSimpleName()+"."+method.getMethod().getName();
                 context.event.setName(name.length() > 200 ? name.substring(0, 200) : name);
-                String[] segments=route.split("/");
-                String module=segments.length>1?segments[1]:"root";
-                context.event.setModule(module.length()>80?"other":module);
+                // 模块优先取控制器注解，未声明时才退回按路由首段归类，避免根路径接口把方法名当模块。
+                String module=StatisticsModuleResolver.resolve(method);
+                context.event.setModule(module!=null?module:StatisticsModuleResolver.fallback(route));
             }
         }
         try

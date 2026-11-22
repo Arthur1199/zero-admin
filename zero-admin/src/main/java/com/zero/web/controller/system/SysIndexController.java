@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.zero.common.config.ZeroConfig;
 import com.zero.common.utils.StringUtils;
+import com.zero.common.annotation.SystemModule;
+import com.zero.common.enums.SystemModuleEnum;
 
 /**
  *
@@ -13,6 +15,7 @@ import com.zero.common.utils.StringUtils;
  * 说明: 首页
  */
 @RestController
+@SystemModule(SystemModuleEnum.SYSTEM)
 public class SysIndexController
 {
     /**

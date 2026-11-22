@@ -1,8 +1,10 @@
 package com.zero.framework.statistics;
 
+import com.zero.common.annotation.SystemModule;
 import com.zero.common.core.domain.AjaxResult;
 import com.zero.common.core.domain.entity.SysUser;
 import com.zero.common.core.domain.model.LoginUser;
+import com.zero.common.enums.SystemModuleEnum;
 import com.zero.common.exception.ServiceException;
 import com.zero.framework.aspectj.RequiresPermissionsAspect;
 import com.zero.framework.web.service.PermissionService;
@@ -151,6 +153,26 @@ class StatisticsWebTest
     /**
      *
      * 作者: Arthur 亚瑟
+     * 时间: 2026/11/22 18:45
+     * 说明: 验证模块优先取控制器注解，方法级覆盖类级，未声明时按路由首段兜底
+     * @return
+     * 返回值: void
+     * 返回值说明: 断言采集事件记录的模块值
+     */
+    @Test void moduleFromAnnotation() throws Exception
+    {
+        StatisticsProperties p=new StatisticsProperties(); StatisticsPipeline pipeline=mock(StatisticsPipeline.class);
+        var mvc=MockMvcBuilders.standaloneSetup(new AnnotatedUserController(),new PlainModuleController()).addInterceptors(new StatisticsMvc())
+            .addFilters(new StatisticsFilter(p,pipeline,StatisticsTestSwitch.enabled())).build();
+        mvc.perform(get("/statistics-test/module/list")).andExpect(status().isOk());
+        mvc.perform(get("/statistics-test/module/login")).andExpect(status().isOk());
+        mvc.perform(get("/statistics-test/plain/list")).andExpect(status().isOk());
+        ArgumentCaptor<StatEvent> events=ArgumentCaptor.forClass(StatEvent.class); verify(pipeline,times(3)).publish(events.capture());
+        assertThat(events.getAllValues()).extracting(StatEvent::getModule).containsExactly("user","auth","statistics-test");
+    }
+    /**
+     *
+     * 作者: Arthur 亚瑟
      * 时间: 2026/11/16 20:46
      * 说明: 仅供隔离MVC测试的接口，不注册进实际应用。
      */
@@ -209,5 +231,61 @@ class StatisticsWebTest
          * 返回值说明: 由原异常处理器返回系统失败
          */
         @GetMapping("/statistics-test/system") public AjaxResult system() { throw new IllegalStateException("isolated system failure"); }
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/22 18:45
+     * 说明: 类级声明用户模块、单方法覆盖为认证模块的隔离测试控制器
+     */
+    @RestController
+    @RequestMapping("/statistics-test/module")
+    @SystemModule(SystemModuleEnum.USER)
+    static class AnnotatedUserController
+    {
+        /**
+         *
+         * 作者: Arthur 亚瑟
+         * 时间: 2026/11/22 18:45
+         * 说明: 后台管理接口沿用类级模块
+         * @return
+         * 返回值: AjaxResult
+         * 返回值说明: 成功响应
+         */
+        @GetMapping("/list") public AjaxResult list() { return AjaxResult.success(); }
+        /**
+         *
+         * 作者: Arthur 亚瑟
+         * 时间: 2026/11/22 18:45
+         * 说明: 登录页接口覆盖为认证模块
+         * @return
+         * 返回值: AjaxResult
+         * 返回值说明: 成功响应
+         */
+        @SystemModule(SystemModuleEnum.AUTH)
+        @GetMapping("/login") public AjaxResult login() { return AjaxResult.success(); }
+    }
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/22 18:45
+     * 说明: 未声明模块注解的隔离测试控制器，用于验证路由首段兜底
+     */
+    @RestController
+    @RequestMapping("/statistics-test/plain")
+    static class PlainModuleController
+    {
+        /**
+         *
+         * 作者: Arthur 亚瑟
+         * 时间: 2026/11/22 18:45
+         * 说明: 无注解接口
+         * @return
+         * 返回值: AjaxResult
+         * 返回值说明: 成功响应
+         */
+        @GetMapping("/list") public AjaxResult list() { return AjaxResult.success(); }
     }
 }
