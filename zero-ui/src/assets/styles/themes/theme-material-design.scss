@@ -115,7 +115,7 @@
 
       .el-sub-menu__icon-arrow {
         color: $theme-material-design-text-secondary !important;
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        // 展开/收起的箭头旋转过渡沿用 Element Plus 默认，与原始风格一致
       }
     }
 
@@ -141,8 +141,8 @@
 
     // 子菜单容器 - 与毛玻璃拟态风保持一致
     .el-menu--inline {
+      // 上下内边距沿用 Element Plus 默认（0），与原始风格一致
       background-color: $theme-material-design-menu-bg !important;
-      padding: 8px 0;
 
       .el-menu-item {
         background-color: transparent !important;  // 与毛玻璃风一致：透明背景
@@ -803,14 +803,7 @@
 
 
 body.theme-material-design {
-  // ========== 侧边栏折叠状态下图标左边距调整（Logo居中问题修复）==========
-  #app .hideSidebar .submenu-title-noDropdown .el-tooltip .svg-icon {
-    margin-left: 8px !important;
-  }
-  
-  #app .hideSidebar .el-sub-menu > .el-sub-menu__title .svg-icon {
-    margin-left: 8px !important;
-  }
+  // 折叠态图标间距沿用公共样式 20px，与其它主题和原始风格一致
   
   // ========== 侧边栏 popup 子菜单样式（挂载到 body 下）==========
   // 直接子选择器（主方案）

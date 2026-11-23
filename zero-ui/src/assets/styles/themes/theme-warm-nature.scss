@@ -1127,19 +1127,10 @@ body.theme-warm-nature {
     }
   }
   
-  // ========== 侧边栏折叠状态下图标左边距调整（Logo居中问题修复）==========
-  #app .hideSidebar .submenu-title-noDropdown .el-tooltip .svg-icon {
-    margin-left: 8px !important;
-  }
-  
-  #app .hideSidebar .el-sub-menu > .el-sub-menu__title .svg-icon {
-    margin-left: 12px !important;
-  }
-  
   // ========== 侧边栏折叠状态下菜单项内元素样式（仅温馨自然风）==========
+  // 折叠态图标间距沿用公共样式 20px，与其它主题和原始风格一致
   #app .hideSidebar .sidebar-container .el-menu-item * {
     vertical-align: middle !important;
-    margin-left: 4px !important;
   }
   
   // ========== 侧边栏 popup 子菜单样式（挂载到 body 下）==========

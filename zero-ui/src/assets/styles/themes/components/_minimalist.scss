@@ -201,15 +201,13 @@ body.theme-minimalist-future {
     .nest-menu .el-sub-menu > .el-sub-menu__title:hover {
       background: rgba(0, 188, 212, 0.09) !important;
       color: #006c9a !important;
-      border-left-color: rgba(0, 188, 212, 0.55) !important;
     }
 
+    // 展开态不再套用选中态高亮，背景与阴影统一由 layout/sidebar-states.scss 的 10% 淡底提供
     .el-menu-item.is-active,
-    .el-sub-menu.is-active > .el-sub-menu__title,
-    .el-sub-menu.is-opened > .el-sub-menu__title {
+    .el-sub-menu.is-active > .el-sub-menu__title {
       background: linear-gradient(90deg, rgba(0, 188, 212, 0.16) 0%, rgba(108, 99, 255, 0.08) 100%) !important;
       color: #006c9a !important;
-      border-left-color: #00bcd4 !important;
       box-shadow: 0 8px 18px rgba(0, 188, 212, 0.10) !important;
     }
   }
@@ -411,16 +409,14 @@ body.theme-minimalist-future {
       &:hover {
         background: rgba(0, 188, 212, 0.09) !important;
         color: #006c9a !important;
-        border-left-color: rgba(0, 188, 212, 0.55) !important;
       }
     }
 
+    // 展开态不再套用选中态高亮，背景与阴影统一由 layout/sidebar-states.scss 的 10% 淡底提供
     .el-menu-item.is-active,
-    .el-sub-menu.is-active > .el-sub-menu__title,
-    .el-sub-menu.is-opened > .el-sub-menu__title {
+    .el-sub-menu.is-active > .el-sub-menu__title {
       background: linear-gradient(90deg, rgba(0, 188, 212, 0.16) 0%, rgba(108, 99, 255, 0.08) 100%) !important;
       color: #006c9a !important;
-      border-left-color: #00bcd4 !important;
       box-shadow: 0 8px 18px rgba(0, 188, 212, 0.10) !important;
       font-weight: 700 !important;
 
