@@ -12,8 +12,8 @@
 
 1. Maven 父工程改为 `com.zero:zero:1.0.0`；调度业务包由 `com.xxl.job.admin` 改为 `com.zero.jobadmin`，同步 XML、模板、测试中的引用；仅作为测试示例的 OpenAPI 测试也归入新根包。
 2. 官方启动入口由 `com.zero.ZeroJobAdminApplication` 替代，启用服务发现并统一上海时区；组件扫描边界由 `PackageProperties` 维护。
-3. Java 17 沿用项目基线；Boot 4 / Spring 7 改为项目的 Boot 3.5 / Spring 6.2；MyBatis starter 使用 3.0.5。core、SSO、tool 仍分别为官方 3.5.0、2.4.1、2.5.2，Spring、Netty、Groovy、Gson 等版本由本工程依赖管理解析，不导入上游父BOM。
-4. `WebErrorPageRegistrar` 改用 Boot 3 的 `org.springframework.boot.web.server` API，官方错误处理业务不变。
+3. Java 21 沿用项目基线；Boot 4 / Spring 7 改为项目的 Boot 4.0 / Spring 7.0；MyBatis starter 使用 3.0.5。core、SSO、tool 仍分别为官方 3.5.0、2.4.1、2.5.2，Spring、Netty、Groovy、Gson 等版本由本工程依赖管理解析，不导入上游父BOM。
+4. `WebErrorPageRegistrar` 改用 Boot 4 的 `org.springframework.boot.web.error` API，官方错误处理业务不变。
 5. 官方 `application.properties` 改为 YAML 和环境配置；Boot 4 的错误页配置改用 `server.error.whitelabel.enabled`。凭据外置，数据库改为独立 `zero_job`，监控与report/file一致暴露全部已启用Actuator端点并显示健康详情，供Boot Admin及管理后台采集；监控路径排除控制台登录拦截，部署时须限制内部访问来源。官方 `logback.xml` 替换为项目风格的独立日志配置。
 6. 添加 Nacos discovery/config；排除 Nacos 配置依赖传递引入的旧版 Druid starter，保留官方 Hikari。调度配置采用启动时加载，修改后需重启。
 7. 官方测试放入显式 profile 管理的集成测试目录，并添加 `job-integration` 标签，普通打包始终排除，即使此前编译过官方用例也不会误运行。新增隔离 Web 兼容性测试。

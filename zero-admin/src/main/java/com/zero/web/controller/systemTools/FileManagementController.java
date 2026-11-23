@@ -10,7 +10,7 @@ import com.zero.common.enums.BusinessType;
 import com.zero.common.enums.SystemModuleEnum;
 import com.zero.feign.FileRestService;
 import com.zero.system.service.IAdminFileUploadService;
-import org.springframework.boot.autoconfigure.web.servlet.MultipartProperties;
+import org.springframework.boot.servlet.autoconfigure.MultipartProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.unit.DataSize;
 import org.springframework.http.HttpMethod;

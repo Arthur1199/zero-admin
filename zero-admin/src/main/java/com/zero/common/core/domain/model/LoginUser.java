@@ -5,6 +5,7 @@ import com.zero.common.core.domain.entity.SysUser;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -543,16 +544,17 @@ public class LoginUser implements UserDetails
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 获取Authorities
+     * 时间: 2026/11/23 21:54
+     * 说明: Spring Security 密码认证会复制此集合，后台菜单权限仍由 permissions 字段提供。
      * @return
-     * 返回值: Collection< extends GrantedAuthority>
-     * 返回值说明：获取Authorities
+     * 返回值: Collection<? extends GrantedAuthority>
+     * 返回值说明: 返回非空的空集合，不向 Spring Security 额外授予角色或权限。
      */
 
+    @JSONField(serialize = false)
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities()
     {
-        return null;
+        return List.of();
     }
 }

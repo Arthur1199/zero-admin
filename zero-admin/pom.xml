@@ -56,7 +56,13 @@
         <!-- 引入 Spring MVC 与内嵌 Tomcat，承载管理后台的 HTTP 接口。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
+        </dependency>
+
+        <!-- 使用统一的 HTTP 消息转换器访问报表与文件服务，沿用后台的 Jackson 和文件流配置。 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-restclient</artifactId>
         </dependency>
 
         <!-- 提供 Bouncy Castle 密码学算法实现，版本由父 POM 统一管理。 -->
@@ -97,7 +103,7 @@
         <!-- 为操作日志、数据权限和接口统计等切面提供 Spring AOP 支持。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-aop</artifactId>
+            <artifactId>spring-boot-starter-aspectj</artifactId>
         </dependency>
 
         <!-- Spring Boot Actuator监控端点，供Boot Admin读取health、info、metrics等监控数据 -->
@@ -168,7 +174,7 @@
 
         <!-- 提供 Java 对象与 JSON 的映射，供代理请求参数和响应等场景使用。 -->
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
+            <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
@@ -178,7 +184,7 @@
             <artifactId>snakeyaml</artifactId>
         </dependency>
 
-        <!-- Jakarta JAXB运行时，兼容Spring Boot 3.x / Jakarta EE。 -->
+        <!-- Jakarta JAXB运行时，兼容Spring Boot 4 / Jakarta EE。 -->
         <dependency>
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
@@ -209,10 +215,10 @@
             <scope>provided</scope> <!-- 运行时由容器提供 -->
         </dependency>
 
-        <!-- 提供 Spring Boot 3 适配的 Druid JDBC 连接池和监控支持。 -->
+        <!-- 提供 Spring Boot 4 适配的 Druid JDBC 连接池和监控支持。 -->
         <dependency>
             <groupId>com.alibaba</groupId>
-            <artifactId>druid-spring-boot-3-starter</artifactId>
+            <artifactId>druid-spring-boot-4-starter</artifactId>
         </dependency>
 
         <!-- 提供 Logback 的日志输出基础能力，供实时日志的自定义 Appender 使用。 -->
@@ -307,8 +313,8 @@
 
         <!-- 提供管理后台定时任务的调度器、Cron 表达式和触发器支持。 -->
         <dependency>
-            <groupId>org.quartz-scheduler</groupId>
-            <artifactId>quartz</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-quartz</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>com.mchange</groupId>
@@ -357,16 +363,6 @@
                     <warName>${project.artifactId}</warName>
                 </configuration>   
            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <!-- maven compiler plugin版本必须正确否则下面设置的JDK版本不起作用 -->
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 

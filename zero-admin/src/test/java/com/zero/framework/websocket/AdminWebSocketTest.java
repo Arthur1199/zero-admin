@@ -1,6 +1,6 @@
 package com.zero.framework.websocket;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.zero.common.constant.CacheConstants;
 import com.zero.common.enums.webSocket.WebSocketDisplayType;
 import com.zero.common.enums.webSocket.WebSocketMessageLevel;
@@ -34,7 +34,7 @@ import static org.mockito.Mockito.*;
  */
 class AdminWebSocketTest
 {
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final JsonMapper mapper = JsonMapper.builder().build();
     private final TokenService tokens = mock(TokenService.class);
     private final AdminWebSocketLease leases = mock(AdminWebSocketLease.class);
     private final AdminWebSocketHandler handler = new AdminWebSocketHandler(properties(), tokens, leases, mapper, new SyncTaskExecutor());

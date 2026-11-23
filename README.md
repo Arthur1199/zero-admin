@@ -45,11 +45,11 @@
 
 | 范围 | 主要技术 |
 | --- | --- |
-| 后端基线 | Java 17、Maven 多模块、Spring Boot 3.5.16、Spring Framework 6.2.19、Spring Cloud 2025.0.2、Spring Cloud Alibaba 2025.0.0.0。Spring Boot 核心、自动配置和打包插件统一沿用官方父 POM 的版本。 |
+| 后端基线 | Java 21、Maven 多模块、Spring Boot 4.0.10、Spring Framework 7.0.11、Spring Cloud 2025.1.5、Spring Cloud Alibaba 2025.1.0.0。Spring Boot 核心、自动配置和打包插件统一沿用官方父 POM 的版本。 |
 | 服务发现与调用 | Nacos 注册和配置、Spring Cloud LoadBalancer、OpenFeign。后台对报表和文件服务的代理分别使用带 `@LoadBalanced` 的 `reportRestTemplate` 和 `fileRestTemplate`，统一追加管理员上下文请求头。 |
-| 后台管理 | Spring Security、JWT、MyBatis XML、PageHelper、Druid、Redis、Quartz、SpringDoc 2.8.17。 |
+| 后台管理 | Spring Security、JWT、MyBatis XML、PageHelper、Druid、Redis、Quartz、SpringDoc 3.0.3。 |
 | 报表、文件与任务数据访问 | MySQL、MyBatis-Plus 3.5.16、dynamic-datasource 4.6.0。报表的复杂 XML 查询保留 PageHelper，报表与任务服务通过 Redisson 4.6.1 接入 Redis。 |
-| 调度与监控 | XXL-JOB 3.5.0 负责调度和任务执行，Spring Boot Admin 3.5.8 与 Actuator 负责运行监控。 |
+| 调度与监控 | XXL-JOB 3.5.0 负责调度和任务执行，Spring Boot Admin 4.0.4 与 Actuator 负责运行监控。 |
 | 管理后台前端 | Node 开发基线为 24.21.0，引擎范围为 `>=24.21.0 <25`。使用 Vue 3.5.43、Vite 8.3.3、Vue Router 4.6.4、Vuex 4.1.0 和 Element Plus 2.14.7，沿用 Options API 和 Axios 请求封装。 |
 
 后端版本以 [父 POM](pom.xml) 和各模块 POM 的声明为准，排查依赖差异时通过有效 POM 或依赖树确认实际解析版本。前端版本见 [package.json](zero-ui/package.json)。Vite 开发代理默认指向 `http://localhost:9099`，可通过 `VITE_DEV_PROXY_TARGET` 覆盖。
@@ -85,7 +85,7 @@ Java 类和方法沿用作者、时间和说明的 JavaDoc 模板，写清职责
 
 ## 本地开发
 
-后端使用 JDK 17。在仓库根目录打包所需服务，例如管理后台：
+后端使用 JDK 21。在仓库根目录打包所需服务，例如管理后台：
 
 ```powershell
 java -version
@@ -128,7 +128,7 @@ java -jar zero-admin/target/zero-admin-1.0.0.jar --spring.profiles.active=dev
 17. 在线构建器：拖动表单元素生成相应的HTML代码。
 18. 连接池监视：监视当前系统数据库连接池状态，可进行分析SQL找出系统性能瓶颈。
 
-系统接口文档使用 SpringDoc 2.8.17，与当前 Spring Boot 3.5 / Spring Framework 6.2 配套。后台菜单为“系统工具 → 系统接口”，文档 JSON 为 `/v3/api-docs`，Swagger UI 的配置入口 `/v3/api-docs/swagger-config` 只对 GET 放行。业务接口仍按登录和权限规则校验。调整 Maven 依赖后重新加载项目并重启 `zero-admin`。检查接口文档和安全规则时，从仓库根目录执行以下隔离测试：
+系统接口文档使用 SpringDoc 3.0.3，与当前 Spring Boot 4.0 / Spring Framework 7.0 配套。后台菜单为“系统工具 → 系统接口”，文档 JSON 为 `/v3/api-docs`，Swagger UI 的配置入口 `/v3/api-docs/swagger-config` 只对 GET 放行。业务接口仍按登录和权限规则校验。调整 Maven 依赖后重新加载项目并重启 `zero-admin`。检查接口文档和安全规则时，从仓库根目录执行以下隔离测试：
 
 ```powershell
 mvn -pl zero-admin -am test '-Dtest=SpringDocCompatibilityTest' '-Dsurefire.failIfNoSpecifiedTests=false'

@@ -15,7 +15,7 @@
 ## 职责与原生协议
 
 - `zero-jobAdmin` 基于官方 XXL-JOB 3.5.0 源码，入口 `com.zero.ZeroJobAdminApplication`，调度业务包 `com.zero.jobadmin`；保持官方控制台、独立登录及原生响应/调度协议，不套用 admin JWT 或 report 的业务父类。
-- 使用当前父工程 Java 17 / Boot 3.5 / Spring 6.2 基线，core 版本 3.5.0，MyBatis starter 使用 Boot 3 适配版本，单数据源 Hikari 连接独立 `zero_job` 库；不因上游Boot 4基线升级其它服务。
+- 使用当前父工程 Java 21 / Boot 4.0 / Spring 7.0 基线，core 版本 3.5.0，MyBatis starter 使用 Boot 4 适配版本，单数据源 Hikari 连接独立 `zero_job` 库。
 - Nacos发现不替代XXL-JOB执行器注册协议，执行器仍需配置可访问的调度中心HTTP地址，并使用3.5.0及对应AppName/AccessToken。
 
 - 当前代码按 `com.zero.jobadmin.business` 与 `com.zero.jobadmin.framework` 分层；业务 Controller、调度引擎及 OpenAPI 在 business，登录和框架入口在 framework，Mapper XML 对应 `mapper/business` 与 `mapper/framework`。不要按上游旧目录查找或新建重复入口。

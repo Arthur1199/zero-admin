@@ -327,7 +327,7 @@ public class MicroserviceClusterServiceImpl implements IMicroserviceClusterServi
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/17 04:18
+     * 时间: 2026/11/23 21:16
      * 说明: 按统计类型读取Actuator指标值，适配jvm.gc.pause这类同时返回COUNT、TOTAL_TIME和MAX的指标
      * @param actuatorUrl Actuator基础地址
      * @param metricName 指标名称
@@ -342,7 +342,12 @@ public class MicroserviceClusterServiceImpl implements IMicroserviceClusterServi
     {
         try
         {
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(actuatorUrl + "/metrics/" + metricName);
+            UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(actuatorUrl + "/metrics/" + metricName);
+            String scheme = builder.build().getScheme();
+            if (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme))
+            {
+                return null;
+            }
             if (StringUtils.isNotEmpty(tag))
             {
                 builder.queryParam("tag", tag);

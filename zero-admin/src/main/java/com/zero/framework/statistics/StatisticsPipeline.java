@@ -199,8 +199,8 @@ public class StatisticsPipeline
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/11/16 22:02
-     * 说明: 分页扫描两种队列，坏事件保留重试但不持续占据每轮首批位置。
+     * 时间: 2026/11/23 21:32
+     * 说明: 分页扫描两种队列，跳过已扫描的 Redis 边界，避免坏事件持续遮挡后续消息。
      * @return
      * 返回值: void
      * 返回值说明: 成功事件提交并确认，异常状态由外层保护避免终止定时消费
@@ -213,16 +213,22 @@ public class StatisticsPipeline
         try
         {
             ensureGroup();
-            Range<String> range = pendingCursor == null ? Range.unbounded() : Range.rightUnbounded(Range.Bound.exclusive(pendingCursor));
-            var pending=redis.opsForStream().pending(properties.getStreamKey(),properties.getGroup(),range,limit);
+            String cursor = pendingCursor;
+            Range<String> range = cursor == null ? Range.unbounded() : Range.rightUnbounded(Range.Bound.inclusive(cursor));
+            // Redis 驱动可能按包含边界发送 XPENDING，显式多读一条并跳过已扫描的消息。
+            int scanLimit = cursor == null ? limit : limit + 1;
+            var pending=redis.opsForStream().pending(properties.getStreamKey(),properties.getGroup(),range,scanLimit);
             if (pending != null)
             {
                 List<RecordId> ids=new ArrayList<>();
                 int seen = 0;
                 for (var message : pending)
                 {
+                    String id = message.getId().getValue();
+                    if (id.equals(cursor)) continue;
+                    if (seen == limit) break;
                     seen++;
-                    pendingCursor = message.getId().getValue();
+                    pendingCursor = id;
                     if (message.getElapsedTimeSinceLastDelivery().toMillis() >= Math.max(60000, properties.getClaimIdleMillis())) ids.add(message.getId());
                 }
                 if (seen < limit) pendingCursor = null;

@@ -2,10 +2,10 @@ package com.zero.config;
 
 import com.zero.config.RedissonAutoConfigCustomizer;
 import com.zero.util.RedissonUtil;
-import org.redisson.spring.starter.RedissonAutoConfigurationV2;
+import org.redisson.spring.starter.RedissonAutoConfigurationV4;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
+import org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -21,7 +21,7 @@ import org.springframework.util.StringUtils;
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnProperty(prefix = "spring.data.redis", name = "host")
 @ConditionalOnProperty(prefix = "zero.task.redis", name = "enabled", havingValue = "true", matchIfMissing = true)
-@Import({RedissonAutoConfigurationV2.class, RedisAutoConfiguration.class,
+@Import({RedissonAutoConfigurationV4.class, DataRedisAutoConfiguration.class,
         RedissonAutoConfigCustomizer.class, RedissonUtil.class})
 public class TaskRedisConfig {
 

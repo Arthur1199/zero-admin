@@ -23,7 +23,7 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
-        <!-- Spring Boot Admin 监控服务端读取 Actuator 端点并展示实例状态，版本由父 POM 的 spring-boot-admin.version 管理，与 Spring Boot 3.5.x 配套。 -->
+        <!-- Spring Boot Admin 监控服务端读取 Actuator 端点并展示实例状态，版本由父 POM 的 spring-boot-admin.version 管理，与 Spring Boot 4.0.x 配套。 -->
         <dependency>
             <groupId>de.codecentric</groupId>
             <artifactId>spring-boot-admin-starter-server</artifactId>
@@ -32,7 +32,7 @@
         <!-- Web 容器，供 Boot Admin 控制台和登录页使用 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
 
         <!-- 为 Boot Admin 控制台提供登录认证和受保护资源的访问控制。 -->

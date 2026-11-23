@@ -11,8 +11,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 import com.zero.common.enums.webSocket.WebSocketMessageType;
 import com.zero.common.core.domain.model.LoginUser;
 import com.zero.framework.web.service.TokenService;
@@ -48,7 +49,7 @@ public class AdminWebSocketHandler extends TextWebSocketHandler
     private final AdminWebSocketProperties properties;
     private final TokenService tokens;
     private final AdminWebSocketLease leases;
-    private final ObjectMapper mapper;
+    private final JsonMapper mapper;
     private final TaskExecutor sender;
     /** 连接表包含待认证连接，以容器连接ID定位，移除时必须同时匹配实例。 */
     private final ConcurrentHashMap<String, Connection> connections = new ConcurrentHashMap<>();
@@ -75,7 +76,7 @@ public class AdminWebSocketHandler extends TextWebSocketHandler
      * @param sender 有界发送线程池
      */
     public AdminWebSocketHandler(AdminWebSocketProperties properties, TokenService tokens, AdminWebSocketLease leases,
-            ObjectMapper mapper, @Qualifier("adminWebSocketSender") TaskExecutor sender)
+            JsonMapper mapper, @Qualifier("adminWebSocketSender") TaskExecutor sender)
     {
         this.properties = properties;
         this.tokens = tokens;
@@ -170,7 +171,7 @@ public class AdminWebSocketHandler extends TextWebSocketHandler
             {
                 frame = mapper.readTree(message.getPayload());
             }
-            catch (IOException e)
+            catch (JacksonException e)
             {
                 close(connection, CloseStatus.BAD_DATA);
                 return;

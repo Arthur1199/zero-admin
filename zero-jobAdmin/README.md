@@ -2,7 +2,7 @@
 
 ZERO-JOB 是由 **Arthur** 维护的任务调度中心，当前项目版本为 **1.0.0**，作为 `zero-admin` 多模块工程中的独立微服务运行。
 
-基于 XXL-JOB 3.5.0 官方调度中心源码，使用当前工程的 Java 17、Spring Boot 3.5、Spring Cloud Alibaba 基线，保留官方独立控制台和登录。Maven 模块名为 `zero-jobAdmin`，Nacos 服务名为 `zero-job-admin`，默认端口 `9102`，控制台路径为 `/`。
+基于 XXL-JOB 3.5.0 官方调度中心源码，使用当前工程的 Java 21、Spring Boot 4.0.10、Spring Cloud Alibaba 基线，保留官方独立控制台和登录。Maven 模块名为 `zero-jobAdmin`，Nacos 服务名为 `zero-job-admin`，默认端口 `9102`，控制台路径为 `/`。
 
 ## 作者与开源说明
 

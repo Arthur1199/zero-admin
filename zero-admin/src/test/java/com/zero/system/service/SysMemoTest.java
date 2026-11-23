@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.zero.common.annotation.Log;
 import com.zero.common.annotation.RequiresPermissions;
 import com.zero.common.core.domain.entity.SysUser;
@@ -169,7 +169,7 @@ class SysMemoTest
         assertThat(memo.getCreateBy()).isEqualTo("memo-test");
         assertThat(memo.getMemoContent()).isNull();
         assertThat(cipher.decrypt(memo.getContentCipher(), 1L)).isEqualTo(request.getMemoContent());
-        assertThat(new ObjectMapper().writeValueAsString(memo)).doesNotContain("contentCipher", "test-password");
+        assertThat(JsonMapper.builder().build().writeValueAsString(memo)).doesNotContain("contentCipher", "test-password");
     }
 
     /**

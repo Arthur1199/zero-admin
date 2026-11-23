@@ -38,7 +38,7 @@
         <!-- 提供 Spring MVC 与内嵌 Tomcat，承载任务服务自身的 HTTP 接口。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
         <!-- 提供健康检查等监控端点，供 Boot Admin 查看执行服务状态。 -->
         <dependency>
@@ -70,7 +70,7 @@
         <!-- 集成 Mapper 和通用 CRUD，供任务服务访问业务数据源。 -->
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <artifactId>mybatis-plus-spring-boot4-starter</artifactId>
         </dependency>
         <!-- 提供分页拦截器所需的 SQL 解析能力。 -->
         <dependency>
@@ -80,12 +80,12 @@
         <!-- 在 zeroBiz 与 zeroAdmin 数据源之间按任务的业务需要切换。 -->
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>dynamic-datasource-spring-boot3-starter</artifactId>
+            <artifactId>dynamic-datasource-spring-boot4-starter</artifactId>
         </dependency>
-        <!-- 为任务服务的数据源提供 Spring Boot 3 适配版 Druid 连接池。 -->
+        <!-- 为任务服务的数据源提供 Spring Boot 4 适配版 Druid 连接池。 -->
         <dependency>
             <groupId>com.alibaba</groupId>
-            <artifactId>druid-spring-boot-3-starter</artifactId>
+            <artifactId>druid-spring-boot-4-starter</artifactId>
         </dependency>
         <!-- 在运行时提供两个 MySQL 数据源使用的 JDBC 驱动。 -->
         <dependency>
@@ -109,10 +109,10 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- 将 Redisson 适配到 Spring Data Redis 3.5，供任务服务的 RedisTemplate 使用。 -->
+        <!-- 将 Redisson 适配到 Spring Data Redis 4.0，供任务服务的 RedisTemplate 使用。 -->
         <dependency>
             <groupId>org.redisson</groupId>
-            <artifactId>redisson-spring-data-35</artifactId>
+            <artifactId>redisson-spring-data-40</artifactId>
             <version>${task.redisson.version}</version>
         </dependency>
         <!-- 开发期通过测试作用域运行，按指定表生成实体、Mapper 和 Service 等代码。 -->

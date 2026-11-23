@@ -3,8 +3,8 @@ package com.zero;
 import lombok.extern.slf4j.Slf4j;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.core.FileAppender;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 import com.sun.net.httpserver.HttpServer;
 import com.xxl.job.core.constant.Const;
 import com.xxl.job.core.constant.ExecutorBlockStrategyEnum;
@@ -20,7 +20,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.web.context.WebServerApplicationContext;
+import org.springframework.boot.web.server.context.WebServerApplicationContext;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -76,7 +76,7 @@ class TaskExecutorHttpTest {
         var token = UUID.randomUUID().toString();
         var executorAddress = "http://127.0.0.1:" + executorPort;
         var admin = HttpServer.create(new InetSocketAddress(loopback, 0), 0);
-        var json = new ObjectMapper();
+        var json = JsonMapper.builder().build();
         var registrations = new LinkedBlockingQueue<JsonNode>();
         var callbacks = new LinkedBlockingQueue<JsonNode>();
         var removals = new LinkedBlockingQueue<JsonNode>();

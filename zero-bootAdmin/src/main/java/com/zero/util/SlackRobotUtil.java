@@ -30,28 +30,30 @@ public class SlackRobotUtil {
     // 私有构造器
     private SlackRobotUtil() {};
 
-    // 实例对象
-    private static SlackRobotUtil slackRobotUtil;
+    /** 仅发布完整的机器人配置，供通知线程安全读取。 */
+    private static volatile SlackRobotUtil slackRobotUtil;
 
     // 初始化配置
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/11/20 01:36
+     * 时间: 2026/11/23 21:36
      * 说明: 初始化 Slack 通知所需的请求地址、频道和认证信息。
      * @param requestApi Slack 请求地址
      * @param channel 接收消息的频道
      * @param authorization Slack 请求使用的授权信息
      * @return
      * 返回值: void
-     * 返回值说明: 后续通知从已初始化的实例读取发送配置
+     * 返回值说明: 配置齐全后一次性发布，后续通知读取同一份配置。
      */
-    public static void initConfig(String requestApi, String channel, String authorization) {
-        if (slackRobotUtil == null) {
-            slackRobotUtil = new SlackRobotUtil();
-            slackRobotUtil.setRequestApi(requestApi);
-            slackRobotUtil.setChannel(channel);
-            slackRobotUtil.setAuthorization(authorization);
+    public static synchronized void initConfig(String requestApi, String channel, String authorization) {
+        if (slackRobotUtil == null && requestApi != null && !requestApi.isBlank()
+                && channel != null && !channel.isBlank() && authorization != null && !authorization.isBlank()) {
+            SlackRobotUtil config = new SlackRobotUtil();
+            config.setRequestApi(requestApi);
+            config.setChannel(channel);
+            config.setAuthorization(authorization);
+            slackRobotUtil = config;
         }
     }
 
@@ -82,30 +84,26 @@ public class SlackRobotUtil {
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/11/20 01:36
-     * 说明: 等待发送配置初始化后，向 Slack 发送指定文本。
+     * 时间: 2026/11/23 21:36
+     * 说明: 配置可用时向 Slack 发送文本。启动期间或未配置的环境跳过通知。
      * @param text 发送给已配置频道的通知文本
      * @return
      * 返回值: void
-     * 返回值说明: 发送异常记录日志，等待配置时被中断则抛出异常
+     * 返回值说明: 缺少配置时直接返回，发送异常记录日志。
      */
     public static void sendMsg(String text) {
-        while(slackRobotUtil == null){
-            try {
-                Thread.sleep(300);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+        SlackRobotUtil config = slackRobotUtil;
+        if (config == null || text == null || text.isBlank()) {
+            return;
         }
-        log.error("slackRobotUtil数据初始化成功：{}",slackRobotUtil.hashCode());
         // 创建 HttpClient 实例
         HttpClient client = HttpClients.createDefault();
-        HttpPost post = new HttpPost(slackRobotUtil.getRequestApi());
+        HttpPost post = new HttpPost(config.getRequestApi());
 
         try {
             // 设置请求参数
             JSONObject paramJson = new JSONObject();
-            paramJson.put("channel", slackRobotUtil.getChannel());
+            paramJson.put("channel", config.getChannel());
             paramJson.put("text", text);
 
             // 设置 JSON 请求体
@@ -115,7 +113,7 @@ public class SlackRobotUtil {
 
             // 设置请求头
             post.setHeader("User-Agent", "Mozilla/5.0");
-            post.setHeader("Authorization", "Bearer " + slackRobotUtil.getAuthorization());
+            post.setHeader("Authorization", "Bearer " + config.getAuthorization());
 
             // 执行请求
             HttpResponse response = client.execute(post);

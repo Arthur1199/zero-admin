@@ -3,7 +3,7 @@ package com.zero.framework.config;
 import com.zero.packageconfig.PackageProperties;
 import java.util.TimeZone;
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -23,15 +23,15 @@ public class ApplicationConfig
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 时区配置
+     * 时间: 2026/11/23 21:10
+     * 说明: 保留管理后台 JSON 在迁移前使用的 JVM 默认时区。
      * @return
-     * 返回值: Jackson2ObjectMapperBuilderCustomizer
-     * 返回值说明：时区配置
+     * 返回值: JsonMapperBuilderCustomizer
+     * 返回值说明: 为 MVC、代理和 WebSocket 共用的 Jackson 3 配置时区。
      */
     @Bean
-    public Jackson2ObjectMapperBuilderCustomizer jacksonObjectMapperCustomization()
+    public JsonMapperBuilderCustomizer jacksonObjectMapperCustomization()
     {
-        return jacksonObjectMapperBuilder -> jacksonObjectMapperBuilder.timeZone(TimeZone.getDefault());
+        return builder -> builder.defaultTimeZone(TimeZone.getDefault());
     }
 }

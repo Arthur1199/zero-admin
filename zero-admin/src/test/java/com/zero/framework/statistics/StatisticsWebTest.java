@@ -61,7 +61,8 @@ class StatisticsWebTest
         @GetMapping("/missing-resource")
         public void missingResource() throws org.springframework.web.servlet.resource.NoResourceFoundException
         {
-            throw new org.springframework.web.servlet.resource.NoResourceFoundException(org.springframework.http.HttpMethod.GET,"missing-resource");
+            throw new org.springframework.web.servlet.resource.NoResourceFoundException(
+                    org.springframework.http.HttpMethod.GET, "missing-resource", "/missing-resource");
         }
     }
 

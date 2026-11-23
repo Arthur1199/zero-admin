@@ -27,7 +27,6 @@
         <tools.java-jwt.version>4.6.2</tools.java-jwt.version>
         <tools.hutool.version>5.8.44</tools.hutool.version>
         <tools.slf4j.version>2.0.18</tools.slf4j.version>
-        <tools.servlet.version>6.1.0</tools.servlet.version>
         <tools.libphonenumber.version>9.0.30</tools.libphonenumber.version>
         <tools.selenium.version>4.44.0</tools.selenium.version>
         <tools.byte-buddy.version>1.18.8-jdk5</tools.byte-buddy.version>
@@ -95,7 +94,6 @@
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
-            <version>${tools.servlet.version}</version>
             <scope>provided</scope>
         </dependency>
 
