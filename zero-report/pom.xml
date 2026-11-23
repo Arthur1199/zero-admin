@@ -33,13 +33,16 @@
             <artifactId>zero-tools</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+        <!-- 引入 Spring MVC 和内嵌 Tomcat，承载报表、业务字典等 HTTP 接口。 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
+        </dependency>
         <!-- Spring Cloud bootstrap，用于启动早期加载 Nacos 配置 -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-bootstrap</artifactId>
         </dependency>
-
         <!-- Nacos 服务注册与发现，供 admin 按服务名调用 report -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
@@ -155,12 +158,6 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- 引入 Spring MVC 和内嵌 Tomcat，承载报表、业务字典等 HTTP 接口。 -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webmvc</artifactId>
-        </dependency>
-
         <!-- 参数校验，报表查询条件和导出参数默认使用统一校验能力 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
