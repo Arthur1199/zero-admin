@@ -559,7 +559,7 @@ body.theme-glassmorphism {
 
       .el-sub-menu__icon-arrow {
         color: rgba(255, 255, 255, 0.9) !important;
-        transition: all 0.3s !important;
+        // 展开/收起的箭头旋转过渡沿用 Element Plus 默认，与原始风格一致
       }
     }
 

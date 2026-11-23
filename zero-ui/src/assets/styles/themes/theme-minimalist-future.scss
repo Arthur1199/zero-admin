@@ -67,7 +67,6 @@
       &:hover {
         background-color: $theme-minimalist-future-menu-hover !important;
         color: $theme-minimalist-future-accent !important;
-        border-left-color: $theme-minimalist-future-accent;
       }
 
       &.is-active {
@@ -118,7 +117,7 @@
 
     // 子菜单容器 - 与毛玻璃拟态风保持一致
     .el-menu--inline {
-      background-color: $theme-minimalist-future-primary !important;
+      // 背景由 layout/_minimalist.scss 统一设为 transparent，此处不再写会被覆盖的值
 
       .el-menu-item {
         background-color: transparent !important;  // 与毛玻璃风一致：透明背景
@@ -135,7 +134,6 @@
         &:hover {
           background-color: rgba($theme-minimalist-future-accent, 0.08) !important;
           color: $theme-minimalist-future-accent !important;
-          border-left-color: $theme-minimalist-future-accent;
         }
 
         &.is-active {
@@ -230,7 +228,6 @@
         &:hover {
           background: $theme-minimalist-future-menu-hover !important;
           color: $theme-minimalist-future-accent !important;
-          border-left-color: $theme-minimalist-future-accent;
         }
 
         &.is-active {
@@ -251,7 +248,6 @@
         &:hover {
           background: $theme-minimalist-future-menu-hover !important;
           color: $theme-minimalist-future-accent !important;
-          border-left-color: $theme-minimalist-future-accent;
         }
 
         i {
@@ -267,7 +263,6 @@
       .el-sub-menu.is-opened > .el-sub-menu__title {
         background: $theme-minimalist-future-menu-hover !important;
         color: $theme-minimalist-future-accent !important;
-        border-left-color: $theme-minimalist-future-accent;
 
         i {
           color: $theme-minimalist-future-accent;

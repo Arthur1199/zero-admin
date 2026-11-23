@@ -5,6 +5,16 @@
 - 贾维斯 在 zero-admin 项目中以资深全栈工程师角色工作，必须精通 Java 服务端后端开发与前端开发，具备完整项目架构设计、业务开发、问题排查、代码重构、前后端联调、性能优化和规范落地能力。
 - 工作时必须保持专业素养扎实、逻辑严谨、编码规范、思路清晰，严格遵循企业级开发标准、项目既有规范和最佳实践。
 
+## Codex 默认开发工作流
+
+- 本节仅适用于 Codex 在本仓库及其子模块中的开发任务，不为其他项目设置默认工作流，不修改用户级 `AGENTS.md`、`config.toml` 或技能配置。
+- 开始代码分析、开发、排障、重构或审查前，默认使用 `using-superpowers` 和 `ponytail`，读取当前可用目录中的对应 `SKILL.md`；按任务阶段加载相关技能，不一次加载整套技能，也不将本节扩展到无关问答。
+- Superpowers 用于组织工作流程：需求或方案不明确时使用 `brainstorming`，复杂任务按需使用 `writing-plans` 和 `executing-plans`，异常排查使用 `systematic-debugging`，有回归风险的行为改动使用 `test-driven-development`，交付前使用 `verification-before-completion`；审查按需使用对应审查技能。简单、明确的改动直接按已授权范围推进，不强制生成设计文档、建立工作树或重复索取批准。
+- Ponytail 默认采用 `full` 强度：先理解业务和调用链，再优先复用仓库已有实现、标准库、平台能力和已安装依赖，以满足完整需求的最小改动实现。不能为了减少代码而省略空值、异常、并发、权限、安全、兼容性、必要验证或本项目规定的注释，也不得借精简扩大范围或清理无关代码。
+- 技能只补充工作方法，不能覆盖当前平台指令、用户明确要求、本文件及模块 `AGENTS.md` 的规则；语言、输出顺序、业务边界、编码风格和权限要求继续沿用现有规定。用户只要求讨论或分析时不修改代码，明确要求实施时不因技能流程增加无依据的审批环节。
+- 默认使用技能不构成额外操作授权。删除、扣费、授权、发送消息、数据库改动、生产配置和敏感信息处理仍按现有要求确认；不自动提交、推送、合并或删除工作区。子代理仅在用户或适用项目规则明确授权且当前工具可用时使用，不能因技能建议分工而默认派生。
+- 技能与工具以当前会话实际可用能力为准；缺少时说明限制并按本项目规范继续可完成的工作，不擅自安装组件、开启权限或修改全局配置。验证按项目规定和改动影响范围执行，未运行或仅模拟验证的内容不得表述为真实环境通过。
+
 ## 基本要求
 
 - 默认使用简体中文回答，表达要直接、精炼、专业。
@@ -21,6 +31,7 @@
 - 修改任意模块前，同时读取本文件和该模块的 AGENTS.md；跨模块任务读取所有涉及模块的规则，核对调用双方。
 - 通用规范和跨服务共同契约在根文件维护；目录结构、内部实现、配置细节和专属验证命令在所属模块维护。修改共同契约时同步检查涉及模块及调用方。
 - 子模块规则按职责补充全局规则；发现矛盾时先核对当前源码和用户要求，不能以局部规则为由放宽安全或权限边界。
+- 阅读顺序：根规则 → 涉及模块规则 → 目标源码及直接调用链。根文件维护共享契约，模块文件维护实际入口、专属约束及验证；模块规则中的“当前实现”不自动成为其它模块的新要求。
 
 | 模块规则 | 主要内容 |
 | --- | --- |
@@ -89,6 +100,7 @@
 
 - admin 的 `ServiceNameConstants.ZERO_ADMIN` 和 tools 的 `ServiceNameConstant.ZERO_ADMIN` 当前仍为 `zeroAdmin`，与 admin 本地应用名 `zero-admin` 不一致。涉及服务调用时核对 Nacos 实际注册名和调用双方配置，不宣称两者已一致，不在无关任务中直接改名。
 - 各服务读取自己的 `application.yml` 和环境配置。`zero-bootAdmin` 使用自身配置接入服务发现，其余服务按 `application-{profile}.yml` 的 `spring.config.import` 读取 Nacos 配置。`resources/nacosConfig` 保存发布模板，实际生效值以目标环境已发布配置和启动覆盖项为准。
+- 主配置存在以 `---` 分隔的多段 YAML，核对时应读取全部文档并结合 profile 激活条件、导入顺序和覆盖项分析；不能只解析第一段就判断端口、Mapper、Actuator 或日志配置。
 - `zero-admin`、`zero-file`、`zero-job-admin`、`zero-report` 和 `zero-task` 监听本服务已导入且开启刷新的 Nacos 配置。收到变更后，按原启动参数在同一 JVM 中先关闭旧上下文，再启动新上下文。同一实例同时只执行一次重启，单实例重启期间会短暂中断服务。
 - 新增或修改 Spring 和 Nacos 配置按 [YAML 配置注释规范](#yaml-配置注释规范)执行。各服务的配置源见 [README.md](README.md#后端配置入口)。
 - 包扫描规则按各服务自己的 `PackageProperties` 核对；监控服务的安全配置、通知器和 Actuator 暴露范围单独分析，不能沿用 admin JWT 假设。
@@ -130,7 +142,12 @@
 
 ## 共享业务字典协议
 
-- 业务字典键使用原始编码，格式为 `zero:dict:config:item:<分组>:<字典项>` 和 `zero:dict:config:group:<分组>`。分组编码含冒号时，单项键使用 `zero:dict:config:item-colon:<分组长度>:<分组>:<字典项>`，避免键冲突。同环境的 `zero-report` 和 `zero-task` 连接同一 Redis 库，发布时同步升级。
+- 写入由 `zero-report` 负责，`zero-task` 只读消费；两端的 `DictConfigUtil`、字典实体与 Mapper SQL 分别维护，共享的是缓存格式与查询语义，不通过 HTTP 调用对方的字典工具。
+- 键使用库中原始编码：单项为 `zero:dict:config:item:<分组>:<字典项>`，分组列表为 `zero:dict:config:group:<分组>`。分组编码含冒号时，单项改用 `zero:dict:config:item-colon:<分组长度>:<分组>:<字典项>`，避免分隔歧义。共享键不添加环境名、固定版本或另一个服务前缀；同环境两服务连接同一 Redis 库并同步升级。
+- 单项和分组缓存都使用 `TypedJsonJacksonCodec` 存储 `List<DictItem>`，不能把单项改存为独立对象。只缓存有效非空结果，不设有效期；请求编码与数据库原始编码匹配后用 `setIfAbsent` 回填，Redis 缺失或异常时回源数据库。
+- 回源查询要求字典组和字典项均启用、未删除；分组列表按排序值和主键升序。通过独立 Spring Bean 的 `@DS` 和 `Propagation.NOT_SUPPORTED` 访问 `zeroBiz` 的已提交数据，不能让调用方的管理库路由或事务串入查询。report 还需暂停并恢复调用方待执行的 PageHelper 分页。
+- 两个业务父类当前均提供 `getDictItem`、`getDictItems`、`getDictValue`。单项参数为恰含一个点的 `分组编码.字典项编码`，两段去除首尾空白；非法参数或无匹配单项返回 `null`，无匹配列表返回空集合。不能将 Controller 中的 `getBizDictValue` 名称误当成父类方法。
+- report 写入成功后定向清理受影响单项和所属组列表；改编码或移动分组覆盖新旧键，分组变更覆盖该组全部单项。事务提交后才清理，回滚不清理。通配符匹配清理必须转义编码中的 Redis 模式字符；清理失败记录告警并保留待处理事实，不能宣称缓存一定已同步。
 
 ## 公共能力边界
 
@@ -141,21 +158,21 @@
 
 ## 后端接口规范
 
-本节约束 `zero-ui → zero-admin → zero-report/zero-file` 管理后台业务链路及其共享返回对象。XXL-JOB 调度中心和执行器的原生通信、Boot Admin/Actuator 端点沿用各自协议，不套用 `AjaxResult`、`TableDataInfo` 或后台业务路由。
+本节约束 `zero-ui → zero-admin → zero-report/zero-file` 管理后台业务链路及共享返回对象。XXL-JOB 原生通信和 Boot Admin/Actuator 保持各自协议，不套用后台业务路由或返回包装。
 
-- report 列表接口返回 `com.zero.dto.TableDataInfo`，普通详情、新增、修改、删除、恢复、下拉选项等返回 `com.zero.model.AjaxResult`。admin 代理调用时必须声明对应返回类型，列表用 `exchange(..., TableDataInfo.class)`，普通接口用 `AjaxResult`。注意 admin 侧同名类型来自 `com.zero.common.*`，report 侧普通返回来自 `zero-tools` 的 `com.zero.model.AjaxResult`。
-- 文件列表在 admin 使用 `com.zero.common.core.page.TableDataInfo`，file 使用自己的 `com.zero.dto.TableDataInfo`；普通 file 返回来自 tools 的 `com.zero.model.AjaxResult`。代理失败结构由 `FileRestService` 兜底，file 异常由 `FileExceptionHandler` 处理。
-- 普通增删改查返回 `AjaxResult`，admin 成功用 `success()` / `success(data)`、失败用 `error(message)`、写操作用 `toAjax(rows)`；report 使用 `com.zero.model.AjaxResult` 的 `success()` / `success(data)` / `error(message)`。
-- `AjaxResult` 字段语义必须固定：`code` 表示状态码，`msg` 只表示响应描述或错误提示，`data` 承载业务数据主体；不得把地区、用户信息、配置值、Token、对象、列表等业务数据放入 `msg`。
-- 返回业务数据时必须写入 `data` 字段，例如 `success(data)` 或 `AjaxResult.success("操作成功", data)`；即使只返回一个字符串，也必须作为 `data` 返回，禁止使用 `success("越南河内")` 这类把数据误放入 `msg` 的写法。
-- 注意 `success(String)` 重载表示响应描述；返回字符串数据用明确的双参数重载，例如 `AjaxResult.success("操作成功", value)`，不要依赖变量名或字符串内容区分语义。
-- 历史上传接口有兼容例外：通用上传保留顶层 `url/fileName/newFileName/originalFilename`（多文件对应复数字段），头像保留顶层 `imgUrl`；新业务仍使用 `data`，不能直接移除既有上传字段。
-- 前端读取接口结果必须按结构取值：普通业务数据读取 `response.data`，分页列表读取 `response.rows` 和 `response.total`；新接口不得从 `response.msg` 中读取业务数据。已有且在模块规则中明确记录的历史兼容入口保留原读取方式；修改其返回结构时同步迁移调用方，不能把兼容例外推广到新接口。
-- 新增接口前必须先确认返回类型：查询详情、解析结果、配置值等使用 `AjaxResult.data`；增删改使用 `AjaxResult.msg` 表达操作结果，必要时再用 `data` 返回业务对象；分页列表使用 `TableDataInfo`。
-- 工具类查询接口也必须遵守统一返回语义，例如 IP地区解析、验证码状态、配置值查询等，单值结果也放入 `data`，`msg` 只保留“操作成功”或错误原因。
-- 如果历史接口错误使用 `msg` 承载业务数据，新代码不得继续沿用；修改这类接口时必须同步调整前端取值逻辑。
-- 新接口路径和前端 API 文件保持一致：REST 风格常用 `GET /list`、`GET /{id}`、`POST`、`PUT`、`DELETE /{ids}`。
-- 参数校验沿用 `@Validated`、实体字段校验、`StringUtils`、业务 Service 校验，不在 Controller 堆复杂业务。
+| 场景 | admin 类型与处理 | 下游类型与处理 |
+| --- | --- | --- |
+| 分页表格 | `com.zero.common.core.page.TableDataInfo`，自身业务通常 `startPage()` / `getDataTable()`，代理显式声明返回类型 | report/file 各自的 `com.zero.dto.TableDataInfo` |
+| 普通详情、选项及增删改 | `com.zero.common.core.domain.AjaxResult`，使用 `success()`、`error()`、`toAjax(rows)` 等既有封装 | report/file 使用 tools 的 `com.zero.model.AjaxResult` |
+| 树形菜单等非分页集合 | 按实际 Controller 返回 `AjaxResult.data`，不能机械改为分页结构 | 按对应业务接口定义 |
+| 文件流 | 保留流与响应头，不再套 JSON 包装 | 核对代理与消费方的二进制处理 |
+
+- `AjaxResult.code` 是状态码，`msg` 只表示响应描述或错误提示，`data` 承载业务主体。地区、用户信息、配置值、Token、对象和列表不得放进 `msg`。分页列表前端读取 `response.rows/total`，普通数据读取 `response.data`。
+- `success(String)` 的单参数重载表示提示文案。返回字符串数据必须用明确的双参数写法，例如 `AjaxResult.success("操作成功", value)`；对象/列表使用 `success(data)`。不能凭变量名称推断重载语义。
+- 查询详情、工具解析、配置值、枚举和选项等都遵守 `data` 语义；写操作用 `msg` 表达操作结果，必要时再返回 `data`。新接口不得从 `response.msg` 读取业务数据。修改历史错误返回结构时，同步调整全部调用方。
+- 既有上传兼容：通用上传保留顶层 `url/fileName/newFileName/originalFilename`，多文件保留对应复数字段，头像保留顶层 `imgUrl`；新业务仍使用 `data`。模块明确记录的历史 `response.msg` 兼容入口可保留，不能推广到新接口。
+- report/file 代理列表必须声明 `TableDataInfo.class`，普通响应声明 `AjaxResult.class`。代理异常由 `ReportRestService` / `FileRestService` 兜底，下游异常由各自统一处理器保持列表与普通响应结构，不能以同名类为由混用导入。
+- API 路径和前端请求保持一致，REST 风格通常为 `GET /list`、`GET /{id}`、`POST`、`PUT`、`DELETE /{ids}`。参数校验沿用 `@Validated`、实体约束、现有 `StringUtils` 和 Service 业务校验，不在 Controller 堆复杂业务。
 
 ## 后端数据库与 MyBatis 规则
 
@@ -192,7 +209,7 @@
 
 适用于仓库各 Java 模块的源码和测试代码。新增功能、修改逻辑、补充字段或调整接口时，必须同步补充和维护相关注释。
 
-### 基本要求
+### 注释覆盖范围
 
 - 类、interface、enum 必须有类头 JavaDoc，说明职责、业务范围、对应表或接口用途；类名不能完整表达业务时，必须在说明中补足上下文。
 - Controller 类注释需说明接口职责；每个对外映射方法必须有方法 JavaDoc，写清用途、关键参数和返回结果。
@@ -273,6 +290,7 @@ public static final String OPEN_GOOGLE_AUTH = "sys.account.openGoogleAuth";
 - 本文件记录开发约束和源码事实。修改模块、服务名、配置、接口或主题后，重新核对对应源码并维护相关条目。验证结论以当前源码、配置或运行证据为准。
 - 构建与模块依据：根 `pom.xml`、各模块 `pom.xml`、`Zero*Application` 和各服务 `application*.yml`。
 - 修改规则时区分既有行为、已知差异和新增开发要求。未运行的服务或外部依赖明确标为未验证，不把静态阅读写成联调完成。
+- 规则整理不自动授权修改业务代码、发布 Nacos、执行 SQL、启动/重启服务或发送通知。新增源码依据应给出可定位入口；只有注释、README 或模板声称存在而源码未实现的能力，要标明差异，不把计划当成已完成事实。
 
 ## 修改前检查清单
 

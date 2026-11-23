@@ -2,6 +2,18 @@
 
 本文件适用于 `zero-admin/`。同时遵守[仓库全局规则](../AGENTS.md)，通用 Java/YAML 注释规范及安全要求以根文件为准。下文带模块名前缀的代码路径相对仓库根目录，其余模块内部路径相对本目录；Markdown 链接相对本文件。跨模块修改同时读取相关模块规则。
 
+## 职责与源码入口
+
+| 事项 | 当前入口 |
+| --- | --- |
+| 启动、扫描与配置重启 | [ZeroAdminApplication.java](src/main/java/com/zero/ZeroAdminApplication.java)、[PackageProperties.java](src/main/java/com/zero/packageconfig/PackageProperties.java)、[NacosConfigChangeListener.java](src/main/java/com/zero/framework/listener/NacosConfigChangeListener.java) |
+| 自身业务范例 | [SysConfigController.java](src/main/java/com/zero/web/controller/system/SysConfigController.java)、[SysMenuController.java](src/main/java/com/zero/web/controller/system/SysMenuController.java)、[SysApiAuthController.java](src/main/java/com/zero/web/controller/system/SysApiAuthController.java) |
+| report 代理 | [ReportRestService.java](src/main/java/com/zero/feign/ReportRestService.java)、[ReportRestTemplateConfig.java](src/main/java/com/zero/feign/ReportRestTemplateConfig.java)、[AdminForwardHeaderProvider.java](src/main/java/com/zero/feign/AdminForwardHeaderProvider.java) |
+| file 代理与上传 | [FileManagementController.java](src/main/java/com/zero/web/controller/systemTools/FileManagementController.java)、[FileRestService.java](src/main/java/com/zero/feign/FileRestService.java)、[AdminFileUploadServiceImpl.java](src/main/java/com/zero/system/service/impl/AdminFileUploadServiceImpl.java) |
+| 登录与数据范围 | [SecurityConfig.java](src/main/java/com/zero/framework/config/SecurityConfig.java)、[TokenService.java](src/main/java/com/zero/framework/web/service/TokenService.java)、[DataScopeAspect.java](src/main/java/com/zero/framework/aspectj/DataScopeAspect.java) |
+| 在线通信与权限刷新 | [AdminWebSocketService.java](src/main/java/com/zero/framework/websocket/AdminWebSocketService.java)、[AdminUserRefreshService.java](src/main/java/com/zero/system/service/AdminUserRefreshService.java) |
+| 生成模板与渲染测试 | [vm](src/main/resources/vm)、[GeneratorTemplatesTest.java](src/test/java/com/zero/generator/GeneratorTemplatesTest.java) |
+
 ## 技术栈与版本来源
 
 - admin 登录令牌使用 `io.jsonwebtoken:jjwt-*`，版本由父 POM 管理；与 tools 的 `com.auth0:java-jwt` 分别核对调用方，公共能力抽取遵守[根文件边界](../AGENTS.md#公共能力边界)。
@@ -19,9 +31,24 @@
 - `zero-admin` 代码生成在 `generator`，定时任务在 `quartz`。Mapper 接口放在 `com.zero.**.mapper`，XML 放在 `zero-admin/src/main/resources/mapper/**`，由 `ApplicationConfig` 的 `@MapperScan` 和 `application.yml` 的 `mapperLocations` 扫描。
 - admin 页面使用的代码生成模板与新项目使用的 MyBatis-Plus 开发期生成器各有入口。admin 的 13 个 classpath 模板位于`zero-admin/src/main/resources/vm/`，原件及来源在[模板来源](../前段项目升级方案/若依官方代码生成模板-v3.9.0/)，验证见[生成模板验证报告](../前段项目升级方案/04-代码生成模板集成与验证报告.md)。新增导入表和历史空前端类型默认Vue3，显式Vue2保留；Vue3模板沿用Options API及项目公共组件，Controller输出到`web/controller/模块`。修改后先运行`GeneratorTemplatesTest`验证六类渲染、ZIP及生成Java/XML，再运行读取其产物的前端用例，不以项目自身编译代替生成结果验证；不自动执行生成SQL或开启源码覆盖。
 
+## common 包归类规则
+
+- 通用注解放 `common.annotation`；注解处理逻辑通常放 `framework`。
+- 全局常量、配置 key、Redis key 前缀、通用错误码放 `common.constant`。
+- 基础返回对象、基础实体、分页对象、登录模型、Redis 封装放 `common.core`。
+- 跨模块枚举放 `common.enums`；单业务枚举放业务模块。
+- 全局异常放 `common.exception`；业务主动中断优先使用 `ServiceException`。
+- Servlet Filter、请求包装器、XSS 请求过滤放 `common.filter`。
+- 无状态、可复用、不依赖具体业务 Mapper/Service 的工具类放 `common.utils` 或其子包。
+- XSS 校验注解和校验器放 `common.xss`。
+- 只服务单个业务的实体、DTO、Mapper、Service、Controller 不放 `common`，应放对应业务模块。
+- 通用算法工具放 `common.utils`，例如谷歌动态码的 Base32、TOTP、二维码工具应放 `common.utils.google`；绑定、解绑、登录校验等业务流程仍放 `system` / `web.controller.system`。
+
 ## 本地配置生效边界
 
 - admin 的 `localYml` 导入在主配置中当前被注释，不把该目录的数据库、Redis、上传限制当作生效配置。分析配置问题要同时检查本地文件、Nacos 和启动覆盖参数。
+
+- profile 导入的 MySQL、Redis、common、WebSocket Data ID 以 `application-{profile}.yml` 为准；模板目录只保存源文件，自动重启和多段 YAML 的共同边界见根规则。
 
 ## 模式一：admin 自身业务
 
@@ -57,19 +84,6 @@
 - 上传流程复用 `AdminFileUploadServiceImpl`，保持扩展名、文件大小、原始文件名校验和历史响应字段。当前业务类型分别为 `admin-common`、`admin-avatar`、`file-management`，不能把不同来源文件混成同一种类型。
 - 上传限制同时受 admin、file、反向代理及前端校验影响。文件管理页面读取 admin 的 `/upload/config`，不能只修改页面默认提示。file 本地单文件/整请求默认 30MB/300MB，admin Nacos common 源文件为 30MB/60MB；实际限制按运行配置核对。
 
-## common 包归类规则
-
-- 通用注解放 `common.annotation`；注解处理逻辑通常放 `framework`。
-- 全局常量、配置 key、Redis key 前缀、通用错误码放 `common.constant`。
-- 基础返回对象、基础实体、分页对象、登录模型、Redis 封装放 `common.core`。
-- 跨模块枚举放 `common.enums`；单业务枚举放业务模块。
-- 全局异常放 `common.exception`；业务主动中断优先使用 `ServiceException`。
-- Servlet Filter、请求包装器、XSS 请求过滤放 `common.filter`。
-- 无状态、可复用、不依赖具体业务 Mapper/Service 的工具类放 `common.utils` 或其子包。
-- XSS 校验注解和校验器放 `common.xss`。
-- 只服务单个业务的实体、DTO、Mapper、Service、Controller 不放 `common`，应放对应业务模块。
-- 通用算法工具放 `common.utils`，例如谷歌动态码的 Base32、TOTP、二维码工具应放 `common.utils.google`；绑定、解绑、登录校验等业务流程仍放 `system` / `web.controller.system`。
-
 ## 后端接口规范
 
 - `zero-admin` Controller 默认继承 `BaseController`；分页列表使用 `startPage()` + Service 查询 + `getDataTable(list)`，返回 `TableDataInfo`，字段为 `code`、`msg`、`rows`、`total`。普通增删改查沿用根文件的 `AjaxResult` 及 `success()`、`error()`、`toAjax(rows)` 约定。
@@ -79,15 +93,26 @@
 
 ## 后端安全与权限
 
+### 身份与登录
+
 - `zero-admin` Spring Security 是无状态 JWT 模式，Token 请求头为 `Authorization: Bearer <token>`。
-- 在线用户列表按用户明确授权，向具备`monitor:online:list`菜单权限的所有账号返回每条会话的完整`authorizationToken`（含`Bearer `前缀），不遮挡、不另加超级管理员限制。该菜单权限包含读取其它账号会话凭证的能力；列表响应禁止缓存，不记录令牌日志，不写入数据库，不刷新被查看会话有效期。页面完整显示会话编号，并保留底部横向滚动条。
 - `zero-admin` 匿名路径在 `SecurityConfig` 和 `@Anonymous` / `PermitAllUrlProperties` 相关逻辑中体现，新增匿名接口必须谨慎确认。
+- `zero-admin` 登录验证码由 `/captchaImage`、`SysLoginService.validateCaptcha`、`ISysConfigService.selectCaptchaEnabled()` 和配置项 `sys.account.captchaEnabled` 控制。
+- `sys.account.multiClientLogin` 在完整登录验证通过后生效，包含超级管理员。显式设为 `false` 时，通过 `RedisTemplate` 的账号标记和事务保存新会话、撤销同账号旧会话，再按旧会话定向发送 `LOGIN_OUT`。设为 `true` 或未配置时保留多端登录。续期只更新仍存在的会话，参数变更在下一次成功登录时应用。
+
+### 在线会话凭据的既有例外
+
+- 在线用户列表按用户明确授权，向具备`monitor:online:list`菜单权限的所有账号返回每条会话的完整`authorizationToken`（含`Bearer `前缀），不遮挡、不另加超级管理员限制。该菜单权限包含读取其它账号会话凭证的能力；列表响应禁止缓存，不记录令牌日志，不写入数据库，不刷新被查看会话有效期。页面完整显示会话编号，并保留底部横向滚动条。
+
+### WebSocket 与事务后刷新
+
 - 管理后台 WebSocket 为精确 `GET /ws/admin` 握手入口，首帧仅发送含token字符串的JSON，JWT认证成功后返回CREATE_CONNECTION才接收业务事件；认证失败或协议错误直接关闭，不发送错误类型；握手、心跳和会话检查不续期登录。频道必须显式配置，缺失时拒绝启动；消息统一经环境隔离的 Redis Pub/Sub 分发，调用 `AdminWebSocketService` 按用户ID发送，不提供公网通用推送接口。前端从现有 API 地址自动生成 ws/wss 地址；代理须保留 Host 并转发 Upgrade。同账号多会话、多标签页接收，单登录会话连接上限由 Redis 租约跨节点控制。在线消息不落库、不补发，部署和验证边界见 [WebSocket 集成与部署](../docs/WebSocket集成与部署.md)。
 - WebSocket认证、心跳、错误及业务消息统一使用 `common.enums.webSocket.WebSocketMessageType`；消息对象 `WebSocketMessageVo` 包含 `id/sendTime/senderIp/fromAdminId/toAdminId/msgType/msgData/forwardUrl`，不恢复版本号。枚举以对象输出事件编号、中文说明、展示形式displayType及级别messageLevel；前端使用 `websocketMessageType.js` 对应编号订阅。业务发送入口只允许业务事件，禁止伪造控制消息；仅保留统一枚举及消息对象发送接口；无openSendMsg开关，前端展示器支持卡片、顶部提示及独立居中弹窗，退出清理自身提示和队列。
 - 用户部门或角色关系变更成功后通过 `system.service.AdminUserRefreshService` 在事务提交后定向发送REFRESH_BROWSER；全局前端整页刷新，/getInfo读取最新部门和角色并按需更新当前登录快照。角色菜单授权或实际数据范围变化同样在提交后定向通知所属用户；仅修改角色名称、排序、备注不通知。HTTP认证读取当前角色及菜单权限，Redis会话快照仍用于登录状态，权限快照有变化时更新；离线不补发，推送失败不回滚业务。
 - API谷歌验证修改保存成功后，在事务提交后通过 `AdminUserRefreshService.afterApiAuthChanged()` 广播REFRESH_BROWSER至所有在线连接，页面刷新后重新读取 `/system/apiAuth/googleAuthApis` 更新本地规则；查询接口不触发推送，原校验、权限和审计日志保留。
-- `zero-admin` 登录验证码由 `/captchaImage`、`SysLoginService.validateCaptcha`、`ISysConfigService.selectCaptchaEnabled()` 和配置项 `sys.account.captchaEnabled` 控制。
-- `sys.account.multiClientLogin` 在完整登录验证通过后生效，包含超级管理员。显式设为 `false` 时，通过 `RedisTemplate` 的账号标记和事务保存新会话、撤销同账号旧会话，再按旧会话定向发送 `LOGIN_OUT`。设为 `true` 或未配置时保留多端登录。续期只更新仍存在的会话，参数变更在下一次成功登录时应用。
+
+### 数据范围、XSS 与日志
+
 - `zero-admin` 当前 XSS 配置在 `application.yml` 的 `xss` 节，匹配 `/system/*,/monitor/*,/tool/*`，不要认为所有 JSON 请求都天然安全。
 - 数据权限通过 `@DataScope` 和 SQL 中 `${params.dataScope}` 拼接实现。涉及用户、角色、部门数据时必须先确认数据范围规则。
 - `DataScopeAspect` 对“本部门”“本部门及以下”范围按当前认证用户ID读取最新归属部门，并仅在当前请求内复用；不能回退登录缓存里的旧部门。辅助读取前挂起、读取成功后恢复原PageHelper实例，异常时清理分页上下文。全部、自定义、本人范围及超级管理员沿用既有规则；该机制不刷新角色、菜单权限或跨请求登录缓存。
@@ -115,7 +140,8 @@
 ## 常用验证命令
 
 - admin 编译：`mvn -pl zero-admin -am compile -DskipTests`
-- admin 运行：`mvn -pl zero-admin spring-boot:run`
+- admin 运行：`mvn -pl zero-admin spring-boot:run`，仅在任务要求并具备必要配置时使用。
+- 按功能选择现有回归：角色权限用 `RoleOperationPermissionTest`，会话规则用 `AdminSingleClientLoginTest` / `OnlineAuthorizationTokenTest`，文件删除用 `FileManagementDeleteTest`，生成模板用 `GeneratorTemplatesTest`。测试命令使用真实类名，依赖和外部写入边界先看对应测试。
 
 ## 关联模块规则
 
