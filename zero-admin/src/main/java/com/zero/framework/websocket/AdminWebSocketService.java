@@ -3,7 +3,7 @@ package com.zero.framework.websocket;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.zero.common.exception.ServiceException;
 import com.zero.common.utils.ip.IpUtils;
 import com.zero.common.enums.webSocket.WebSocketMessageType;
@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
 public class AdminWebSocketService implements MessageListener
 {
     private final StringRedisTemplate redis;
-    private final ObjectMapper mapper;
+    private final JsonMapper mapper;
     private final AdminWebSocketHandler handler;
     private final AdminWebSocketProperties properties;
 
@@ -39,7 +39,7 @@ public class AdminWebSocketService implements MessageListener
      * @param handler 本节点连接管理
      * @param properties 环境及大小限制
      */
-    public AdminWebSocketService(RedisConnectionFactory factory, ObjectMapper mapper,
+    public AdminWebSocketService(RedisConnectionFactory factory, JsonMapper mapper,
             AdminWebSocketHandler handler, AdminWebSocketProperties properties)
     {
         this.redis = new StringRedisTemplate(factory);

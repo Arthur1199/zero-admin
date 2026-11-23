@@ -1,7 +1,7 @@
 package com.zero.feign;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 import com.zero.common.constant.HttpStatus;
 import com.zero.common.constant.ServiceNameConstants;
 import com.zero.common.core.domain.AjaxResult;
@@ -55,7 +55,7 @@ public class ReportRestService
     /**
      * 对象转换器，用于将查询对象转换为请求参数 Map
      */
-    private final ObjectMapper objectMapper;
+    private final JsonMapper objectMapper;
 
     /**
      *
@@ -65,7 +65,7 @@ public class ReportRestService
      * @param restTemplate 负载均衡 RestTemplate
      * @param objectMapper 对象转换器
      */
-    public ReportRestService(@Qualifier("reportRestTemplate") RestTemplate restTemplate, ObjectMapper objectMapper)
+    public ReportRestService(@Qualifier("reportRestTemplate") RestTemplate restTemplate, JsonMapper objectMapper)
     {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;

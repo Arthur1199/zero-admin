@@ -1,6 +1,6 @@
 # ZERO-TASK 定时任务执行服务
 
-`zero-task` 使用 Java 17 和 XXL-JOB Core 3.5.0。ZERO-JOB 通过 XXL-JOB 原生 HTTP 协议派发任务，执行器调用本服务中的 `@XxlJob` 方法并回传结果。
+`zero-task` 使用 Java 21 和 XXL-JOB Core 3.5.0。ZERO-JOB 通过 XXL-JOB 原生 HTTP 协议派发任务，执行器调用本服务中的 `@XxlJob` 方法并回传结果。
 
 ## 配置和启动
 

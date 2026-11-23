@@ -1,7 +1,7 @@
 package com.zero.framework.websocket;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 import com.zero.common.constant.CacheConstants;
 import com.zero.common.constant.UserConstants;
 import com.zero.common.enums.webSocket.WebSocketMessageType;
@@ -35,10 +35,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
-import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.tomcat.servlet.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.boot.web.servlet.DelegatingFilterProxyRegistrationBean;
-import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
+import org.springframework.boot.web.server.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -473,10 +473,9 @@ class AdminWebSocketIntegrationTest
      * 返回值说明: 收集服务端消息及关闭码的客户端
      */
     private Client connect(AnnotationConfigServletWebServerApplicationContext node, String token)
-            throws com.fasterxml.jackson.core.JsonProcessingException
     {
         Client client = open(node);
-        client.socket.sendText(new ObjectMapper().writeValueAsString(Map.of("token", token)), true).join();
+        client.socket.sendText(JsonMapper.builder().build().writeValueAsString(Map.of("token", token)), true).join();
         return client;
     }
 
@@ -615,13 +614,13 @@ class AdminWebSocketIntegrationTest
          * 时间: 2026/11/17
          * 说明: 使用真实Jackson进行协议解析
          * @return
-         * 返回值: ObjectMapper
+         * 返回值: JsonMapper
          * 返回值说明: 测试JSON映射器
          */
         @Bean
-        ObjectMapper objectMapper()
+        JsonMapper objectMapper()
         {
-            return new ObjectMapper();
+            return JsonMapper.builder().build();
         }
 
         /**
@@ -712,7 +711,7 @@ class AdminWebSocketIntegrationTest
         {
             try
             {
-                socket.sendText(new ObjectMapper().writeValueAsString(
+                socket.sendText(JsonMapper.builder().build().writeValueAsString(
                         WebSocketMessageVo.create(messageType, data)), true).join();
             }
             catch (Exception e)
@@ -734,7 +733,7 @@ class AdminWebSocketIntegrationTest
         {
             String body = messages.poll(5, TimeUnit.SECONDS);
             assertThat(body).as("应收到服务端消息").isNotNull();
-            return new ObjectMapper().readTree(body);
+            return JsonMapper.builder().build().readTree(body);
         }
 
         /**

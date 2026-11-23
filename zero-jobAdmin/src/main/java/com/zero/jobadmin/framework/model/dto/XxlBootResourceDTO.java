@@ -1,5 +1,7 @@
 package com.zero.jobadmin.framework.model.dto;
 
+import lombok.Getter;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.List;
  * 时间: 2026/11/20 01:36
  * 说明: 承载调度控制台菜单树的目录、菜单及操作资源。
  */
+@Getter
 public class XxlBootResourceDTO implements Serializable {
     private static final long serialVersionUID = 42L;
 
@@ -88,96 +91,48 @@ public class XxlBootResourceDTO implements Serializable {
         this.children = children;
     }
 
-    public int getId() {
-        return id;
-    }
-
     public void setId(int id) {
         this.id = id;
-    }
-
-    public int getParentId() {
-        return parentId;
     }
 
     public void setParentId(int parentId) {
         this.parentId = parentId;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public void setName(String name) {
         this.name = name;
-    }
-
-    public int getType() {
-        return type;
     }
 
     public void setType(int type) {
         this.type = type;
     }
 
-    public String getPermission() {
-        return permission;
-    }
-
     public void setPermission(String permission) {
         this.permission = permission;
-    }
-
-    public String getUrl() {
-        return url;
     }
 
     public void setUrl(String url) {
         this.url = url;
     }
 
-    public String getIcon() {
-        return icon;
-    }
-
     public void setIcon(String icon) {
         this.icon = icon;
-    }
-
-    public int getOrder() {
-        return order;
     }
 
     public void setOrder(int order) {
         this.order = order;
     }
 
-    public int getStatus() {
-        return status;
-    }
-
     public void setStatus(int status) {
         this.status = status;
-    }
-
-    public Date getAddTime() {
-        return addTime;
     }
 
     public void setAddTime(Date addTime) {
         this.addTime = addTime;
     }
 
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
-    }
-
-    public List<XxlBootResourceDTO> getChildren() {
-        return children;
     }
 
     public void setChildren(List<XxlBootResourceDTO> children) {

@@ -1,7 +1,7 @@
 package com.zero.system.service.impl;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.json.JsonMapper;
 import com.zero.common.config.ZeroConfig;
 import com.zero.common.core.domain.AjaxResult;
 import com.zero.common.exception.file.FileNameLengthLimitExceededException;
@@ -58,7 +58,7 @@ public class AdminFileUploadServiceImpl implements IAdminFileUploadService
     private ServerConfig serverConfig;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private JsonMapper objectMapper;
 
     /**
      *

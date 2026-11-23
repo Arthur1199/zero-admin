@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;
 
-import com.alibaba.druid.spring.boot3.autoconfigure.DruidDataSourceBuilder;
-import com.alibaba.druid.spring.boot3.autoconfigure.properties.DruidStatProperties;
+import com.alibaba.druid.spring.boot4.autoconfigure.DruidDataSourceBuilder;
+import com.alibaba.druid.spring.boot4.autoconfigure.properties.DruidStatProperties;
 import jakarta.servlet.*;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;

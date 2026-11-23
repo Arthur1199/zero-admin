@@ -5,10 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 import java.util.Arrays;
 import java.util.TimeZone;
@@ -25,6 +29,22 @@ import java.util.TimeZone;
 @MapperScan(PackageProperties.MAPPER_SCAN)
 @SpringBootApplication(scanBasePackages = PackageProperties.SCAN_BASE_PACKAGES)
 public class ZeroReportApplication {
+
+    /**
+     *
+     * 作者: Arthur 亚瑟
+     * 时间: 2026/11/23 21:39
+     * 说明: 使用应用启动时设置的 JVM 时区作为 Jackson 3 的默认时区，保留接口原有日期偏移量。
+     * @return
+     * 返回值: JsonMapperBuilderCustomizer
+     * 返回值说明: 设置 JSON 默认时区，显式配置仍可覆盖。
+     */
+    @Bean
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    public JsonMapperBuilderCustomizer jacksonTimeZoneCustomizer()
+    {
+        return builder -> builder.defaultTimeZone(TimeZone.getDefault());
+    }
 
     /** 当前已完成启动的应用上下文，供配置监听线程识别有效的重启请求。 */
     private static volatile ConfigurableApplicationContext context;

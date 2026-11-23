@@ -86,10 +86,10 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- 将 Redisson 适配到 Spring Data Redis 3.5，供既有 RedisTemplate 和缓存配置使用。 -->
+        <!-- 将 Redisson 适配到 Spring Data Redis 4.0，供既有 RedisTemplate 和缓存配置使用。 -->
         <dependency>
             <groupId>org.redisson</groupId>
-            <artifactId>redisson-spring-data-35</artifactId>
+            <artifactId>redisson-spring-data-40</artifactId>
             <version>${report.redisson.version}</version>
         </dependency>
 
@@ -99,16 +99,16 @@
             <artifactId>mysql-connector-j</artifactId>
         </dependency>
 
-        <!-- Druid 连接池，使用 Spring Boot 3 适配版本 -->
+        <!-- Druid 连接池，使用 Spring Boot 4 适配版本 -->
         <dependency>
             <groupId>com.alibaba</groupId>
-            <artifactId>druid-spring-boot-3-starter</artifactId>
+            <artifactId>druid-spring-boot-4-starter</artifactId>
         </dependency>
 
         <!-- MyBatis-Plus 主依赖，作为 report 标准 CRUD 和简单分页的默认方案 -->
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <artifactId>mybatis-plus-spring-boot4-starter</artifactId>
         </dependency>
 
         <!-- MyBatis-Plus 分页插件依赖，避免新版本分页拦截器缺少 JSqlParser 模块 -->
@@ -120,14 +120,13 @@
         <!-- 在 zeroBiz 与 zeroAdmin 数据源间按业务需要切换。 -->
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>dynamic-datasource-spring-boot3-starter</artifactId>
+            <artifactId>dynamic-datasource-spring-boot4-starter</artifactId>
         </dependency>
 
         <!-- PageHelper 保留给复杂 XML 报表 SQL，简单 CRUD 分页优先使用 MyBatis-Plus -->
         <dependency>
             <groupId>com.github.pagehelper</groupId>
             <artifactId>pagehelper-spring-boot-starter</artifactId>
-            <version>${report.pagehelper.boot.version}</version>
         </dependency>
 
         <!-- MyBatis-Plus 代码生成器，仅开发期使用，不进入正式服务运行依赖 -->
@@ -159,7 +158,7 @@
         <!-- 引入 Spring MVC 和内嵌 Tomcat，承载报表、业务字典等 HTTP 接口。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
 
         <!-- 参数校验，报表查询条件和导出参数默认使用统一校验能力 -->

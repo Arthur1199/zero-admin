@@ -18,7 +18,7 @@
 
 - admin 登录令牌使用 `io.jsonwebtoken:jjwt-*`，版本由父 POM 管理；与 tools 的 `com.auth0:java-jwt` 分别核对调用方，公共能力抽取遵守[根文件边界](../AGENTS.md#公共能力边界)。
 - `zero-admin` 是管理后台服务，主入口为 `com.zero.ZeroAdminApplication`，启用 Nacos 注册/配置、OpenFeign、LoadBalancer，并排除默认数据源自动配置。主要技术包括 Spring Security、JWT、MyBatis XML、PageHelper、Druid、Redis、Quartz、Actuator、SpringDoc、Kaptcha、Fastjson2、POI。
-- 系统接口文档使用 SpringDoc 2.8.17，与当前 Boot 3.5 / Spring 6.2 配套；文档子路径 `/v3/api-docs/**` 仅额外放行 GET，保证 Swagger UI 可读取配置和文档，不扩大业务接口的匿名访问。
+- 系统接口文档使用 SpringDoc 3.0.3，与当前 Boot 4.0 / Spring 7.0 配套；文档子路径 `/v3/api-docs/**` 仅额外放行 GET，保证 Swagger UI 可读取配置和文档，不扩大业务接口的匿名访问。
 - Swagger3Config声明HTTP Bearer/JWT方案；后台Axios登录请求头不会自动继承到Swagger，调试受保护接口须在Authorize输入原始Token，不带Bearer前缀。不要把Token写入文档、日志、URL或测试产物。
 
 ## 后端结构规则

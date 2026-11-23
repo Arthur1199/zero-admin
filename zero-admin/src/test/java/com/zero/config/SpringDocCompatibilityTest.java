@@ -21,10 +21,11 @@ import org.springdoc.webmvc.core.configuration.SpringDocWebMvcConfiguration;
 import org.springdoc.webmvc.ui.SwaggerConfig;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration;
-import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
-import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
+import org.springframework.boot.http.converter.autoconfigure.HttpMessageConvertersAutoConfiguration;
+import org.springframework.boot.jackson.autoconfigure.JacksonAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.web.servlet.ServletWebSecurityAutoConfiguration;
+import org.springframework.boot.webmvc.autoconfigure.WebMvcAutoConfiguration;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.web.servlet.MockMvc;
@@ -55,7 +56,7 @@ class SpringDocCompatibilityTest
     private final WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
         .withConfiguration(AutoConfigurations.of(ConfigurationPropertiesAutoConfiguration.class,
             JacksonAutoConfiguration.class, HttpMessageConvertersAutoConfiguration.class,
-            WebMvcAutoConfiguration.class, SecurityAutoConfiguration.class,
+            WebMvcAutoConfiguration.class, SecurityAutoConfiguration.class, ServletWebSecurityAutoConfiguration.class,
             SpringDocConfiguration.class, SpringDocWebMvcConfiguration.class, SwaggerConfig.class))
         .withUserConfiguration(SpringDocConfigProperties.class, SwaggerUiConfigProperties.class,
             SwaggerUiOAuthProperties.class, Swagger3Config.class, GlobalExceptionHandler.class,

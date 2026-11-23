@@ -14,7 +14,7 @@
 
 ## 技术栈与版本来源
 
-- `zero-bootAdmin` 使用 Spring Boot Admin 3.5.8。分析监控功能时需单独读取该模块和各服务 Actuator 暴露配置。
+- `zero-bootAdmin` 使用 Spring Boot Admin 4.0.4。分析监控功能时需单独读取该模块和各服务 Actuator 暴露配置。
 
 ## 职责与监控边界
 

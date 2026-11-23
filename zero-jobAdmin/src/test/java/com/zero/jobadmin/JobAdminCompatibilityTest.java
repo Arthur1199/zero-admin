@@ -1,6 +1,6 @@
 package com.zero.jobadmin;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import com.zero.jobadmin.business.controller.JobCodeController;
 import com.zero.jobadmin.business.controller.JobGroupController;
 import com.zero.jobadmin.business.controller.JobLogController;
@@ -60,8 +60,8 @@ import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.Resource;
@@ -1291,7 +1291,7 @@ class JobAdminCompatibilityTest {
         var payload = new CallbackRequest(List.of(new CallbackData(703, 1, 500, "retried result"),
                 new CallbackData(701, 1, 500, "fixture result"),
                 new CallbackData(702, 1, 500, "fixture result")));
-        String body = new ObjectMapper().writeValueAsString(payload);
+        String body = JsonMapper.builder().build().writeValueAsString(payload);
 
         try (var bootstrapStatic = mockStatic(XxlJobAdminBootstrap.class)) {
             bootstrapStatic.when(XxlJobAdminBootstrap::getInstance).thenReturn(bootstrap);
@@ -1341,7 +1341,7 @@ class JobAdminCompatibilityTest {
         var bootstrap = mock(XxlJobAdminBootstrap.class);
         when(bootstrap.getJobRegistryHelper()).thenReturn(registry);
         when(bootstrap.getXxlJobRegistryMapper()).thenReturn(registryMapper);
-        var json = new ObjectMapper();
+        var json = JsonMapper.builder().build();
         String online = json.writeValueAsString(new RegistryRequest("EXECUTOR", group.getAppname(), address));
         String unrelated = json.writeValueAsString(new RegistryRequest("EXECUTOR", "different-fixture", address));
 
@@ -2020,13 +2020,13 @@ class JobAdminCompatibilityTest {
             assertThat(first.token()).isEqualTo(originalToken);
             assertThat(requests.get(1).token()).isEqualTo(group.getAccessToken());
             assertThat(first.appName()).isEqualTo("loopback-fixture");
-            var payload = new ObjectMapper().readTree(first.body());
+            var payload = JsonMapper.builder().build().readTree(first.body());
             assertThat(payload.path("jobId").asInt()).isEqualTo(42);
             assertThat(payload.path("logId").asLong()).isEqualTo(701L);
             assertThat(payload.path("executorHandler").asText()).isEqualTo("fixtureHandler");
             assertThat(payload.path("executorParams").asText()).isEqualTo("first payload");
             assertThat(payload.path("glueUpdatetime").asLong()).isZero();
-            var mapper = new ObjectMapper();
+            var mapper = JsonMapper.builder().build();
             var firstGlue = mapper.readTree(requests.get(2).body());
             var secondGlue = mapper.readTree(requests.get(3).body());
             var sameGlue = mapper.readTree(requests.get(4).body());

@@ -73,9 +73,9 @@
 ## 技术栈与版本来源
 
 - 后端是 Maven 多模块项目，父工程 `pom.xml` 当前模块为：`zero-tools`、`zero-admin`、`zero-bootAdmin`、`zero-report`、`zero-file`、`zero-jobAdmin`、`zero-task`。
-- 父 POM 声明的版本基线为 Java 17、Spring Boot 3.5.16、Spring Framework 6.2.19、Spring Cloud 2025.0.2、Spring Cloud Alibaba 2025.0.0.0。Spring Boot 核心、自动配置和打包插件统一继承官方父 POM 的版本管理。排查依赖冲突时先看父 POM 的版本管理，再用对应模块的有效 POM 或依赖树确认解析结果。
+- 父 POM 声明的版本基线为 Java 21、Spring Boot 4.0.10、Spring Framework 7.0.11、Spring Cloud 2025.1.5、Spring Cloud Alibaba 2025.1.0.0。Spring Boot 核心、自动配置和打包插件统一继承官方父 POM 的版本管理。排查依赖冲突时先看父 POM 的版本管理，再用对应模块的有效 POM 或依赖树确认解析结果。
 - 修改 Maven 依赖时，在对应声明上方维护中文备注，说明实际用途、作用域或版本对齐原因。父 POM 的 `dependencyManagement` 管理版本，模块的 `dependencies` 声明实际使用的组件。升级后核对受影响模块的依赖树与回归结果，保留仍待处理的安全告警记录。
-- `zero-report`、`zero-file` 和 `zero-task` 使用父 POM 管理的 MyBatis-Plus 3.5.16 和 dynamic-datasource 4.6.0。report 和 task 分别在模块 POM 中管理 Redisson 4.6.1，并使用适配 Spring Data 3.5 的模块。
+- `zero-report`、`zero-file` 和 `zero-task` 使用父 POM 管理的 MyBatis-Plus 3.5.16 和 dynamic-datasource 4.6.0。report 和 task 分别在模块 POM 中管理 Redisson 4.6.1，并使用适配 Spring Data Redis 4.0 的模块。
 - 初始化脚本按归属维护。`sql/zero_admin.sql` 对应管理库，包含 `sys_*`、`gen_*` 等后台表。`sql/zero_biz.sql` 对应业务库，包含业务字典和文件记录。`sql/quartz.sql` 对应既有 Quartz 表，`sql/zero_job.sql` 对应独立的 XXL-JOB 调度库。
 
 ## 后端包路径
@@ -317,5 +317,5 @@ public static final String OPEN_GOOGLE_AUTH = "sys.account.openGoogleAuth";
 
 ## 当前环境提示
 
-- 项目后端需要 Java 17；如果本机 Maven 使用 JDK 8，会出现 `无效的标记: --release` 等编译失败。
+- 项目后端需要 Java 21；如果本机 Maven 使用低于 21 的 JDK，会出现 `无效的标记: --release` 等编译失败。
 - 配置、测试工具和部署示例中的数据库凭据、Token 与应用密钥均按敏感信息处理。提交前核对变更，文档和测试记录使用占位值。

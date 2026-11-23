@@ -13,9 +13,9 @@ import org.redisson.client.RedisException;
 import org.redisson.client.protocol.RedisCommands;
 import org.redisson.config.Config;
 import org.redisson.spring.data.connection.RedissonConnectionFactory;
-import org.redisson.spring.starter.RedissonAutoConfigurationV2;
+import org.redisson.spring.starter.RedissonAutoConfigurationV4;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
-import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
+import org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -72,7 +72,7 @@ class ReportRedissonTest {
     @EnabledIfSystemProperty(named = "zero.report.test.redis-port", matches = "[0-9]+")
     void usesRedissonForNativeCacheAndSpringRedisOperations() {
         new ApplicationContextRunner()
-                .withConfiguration(AutoConfigurations.of(RedissonAutoConfigurationV2.class, RedisAutoConfiguration.class))
+                .withConfiguration(AutoConfigurations.of(RedissonAutoConfigurationV4.class, DataRedisAutoConfiguration.class))
                 .withUserConfiguration(RedissonAutoConfigCustomizer.class, RedissonUtil.class)
                 .withPropertyValues("spring.data.redis.host=127.0.0.1",
                         "spring.data.redis.port=" + System.getProperty("zero.report.test.redis-port"),

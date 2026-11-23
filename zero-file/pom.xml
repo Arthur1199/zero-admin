@@ -110,7 +110,7 @@
         <!-- 引入 Spring MVC 和内嵌 Tomcat，承载文件上传、下载和管理接口。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
         <!-- 提供 Jakarta Bean Validation 支持，用于校验文件查询与管理接口的参数。 -->
         <dependency>
@@ -129,15 +129,15 @@
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
         </dependency>
-        <!-- 提供适配 Spring Boot 3 的 Druid 连接池，供文件记录持久化使用。 -->
+        <!-- 提供适配 Spring Boot 4 的 Druid 连接池，供文件记录持久化使用。 -->
         <dependency>
             <groupId>com.alibaba</groupId>
-            <artifactId>druid-spring-boot-3-starter</artifactId>
+            <artifactId>druid-spring-boot-4-starter</artifactId>
         </dependency>
         <!-- 集成 MyBatis-Plus 的 Mapper 与通用 CRUD，用于文件记录持久化。 -->
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <artifactId>mybatis-plus-spring-boot4-starter</artifactId>
         </dependency>
         <!-- 为 MyBatis-Plus 分页拦截器提供 SQL 解析能力，供文件列表分页使用。 -->
         <dependency>
@@ -147,7 +147,7 @@
         <!-- 提供动态数据源配置和路由，文件记录默认使用 zeroBiz 数据源。 -->
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>dynamic-datasource-spring-boot3-starter</artifactId>
+            <artifactId>dynamic-datasource-spring-boot4-starter</artifactId>
         </dependency>
 
         <!-- 提供字符串与对象等基础工具方法。 -->

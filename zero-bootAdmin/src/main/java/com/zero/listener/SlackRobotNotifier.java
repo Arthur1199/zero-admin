@@ -21,6 +21,7 @@ import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
 import de.codecentric.boot.admin.server.domain.events.InstanceStatusChangedEvent;
 import de.codecentric.boot.admin.server.notify.AbstractStatusChangeNotifier;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 /**
  *
@@ -66,8 +67,8 @@ public class SlackRobotNotifier extends AbstractStatusChangeNotifier {
   /**
    *
    * 作者: Arthur 亚瑟
-   * 时间: 2026/11/20 01:36
-   * 说明: 在响应式任务执行时将实例状态、环境和服务地址组装成 Slack 提醒。
+   * 时间: 2026/11/23 21:36
+   * 说明: 组装 Slack 提醒并在线程池发送，避免同步 HTTP 请求阻塞实例状态发布。
    * @param event Boot Admin 实例事件
    * @param instance 提供服务名称、地址和状态详情的实例
    * @return
@@ -76,7 +77,7 @@ public class SlackRobotNotifier extends AbstractStatusChangeNotifier {
    */
   @Override
   protected Mono<Void> doNotify(InstanceEvent event, Instance instance) {
-    return Mono.fromRunnable(() -> {
+    return Mono.<Void>fromRunnable(() -> {
 //      if (!nacosConfigService.getIsopen()){
 //        return;
 //      }
@@ -149,7 +150,7 @@ public class SlackRobotNotifier extends AbstractStatusChangeNotifier {
         log.info("Instance {} ({}) {}", instance.getRegistration().getName(), event.getInstance(),
             event.getType());
       }
-    });
+    }).subscribeOn(Schedulers.boundedElastic());
   }
 
 	/**

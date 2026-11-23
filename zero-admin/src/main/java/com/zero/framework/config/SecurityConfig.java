@@ -71,8 +71,8 @@ public class SecurityConfig
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/5/14 00:58
-     * 说明: 身份验证实现
+     * 时间: 2026/11/23 21:10
+     * 说明: 装配使用现有用户查询和 BCrypt 验证的认证管理器。
      * @return
      * 返回值: AuthenticationManager
      * 返回值说明：身份验证实现
@@ -80,8 +80,7 @@ public class SecurityConfig
     @Bean
     public AuthenticationManager authenticationManager()
     {
-        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider(userDetailsService);
         daoAuthenticationProvider.setPasswordEncoder(bCryptPasswordEncoder());
         return new ProviderManager(daoAuthenticationProvider);
     }

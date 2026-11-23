@@ -1,6 +1,7 @@
 package com.zero.feign;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,18 +20,19 @@ public class ReportRestTemplateConfig
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/6/28 02:25
+     * 时间: 2026/11/23 21:10
      * 说明: 创建专用于调用报表服务的负载均衡 RestTemplate，避免影响集群探活等其它手动 RestTemplate
      * @param adminForwardHeaderProvider 后台跨服务请求头构建器
+     * @param builder 注入统一的 Jackson 3 和文件流消息转换配置
      * @return
      * 返回值: RestTemplate
      * 返回值说明: 支持通过 http://zero-report 访问注册中心实例的 RestTemplate
      */
     @Bean("reportRestTemplate")
     @LoadBalanced
-    public RestTemplate reportRestTemplate(AdminForwardHeaderProvider adminForwardHeaderProvider)
+    public RestTemplate reportRestTemplate(AdminForwardHeaderProvider adminForwardHeaderProvider, RestTemplateBuilder builder)
     {
-        RestTemplate restTemplate = new RestTemplate();
+        RestTemplate restTemplate = builder.build();
         restTemplate.getInterceptors().add(reportHeaderInterceptor(adminForwardHeaderProvider));
         return restTemplate;
     }

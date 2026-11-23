@@ -14,7 +14,7 @@
         <xxl-job.version>3.5.0</xxl-job.version>
         <xxl-sso.version>2.4.1</xxl-sso.version>
         <xxl-tool.version>2.5.2</xxl-tool.version>
-        <job.mybatis-starter.version>3.0.5</job.mybatis-starter.version>
+        <job.mybatis-starter.version>4.0.1</job.mybatis-starter.version>
         <!-- 即使先编译过集成用例，普通打包也不能执行其外部写操作。 -->
         <job.test.excluded-groups>job-integration</job.test.excluded-groups>
     </properties>
@@ -35,7 +35,7 @@
         <!-- 引入 Spring MVC 和内嵌 Tomcat，承载调度控制台和执行器通信接口。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
         <!-- 提供 FreeMarker 模板引擎，渲染调度中心登录页和任务管理页面。 -->
         <dependency>
@@ -52,7 +52,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
-        <!-- 集成调度中心的 Mapper 与 XML SQL，沿用 Spring Boot 3 适配版本。 -->
+        <!-- 集成调度中心的 Mapper 与 XML SQL，沿用 Spring Boot 4 适配版本。 -->
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>
             <artifactId>mybatis-spring-boot-starter</artifactId>
@@ -106,7 +106,7 @@
         <!-- 引入测试作用域的 JUnit、Mockito 和 Spring Test，供控制台、登录及调度协议回归使用。 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
+            <artifactId>spring-boot-starter-webmvc-test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

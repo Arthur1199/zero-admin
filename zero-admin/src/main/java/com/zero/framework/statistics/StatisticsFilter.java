@@ -4,9 +4,10 @@ import com.zero.system.domain.statistics.StatisticsOutcome;
 import com.zero.system.domain.statistics.StatEvent;
 import com.zero.system.service.IStatisticsSwitchService;
 import com.zero.common.enums.SystemModuleEnum;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import java.io.*;
@@ -278,7 +279,7 @@ public class StatisticsFilter implements Filter
                 {
                     if (parser.nextToken() == JsonToken.START_OBJECT)
                     {
-                        while (parser.nextToken() == JsonToken.FIELD_NAME)
+                        while (parser.nextToken() == JsonToken.PROPERTY_NAME)
                         {
                             String name = parser.currentName();
                             JsonToken token = parser.nextToken();
@@ -291,7 +292,7 @@ public class StatisticsFilter implements Filter
                         }
                     }
                 }
-                catch (IOException ignored) { /* 前缀被截断或响应不规范时保留未知，不修改实际响应。 */ }
+                catch (JacksonException ignored) { /* 前缀被截断或响应不规范时保留未知，不修改实际响应。 */ }
             }
             prefix.reset();
         }

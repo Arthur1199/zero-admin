@@ -27,8 +27,8 @@ import java.util.concurrent.TimeUnit;
 /**
  *
  * 作者: Arthur 亚瑟
- * 时间: 2026/11/19 23:15
- * 说明: 按运行环境和日志开关记录任务服务实际执行的 SQL 模板及 Mapper 方法标识。
+ * 时间: 2026/11/23 21:42
+ * 说明: 按运行环境和日志开关记录当前服务实际执行的 SQL 模板及 Mapper 方法标识。
  */
 //@Profile("dev")
 @Slf4j
@@ -73,7 +73,7 @@ public class MybatisSqlLogInterceptor
     /**
      *
      * 作者: Arthur 亚瑟
-     * 时间: 2026/11/19 23:15
+     * 时间: 2026/11/23 21:23
      * 说明: 记录当前路由、分页改写后的 SQL 和 Mapper 方法标识，保留原执行结果与异常。
      * @param invocation 查询、游标查询或更新的语句执行调用
      * @return 原调用结果
@@ -90,6 +90,7 @@ public class MybatisSqlLogInterceptor
 
         String mapperId;
         String sql;
+        String dataSource;
         List<Object> parameters = List.of();
         try
         {
@@ -102,19 +103,18 @@ public class MybatisSqlLogInterceptor
             {
                 parameters = resolveParameters(boundSql, mappedStatement.getConfiguration());
             }
+            dataSource = DynamicDataSourceContextHolder.peek();
+            if (dataSource == null || dataSource.isEmpty())
+            {
+                var properties = dataSourceProperties.getIfAvailable();
+                dataSource = properties == null ? "未知" : properties.getPrimary();
+            }
         }
         catch (RuntimeException ex)
         {
-            // 诊断信息读取失败时，仍执行原语句。
-            log.debug("读取 MyBatis 语句元信息失败，异常类型为 {}", ex.getClass().getSimpleName());
+            // 上下文关闭或诊断信息读取失败时，日志不应阻断正在执行的 SQL。
+            log.debug("读取 MyBatis SQL 日志信息失败，异常类型为 {}", ex.getClass().getSimpleName());
             return invocation.proceed();
-        }
-        //SQL执行数据源
-        String dataSource = DynamicDataSourceContextHolder.peek();
-        if (dataSource == null || dataSource.isEmpty())
-        {
-            var properties = dataSourceProperties.getIfAvailable();
-            dataSource = properties == null ? "未知" : properties.getPrimary();
         }
         log.info("开始执行 SQL数据源 [{}]，SQLID [{}]，SQL=\n[{}\n]", dataSource, mapperId,
                 IS_FORMAT_SQL ? formatSql(sql) : sql);
