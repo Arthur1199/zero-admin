@@ -28,6 +28,7 @@
         <module>zero-file</module>
         <module>zero-jobAdmin</module>
         <module>zero-task</module>
+        <module>zero-ai</module>
     </modules>
 
     <properties>

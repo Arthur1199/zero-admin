@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<system>
+    <category name="system" description="系统相关配置,在不经常变化的情况下可以在该配置文件中配置">
+    </category>
+
+    <!--zero-ai 定时任务相关配置-->
+    <category name="aiConfig" description="zero-ai 服务配置信息">
+        <item name="test1"  value="1" desc="测试案例1"/>
+        <item name="test2" value="2" desc="测试案例2"/>
+        <item name="test3" value="3" desc="测试案例3"/>
+    </category>
+
+</system>

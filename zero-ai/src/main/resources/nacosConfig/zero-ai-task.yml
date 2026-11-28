@@ -1,0 +1,24 @@
+# XXL-JOB 执行器配置。Nacos 可以通知配置变更，下列参数在 zero-ai 重启后应用。
+xxl:
+  # XXL-JOB 调度中心或执行器业务配置。
+  job:
+    # XXL-JOB 执行器注册、监听地址与日志设置。
+    executor:
+      # 执行器开关。true 启动执行器并接收调度，false 仅启动 Spring Boot 服务。
+      enabled: true
+      # 调度中心 HTTP(S) 基址，须从执行器侧可达。多个地址用英文逗号分隔，SDK 自动追加 /api。
+      admin-addresses: http://127.0.0.1:9102
+      # 执行器注册名，须与 ZERO-JOB「执行器管理」中的 AppName 一致。
+      app-name: zero-ai
+      # 执行器通信凭据。启用时必填，须与调度中心执行器组的 AccessToken 一致。
+      access-token: tb6478dc6498254269f55b8a2c41976c197532b3685a4a5ce
+      # 执行器实际监听的端口，范围 1～65535，用于接收调度和查询任务日志。
+      port: 9999
+      # 上报给调度中心的执行器地址。跨主机部署时，填写调度中心可访问的内网地址。
+      address: http://127.0.0.1:9999
+      # 执行器请求调度中心的通信超时，单位为秒，范围 1～10。
+      timeout: 3
+      # 单次任务执行日志的存储目录。相对路径以服务启动时的工作目录为基准。
+      log-path: logs/zero-ai/jobhandler
+      # 本地任务执行日志保留天数。大于等于 3 时自动清理过期日志，小于 3 时关闭自动清理。
+      log-retention-days: 30

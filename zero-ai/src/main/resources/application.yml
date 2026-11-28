@@ -1,0 +1,83 @@
+# 应用 HTTP 服务及内嵌容器配置。
+server:
+  # Spring Boot HTTP 端口，供 Boot Admin 采集监控数据。任务派发使用执行器端口，默认 9999。
+  port: 9105
+---
+# Spring Boot 及相关组件的配置。
+spring:
+  # Spring 应用标识配置。
+  application:
+    # 应用名称，也是服务在 Nacos 中的注册名。
+    name: zero-ai
+  # 应用环境配置选择。
+  profiles:
+    # 默认使用开发环境。可通过 --spring.profiles.active=test 或 prod 切换，
+    # 对应环境文件负责连接 Nacos 并加载该环境分组的配置。
+    active: dev
+---
+# MyBatis-Plus Mapper 和全局配置。
+mybatis-plus:
+  # Mapper XML 的类路径扫描规则，匹配范围由通配符确定。
+  mapper-locations: classpath*:mapper/*Mapper.xml
+  # 任务实体的 MyBatis 类型别名扫描包。
+  type-aliases-package: ${zero.package.type-aliases-package:com.zero.domain}
+  # MyBatis 底层配置。
+  configuration:
+    # 自动将下划线列名映射到 Java 驼峰属性。
+    map-underscore-to-camel-case: true
+  # MyBatis-Plus 全局默认行为。
+  global-config:
+    # 控制是否输出 MyBatis-Plus 启动横幅。
+    banner: false
+    # MyBatis-Plus 针对数据库的全局默认配置。
+    db-config:
+      # 全局主键生成策略，auto 表示由数据库自增生成。
+      id-type: auto
+---
+# Spring Boot Actuator 管理和监控配置。
+management:
+  # Actuator 端点的整体访问和暴露规则。
+  endpoints:
+    # 设置 Actuator 端点访问级别，包括默认值和全局上限。
+    access:
+      # Boot Admin 读取监控数据，执行器的管理端点统一限制为只读。
+      max-permitted: read-only
+    # Actuator 通过 HTTP 提供端点的配置。
+    web:
+      # 指定哪些 Actuator 端点可以通过 HTTP 访问。
+      exposure:
+        # 通过 /actuator 提供当前服务可用的监控端点，部署时仅向内网监控端开放。
+        include: "*"
+        # 从 HTTP 暴露范围中排除的 Actuator 端点，排除规则优先。
+        exclude: heapdump,shutdown,druid
+  # 各 Actuator 端点的行为配置。
+  endpoint:
+    # Actuator 健康端点配置。
+    health:
+      # 在 Boot Admin 展开查看各组件的健康检查结果。
+      show-details: always
+    # 环境属性端点的显示设置。
+    env:
+      # 控制环境端点是否显示属性值，never 表示始终脱敏。
+      show-values: never
+    # 配置属性端点的显示设置。
+    configprops:
+      # 控制配置属性端点是否显示绑定值，never 表示始终脱敏。
+      show-values: never
+  # 应用信息端点的数据项配置。
+  info:
+    # Java 运行环境信息采集配置。
+    java:
+      # 在实例详情显示 Java 运行时信息。
+      enabled: true
+---
+# 应用日志配置。
+logging:
+  # Logback 配置文件位置，classpath 路径从应用资源目录加载。
+  config: classpath:logback-spring.xml
+  # 日志文件路径配置。
+  file:
+    # 应用日志目录相对于服务启动时的工作目录。
+    path: logs/${spring.application.name}
+    # Boot Admin 的 /actuator/logfile 读取汇总日志。
+    name: ${logging.file.path}/application.log

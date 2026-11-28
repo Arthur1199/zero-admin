@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zero.mapper.AiDictItemMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zero.domain.DictItem">
+        <id column="id" property="id" />
+        <result column="lookup_group_code" property="lookupGroupCode" />
+        <result column="group_id" property="groupId" />
+        <result column="item_code" property="itemCode" />
+        <result column="item_name" property="itemName" />
+        <result column="item_value" property="itemValue" />
+        <result column="extra_json" property="extraJson" />
+        <result column="item_sort" property="itemSort" />
+        <result column="status" property="status" />
+        <result column="del_flag" property="delFlag" />
+        <result column="remark" property="remark" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <!-- 分组与字典项同时满足启用和未删除条件。 -->
+    <sql id="Active_Items_By_Group">
+        SELECT g.group_code AS lookup_group_code, i.id, i.group_id, i.item_code, i.item_name, i.item_value, i.extra_json, i.item_sort,
+               i.status, i.del_flag, i.remark, i.create_by, i.create_time, i.update_by, i.update_time
+        FROM biz_dict_group g
+        INNER JOIN biz_dict_item i ON i.group_id = g.id
+        WHERE g.group_code = #{groupCode}
+          AND g.status = '1' AND g.del_flag = '0'
+          AND i.status = '1' AND i.del_flag = '0'
+    </sql>
+
+    <select id="selectActiveByCodes" resultMap="BaseResultMap">
+        <include refid="Active_Items_By_Group"/>
+        AND i.item_code = #{itemCode}
+    </select>
+
+    <select id="selectActiveByGroupCode" resultMap="BaseResultMap">
+        <include refid="Active_Items_By_Group"/>
+        ORDER BY i.item_sort ASC, i.id ASC
+    </select>
+
+</mapper>

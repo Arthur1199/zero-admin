@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- 日志目录和 Boot Admin 读取的文件来自 Spring Boot 日志配置。 -->
+    <springProperty scope="context" name="log.path" source="logging.file.path"/>
+    <!-- 应用汇总日志文件路径，供 Boot Admin 的日志页面读取。 -->
+    <springProperty scope="context" name="log.file" source="logging.file.name"/>
+    <!-- 日志输出格式，与admin服务保持一致 -->
+    <property name="log.pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{20} - [%method,%line] - %msg%n"/>
+    <!-- 单个日志文件最大容量 -->
+    <property name="log.maxFileSize" value="200MB"/>
+    <!-- 日志保留天数 -->
+    <property name="log.maxHistory" value="60"/>
+
+    <!-- 控制台输出，方便本地开发和容器控制台采集 -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 系统普通运行日志，只记录INFO级别，按日期目录和文件大小滚动 -->
+    <appender name="file_info" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/sys-info.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/info/%d{yyyy-MM-dd}/sys-info.%i.log</fileNamePattern>
+            <maxFileSize>${log.maxFileSize}</maxFileSize>
+            <maxHistory>${log.maxHistory}</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- 系统异常日志，只记录ERROR级别，便于快速排查线上问题 -->
+    <appender name="file_error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/sys-error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/error/%d{yyyy-MM-dd}/sys-error.%i.log</fileNamePattern>
+            <maxFileSize>${log.maxFileSize}</maxFileSize>
+            <maxHistory>${log.maxHistory}</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- Boot Admin 读取汇总日志，包含警告和异常，便于按时间查看完整运行过程。 -->
+    <appender name="file_application" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.file}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/application/%d{yyyy-MM-dd}/application.%i.log</fileNamePattern>
+            <maxFileSize>${log.maxFileSize}</maxFileSize>
+            <maxHistory>${log.maxHistory}</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 系统模块日志级别控制 -->
+    <logger name="com.zero" level="info"/>
+    <!-- Spring日志级别控制，减少框架噪音日志 -->
+    <logger name="org.springframework" level="warn"/>
+
+    <!-- 未单独配置的日志分类继承根日志级别，并输出到此处引用的目标。 -->
+    <root level="info">
+        <appender-ref ref="console"/>
+        <appender-ref ref="file_info"/>
+        <appender-ref ref="file_error"/>
+        <appender-ref ref="file_application"/>
+    </root>
+</configuration>

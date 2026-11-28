@@ -42,6 +42,7 @@
 | [zero-file/AGENTS.md](zero-file/AGENTS.md) | 文件存储、文件记录、上传与删除 |
 | [zero-jobAdmin/AGENTS.md](zero-jobAdmin/AGENTS.md) | 独立调度中心、原生协议、初始化与集成验证 |
 | [zero-task/AGENTS.md](zero-task/AGENTS.md) | 任务执行、注册、MySQL/Redis、代码生成 |
+| [zero-ai/AGENTS.md](zero-ai/AGENTS.md) | 独立服务、XXL-JOB 执行器、数据访问和代码生成 |
 | [zero-ui/AGENTS.md](zero-ui/AGENTS.md) | 前端结构、请求、页面、权限按钮与多主题 |
 
 ## 项目整体架构
@@ -53,12 +54,13 @@
 | `zero-report` | 管理后台的报表和业务数据服务，由 admin 调用，负责报表与其所属业务数据的查询、管理和持久化。 |
 | `zero-jobAdmin`（服务名 `zero-job-admin`） | 独立的 XXL-JOB 调度中心，负责管理任务、接收执行器注册、派发任务和收集执行结果。 |
 | `zero-task` | XXL-JOB 执行服务，向调度中心注册，接收任务、运行 `@XxlJob` 处理器并回传执行结果。 |
+| `zero-ai` | 独立 Spring Boot 服务，保留 XXL-JOB BEAN 执行器和数据访问基础设施。 |
 | `zero-bootAdmin`（默认服务名 `zero-boot-admin`） | 独立的 Spring Boot Admin 监控服务，通过服务发现和 Actuator 查看微服务运行状态，不参与核心业务调用。 |
 | `zero-file` | 独立文件存储服务，负责本地磁盘和已适配的云存储平台，并维护 `biz_file_detail` 文件记录。管理后台通过 admin 代理访问。 |
 | `zero-ui` | Vue 管理后台前端，负责页面、交互和数据展示，管理后台业务 API 统一请求 `zero-admin`。 |
 
 - 管理链路为 `zero-ui → zero-admin`。后台自身业务由 admin 处理。报表及所属业务数据通过 `ReportRestService` 调用 report，文件管理通过 `FileRestService` 调用 file。两条业务代理链路都使用按服务名寻址的负载均衡 RestTemplate，由客户端拦截器追加管理员上下文。admin 的报表探活入口通过 OpenFeign 客户端 `RemoteReportHealthService` 验证 admin 到 report 的调用。新增功能按数据归属落位，参见[管理后台业务开发模式规则](#管理后台业务开发模式规则)。
-- 调度链路由 `zero-task` 向 `zero-job-admin` 注册。调度中心按任务配置派发，执行器运行后回传结果。Nacos 发现和配置与 XXL-JOB 注册和派发各有独立配置。
+- `zero-task` 和 `zero-ai` 以各自的 AppName 向 `zero-job-admin` 注册。调度中心按任务配置派发，执行器运行后回传结果。Nacos 发现和配置与 XXL-JOB 注册和派发各有独立配置。
 - 监控链路由 `zero-bootAdmin` 发现实例并访问各服务实际开放的 Actuator HTTP 端点。部署时分别核对服务名、命名空间、管理端点可达性和访问权限。
 
 ## 新建 Java 项目规则
@@ -72,7 +74,7 @@
 
 ## 技术栈与版本来源
 
-- 后端是 Maven 多模块项目，父工程 `pom.xml` 当前模块为：`zero-tools`、`zero-admin`、`zero-bootAdmin`、`zero-report`、`zero-file`、`zero-jobAdmin`、`zero-task`。
+- 后端是 Maven 多模块项目，父工程 `pom.xml` 当前模块为：`zero-tools`、`zero-admin`、`zero-bootAdmin`、`zero-report`、`zero-file`、`zero-jobAdmin`、`zero-task`、`zero-ai`。
 - 父 POM 声明的版本基线为 Java 21、Spring Boot 4.0.10、Spring Framework 7.0.11、Spring Cloud 2025.1.5、Spring Cloud Alibaba 2025.1.0.0。Spring Boot 核心、自动配置和打包插件统一继承官方父 POM 的版本管理。排查依赖冲突时先看父 POM 的版本管理，再用对应模块的有效 POM 或依赖树确认解析结果。
 - 修改 Maven 依赖时，在对应声明上方维护中文备注，说明实际用途、作用域或版本对齐原因。父 POM 的 `dependencyManagement` 管理版本，模块的 `dependencies` 声明实际使用的组件。升级后核对受影响模块的依赖树与回归结果，保留仍待处理的安全告警记录。
 - `zero-report`、`zero-file` 和 `zero-task` 使用父 POM 管理的 MyBatis-Plus 3.5.16 和 dynamic-datasource 4.6.0。report 和 task 分别在模块 POM 中管理 Redisson 4.6.1，并使用适配 Spring Data Redis 4.0 的模块。
@@ -94,14 +96,15 @@
 | zero-file | ZeroFileApplication | 9103 | zero-file |
 | zero-jobAdmin | ZeroJobAdminApplication | 9102 | zero-job-admin |
 | zero-task | ZeroTaskApplication | 9104 | zero-task |
+| zero-ai | ZeroAiApplication | 9105 | zero-ai |
 | zero-tools | 无独立服务入口 | 无 | 无 |
 
-`zero-task` 的 9104 是应用 HTTP 端口。XXL-JOB 派发使用独立的执行器端口，配置源默认值为 9998。
+`zero-task` 的 9104 与 `zero-ai` 的 9105 都是应用 HTTP 端口。XXL-JOB 派发使用独立的执行器端口，配置源默认分别为 9998 和 9999。
 
 - admin 的 `ServiceNameConstants.ZERO_ADMIN` 和 tools 的 `ServiceNameConstant.ZERO_ADMIN` 当前仍为 `zeroAdmin`，与 admin 本地应用名 `zero-admin` 不一致。涉及服务调用时核对 Nacos 实际注册名和调用双方配置，不宣称两者已一致，不在无关任务中直接改名。
 - 各服务读取自己的 `application.yml` 和环境配置。`zero-bootAdmin` 使用自身配置接入服务发现，其余服务按 `application-{profile}.yml` 的 `spring.config.import` 读取 Nacos 配置。`resources/nacosConfig` 保存发布模板，实际生效值以目标环境已发布配置和启动覆盖项为准。
 - 主配置存在以 `---` 分隔的多段 YAML，核对时应读取全部文档并结合 profile 激活条件、导入顺序和覆盖项分析；不能只解析第一段就判断端口、Mapper、Actuator 或日志配置。
-- `zero-admin`、`zero-file`、`zero-job-admin`、`zero-report` 和 `zero-task` 监听本服务已导入且开启刷新的 Nacos 配置。收到变更后，按原启动参数在同一 JVM 中先关闭旧上下文，再启动新上下文。同一实例同时只执行一次重启，单实例重启期间会短暂中断服务。
+- `zero-admin`、`zero-file`、`zero-job-admin`、`zero-report`、`zero-task` 和 `zero-ai` 监听本服务已导入且开启刷新的 Nacos 配置。收到变更后，按原启动参数在同一 JVM 中先关闭旧上下文，再启动新上下文。同一实例同时只执行一次重启，单实例重启期间会短暂中断服务。
 - 新增或修改 Spring 和 Nacos 配置按 [YAML 配置注释规范](#yaml-配置注释规范)执行。各服务的配置源见 [README.md](README.md#后端配置入口)。
 - 包扫描规则按各服务自己的 `PackageProperties` 核对；监控服务的安全配置、通知器和 Actuator 暴露范围单独分析，不能沿用 admin JWT 假设。
 
@@ -142,11 +145,11 @@
 
 ## 共享业务字典协议
 
-- 写入由 `zero-report` 负责，`zero-task` 只读消费；两端的 `DictConfigUtil`、字典实体与 Mapper SQL 分别维护，共享的是缓存格式与查询语义，不通过 HTTP 调用对方的字典工具。
-- 键使用库中原始编码：单项为 `zero:dict:config:item:<分组>:<字典项>`，分组列表为 `zero:dict:config:group:<分组>`。分组编码含冒号时，单项改用 `zero:dict:config:item-colon:<分组长度>:<分组>:<字典项>`，避免分隔歧义。共享键不添加环境名、固定版本或另一个服务前缀；同环境两服务连接同一 Redis 库并同步升级。
+- 写入由 `zero-report` 负责，`zero-task` 与 `zero-ai` 只读消费；各端的 `DictConfigUtil`、字典实体与 Mapper SQL 分别维护，共享的是缓存格式与查询语义，不通过 HTTP 调用对方的字典工具。
+- 键使用库中原始编码：单项为 `zero:dict:config:item:<分组>:<字典项>`，分组列表为 `zero:dict:config:group:<分组>`。分组编码含冒号时，单项改用 `zero:dict:config:item-colon:<分组长度>:<分组>:<字典项>`，避免分隔歧义。共享键不添加环境名、固定版本或另一个服务前缀；同环境参与共享字典的服务连接同一 Redis 库，变更协议时同步升级。
 - 单项和分组缓存都使用 `TypedJsonJacksonCodec` 存储 `List<DictItem>`，不能把单项改存为独立对象。只缓存有效非空结果，不设有效期；请求编码与数据库原始编码匹配后用 `setIfAbsent` 回填，Redis 缺失或异常时回源数据库。
 - 回源查询要求字典组和字典项均启用、未删除；分组列表按排序值和主键升序。通过独立 Spring Bean 的 `@DS` 和 `Propagation.NOT_SUPPORTED` 访问 `zeroBiz` 的已提交数据，不能让调用方的管理库路由或事务串入查询。report 还需暂停并恢复调用方待执行的 PageHelper 分页。
-- 两个业务父类当前均提供 `getDictItem`、`getDictItems`、`getDictValue`。单项参数为恰含一个点的 `分组编码.字典项编码`，两段去除首尾空白；非法参数或无匹配单项返回 `null`，无匹配列表返回空集合。不能将 Controller 中的 `getBizDictValue` 名称误当成父类方法。
+- 各业务父类当前均提供 `getDictItem`、`getDictItems`、`getDictValue`。单项参数为恰含一个点的 `分组编码.字典项编码`，两段去除首尾空白；非法参数或无匹配单项返回 `null`，无匹配列表返回空集合。不能将 Controller 中的 `getBizDictValue` 名称误当成父类方法。
 - report 写入成功后定向清理受影响单项和所属组列表；改编码或移动分组覆盖新旧键，分组变更覆盖该组全部单项。事务提交后才清理，回滚不清理。通配符匹配清理必须转义编码中的 Redis 模式字符；清理失败记录告警并保留待处理事实，不能宣称缓存一定已同步。
 
 ## 公共能力边界

@@ -1,0 +1,48 @@
+# Spring Boot 及相关组件的配置。
+spring:
+  # JDBC 数据源及连接池设置。
+  datasource:
+    # 按业务场景切换多个数据源的配置。
+    dynamic:
+      # 未指定数据源时使用的默认数据源名称。
+      primary: zeroAi
+      # 开启后切换到不存在的数据源时报错，关闭时回退到默认数据源。
+      strict: true
+      # 各命名数据源的连接设置。
+      datasource:
+        # 业务库的数据源，用于报表、文件或任务业务。
+        zeroBiz:
+          # 该数据源所用的连接池实现类。
+          type: com.alibaba.druid.pool.DruidDataSource
+          # 该数据源使用的 JDBC 驱动类。
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          # 该数据源的 JDBC 连接地址。
+          url: jdbc:mysql://127.0.0.1:3306/zero_biz?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+          # 该数据源的数据库账号。
+          username: root
+          # 该数据源的数据库密码。
+          password: 8!4hFfBDr7*R<Js79tJnk:BX9ljN
+        # 管理后台库的数据源，业务方法可以显式切换到该数据源。
+        zeroAdmin:
+          # 该数据源所用的连接池实现类。
+          type: com.alibaba.druid.pool.DruidDataSource
+          # 该数据源使用的 JDBC 驱动类。
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          # 该数据源的 JDBC 连接地址。
+          url: jdbc:mysql://127.0.0.1:3306/zero_admin?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+          # 该数据源的数据库账号。
+          username: root
+          # 该数据源的数据库密码。
+          password: 8!4hFfBDr7*R<Js79tJnk:BX9ljN
+        # AI专用的数据源，用于AI系统的一些数据设置。
+        zeroAi:
+          # 该数据源所用的连接池实现类。
+          type: com.alibaba.druid.pool.DruidDataSource
+          # 该数据源使用的 JDBC 驱动类。
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          # 该数据源的 JDBC 连接地址。
+          url: jdbc:mysql://127.0.0.1:3306/zero_ai?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+          # 该数据源的数据库账号。
+          username: root
+          # 该数据源的数据库密码。
+          password: 8!4hFfBDr7*R<Js79tJnk:BX9ljN
