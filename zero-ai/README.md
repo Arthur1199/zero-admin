@@ -27,12 +27,18 @@ java -jar zero-ai/target/zero-ai-1.0.0.jar --spring.profiles.active=dev
 
 ## 任务及数据访问
 
-在已授权的测试环境里，选择 `zero-ai` 执行器组，以 BEAN 模式运行 [示例任务](src/main/java/com/zero/handler/DemoAiHandler.java) `zeroAiDemoHandler`。参数留空验证成功回调，参数 `fail` 验证失败回调；隔离协议测试可用 `mvn -pl zero-ai -am -Dzero.ai.http-test=true test`。
+在已授权的测试环境里，选择 `zero-ai` 执行器组，以 BEAN 模式运行 [示例任务](src/main/java/com/zero/handler/DemoAiHandler.java) `zeroAiDemoHandler`。参数留空验证成功回调，参数 `fail` 验证失败回调。
 
-默认访问 `zeroBiz`；需要访问管理库时，在独立 Service Bean 的公开方法用 `@DS("zeroAdmin")` 切换。[AiBaseService](src/main/java/com/zero/base/AiBaseService.java) 提供 `getDictItem`、`getDictItems`、`getDictValue` 查询有效业务字典。启用共享缓存时与 `zero-report` 使用同一个 Redis 库；业务私有缓存键不使用公共字典键前缀。
+未显式切库时，按 MySQL 发布模板访问 `zeroAi`；需要访问管理库时，在独立 Service Bean 的公开方法用 `@DS("zeroAdmin")` 切换。[AiBaseService](src/main/java/com/zero/base/AiBaseService.java) 提供 `getDictItem`、`getDictItems`、`getDictValue` 查询有效业务字典，数据库回源固定走 `zeroBiz`。启用共享缓存时与 `zero-report` 使用同一个 Redis 实例和逻辑库；业务私有缓存键不使用公共字典键前缀。
 
 ## 从已有表生成代码
 
 在 IDEA 运行 [AiCodeGenerator](src/test/java/com/zero/generator/AiCodeGenerator.java) 的 `main()`，实参填表名，多张表以英文逗号分隔。运行配置提供 `AI_GENERATOR_DB_URL`、`AI_GENERATOR_DB_USERNAME`、`AI_GENERATOR_DB_PASSWORD`，使用只需读表结构的开发账号。
 
-实体、Mapper 接口、Service 接口与实现输出到模块的 `src/main/java/com/zero`；Mapper XML 写入 `src/main/resources/mapper`。默认去除 `zero_`、`biz_`、`report_` 表名前缀并跳过已有文件。生成器不随服务启动。
+实体、Mapper 接口、Service 接口与实现输出到模块的 `src/main/java/com/zero`；Mapper XML 写入 `src/main/resources/mapper`。默认去除 `zero_`、`biz_`、`report_` 表名前缀并跳过已有文件。不生成 Controller，也不随服务启动。
+
+## 验证
+
+- `mvn -pl zero-ai -am -Dzero.ai.http-test=true test`：在本机用模拟调度中心验证执行器注册、任务派发和回调，不连接真实 Nacos 或调度中心。
+- 测试默认跳过需要真实 Redis 的用例；准备隔离 Redis 实例后，追加 `-Dzero.ai.test.redis-port=<端口>` 验证缓存读写及字典回源。
+- 已知差异：[模块身份测试](src/test/java/com/zero/config/AiServiceIdentityTest.java)仍期望旧的执行器 Data ID，并要求模板的 `access-token` 使用环境变量占位；当前发布模板与断言不一致。带测试的构建前需同步测试和配置，不要把测试中的旧文件名当成发布指南。
